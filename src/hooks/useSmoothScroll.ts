@@ -8,16 +8,30 @@ declare global {
   }
 }
 
+function isTouchDevice(): boolean {
+  try {
+    return (
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia('(pointer: coarse)').matches
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function useSmoothScroll() {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    if (isTouchDevice()) return;
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       lerp: 0.08,
       smoothWheel: true,
-      syncTouch: true,
+      syncTouch: false,
       touchInertiaExponent: 2.5,
       stopInertiaOnNavigate: true,
       autoRaf: false,
