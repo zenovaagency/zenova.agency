@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
 // Base path resolution for GitHub Pages.
-//
+
 // GitHub Actions sets GITHUB_REPOSITORY = "owner/repo". A project site is
 // served at https://<owner>.github.io/<repo>/, so the build needs base
 // `/<repo>/`. A user/org site (repo named `<owner>.github.io`) is served
