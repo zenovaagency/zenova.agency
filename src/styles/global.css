@@ -511,6 +511,97 @@ section.sec {
   }
 }
 
+/* ── Service detail page ── */
+
+@media (max-width: 860px) {
+  .svc-detail-overview {
+    grid-template-columns: 1fr !important;
+    gap: 40px !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .svc-detail-overview {
+    gap: 32px !important;
+  }
+  .svc-detail-overview-bullets {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .svc-detail-phase {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+    padding: 20px 20px !important;
+  }
+  .svc-detail-phase__output {
+    align-self: flex-start !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .svc-detail-phase {
+    padding: 16px 16px !important;
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .svc-stack-stats {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .svc-pricing-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .svc-faq details {
+    padding: 16px 18px !important;
+  }
+  .svc-related-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .svc-pillars-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ── PageHero responsive ── */
+
+@media (max-width: 860px) {
+  .page-hero {
+    padding: 120px 20px 60px !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .page-hero {
+    padding: 100px 16px 44px !important;
+  }
+  .page-hero__ctas {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .page-hero__ctas .btn-primary,
+  .page-hero__ctas .btn-ghost {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-hero__meta {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 16px !important;
+    padding: 16px 0 !important;
+  }
+}
+
+/* ── Services accordion ── */
+
 @media (max-width: 720px) {
   .svc-body {
     padding: 0 18px 24px 18px !important;
@@ -527,6 +618,26 @@ section.sec {
   }
   .svc-body__visual {
     display: none !important;
+  }
+}
+
+@media (max-width: 540px) {
+  .svc-body {
+    padding: 0 16px 20px 16px !important;
+  }
+  .svc-body__stat {
+    font-size: 24px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .svc-head {
+    grid-template-columns: 28px 34px 1fr auto !important;
+    gap: 10px !important;
+    padding: 14px 14px !important;
+  }
+  .svc-title {
+    font-size: 16px !important;
   }
 }
 @media (max-width: 540px) {

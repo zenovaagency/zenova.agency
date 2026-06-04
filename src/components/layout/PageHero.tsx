@@ -24,6 +24,7 @@ interface PageHeroProps {
 export function PageHero({ eyebrow, title, sub, crumbs, meta, secondary }: PageHeroProps) {
   return (
     <section
+      className="page-hero"
       style={{
         position: 'relative',
         padding: '160px 24px 80px',
@@ -130,6 +131,7 @@ export function PageHero({ eyebrow, title, sub, crumbs, meta, secondary }: PageH
 
         {meta && meta.length > 0 && (
           <div
+            className="page-hero__meta"
             style={{
               marginTop: 56,
               display: 'grid',
@@ -154,7 +156,7 @@ export function PageHero({ eyebrow, title, sub, crumbs, meta, secondary }: PageH
           </div>
         )}
 
-        <div style={{ marginTop: meta && meta.length > 0 ? 40 : 56, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <div className="page-hero__ctas" style={{ marginTop: meta && meta.length > 0 ? 40 : 56, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
           <Link to="/#contact" className="btn-primary" style={{ textDecoration: 'none' }}>
             Get in touch <Icon.Arrow size={16} />
           </Link>

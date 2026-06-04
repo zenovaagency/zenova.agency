@@ -76,6 +76,7 @@ export function ServiceDetailPage() {
               {service.lede}
             </h2>
             <div
+              className="svc-detail-overview-bullets"
               style={{
                 marginTop: 32,
                 display: 'grid',
@@ -215,6 +216,7 @@ export function ServiceDetailPage() {
             {service.phases.map((p, i) => (
               <div
                 key={p.n}
+                className="svc-detail-phase"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '80px 1.2fr 1fr',
@@ -254,6 +256,7 @@ export function ServiceDetailPage() {
                   </p>
                 </div>
                 <div
+                  className="svc-detail-phase__output"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -286,7 +289,7 @@ export function ServiceDetailPage() {
       </section>
 
       <section className="sec" style={{ paddingTop: 40 }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
+        <div className="container svc-stack-stats" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40 }}>
           <div>
             <SectionHeader
               eyebrow="Stack"
@@ -360,6 +363,7 @@ export function ServiceDetailPage() {
             sub="Starting prices. We’ll quote the exact scope in our intro call."
           />
           <div
+            className="svc-pricing-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -472,7 +476,7 @@ export function ServiceDetailPage() {
         </div>
       </section>
 
-      <section className="sec" style={{ paddingTop: 40 }}>
+      <section className="sec svc-faq" style={{ paddingTop: 40 }}>
         <div className="container" style={{ maxWidth: 920 }}>
           <SectionHeader
             align="center"
@@ -544,6 +548,7 @@ function RelatedServices({ current }: { current: ServiceDetail }) {
           sub="These services work well together. Most projects combine two or three."
         />
         <div
+          className="svc-related-grid"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',

@@ -69,6 +69,7 @@ export function ServicesPage() {
             sub="Most projects combine two or three. Scroll down to see all five services in detail."
           />
           <div
+            className="svc-pillars-grid"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
