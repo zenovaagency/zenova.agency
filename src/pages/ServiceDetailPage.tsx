@@ -14,7 +14,7 @@ export function ServiceDetailPage() {
   const service = SERVICES.find((s) => s.slug === slug);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.__lenis?.scrollTo(0, { immediate: true }) ?? window.scrollTo({ top: 0, behavior: 'auto' });
   }, [slug]);
 
   if (!service) {

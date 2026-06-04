@@ -17,7 +17,7 @@ export function ProjectDetailPage() {
   const [lbIndex, setLbIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.__lenis?.scrollTo(0, { immediate: true }) ?? window.scrollTo({ top: 0, behavior: 'auto' });
     setLbIndex(null);
   }, [slug]);
 

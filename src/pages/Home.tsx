@@ -26,7 +26,13 @@ export function Home({ rotateMs, showMarquee, showTestimonials }: HomeProps) {
     if (!id) return;
     requestAnimationFrame(() => {
       const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!el) return;
+      const lenis = window.__lenis;
+      if (lenis) {
+        lenis.scrollTo(el, { offset: -80 });
+      } else {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     });
   }, [location.key, location.hash]);
 

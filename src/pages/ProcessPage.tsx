@@ -34,7 +34,7 @@ const PROCESS_FAQS: FAQ[] = [
 
 export function ProcessPage() {
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.__lenis?.scrollTo(0, { immediate: true }) ?? window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
   return (

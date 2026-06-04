@@ -14,7 +14,7 @@ export function WorkPage() {
   const [hovered, setHovered] = useState<string | null>(null);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'auto' });
+    window.__lenis?.scrollTo(0, { immediate: true }) ?? window.scrollTo({ top: 0, behavior: 'auto' });
   }, []);
 
   const filtered = filter === 'All' ? ALL : ALL.filter((p) => p.tags.includes(filter));

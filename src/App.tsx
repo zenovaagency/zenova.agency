@@ -27,6 +27,7 @@ import { InputsShowcase } from '@/admin/pages/InputsShowcase';
 import { InvoiceList } from '@/admin/pages/InvoiceList';
 import { InvoiceEditor } from '@/admin/pages/InvoiceEditor';
 import { TWEAK_DEFAULTS } from '@/config/tweaks';
+import { useSmoothScroll } from '@/hooks/useSmoothScroll';
 import { useTweaks } from '@/hooks/useTweaks';
 import { applyPalette } from '@/lib/palette';
 import { hydrateSite } from '@/admin/store';
@@ -165,6 +166,7 @@ function PublicLayout({
   showTestimonials,
   onToggleTheme,
 }: PublicLayoutProps) {
+  useSmoothScroll();
   return (
     <>
       <Nav theme={theme} onToggleTheme={onToggleTheme} />
