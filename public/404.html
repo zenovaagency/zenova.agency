@@ -7,13 +7,11 @@
     <script>
       // SPA redirect for GitHub Pages.
       //
-      // We can't read Vite's BASE_URL here, but the project base is always the
-      // first path segment on a project Pages site (https://<owner>.github.io/<repo>/...)
-      // and zero segments on a user/org site or custom domain. We treat
-      // anything that doesn't look like a known SPA route as a base segment.
-      var isSPARoute = true;
-      var routes = ['/', '/about', '/services', '/contact', '/privacy', '/terms'];
-
+      // We can't read Vite's BASE_URL here. Use the base-segments meta tag to
+      // tell us how many leading path segments are the repo base (1 for project
+      // pages, 0 for custom domains / user sites). Extension-less paths are
+      // treated as SPA routes and redirected; paths ending in a file extension
+      // (e.g. missing assets) show the 404 fallback below.
       (function () {
         var l = window.location;
         var segments = l.pathname.split('/').filter(Boolean);
@@ -32,9 +30,13 @@
         document.head.appendChild(icon);
 
         var pathAfterBase = '/' + segments.slice(keep).join('/');
-        isSPARoute = routes.includes(pathAfterBase) || pathAfterBase === '/';
 
-        if (isSPARoute) {
+        // Redirect any extension-less path (looks like a page route) to the
+        // SPA. Paths with a file extension (e.g. /assets/missing.png) show
+        // the 404 fallback below instead.
+        var looksLikePage = !/\.[a-z0-9]{2,8}$/i.test(pathAfterBase);
+
+        if (looksLikePage || pathAfterBase === '/') {
           var rest = segments.slice(keep).join('/').replace(/&/g, '~and~');
           var search = l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '';
           l.replace(
