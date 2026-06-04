@@ -55,7 +55,6 @@ export function Process() {
     <section
       id="process"
       className="sec"
-      style={{ background: 'linear-gradient(180deg, var(--bg), var(--bg-2) 50%, var(--bg))' }}
     >
       <div className="container">
         <SectionHeader

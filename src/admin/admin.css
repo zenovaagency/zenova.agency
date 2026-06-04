@@ -9,7 +9,6 @@
 
 .admin-root {
   min-height: 100vh;
-  background: var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
 }
@@ -258,15 +257,14 @@
   gap: 16px;
   padding: 14px 28px;
   border-bottom: 1px solid var(--line);
-  background: rgba(12, 13, 20, 0.6);
-  backdrop-filter: blur(12px);
+  background: var(--bg-2);
   position: sticky;
   top: 0;
   z-index: 20;
 }
 
 [data-theme='light'] .admin-topbar {
-  background: rgba(255, 255, 255, 0.65);
+  background: var(--bg-2);
 }
 
 .admin-topbar__left {
@@ -350,14 +348,14 @@
   height: 38px;
   border-radius: 10px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--card);
   color: var(--fg-dim);
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
 }
 
 [data-theme='light'] .admin-topbar__icon-btn {
-  background: rgba(14, 15, 23, 0.02);
+  background: var(--card);
 }
 
 .admin-topbar__icon-btn:hover {
@@ -384,7 +382,7 @@
   height: 38px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--card);
   color: var(--fg);
   cursor: pointer;
   font-family: var(--font-body);
@@ -392,7 +390,7 @@
 }
 
 [data-theme='light'] .admin-user-menu__trigger {
-  background: rgba(14, 15, 23, 0.02);
+  background: var(--card);
 }
 
 .admin-user-menu__trigger:hover {
@@ -592,14 +590,10 @@
 /* ------------------------------------------------------------------ */
 
 .adm-card {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.005));
+  background: var(--bg-2);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 22px;
-}
-
-[data-theme='light'] .adm-card {
-  background: linear-gradient(180deg, rgba(14, 15, 23, 0.02), rgba(14, 15, 23, 0.005));
 }
 
 .adm-stat {
@@ -609,7 +603,7 @@
   padding: 22px;
   border-radius: 14px;
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.005));
+  background: var(--bg-2);
   min-height: 110px;
 }
 
@@ -658,7 +652,7 @@
   padding: 11px 14px;
   border-radius: 10px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--card);
   color: var(--fg);
   font-family: var(--font-body);
   font-size: 14px;
@@ -668,7 +662,7 @@
 [data-theme='light'] .adm-input,
 [data-theme='light'] .adm-textarea,
 [data-theme='light'] .adm-select {
-  background: rgba(14, 15, 23, 0.02);
+  background: var(--card);
 }
 
 .adm-input:focus,
@@ -729,7 +723,7 @@
   padding: 10px 16px;
   border-radius: 10px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--card);
   color: var(--fg);
   font-family: var(--font-body);
   font-size: 13px;
@@ -740,7 +734,7 @@
 }
 
 [data-theme='light'] .adm-btn {
-  background: rgba(14, 15, 23, 0.02);
+  background: var(--card);
 }
 
 .adm-btn:hover {
@@ -787,7 +781,7 @@
   border: 1px solid var(--line);
   border-radius: 14px;
   overflow: hidden;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+  background: var(--bg-2);
 }
 
 .adm-list__row {
@@ -803,7 +797,7 @@
 }
 
 .adm-list__row--head {
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--card);
   border-bottom: 1px solid var(--line);
   font-family: var(--font-mono);
   font-size: 10px;
@@ -813,11 +807,11 @@
 }
 
 .adm-list__row:hover:not(.adm-list__row--head) {
-  background: rgba(255, 255, 255, 0.022);
+  background: var(--card-hover);
 }
 
 [data-theme='light'] .adm-list__row:hover:not(.adm-list__row--head) {
-  background: rgba(14, 15, 23, 0.025);
+  background: var(--card-hover);
 }
 
 /* Cell wrappers — on desktop these are transparent passthroughs that just
@@ -869,15 +863,15 @@
     padding: 16px;
     border: 1px solid var(--line);
     border-radius: 14px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
+    background: var(--bg-2);
   }
 
   [data-theme='light'] .adm-list__row {
-    background: linear-gradient(180deg, rgba(14, 15, 23, 0.02), rgba(14, 15, 23, 0));
+    background: var(--bg-2);
   }
 
   .adm-list__row:hover:not(.adm-list__row--head) {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
+    background: var(--card-hover);
   }
 
   .adm-list__cell--lead {
@@ -939,7 +933,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--card);
   color: var(--fg-dim);
 }
 
@@ -1005,8 +999,7 @@
   padding: 36px;
   border-radius: 22px;
   border: 1px solid var(--line-strong);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.008));
-  backdrop-filter: blur(20px);
+  background: var(--bg-2);
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -1171,7 +1164,7 @@
   border: 1.5px dashed var(--line-strong, var(--line));
   border-radius: 14px;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--card);
   transition: border-color 0.18s, background 0.18s, transform 0.18s;
 }
 
@@ -1186,7 +1179,7 @@
   font-size: 11px;
   padding: 1px 5px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--card-hover);
 }
 
 .adm-callout {
@@ -1199,7 +1192,7 @@
   font-size: 12px;
   padding: 1px 5px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--card-hover);
 }
 
 .adm-media-grid {
@@ -1213,7 +1206,7 @@
   flex-direction: column;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: var(--card, rgba(255, 255, 255, 0.02));
+  background: var(--bg-2);
   overflow: hidden;
   transition: border-color 0.18s, transform 0.18s;
 }
@@ -1324,7 +1317,7 @@
   gap: 6px;
   padding: 8px;
   border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--card);
 }
 
 .adm-image-picker__search .adm-input {
@@ -1360,7 +1353,7 @@
 }
 
 .adm-image-picker__item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--card-hover);
 }
 
 .adm-image-picker__item.is-active {
@@ -1425,7 +1418,7 @@
   font-size: 11px;
   color: var(--fg-faint);
   border-top: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--card);
   text-align: center;
 }
 
