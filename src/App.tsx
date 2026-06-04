@@ -10,6 +10,8 @@ import { WorkPage } from '@/pages/WorkPage';
 import { ProjectDetailPage } from '@/pages/ProjectDetailPage';
 import { AboutPage } from '@/pages/AboutPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { SignIn } from '@/pages/SignIn';
+import { Background } from '@/components/ui/Background';
 import { AdminLogin, AuthGate } from '@/admin/pages/Login';
 import { Overview } from '@/admin/pages/Overview';
 import { ClientLogin, ClientAuthGate } from '@/client/pages/Login';
@@ -100,7 +102,9 @@ export function App() {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <Background />
       <Routes>
+        <Route path="/signin" element={<SignIn />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route
           path="/admin/*"
