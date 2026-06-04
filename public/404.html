@@ -11,14 +11,12 @@
       // first path segment on a project Pages site (https://<owner>.github.io/<repo>/...)
       // and zero segments on a user/org site or custom domain. We treat
       // anything that doesn't look like a known SPA route as a base segment.
+      var isSPARoute = true;
+      var routes = ['/', '/about', '/services', '/contact', '/privacy', '/terms'];
+
       (function () {
         var l = window.location;
-        // Pages from a project site have an extra repo segment; user/org sites
-        // do not. If document.referrer points back at the same origin, the
-        // path before the first separator is almost certainly the base.
         var segments = l.pathname.split('/').filter(Boolean);
-        // Default: one segment of base (project site). Override via meta tag
-        // if a custom domain or org site is used.
         var meta = document.querySelector('meta[name="base-segments"]');
         var keep = meta ? Number(meta.getAttribute('content')) : 1;
         if (!Number.isFinite(keep) || keep < 0) keep = 1;
@@ -27,21 +25,104 @@
         var basePath = '/' + segments.slice(0, keep).join('/');
         if (basePath !== '/') basePath += '/';
 
-        // Ensure favicon resolves from the project base even on deep 404 paths.
         var icon = document.createElement('link');
         icon.rel = 'icon';
         icon.type = 'image/png';
         icon.href = basePath + 'assets/favicon.png';
         document.head.appendChild(icon);
 
-        var rest = segments.slice(keep).join('/').replace(/&/g, '~and~');
-        var search = l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '';
+        var pathAfterBase = '/' + segments.slice(keep).join('/');
+        isSPARoute = routes.includes(pathAfterBase) || pathAfterBase === '/';
 
-        l.replace(
-          l.protocol + '//' + l.host + basePath + '?/' + rest + search + l.hash,
-        );
+        if (isSPARoute) {
+          var rest = segments.slice(keep).join('/').replace(/&/g, '~and~');
+          var search = l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '';
+          l.replace(
+            l.protocol + '//' + l.host + basePath + '?/' + rest + search + l.hash,
+          );
+        }
       })();
     </script>
   </head>
-  <body></body>
+  <body>
+    <div class="not-found">
+      <h1>404</h1>
+      <p>Page not found</p>
+      <div class="actions">
+        <button onclick="history.back()">Back to Previous Page</button>
+        <a id="home-link" href="/">Back to Home</a>
+      </div>
+    </div>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0a0a0a;
+        color: #e0e0e0;
+      }
+      .not-found {
+        text-align: center;
+        padding: 2rem;
+      }
+      h1 {
+        font-size: clamp(4rem, 12vw, 8rem);
+        font-weight: 800;
+        color: #fff;
+        line-height: 1;
+      }
+      p {
+        font-size: 1.25rem;
+        color: #888;
+        margin-bottom: 2rem;
+      }
+      .actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      button, a {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s;
+      }
+      button {
+        background: #fff;
+        color: #0a0a0a;
+        border: none;
+      }
+      button:hover {
+        background: #ccc;
+      }
+      a {
+        background: #1a1a1a;
+        color: #e0e0e0;
+        border: 1px solid #333;
+      }
+      a:hover {
+        background: #2a2a2a;
+      }
+    </style>
+    <script>
+      (function () {
+        var segments = window.location.pathname.split('/').filter(Boolean);
+        var meta = document.querySelector('meta[name="base-segments"]');
+        var keep = meta ? Number(meta.getAttribute('content')) : 1;
+        if (!Number.isFinite(keep) || keep < 0) keep = 1;
+        if (keep > segments.length) keep = segments.length;
+        var basePath = '/' + segments.slice(0, keep).join('/');
+        if (basePath !== '/') basePath += '/';
+        document.getElementById('home-link').href = basePath;
+      })();
+    </script>
+  </body>
 </html>
