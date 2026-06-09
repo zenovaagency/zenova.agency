@@ -27,7 +27,7 @@ export function Work() {
               to={`/work/${p.slug}`}
               onMouseEnter={() => setHovered(p.slug)}
               onMouseLeave={() => setHovered(null)}
-              className="card work-card"
+              className="card work-card work-card__inner"
               style={{
                 padding: 28,
                 borderRadius: 24,

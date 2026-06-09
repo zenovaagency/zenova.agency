@@ -30,6 +30,7 @@ export function CTA() {
               <span className="gradient-text">{cta.accentTitle}</span>
             </h2>
             <p
+              className="cta-sub"
               style={{
                 marginTop: 24,
                 fontSize: 18,

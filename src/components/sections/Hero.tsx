@@ -97,6 +97,7 @@ export function Hero({ rotateMs }: HeroProps) {
         </div>
 
         <p
+          className="hero-sub"
           style={{
             marginTop: 36,
             fontSize: 'clamp(16px, 1.4vw, 20px)',

@@ -21,6 +21,7 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
       <button
         onClick={onToggle}
         aria-expanded={isOpen}
+        className="faq-btn"
         style={{
           width: '100%',
           background: 'transparent',
@@ -75,6 +76,7 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
         }}
       >
         <p
+          className="faq-answer"
           style={{
             padding: '0 32px 28px',
             margin: 0,

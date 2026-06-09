@@ -110,7 +110,7 @@ export function Services() {
             paddingBottom: 12,
           }}
         >
-          <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
+          <div className="svc-header-inner" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
             <div
               className="mono"
               style={{
@@ -133,7 +133,7 @@ export function Services() {
         </div>
 
         {/* Card stack area */}
-        <div style={{ maxWidth: 1280, margin: '0 auto', height: '100%', position: 'relative', padding: '0 40px' }}>
+        <div className="svc-header-inner" style={{ maxWidth: 1280, margin: '0 auto', height: '100%', position: 'relative', padding: '0 40px' }}>
           {SERVICES.map((s, i) => {
             const IconC = Icon[s.icon] as IconComponent;
             return (
@@ -157,7 +157,7 @@ export function Services() {
                     gridTemplateColumns: '1fr 1fr',
                     gap: 52,
                     alignItems: 'center',
-                    padding: '44px 48px',
+                    padding: '44px 64px',
                     borderRadius: 24,
                     border: '1px solid var(--line)',
                     background: 'var(--card)',

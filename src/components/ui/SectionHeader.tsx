@@ -37,6 +37,7 @@ export function SectionHeader({ eyebrow, title, sub, align = 'left' }: SectionHe
       </h2>
       {sub && (
         <p
+          className="section-header__sub"
           style={{
             marginTop: 20,
             fontSize: 18,

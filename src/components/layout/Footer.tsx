@@ -92,6 +92,7 @@ export function Footer() {
         </div>
 
         <div
+          className="footer-bottom"
           style={{
             marginTop: 64,
             paddingTop: 24,

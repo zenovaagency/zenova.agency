@@ -140,6 +140,7 @@ export function LiveProgress() {
             </div>
 
             <div
+              className="live-stats-grid"
               style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(3, 1fr)',
@@ -194,6 +195,7 @@ export function LiveProgress() {
                 return (
                   <div
                     key={p.n}
+                    className="lp-phase-row"
                     style={{
                       display: 'grid',
                       gridTemplateColumns: '40px 1fr 80px',
@@ -269,6 +271,7 @@ export function LiveProgress() {
               {ACTIVITY.map((a, i) => (
                 <div
                   key={i}
+                  className="lp-activity-row"
                   style={{
                     display: 'grid',
                     gridTemplateColumns: '28px 1fr 80px',

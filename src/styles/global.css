@@ -425,15 +425,31 @@ section.sec {
   .hero-rotating-row {
     font-size: clamp(26px, 7.8vw, 44px);
   }
+  .hero-section {
+    padding: 110px 16px 60px !important;
+  }
+  .hero-cta-row {
+    gap: 10px !important;
+    margin-top: 32px !important;
+    width: 100%;
+  }
+  .hero-cta-row .neon-button,
+  .hero-cta-row .ghost-button {
+    height: 48px;
+    font-size: 14px;
+    border-radius: 24px;
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: center;
+  }
+  .hero-sub {
+    margin-top: 24px !important;
+    font-size: 15px !important;
+  }
 }
 @media (max-width: 360px) {
   .hero-rotating-row {
     font-size: 24px;
-  }
-}
-@media (max-width: 520px) {
-  .hero-section {
-    padding: 110px 16px 60px !important;
   }
 }
 
@@ -471,6 +487,9 @@ section.sec {
     grid-template-columns: 1fr !important;
     gap: 18px !important;
   }
+  .live-stats-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+  }
   .process-grid {
     grid-template-columns: 1fr !important;
     gap: 24px !important;
@@ -504,6 +523,31 @@ section.sec {
   }
   .process-step__title {
     font-size: 20px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .live-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .lp-phase-row {
+    grid-template-columns: 40px 1fr 60px !important;
+    gap: 10px !important;
+  }
+  .lp-activity-row {
+    grid-template-columns: 28px 1fr 60px !important;
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .lp-phase-row {
+    grid-template-columns: 36px 1fr 52px !important;
+    gap: 8px !important;
+  }
+  .lp-activity-row {
+    grid-template-columns: 24px 1fr 52px !important;
+    gap: 8px !important;
   }
 }
 
@@ -677,6 +721,10 @@ section.sec {
     padding: 44px 18px !important;
     border-radius: 22px !important;
   }
+  .cta-sub {
+    font-size: 15px !important;
+    margin-top: 18px !important;
+  }
 }
 
 @media (max-width: 720px) {
@@ -698,32 +746,65 @@ section.sec {
   .svc-stack-card > div {
     grid-template-columns: 1fr !important;
     gap: 32px !important;
-    padding: 32px 28px !important;
+    padding: 32px 36px !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .svc-header-inner {
+    padding: 0 24px !important;
+  }
+  .svc-stack-card > div {
+    padding: 24px 24px !important;
+    gap: 24px !important;
+    border-radius: 20px !important;
   }
 }
 
 @media (max-width: 480px) {
+  .svc-header-inner {
+    padding: 0 16px !important;
+  }
+  .svc-stack-card > div {
+    padding: 20px 18px !important;
+    gap: 20px !important;
+    border-radius: 16px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .work-card__inner {
+    aspect-ratio: 4 / 3.5 !important;
+  }
+}
+@media (max-width: 480px) {
   .work-card {
     padding: 20px !important;
   }
-}
-@media (max-width: 520px) {
-  .hero-cta-row {
-    gap: 10px !important;
-    margin-top: 32px !important;
-    width: 100%;
-  }
-  .hero-cta-row .neon-button,
-  .hero-cta-row .ghost-button {
-    height: 48px;
-    /* padding: 0 20px; */
-    font-size: 14px;
-    border-radius: 24px;
-    flex: 1 1 auto;
-    min-width: 0;
-    justify-content: center;
+  .work-card__inner {
+    aspect-ratio: 1 / 1 !important;
   }
 }
+
+/* ── FAQ responsive ── */
+@media (max-width: 640px) {
+  .faq-btn {
+    padding: 22px 20px !important;
+  }
+  .faq-answer {
+    padding: 0 20px 22px !important;
+  }
+}
+@media (max-width: 480px) {
+  .faq-btn {
+    padding: 18px 16px !important;
+    gap: 16px !important;
+  }
+  .faq-answer {
+    padding: 0 16px 18px !important;
+  }
+}
+
 @media (max-width: 380px) {
   .hero-cta-row .neon-button,
   .hero-cta-row .ghost-button {
@@ -740,6 +821,9 @@ section.sec {
 @media (max-width: 640px) {
   .hero-stats {
     grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
+    margin-top: 48px !important;
+    padding: 18px 0 !important;
   }
 }
 @media (max-width: 860px) {
@@ -750,6 +834,19 @@ section.sec {
 @media (max-width: 540px) {
   .footer-grid {
     grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .section-header__sub {
+    font-size: 15px !important;
+    margin-top: 14px !important;
+  }
+}
+@media (max-width: 480px) {
+  .footer-bottom {
+    flex-direction: column !important;
+    text-align: center !important;
   }
 }
 
