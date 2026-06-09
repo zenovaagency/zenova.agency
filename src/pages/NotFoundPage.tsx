@@ -42,7 +42,7 @@ export function NotFoundPage() {
           width: 'min(620px, 85vw)',
           height: 'min(620px, 85vw)',
           background:
-            'radial-gradient(circle, rgba(109,76,255,0.11) 0%, rgba(58,91,255,0.04) 30%, transparent 55%)',
+            'radial-gradient(circle, rgba(255,129,58,0.06) 0%, rgba(255,129,58,0.02) 30%, transparent 55%)',
           pointerEvents: 'none',
         }}
       />

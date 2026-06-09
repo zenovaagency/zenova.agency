@@ -19,10 +19,8 @@
   pointer-events: none;
 }
 
-/* Kill expensive inner elements during exit to keep 60fps */
 .preloader.is-exiting .preloader__grid,
-.preloader.is-exiting .preloader__glow,
-.preloader.is-exiting .preloader__glow-accent {
+.preloader.is-exiting .preloader__accent-line {
   opacity: 0;
   transition: opacity 0.15s ease;
 }
@@ -62,46 +60,23 @@
   to   { opacity: 1; }
 }
 
-/* ── Glows ───────────────────────────────────────────── */
-.preloader__glow {
+/* ── Accent line ─────────────────────────────────────── */
+.preloader__accent-line {
   position: absolute;
-  width: min(700px, 80vw);
-  height: min(300px, 40vw);
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(109, 76, 255, 0.18) 0%, transparent 70%);
-  filter: blur(70px);
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(280px, 50vw);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-1), transparent);
   opacity: 0;
-  animation: preloader-glow-in 1s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) forwards,
-             preloader-glow-pulse 3.5s 1s ease-in-out infinite;
+  animation: preloader-accent-in 1s 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
   pointer-events: none;
 }
 
-@keyframes preloader-glow-in {
-  from { opacity: 0; transform: scale(0.5); }
-  to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes preloader-glow-pulse {
-  0%, 100% { opacity: 0.45; transform: scale(1); }
-  50%      { opacity: 0.85; transform: scale(1.06); }
-}
-
-.preloader__glow-accent {
-  position: absolute;
-  width: min(350px, 45vw);
-  height: min(180px, 25vw);
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(58, 91, 255, 0.22) 0%, transparent 70%);
-  filter: blur(80px);
-  opacity: 0;
-  animation: preloader-glow-accent-in 1.1s 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
-  pointer-events: none;
-  transform: translate(70px, -40px);
-}
-
-@keyframes preloader-glow-accent-in {
-  from { opacity: 0; transform: translate(70px, -40px) scale(0.4); }
-  to   { opacity: 0.6; transform: translate(70px, -40px) scale(1); }
+@keyframes preloader-accent-in {
+  from { opacity: 0; width: 0; }
+  to   { opacity: 0.6; width: min(280px, 50vw); }
 }
 
 /* ── Stage ───────────────────────────────────────────── */
@@ -223,13 +198,12 @@
   height: 4px;
   border-radius: 50%;
   background: var(--fg-faint);
-  transition: background 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
+  transition: background 0.35s ease, transform 0.35s ease;
 }
 
 .preloader__dot.is-lit {
-  background: var(--accent-2);
-  transform: scale(1.6);
-  box-shadow: 0 0 10px var(--accent-2);
+  background: var(--accent-1);
+  transform: scale(1.8);
 }
 
 /* ── Reduced motion ──────────────────────────────────── */
@@ -240,8 +214,7 @@
   }
 
   .preloader__grid,
-  .preloader__glow,
-  .preloader__glow-accent,
+  .preloader__accent-line,
   .preloader__slogan,
   .preloader__dot-row {
     animation: none;

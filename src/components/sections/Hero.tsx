@@ -62,13 +62,12 @@ export function Hero({ rotateMs }: HeroProps) {
             gap: 10,
             padding: '8px 16px',
             borderRadius: 999,
-            border: '1px solid var(--line)',
+            border: '1px solid var(--line-strong)',
             background: 'rgba(255,255,255,0.02)',
             backdropFilter: 'blur(16px)',
             fontSize: 13,
             color: 'var(--fg-dim)',
             marginBottom: 32,
-            boxShadow: '0 0 24px rgba(109,76,255,0.1), 0 0 60px rgba(109,76,255,0.04)',
             animation: 'fade-up .9s cubic-bezier(.2,.7,.2,1) both',
           }}
         >
@@ -78,7 +77,6 @@ export function Hero({ rotateMs }: HeroProps) {
               height: 8,
               borderRadius: '50%',
               background: 'var(--accent-1)',
-              boxShadow: '0 0 12px var(--accent-1)',
               animation: 'pulse-dot 2s ease-in-out infinite',
             }}
           />

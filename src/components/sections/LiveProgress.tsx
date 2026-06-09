@@ -24,10 +24,10 @@ interface Activity {
 }
 
 const ACTIVITY: Activity[] = [
-  { when: '14m ago', who: 'Mira', what: 'pushed v0.9 of the homepage hero', tone: '#3a5bff' },
-  { when: '1h ago', who: 'Tobias', what: 'shipped the CMS schema for case studies', tone: '#6d4cff' },
-  { when: '3h ago', who: 'Suri', what: 'queued 4 emails in the launch sequence', tone: '#a855f7' },
-  { when: 'Yesterday', who: 'Jordan', what: 'wrote the about-page copy (draft 2)', tone: '#7a55ff' },
+  { when: '14m ago', who: 'Mira', what: 'pushed v0.9 of the homepage hero', tone: '#ff813a' },
+  { when: '1h ago', who: 'Tobias', what: 'shipped the CMS schema for case studies', tone: '#ff6b1a' },
+  { when: '3h ago', who: 'Suri', what: 'queued 4 emails in the launch sequence', tone: '#ff9a5c' },
+  { when: 'Yesterday', who: 'Jordan', what: 'wrote the about-page copy (draft 2)', tone: '#ff813a' },
 ];
 
 interface Perk {
@@ -61,35 +61,6 @@ export function LiveProgress() {
       className="sec"
       style={{ position: 'relative', overflow: 'hidden' }}
     >
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          top: 80,
-          right: -120,
-          width: 420,
-          height: 420,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(58,91,255,0.22), transparent 65%)',
-          filter: 'blur(80px)',
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'absolute',
-          bottom: 80,
-          left: -120,
-          width: 420,
-          height: 420,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(168,85,247,0.18), transparent 65%)',
-          filter: 'blur(80px)',
-          pointerEvents: 'none',
-        }}
-      />
-
       <div className="container" style={{ position: 'relative' }}>
         <SectionHeader
           eyebrow="Client portal"
@@ -117,12 +88,10 @@ export function LiveProgress() {
             style={{
               borderRadius: 24,
               border: '1px solid var(--line-strong)',
-              background:
-                'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
+              background: 'var(--card)',
               padding: 28,
               position: 'relative',
               overflow: 'hidden',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
             }}
           >
             <div
@@ -164,8 +133,6 @@ export function LiveProgress() {
                     height: 7,
                     borderRadius: '50%',
                     background: '#3ddc97',
-                    boxShadow: '0 0 10px #3ddc97',
-                    animation: 'pulse-dot 2s ease-in-out infinite',
                   }}
                 />
                 Live
@@ -285,7 +252,7 @@ export function LiveProgress() {
                       style={{
                         textAlign: 'right',
                         fontSize: 11,
-                        color: isActive ? 'var(--accent-3)' : 'var(--fg-faint)',
+                        color: isActive ? 'var(--accent-1)' : 'var(--fg-faint)',
                       }}
                     >
                       {isDone ? 'Done' : isActive ? `${p.pct}%` : 'Up next'}
@@ -316,7 +283,7 @@ export function LiveProgress() {
                       width: 28,
                       height: 28,
                       borderRadius: '50%',
-                      background: `linear-gradient(135deg, ${a.tone}, var(--accent-3))`,
+                      background: a.tone,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -353,8 +320,7 @@ export function LiveProgress() {
                     padding: 24,
                     borderRadius: 18,
                     border: '1px solid var(--line)',
-                    background:
-                      'linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.005))',
+                    background: 'var(--card)',
                     display: 'flex',
                     alignItems: 'flex-start',
                     gap: 16,
@@ -365,9 +331,9 @@ export function LiveProgress() {
                       width: 40,
                       height: 40,
                       borderRadius: 10,
-                      border: '1px solid rgba(109,76,255,0.35)',
-                      background: 'rgba(109,76,255,0.1)',
-                      color: 'var(--accent-3)',
+                      border: '1px solid rgba(255,129,58,0.3)',
+                      background: 'rgba(255,129,58,0.08)',
+                      color: 'var(--accent-1)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -404,8 +370,7 @@ export function LiveProgress() {
                 padding: '20px 24px',
                 borderRadius: 18,
                 border: '1px solid var(--line-strong)',
-                background:
-                  'linear-gradient(135deg, rgba(58,91,255,0.14), rgba(168,85,247,0.08))',
+                background: 'var(--card-hover)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -451,7 +416,6 @@ export function LiveProgress() {
                 fontSize: 14,
                 fontWeight: 500,
                 textDecoration: 'none',
-                boxShadow: '0 6px 22px rgba(58,91,255,0.35), inset 0 1px 0 rgba(255,255,255,0.18)',
               }}
             >
               Open the client portal <Icon.Arrow size={14} />

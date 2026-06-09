@@ -302,7 +302,7 @@
 
 .inv-preview-doc__accent-bar {
   height: 4px;
-  background: linear-gradient(90deg, #3a5bff, #a855f7);
+  background: linear-gradient(90deg, #ff813a, #ff9a5c);
   border-radius: 2px;
   margin-bottom: 32px;
 }
@@ -332,7 +332,7 @@
   font-family: 'Sora', sans-serif;
   font-size: 32px;
   font-weight: 700;
-  color: #3a5bff;
+  color: #ff813a;
   text-align: right;
   letter-spacing: -0.02em;
 }
@@ -415,7 +415,7 @@
 
 .inv-preview-doc__table th {
   background: #eef1ff;
-  color: #3a5bff;
+  color: #ff813a;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;

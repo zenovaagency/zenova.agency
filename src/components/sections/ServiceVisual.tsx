@@ -175,9 +175,9 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
 
   if (kind === 'kanban') {
     const cols: Array<[string, number[]]> = [
-      ['#3a5bff', [1, 1]],
+      ['#ff813a', [1, 1]],
       [hue, [1, 1, 1]],
-      ['#a855f7', [1]],
+      ['#ff9a5c', [1]],
     ];
     return (
       <div style={{ position: 'absolute', inset: '14% 12%', display: 'flex', gap: 8 }}>

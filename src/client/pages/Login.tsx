@@ -39,7 +39,7 @@ export function ClientLogin() {
             fontFamily: 'var(--font-display)',
             fontWeight: 600,
             fontSize: 18,
-            boxShadow: '0 6px 22px rgba(58,91,255,0.45)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
           }}
         >
           Z

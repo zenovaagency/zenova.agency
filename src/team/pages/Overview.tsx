@@ -29,7 +29,7 @@ const KIND_OPTIONS: Array<{ value: ActivityKind; label: string }> = [
   { value: 'other', label: 'Other update' },
 ];
 
-const FALLBACK_TONE = '#6d4cff';
+const FALLBACK_TONE = '#e06820';
 
 function uidActivity() {
   return 'a' + Math.random().toString(36).slice(2, 9);
@@ -207,8 +207,7 @@ export function TeamOverview() {
         style={{
           padding: 20,
           border: '1px solid var(--line-strong)',
-          background:
-            'linear-gradient(135deg, rgba(58,91,255,0.10), rgba(168,85,247,0.06))',
+          background: 'var(--card)',
         }}
       >
         <div className="mono" style={{ color: 'var(--fg-faint)', fontSize: 11, marginBottom: 8 }}>

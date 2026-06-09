@@ -60,7 +60,7 @@ export function TeamAdmin() {
   const add = () => {
     setDraft((d) => [
       ...d,
-      { id: uid(), name: 'New member', role: 'Role', bio: '', initials: 'NM', tone: '#3a5bff' },
+      { id: uid(), name: 'New member', role: 'Role', bio: '', initials: 'NM', tone: '#ff813a' },
     ]);
   };
 

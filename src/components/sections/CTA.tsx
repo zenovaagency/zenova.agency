@@ -15,36 +15,11 @@ export function CTA() {
             overflow: 'hidden',
             borderRadius: 32,
             padding: '80px 48px',
-            background:
-              'linear-gradient(135deg, rgba(58,91,255,0.18), rgba(168,85,247,0.12) 60%, rgba(255,255,255,0.02))',
+            background: 'var(--card)',
             border: '1px solid var(--line-strong)',
             textAlign: 'center',
           }}
         >
-          <div
-            style={{
-              position: 'absolute',
-              top: -100,
-              left: -60,
-              width: 360,
-              height: 360,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(58,91,255,0.45), transparent 60%)',
-              filter: 'blur(60px)',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: -120,
-              right: -80,
-              width: 360,
-              height: 360,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(168,85,247,0.4), transparent 60%)',
-              filter: 'blur(60px)',
-            }}
-          />
           <div style={{ position: 'relative' }}>
             <div className="mono" style={{ color: 'var(--fg-dim)', marginBottom: 20 }}>
               {cta.eyebrow}

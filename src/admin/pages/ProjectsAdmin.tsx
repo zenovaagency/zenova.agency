@@ -71,7 +71,7 @@ export function emptyProject(): ProjectDetail {
     title: 'Untitled case study',
     summary: '',
     tags: [],
-    tone: '#6d4cff',
+    tone: '#e06820',
     year: String(new Date().getFullYear()),
     duration: '',
     team: '',

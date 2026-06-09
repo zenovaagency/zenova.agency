@@ -33,7 +33,7 @@ export function Services() {
                 gap: 8,
               }}
             >
-              <span style={{ width: 24, height: 1, background: 'var(--accent-2)' }} />
+              <span style={{ width: 24, height: 1, background: 'var(--accent-1)' }} />
               What we do
             </div>
             <h2 className="display" style={{ fontSize: 'clamp(36px,5vw,68px)', margin: 0, fontWeight: 500 }}>
@@ -60,7 +60,7 @@ export function Services() {
             border: '1px solid var(--line)',
             borderRadius: 24,
             overflow: 'hidden',
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.005))',
+            background: 'var(--card)',
           }}
         >
           {SERVICES.map((s, i) => {
@@ -91,7 +91,6 @@ export function Services() {
                     transform: isOpen ? 'scaleY(1)' : 'scaleY(0)',
                     transformOrigin: 'center',
                     transition: 'transform .55s cubic-bezier(.2,.7,.2,1)',
-                    boxShadow: `0 0 16px ${s.hue}`,
                   }}
                 />
 
@@ -170,13 +169,13 @@ export function Services() {
                       borderRadius: '50%',
                       border: isOpen ? '0px solid transparent' : '1px solid transparent',
                       borderColor: isOpen ? 'transparent' : 'var(--line)',
-                      color: isOpen ? '#fff' : 'var(--fg-faint)',
+                      color: isOpen ? '#0a0a0a' : 'var(--fg-faint)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      transition: 'transform .4s cubic-bezier(.2,.7,.2,1), color .3s',
+                      transition: 'transform .4s cubic-bezier(.2,.7,.2,1), color .3s, background .3s',
                       transform: isOpen ? 'rotate(45deg)' : 'rotate(0)',
-                      background: isOpen ? 'var(--card-hover)' : 'transparent',
+                      background: isOpen ? 'var(--accent-1)' : 'transparent',
                     }}
                   >
                     <Icon.Plus size={16} />
@@ -263,7 +262,7 @@ export function Services() {
                               fontSize: 36,
                               fontWeight: 500,
                               lineHeight: 1,
-                              background: `linear-gradient(90deg, ${s.hue}, var(--accent-3))`,
+                              background: `linear-gradient(90deg, ${s.hue}, var(--accent-1))`,
                               WebkitBackgroundClip: 'text',
                               backgroundClip: 'text',
                               color: 'transparent',

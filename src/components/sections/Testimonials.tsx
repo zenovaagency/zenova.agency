@@ -25,7 +25,6 @@ function MarqueeRow({
         style={{
           display: 'flex',
           gap: 20,
-          // overflow: 'hidden',
           width: 'max-content',
           animation: `${direction === 'left' ? 'scroll-left' : 'scroll-right'} ${speed}s linear infinite`,
           willChange: 'transform',
@@ -52,31 +51,17 @@ function TestimonialCard({ t }: { t: Testimonial }) {
         flexShrink: 0,
         padding: 28,
         borderRadius: 20,
-        boxShadow: '0 6px 14px rgba(0,0,0,0.12)',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012))',
+        background: 'var(--card)',
         border: '1px solid var(--line)',
         display: 'flex',
         flexDirection: 'column',
         gap: 20,
         position: 'relative',
         overflow: 'hidden',
-        
       }}
     >
-      <div
-        style={{
-          position: 'absolute',
-          top: -40,
-          right: -40,
-          width: 160,
-          height: 160,
-          borderRadius: '50%',
-          // background: `radial-gradient(circle, ${t.tone}33, transparent 70%)`,
-          pointerEvents: 'none',
-        }}
-      />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative' }}>
-        <span style={{ color: t.tone, opacity: 0.7, lineHeight: 1 }}>
+        <span style={{ color: 'var(--accent-1)', opacity: 0.7, lineHeight: 1 }}>
           <Icon.Quote size={28} />
         </span>
         <span style={{ display: 'flex', gap: 1, color: '#fbbf24' }}>
@@ -87,7 +72,7 @@ function TestimonialCard({ t }: { t: Testimonial }) {
           ))}
         </span>
       </div>
-      <p style={{ fontSize: 16, lineHeight: 1.55, color: 'var(--fg)', margin: 0, position: 'relative', minHeight: 100 }}>
+      <p style={{ fontSize: 16, lineHeight: 1.55, color: 'var(--fg)', margin: 0, position: 'relative' }}>
         {t.quote}
       </p>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 'auto', position: 'relative' }}>
@@ -96,15 +81,14 @@ function TestimonialCard({ t }: { t: Testimonial }) {
             width: 36,
             height: 36,
             borderRadius: '50%',
-            background: `linear-gradient(135deg, ${t.tone}, var(--accent-3))`,
+            background: 'var(--accent-1)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontFamily: 'var(--font-display)',
             fontSize: 13,
             fontWeight: 600,
-            color: '#fff',
-            boxShadow: `0 6px 14px ${t.tone}55`,
+            color: '#0a0a0a',
           }}
         >
           {initials}
@@ -135,7 +119,6 @@ export function Testimonials() {
   const [content] = useContent();
   const ITEMS = content.testimonials;
   const row1 = ITEMS.slice(0, Math.ceil(ITEMS.length / 2));
-
   const row2 = ITEMS.slice(Math.ceil(ITEMS.length / 2));
 
   return (
@@ -162,9 +145,9 @@ export function Testimonials() {
             gap: 8,
           }}
         >
-          <span style={{ width: 24, height: 1, background: 'var(--accent-2)' }} />
+          <span style={{ width: 24, height: 1, background: 'var(--accent-1)' }} />
           What clients say
-          <span style={{ width: 24, height: 1, background: 'var(--accent-2)' }} />
+          <span style={{ width: 24, height: 1, background: 'var(--accent-1)' }} />
         </div>
         <h2 className="display" style={{ fontSize: 'clamp(36px,5vw,68px)', margin: 0, fontWeight: 500 }}>
           Kind words.
@@ -178,7 +161,7 @@ export function Testimonials() {
             padding: '10px 18px',
             borderRadius: 999,
             border: '1px solid var(--line)',
-            background: 'rgba(255,255,255,0.02)',
+            background: 'var(--card)',
           }}
         >
           <span style={{ display: 'flex', gap: 2, color: '#fbbf24' }}>

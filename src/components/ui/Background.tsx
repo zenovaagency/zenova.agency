@@ -1,26 +1,28 @@
 import { useEffect, useRef } from 'react';
 
-type ParticleType = 'dust' | 'glow' | 'spark';
-
-interface Particle {
+interface Shape {
   x: number;
   y: number;
+  r: number;
+  sides: number;
+  rot: number;
+  rotSpeed: number;
   vx: number;
   vy: number;
-  r: number;
-  hue: number;
-  opacity: number;
-  baseOpacity: number;
-  type: ParticleType;
-  sparkPhase: number;
+  strokeAlpha: number;
+  baseAlpha: number;
+  isOrange: boolean;
+  pulsePhase: number;
+  innerR: number;
 }
 
 export function Background() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouse = useRef({ x: -1000, y: -1000, active: false });
-  const particles = useRef<Particle[]>([]);
+  const shapes = useRef<Shape[]>([]);
   const raf = useRef(0);
   const time = useRef(0);
+  const gridOffset = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -42,158 +44,126 @@ export function Background() {
       canvas.style.height = `${h}px`;
     };
 
-    const hues = [174, 280, 300]; // teal, purple, magenta
-
-    const init = () => {
+    const initShapes = () => {
       resize();
-      const count = Math.floor((w * h) / 6000);
-
-      particles.current = Array.from({ length: count }, () => {
-        const roll = Math.random();
-        let type: ParticleType;
-        let r: number;
-        let baseOpacity: number;
-        let hue: number;
-
-        if (roll < 0.55) {
-          // dust — tiny, subtle, mostly teal/purple
-          type = 'dust';
-          r = Math.random() * 1.6 + 0.4;
-          baseOpacity = Math.random() * 0.35 + 0.08;
-          hue = Math.random() > 0.5 ? hues[0] : hues[1];
-        } else if (roll < 0.85) {
-          // glow — medium, brighter, all hues
-          type = 'glow';
-          r = Math.random() * 2.8 + 1.4;
-          baseOpacity = Math.random() * 0.4 + 0.2;
-          hue = hues[Math.floor(Math.random() * 3)];
-        } else {
-          // spark — larger, pulses, magenta-dominant
-          type = 'spark';
-          r = Math.random() * 3.5 + 2;
-          baseOpacity = Math.random() * 0.35 + 0.25;
-          hue = Math.random() > 0.4 ? hues[2] : hues[Math.floor(Math.random() * 3)];
-        }
-
+      const count = Math.floor((w * h) / 18000);
+      shapes.current = Array.from({ length: count }, () => {
+        const sides = Math.random() > 0.4
+          ? [3, 4, 6][Math.floor(Math.random() * 3)]
+          : 0; // 0 = circle
+        const isOrange = Math.random() < 0.15;
+        const baseAlpha = isOrange
+          ? Math.random() * 0.2 + 0.08
+          : Math.random() * 0.12 + 0.03;
         return {
           x: Math.random() * w,
           y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.25,
-          vy: (Math.random() - 0.5) * 0.25 - 0.08,
-          r,
-          hue,
-          opacity: baseOpacity,
-          baseOpacity,
-          type,
-          sparkPhase: Math.random() * Math.PI * 2,
+          r: Math.random() * 28 + 10,
+          sides,
+          rot: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.004,
+          vx: (Math.random() - 0.5) * 0.15,
+          vy: (Math.random() - 0.5) * 0.15 - 0.04,
+          strokeAlpha: baseAlpha,
+          baseAlpha,
+          isOrange,
+          pulsePhase: Math.random() * Math.PI * 2,
+          innerR: sides === 0 ? 0 : Math.random() * 0.4 + 0.3,
         };
       });
     };
 
+    const drawPolygon = (cx: number, cy: number, r: number, sides: number, rot: number, alpha: number, isOrange: boolean, innerR: number) => {
+      if (sides === 0) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      } else {
+        ctx.beginPath();
+        for (let i = 0; i <= sides; i++) {
+          const angle = rot + (i / sides) * Math.PI * 2;
+          const px = cx + Math.cos(angle) * r;
+          const py = cy + Math.sin(angle) * r;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+
+        // Inner shape
+        if (innerR > 0) {
+          for (let i = 0; i <= sides; i++) {
+            const angle = rot + Math.PI / sides + (i / sides) * Math.PI * 2;
+            const px = cx + Math.cos(angle) * r * innerR;
+            const py = cy + Math.sin(angle) * r * innerR;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.closePath();
+        }
+      }
+
+      ctx.strokeStyle = isOrange
+        ? `rgba(255, 129, 58, ${alpha})`
+        : `rgba(255, 255, 255, ${alpha})`;
+      ctx.lineWidth = isOrange ? 1 : 0.6;
+      ctx.stroke();
+    };
+
+    const drawGrid = () => {
+      const spacing = 70;
+      const offset = gridOffset.current % spacing;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 0.5;
+
+      ctx.beginPath();
+      for (let x = offset; x < w; x += spacing) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+      }
+      for (let y = offset; y < h; y += spacing) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+    };
+
     const draw = () => {
       time.current += 0.016;
+      gridOffset.current += 0.08;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.scale(dpr, dpr);
+
+      drawGrid();
 
       const mx = mouse.current.x;
       const my = mouse.current.y;
       const mouseActive = mouse.current.active;
 
-      // Draw connections first (beneath particles)
-      for (let i = 0; i < particles.current.length; i++) {
-        const a = particles.current[i];
-        for (let j = i + 1; j < particles.current.length; j++) {
-          const b = particles.current[j];
-          // Only connect same-hue particles
-          if (a.hue !== b.hue) continue;
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 100) {
-            const alpha = 0.06 * (1 - dist / 100);
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.strokeStyle = `hsla(${a.hue}, 70%, 58%, ${alpha})`;
-            ctx.lineWidth = 0.4;
-            ctx.stroke();
-          }
-        }
-      }
+      for (let i = 0; i < shapes.current.length; i++) {
+        const s = shapes.current[i];
 
-      // Draw particles
-      for (let i = 0; i < particles.current.length; i++) {
-        const p = particles.current[i];
+        s.vy -= 0.0004;
+        s.vx *= 0.998;
+        s.vy *= 0.998;
+        s.x += s.vx;
+        s.y += s.vy;
+        s.rot += s.rotSpeed;
 
-        // Mouse interaction — gentle pull
-        if (mouseActive) {
-          const dx = mx - p.x;
-          const dy = my - p.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 200 && dist > 0) {
-            const force = (1 - dist / 200) * 0.015;
-            p.vx += (dx / dist) * force;
-            p.vy += (dy / dist) * force;
-          }
-        }
+        if (s.x < -60) s.x = w + 60;
+        if (s.x > w + 60) s.x = -60;
+        if (s.y < -60) s.y = h + 60;
+        if (s.y > h + 60) s.y = -60;
 
-        // Upward drift bias
-        p.vy -= 0.0008;
-
-        // Velocity damping
-        p.vx *= 0.998;
-        p.vy *= 0.998;
-
-        p.x += p.vx;
-        p.y += p.vy;
-
-        // Wrap around
-        if (p.x < -30) p.x = w + 30;
-        if (p.x > w + 30) p.x = -30;
-        if (p.y < -30) p.y = h + 30;
-        if (p.y > h + 30) p.y = -30;
-
-        // Calculate visual properties
         const glowDist = mouseActive
-          ? Math.sqrt((mx - p.x) ** 2 + (my - p.y) ** 2)
+          ? Math.sqrt((mx - s.x) ** 2 + (my - s.y) ** 2)
           : 9999;
-        const mouseGlow = glowDist < 180 ? 1 - glowDist / 180 : 0;
+        const mouseBoost = glowDist < 160 ? (1 - glowDist / 160) * 0.25 : 0;
 
-        let alpha = p.baseOpacity + mouseGlow * 0.25;
-        let size = p.r + mouseGlow * 1.5;
+        const pulse = s.isOrange
+          ? Math.sin(time.current * 1.2 + s.pulsePhase) * 0.5 + 0.5
+          : 0;
+        const alpha = s.baseAlpha + mouseBoost + pulse * 0.12;
 
-        // Spark pulse
-        if (p.type === 'spark') {
-          const pulse = Math.sin(time.current * 1.8 + p.sparkPhase) * 0.5 + 0.5;
-          alpha = p.baseOpacity + pulse * 0.3 + mouseGlow * 0.2;
-          size = p.r + pulse * 1.5 + mouseGlow * 1;
-        }
-
-        // Dust gets barely any mouse boost
-        if (p.type === 'dust') {
-          alpha = p.baseOpacity + mouseGlow * 0.1;
-          size = p.r + mouseGlow * 0.5;
-        }
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-
-        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, size);
-        const hue = p.hue;
-        let color: string;
-
-        if (hue === 174) {
-          color = `hsla(174, 85%, 50%, ${alpha})`;
-        } else if (hue === 280) {
-          color = `hsla(280, 70%, 55%, ${alpha})`;
-        } else {
-          color = `hsla(300, 80%, 58%, ${alpha})`;
-        }
-
-        grad.addColorStop(0, color);
-        grad.addColorStop(1, 'transparent');
-        ctx.fillStyle = grad;
-        ctx.fill();
+        drawPolygon(s.x, s.y, s.r, s.sides, s.rot, alpha, s.isOrange, s.innerR);
       }
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -210,12 +180,12 @@ export function Background() {
       mouse.current.active = false;
     };
 
-    init();
+    initShapes();
     draw();
 
     window.addEventListener('resize', () => {
       resize();
-      init();
+      initShapes();
     });
     window.addEventListener('mousemove', onMove, { passive: true });
     window.addEventListener('touchmove', onMove, { passive: true });

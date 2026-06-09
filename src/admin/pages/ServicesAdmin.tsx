@@ -17,7 +17,7 @@ function emptyService(): ServiceDetail {
     hero: '',
     bullets: [],
     stat: ['', ''],
-    hue: '#3a5bff',
+    hue: '#ff813a',
     visual: 'browser',
     meta: [
       ['', ''],

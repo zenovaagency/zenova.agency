@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Logo } from './Logo';
 import { Icon } from '@/components/icons/Icon';
+import type { Theme } from '@/types/tweaks';
 
 const NAV_LINKS = [
   { label: 'Services', to: '/services' },
@@ -10,10 +11,34 @@ const NAV_LINKS = [
   { label: 'About', to: '/about' },
 ];
 
+const THEME_CYCLE: Theme[] = ['dark', 'light'];
+const THEME_LABELS: Record<Theme, string> = {
+  dark: 'Dark',
+  light: 'Light',
+};
+
+function getStoredTheme(): Theme {
+  try {
+    const stored = localStorage.getItem('zenova-theme');
+    if (stored === 'dark' || stored === 'light') return stored;
+  } catch { /* noop */ }
+  return 'dark';
+}
+
+function applyTheme(theme: Theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  try { localStorage.setItem('zenova-theme', theme); } catch { /* noop */ }
+}
+
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>(getStoredTheme);
   const location = useLocation();
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -36,6 +61,13 @@ export function Nav() {
       document.body.style.overflow = '';
     };
   }, [menuOpen]);
+
+  const cycleTheme = () => {
+    setTheme((prev) => {
+      const idx = THEME_CYCLE.indexOf(prev);
+      return THEME_CYCLE[(idx + 1) % THEME_CYCLE.length];
+    });
+  };
 
   return (
     <nav
@@ -96,6 +128,39 @@ export function Nav() {
           })}
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {/* Theme toggle */}
+          <button
+            onClick={cycleTheme}
+            aria-label={`Theme: ${THEME_LABELS[theme]}`}
+            title={`Theme: ${THEME_LABELS[theme]}`}
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 999,
+              border: '1px solid var(--line)',
+              background: 'transparent',
+              color: 'var(--fg-dim)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              fontSize: 14,
+              transition: 'color 0.2s, background 0.2s',
+              padding: 0,
+              marginRight: 2,
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-1)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {theme === 'dark' ? (
+                <><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></>
+              ) : (
+                <><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></>
+              )}
+            </svg>
+          </button>
+
           <div className="nav-desktop-only" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <Link
               to="/contact"

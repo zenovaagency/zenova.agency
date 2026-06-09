@@ -59,7 +59,7 @@ export const SERVICES: ServiceDetail[] = [
       'Built-in analytics',
     ],
     stat: ['<1.2s', 'Average load time'],
-    hue: '#3a5bff',
+    hue: '#ff813a',
     visual: 'browser',
     meta: [
       ['<1.2s', 'Load time'],
@@ -127,7 +127,7 @@ export const SERVICES: ServiceDetail[] = [
       'Clear reports',
     ],
     stat: ['3.4×', 'Average growth in 90 days'],
-    hue: '#5b6cff',
+    hue: '#ff6b1a',
     visual: 'curve',
     meta: [
       ['3.4×', 'Avg growth'],
@@ -196,7 +196,7 @@ export const SERVICES: ServiceDetail[] = [
       'Go-to-market plan',
     ],
     stat: ['11 days', 'Fastest MVP we built'],
-    hue: '#7a55ff',
+    hue: '#cc6622',
     visual: 'rocket',
     meta: [
       ['11 days', 'Fastest MVP'],
@@ -265,7 +265,7 @@ export const SERVICES: ServiceDetail[] = [
       'Weekly reports',
     ],
     stat: ['38%', 'Time saved per month'],
-    hue: '#9a4dff',
+    hue: '#ffa870',
     visual: 'kanban',
     meta: [
       ['38%', 'Time saved'],
@@ -334,7 +334,7 @@ export const SERVICES: ServiceDetail[] = [
       'Newsletters',
     ],
     stat: ['+212%', 'Avg traffic in 6 months'],
-    hue: '#a855f7',
+    hue: '#ff9a5c',
     visual: 'editor',
     meta: [
       ['+212%', 'Traffic growth'],

@@ -145,8 +145,7 @@ export function InputsShowcase() {
         <div
           className="adm-card"
           style={{
-            background:
-              'linear-gradient(135deg, rgba(58,91,255,0.10), rgba(168,85,247,0.06))',
+            background: 'var(--card)',
             border: '1px solid var(--line-strong)',
           }}
         >

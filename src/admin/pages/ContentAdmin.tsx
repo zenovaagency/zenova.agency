@@ -428,7 +428,7 @@ export function ContentAdmin() {
               update({
                 testimonials: [
                   ...draft.testimonials,
-                  { id: uid('q'), quote: '', name: '', role: '', tone: '#6d4cff' },
+                  { id: uid('q'), quote: '', name: '', role: '', tone: '#e06820' },
                 ],
               })
             }
@@ -495,7 +495,7 @@ function AboutEditor({
             onClick={() =>
               onValues([
                 ...about.values,
-                { id: uid('v'), icon: 'Layers', title: '', blurb: '', hue: '#3a5bff' },
+                { id: uid('v'), icon: 'Layers', title: '', blurb: '', hue: '#ff813a' },
               ])
             }
           >

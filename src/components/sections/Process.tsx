@@ -85,8 +85,8 @@ export function Process() {
                   style={{
                     textAlign: 'left',
                     padding: '24px 28px',
-                    background: on ? 'rgba(109,76,255,0.06)' : 'rgba(255,255,255,0.015)',
-                    border: on ? '1px solid rgba(109,76,255,0.35)' : '1px solid var(--line)',
+                    background: on ? 'var(--card-hover)' : 'rgba(255,255,255,0.015)',
+                    border: on ? '1px solid var(--accent-1)' : '1px solid var(--line)',
                     borderRadius: 18,
                     display: 'flex',
                     alignItems: 'center',
@@ -122,8 +122,8 @@ export function Process() {
                       borderRadius: 10,
                       border: on ? '0px solid transparent' : '1px solid var(--line)',
                       borderColor: on ? 'transparent' : 'var(--line)',
-                      background: on ? 'var(--card-hover)' : 'transparent',
-                      color: on ? '#fff' : 'var(--fg-faint)',
+                      background: on ? 'var(--accent-1)' : 'transparent',
+                      color: on ? '#0a0a0a' : 'var(--fg-faint)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -142,7 +142,7 @@ export function Process() {
             style={{
               padding: 36,
               borderRadius: 28,
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
+              background: 'var(--card)',
               border: '1px solid var(--line-strong)',
               position: 'sticky',
               top: 110,
@@ -151,24 +151,11 @@ export function Process() {
             }}
           >
             <div
-              style={{
-                position: 'absolute',
-                top: -60,
-                right: -60,
-                width: 240,
-                height: 240,
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(109,76,255,0.35), transparent 60%)',
-                filter: 'blur(40px)',
-                opacity: 0.7,
-              }}
-            />
-            <div
               key={active}
               style={{ position: 'relative', animation: 'fade-up .5s cubic-bezier(.2,.7,.2,1) both' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div className="mono" style={{ color: 'var(--accent-3)' }}>
+                <div className="mono" style={{ color: 'var(--accent-1)' }}>
                   Phase {current.n}
                 </div>
                 <div className="mono" style={{ color: 'var(--fg-faint)' }}>
@@ -181,7 +168,7 @@ export function Process() {
                   fontSize: 56,
                   fontWeight: 500,
                   marginTop: 24,
-                  background: 'var(--accent-2)',
+                  background: 'var(--grad)',
                   WebkitBackgroundClip: 'text',
                   backgroundClip: 'text',
                   color: 'transparent',
@@ -220,7 +207,7 @@ export function Process() {
                     }}
                   >
                     <span
-                      style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-2)' }}
+                      style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-1)' }}
                     />
                     {d}
                   </div>
@@ -231,7 +218,7 @@ export function Process() {
                 style={{
                   marginTop: 36,
                   height: 3,
-                  background: 'rgba(255,255,255,0.06)',
+                  background: 'var(--line)',
                   borderRadius: 3,
                   overflow: 'hidden',
                 }}
@@ -240,7 +227,7 @@ export function Process() {
                   style={{
                     height: '100%',
                     width: `${((active + 1) / STEPS.length) * 100}%`,
-                    background: 'var(--accent-2)',
+                    background: 'var(--accent-1)',
                     transition: 'width .5s cubic-bezier(.2,.7,.2,1)',
                   }}
                 />

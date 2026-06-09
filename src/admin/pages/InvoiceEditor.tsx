@@ -422,7 +422,7 @@ function InvoicePreviewModal({
 
   const statusColors: Record<InvoiceStatus, string> = {
     draft: '#dc8c1e',
-    sent: '#3a5bff',
+    sent: '#ff813a',
     paid: '#22a860',
     overdue: '#dc3c3c',
     cancelled: '#a0a5b2',

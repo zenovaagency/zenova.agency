@@ -1170,7 +1170,7 @@
 
 .adm-drop:hover,
 .adm-drop.is-over {
-  border-color: var(--accent, #6d4cff);
+  border-color: var(--accent, #e06820);
   background: rgba(109, 76, 255, 0.06);
 }
 

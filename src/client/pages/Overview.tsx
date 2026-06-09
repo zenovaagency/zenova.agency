@@ -32,15 +32,15 @@ function formatRelative(iso: string): string {
 function activityKindBadge(kind: ProjectActivity['kind']): { label: string; tone: string } {
   switch (kind) {
     case 'design':
-      return { label: 'Design', tone: '#3a5bff' };
+      return { label: 'Design', tone: '#ff813a' };
     case 'build':
-      return { label: 'Build', tone: '#6d4cff' };
+      return { label: 'Build', tone: '#e06820' };
     case 'copy':
-      return { label: 'Copy', tone: '#7a55ff' };
+      return { label: 'Copy', tone: '#cc6622' };
     case 'growth':
-      return { label: 'Growth', tone: '#a855f7' };
+      return { label: 'Growth', tone: '#ff9a5c' };
     default:
-      return { label: 'Update', tone: '#5b6cff' };
+      return { label: 'Update', tone: '#ff6b1a' };
   }
 }
 
@@ -115,24 +115,9 @@ function OverviewBody({
           position: 'relative',
           overflow: 'hidden',
           border: '1px solid var(--line-strong)',
-          background:
-            'linear-gradient(135deg, rgba(58,91,255,0.16), rgba(168,85,247,0.10) 60%, rgba(255,255,255,0.02))',
+          background: 'var(--card)',
         }}
       >
-        <div
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: -80,
-            right: -60,
-            width: 260,
-            height: 260,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(58,91,255,0.45), transparent 60%)',
-            filter: 'blur(60px)',
-            pointerEvents: 'none',
-          }}
-        />
         <div style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
           <div>
             <div className="mono" style={{ color: 'var(--fg-faint)', fontSize: 11, marginBottom: 8 }}>
@@ -269,8 +254,8 @@ function OverviewBody({
                 style={{
                   padding: 16,
                   borderRadius: 14,
-                  border: `1px solid ${isActive ? 'rgba(109,76,255,0.35)' : 'var(--line)'}`,
-                  background: isActive ? 'rgba(109,76,255,0.06)' : 'rgba(255,255,255,0.015)',
+                  border: `1px solid ${isActive ? 'var(--accent-1)' : 'var(--line)'}`,
+                  background: isActive ? 'var(--card-hover)' : 'rgba(255,255,255,0.015)',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: 10,
@@ -373,8 +358,7 @@ function OverviewBody({
             style={{
               padding: 20,
               border: '1px solid var(--line-strong)',
-              background:
-                'linear-gradient(135deg, rgba(58,91,255,0.12), rgba(168,85,247,0.08))',
+              background: 'var(--card-hover)',
             }}
           >
             <div className="mono" style={{ color: 'var(--fg-faint)', fontSize: 11, marginBottom: 6 }}>

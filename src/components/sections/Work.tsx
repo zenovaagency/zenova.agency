@@ -121,7 +121,6 @@ export function Work() {
                       height: 8,
                       borderRadius: '50%',
                       background: p.tone,
-                      boxShadow: `0 0 10px ${p.tone}`,
                     }}
                   />
                   <span className="mono" style={{ color: 'var(--fg-dim)' }}>

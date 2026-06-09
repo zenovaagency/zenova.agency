@@ -52,6 +52,11 @@ export function App() {
     applyPalette(t.palette);
   }, [t.palette]);
 
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', t.theme);
+    try { localStorage.setItem('zenova-theme', t.theme); } catch { /* noop */ }
+  }, [t.theme]);
+
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Background />

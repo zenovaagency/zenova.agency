@@ -14,7 +14,7 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
     <div
       style={{
         borderBottom: '1px solid var(--line)',
-        background: isOpen ? 'rgba(109,76,255,0.04)' : 'transparent',
+        background: isOpen ? 'var(--card-hover)' : 'transparent',
         transition: 'background .35s cubic-bezier(.2,.7,.2,1)',
       }}
     >
@@ -57,8 +57,8 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: isOpen ? '#fff' : 'var(--fg-faint)',
-            background: isOpen ? 'var(--card-hover)' : 'transparent',
+            color: isOpen ? '#0a0a0a' : 'var(--fg-faint)',
+            background: isOpen ? 'var(--accent-1)' : 'transparent',
             transform: isOpen ? 'rotate(45deg)' : 'rotate(0)',
             transition: 'background .4s cubic-bezier(.2,.7,.2,1), color .4s cubic-bezier(.2,.7,.2,1), transform .4s cubic-bezier(.2,.7,.2,1)',
           }}
@@ -122,7 +122,7 @@ export function FAQ() {
             borderTop: '1px solid var(--line)',
             borderRadius: 24,
             overflow: 'hidden',
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.005))',
+            background: 'var(--card)',
             border: '1px solid var(--line)',
           }}
         >

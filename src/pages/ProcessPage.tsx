@@ -18,11 +18,11 @@ interface FAQ {
 }
 
 const WEEKS: Week[] = [
-  { range: 'Week 1', phase: 'Discover', focus: 'Workshop, project plan, success metrics', hue: '#3a5bff' },
-  { range: 'Week 2 – 4', phase: 'Design', focus: 'Brand, layout, and a clickable prototype', hue: '#4f8cff' },
-  { range: 'Week 5 – 7', phase: 'Build', focus: 'Code the site with weekly demos', hue: '#6d4cff' },
-  { range: 'Week 8', phase: 'Launch', focus: 'Go live, train your team, hand off', hue: '#7a55ff' },
-  { range: 'Month 2+', phase: 'Grow', focus: 'Marketing, SEO, and ongoing support', hue: '#a855f7' },
+  { range: 'Week 1', phase: 'Discover', focus: 'Workshop, project plan, success metrics', hue: '#ff813a' },
+  { range: 'Week 2 – 4', phase: 'Design', focus: 'Brand, layout, and a clickable prototype', hue: '#c06028' },
+  { range: 'Week 5 – 7', phase: 'Build', focus: 'Code the site with weekly demos', hue: '#e06820' },
+  { range: 'Week 8', phase: 'Launch', focus: 'Go live, train your team, hand off', hue: '#cc6622' },
+  { range: 'Month 2+', phase: 'Grow', focus: 'Marketing, SEO, and ongoing support', hue: '#ff9a5c' },
 ];
 
 const PROCESS_FAQS: FAQ[] = [

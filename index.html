@@ -32,7 +32,9 @@
       })(window.location);
     </script>
     <script>
-      document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.setAttribute('data-theme',
+        (function() { try { var t = localStorage.getItem('zenova-theme'); if (t === 'dark' || t === 'light') return t; } catch(e){} return 'dark'; })()
+      );
     </script>
   </head>
   <body>

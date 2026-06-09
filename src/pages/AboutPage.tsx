@@ -387,25 +387,11 @@ export function AboutPage() {
               padding: 36,
               borderRadius: 24,
               border: '1px solid var(--line-strong)',
-              background:
-                'linear-gradient(135deg, rgba(58,91,255,0.18), rgba(168,85,247,0.10) 60%, rgba(255,255,255,0.02))',
+              background: 'var(--card)',
               position: 'relative',
               overflow: 'hidden',
             }}
           >
-            <div
-              style={{
-                position: 'absolute',
-                top: -60,
-                right: -60,
-                width: 280,
-                height: 280,
-                borderRadius: '50%',
-                background: 'radial-gradient(circle, rgba(168,85,247,0.4), transparent 60%)',
-                filter: 'blur(60px)',
-                pointerEvents: 'none',
-              }}
-            />
             <div style={{ position: 'relative' }}>
               <div className="mono" style={{ color: 'var(--fg-faint)', marginBottom: 12 }}>
                 Careers

@@ -77,8 +77,7 @@ export function Preloader() {
       aria-hidden={phase === 'exiting'}
     >
       <div className="preloader__grid" />
-      <div className="preloader__glow" />
-      <div className="preloader__glow-accent" />
+      <div className="preloader__accent-line" />
 
       <div className="preloader__stage">
         <div className={`preloader__wordmark${allLettersIn ? ' is-complete' : ''}`}>

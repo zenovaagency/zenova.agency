@@ -98,7 +98,7 @@ export function PageHero({ eyebrow, title, sub, crumbs, meta, secondary }: PageH
             gap: 8,
           }}
         >
-          <span style={{ width: 24, height: 1, background: 'var(--accent-2)' }} />
+          <span style={{ width: 24, height: 1, background: 'var(--accent-1)' }} />
           {eyebrow}
         </div>
 

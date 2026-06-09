@@ -6,7 +6,7 @@ import type { Tweaks } from '@/types/tweaks';
  * dev-only tweaks panel persists changes. Keep the JSON-ish shape.
  */
 export const TWEAK_DEFAULTS: Tweaks = /*EDITMODE-BEGIN*/ {
-  palette: ['#00E5CC', '#8B2FC9', '#CC44FF'],
+  palette: ['#ff813a', '#ff6b1a', '#ff9a5c'],
   theme: 'dark',
   rotateMs: 2400,
   showMarquee: true,

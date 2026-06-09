@@ -17,19 +17,19 @@ const PILLARS: Pillar[] = [
     tag: 'Build',
     title: 'Design + Development',
     blurb: 'Websites, web apps, and brands — built to last and easy to maintain.',
-    hue: '#3a5bff',
+    hue: '#ff813a',
   },
   {
     tag: 'Grow',
     title: 'Marketing + Content',
     blurb: 'Get more customers with SEO, ads, and content that actually works.',
-    hue: '#6d4cff',
+    hue: '#e06820',
   },
   {
     tag: 'Run',
     title: 'Operations + Support',
     blurb: 'Better tools and processes so your team can scale faster.',
-    hue: '#a855f7',
+    hue: '#ff9a5c',
   },
 ];
 
