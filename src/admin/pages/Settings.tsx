@@ -169,6 +169,18 @@ export function Settings() {
             onChange={(v) => updateDraft({ careersEmail: v })}
           />
         </div>
+        <div className="adm-row adm-row--2">
+          <TextField
+            label="Phone"
+            value={draft.phone}
+            onChange={(v) => updateDraft({ phone: v })}
+          />
+          <TextField
+            label="Address"
+            value={draft.address}
+            onChange={(v) => updateDraft({ address: v })}
+          />
+        </div>
       </div>
 
       <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

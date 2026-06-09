@@ -467,7 +467,7 @@ export function ServiceDetailPage() {
                 <GhostButton
                   text="Get in touch"
                   size="xs"
-                  onClick={() => { window.location.href = '/#contact'; }}
+                  onClick={() => { window.location.href = '/contact'; }}
                 />
               </div>
             ))}

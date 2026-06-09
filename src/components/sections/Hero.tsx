@@ -68,6 +68,7 @@ export function Hero({ rotateMs }: HeroProps) {
             fontSize: 13,
             color: 'var(--fg-dim)',
             marginBottom: 32,
+            boxShadow: '0 0 24px rgba(109,76,255,0.1), 0 0 60px rgba(109,76,255,0.04)',
             animation: 'fade-up .9s cubic-bezier(.2,.7,.2,1) both',
           }}
         >
@@ -126,7 +127,7 @@ export function Hero({ rotateMs }: HeroProps) {
           <NeonButton
             text={content.hero.primaryCta}
             onClick={() => {
-              const href = content.hero.primaryCtaHref || '#contact';
+              const href = content.hero.primaryCtaHref || '/contact';
               window.location.href = href;
             }}
           />

@@ -116,6 +116,8 @@ export interface BrandSettings {
   tagline: string;
   contactEmail: string;
   careersEmail: string;
+  phone: string;
+  address: string;
   locations: Array<{ id: string; city: string; tz: string; detail: string }>;
 }
 
@@ -133,7 +135,7 @@ const DEFAULT_CONTENT: SiteContent = {
     rotatingWords: ['Web Development', 'Marketing', 'Startup Launch', 'Operations', 'Content'],
     sub: 'Design, build, and grow — without juggling agencies. We handle the whole thing.',
     primaryCta: 'Start a project',
-    primaryCtaHref: '#contact',
+    primaryCtaHref: '/contact',
     secondaryCta: 'See our work',
     secondaryCtaHref: '#services',
     stats: [
@@ -149,7 +151,7 @@ const DEFAULT_CONTENT: SiteContent = {
     accentTitle: "Let's talk.",
     sub: 'A quick 30-minute call. No pitch, just your project.',
     primary: 'Book a call',
-    primaryHref: '#contact',
+    primaryHref: '/contact',
     secondary: 'hello@zenova.bd',
     secondaryHref: 'mailto:hello@zenova.bd',
   },
@@ -205,6 +207,8 @@ const DEFAULT_BRAND: BrandSettings = {
   tagline: 'Design, build, and grow — one team.',
   contactEmail: 'hello@zenova.bd',
   careersEmail: 'careers@zenova.bd',
+  phone: '+1 (555) 123-4567',
+  address: '123 Atlantic Ave, Brooklyn, NY 11201',
   locations: [
     { id: 'l1', city: 'Brooklyn, NY', tz: 'EST', detail: 'Headquarters' },
     { id: 'l2', city: 'Berlin', tz: 'CET', detail: 'European hub' },

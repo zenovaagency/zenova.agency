@@ -158,7 +158,7 @@ export function PageHero({ eyebrow, title, sub, crumbs, meta, secondary }: PageH
         )}
 
         <div className="page-hero__ctas" style={{ marginTop: meta && meta.length > 0 ? 40 : 56, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-          <NeonButton text="Get in touch" onClick={() => { window.location.href = '/#contact'; }} />
+          <NeonButton text="Get in touch" onClick={() => { window.location.href = '/contact'; }} />
           {secondary && (
             <GhostButton text={secondary.label} onClick={() => { window.location.href = secondary.to; }} />
           )}

@@ -9,6 +9,7 @@ import { ProcessPage } from '@/pages/ProcessPage';
 import { WorkPage } from '@/pages/WorkPage';
 import { ProjectDetailPage } from '@/pages/ProjectDetailPage';
 import { AboutPage } from '@/pages/AboutPage';
+import { ContactPage } from '@/pages/ContactPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { SignIn } from '@/pages/SignIn';
 import { Background } from '@/components/ui/Background';
@@ -117,7 +118,7 @@ function PublicLayout({
   useSmoothScroll();
   const location = useLocation();
   const isKnownPath =
-    /^\/(services|process|work|about)?(\/.*)?$/.test(location.pathname);
+    /^\/(services|process|work|about|contact)?(\/.*)?$/.test(location.pathname);
   return (
     <>
       <Nav />
@@ -158,6 +159,7 @@ function AnimatedRoutes({ rotateMs, showMarquee, showTestimonials }: AnimatedRou
         <Route path="/work" element={<WorkPage />} />
         <Route path="/work/:slug" element={<ProjectDetailPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>

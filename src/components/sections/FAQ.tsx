@@ -58,7 +58,7 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
             alignItems: 'center',
             justifyContent: 'center',
             color: isOpen ? '#fff' : 'var(--fg-faint)',
-            background: isOpen ? 'var(--grad)' : 'transparent',
+            background: isOpen ? 'var(--card-hover)' : 'transparent',
             transform: isOpen ? 'rotate(45deg)' : 'rotate(0)',
             transition: 'background .4s cubic-bezier(.2,.7,.2,1), color .4s cubic-bezier(.2,.7,.2,1), transform .4s cubic-bezier(.2,.7,.2,1)',
           }}
@@ -94,7 +94,7 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
 export function FAQ() {
   const [content] = useContent();
   const FAQS = content.faqs;
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
     <section
@@ -148,8 +148,7 @@ export function FAQ() {
             fontSize: 14,
           }}
         >
-          More questions?
-          <GhostButton text="Book a 30-minute call" size="xs" onClick={() => { window.location.href = '/#contact'; }} />
+          <GhostButton text="More questions?" size="xs" onClick={() => { window.location.href = '/contact'; }} />
         </div>
       </div>
     </section>

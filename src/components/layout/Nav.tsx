@@ -98,7 +98,7 @@ export function Nav() {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <div className="nav-desktop-only" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <Link
-              to="/#contact"
+              to="/contact"
               className="nav-cta"
             >
               <svg className="nav-cta__sparkle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
@@ -175,7 +175,7 @@ export function Nav() {
             }}
           >
             <Link
-              to="/#contact"
+              to="/contact"
               onClick={() => setMenuOpen(false)}
               style={{
                 flex: 1,

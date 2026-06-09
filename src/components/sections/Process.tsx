@@ -122,7 +122,7 @@ export function Process() {
                       borderRadius: 10,
                       border: on ? '0px solid transparent' : '1px solid var(--line)',
                       borderColor: on ? 'transparent' : 'var(--line)',
-                      background: on ? 'var(--grad)' : 'transparent',
+                      background: on ? 'var(--card-hover)' : 'transparent',
                       color: on ? '#fff' : 'var(--fg-faint)',
                       display: 'flex',
                       alignItems: 'center',
@@ -181,7 +181,7 @@ export function Process() {
                   fontSize: 56,
                   fontWeight: 500,
                   marginTop: 24,
-                  background: 'var(--grad)',
+                  background: 'var(--accent-2)',
                   WebkitBackgroundClip: 'text',
                   backgroundClip: 'text',
                   color: 'transparent',
@@ -220,7 +220,7 @@ export function Process() {
                     }}
                   >
                     <span
-                      style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--grad)' }}
+                      style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-2)' }}
                     />
                     {d}
                   </div>
@@ -240,7 +240,7 @@ export function Process() {
                   style={{
                     height: '100%',
                     width: `${((active + 1) / STEPS.length) * 100}%`,
-                    background: 'var(--grad)',
+                    background: 'var(--accent-2)',
                     transition: 'width .5s cubic-bezier(.2,.7,.2,1)',
                   }}
                 />

@@ -28,7 +28,7 @@ const COLS: FooterCol[] = [
       { label: 'About', to: { pathname: '/about' } },
       { label: 'Work', to: { pathname: '/work' } },
       { label: 'Process', to: { pathname: '/process' } },
-      { label: 'Contact', to: { pathname: '/', hash: '#contact' } },
+      { label: 'Contact', to: { pathname: '/contact' } },
     ],
   },
 ];

@@ -1,6 +1,7 @@
 import type { Palette } from '@/types/tweaks';
 
 export const PALETTES: Record<string, Palette> = {
+  'Teal / Purple': ['#35CEBC', '#A837D1', '#D06AEA'],
   'Blue / Violet': ['#3a5bff', '#6d4cff', '#a855f7'],
   'Cyan / Lime': ['#06b6d4', '#10b981', '#a3e635'],
   'Amber / Rose': ['#f59e0b', '#f43f5e', '#ec4899'],

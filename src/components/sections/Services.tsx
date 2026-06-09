@@ -176,7 +176,7 @@ export function Services() {
                       justifyContent: 'center',
                       transition: 'transform .4s cubic-bezier(.2,.7,.2,1), color .3s',
                       transform: isOpen ? 'rotate(45deg)' : 'rotate(0)',
-                      background: isOpen ? 'var(--grad)' : 'transparent',
+                      background: isOpen ? 'var(--card-hover)' : 'transparent',
                     }}
                   >
                     <Icon.Plus size={16} />

@@ -11,7 +11,7 @@
     ],
     "sub": "Design, build, and grow — without juggling agencies. We handle the whole thing.",
     "primaryCta": "Start a project",
-    "primaryCtaHref": "#contact",
+    "primaryCtaHref": "/contact",
     "secondaryCta": "See our work",
     "secondaryCtaHref": "#services",
     "stats": [
@@ -27,7 +27,7 @@
     "accentTitle": "Let's talk.",
     "sub": "A quick 30-minute call. No pitch, just your project.",
     "primary": "Book a call",
-    "primaryHref": "#contact",
+    "primaryHref": "/contact",
     "secondary": "hello@zenova.bd",
     "secondaryHref": "mailto:hello@zenova.bd"
   },
