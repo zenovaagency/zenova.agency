@@ -140,31 +140,36 @@ export function Nav() {
                       width: '100%',
                       zIndex: 0,
                       borderRadius: 999,
+                      backgroundColor: theme === 'light' ? 'rgb(255 129 58 / 15%)' : undefined,
                     }}
                   >
                     <div style={{
                       position: 'absolute', top: -2, left: '50%', transform: 'translateX(-50%)',
                       width: 32, height: 4, backgroundColor: '#ff813a',
                       borderTopLeftRadius: 999, borderTopRightRadius: 999,
-                      boxShadow: '0 0 12px rgba(255,129,58,0.8)'
+                      boxShadow: theme === 'light' ? 'none' : '0 0 12px rgba(255,129,58,0.8)'
                     }} />
-                    <div style={{
-                      position: 'absolute', top: -6, left: '50%', transform: 'translateX(-50%)',
-                      width: 48, height: 24, backgroundColor: 'rgba(255,129,58,0.3)',
-                      borderRadius: 999, filter: 'blur(8px)'
-                    }} />
-                    <div style={{
-                      position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-                      width: 72, height: '100%',
-                      background: 'linear-gradient(to bottom, rgba(255,129,58,0.2), rgba(255,129,58,0.05), transparent)',
-                      filter: 'blur(8px)'
-                    }} />
-                    <div style={{
-                      position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-                      width: 32, height: '100%',
-                      background: 'linear-gradient(to bottom, rgba(255,129,58,0.4), rgba(255,129,58,0.1), transparent)',
-                      filter: 'blur(4px)'
-                    }} />
+                    {theme !== 'light' && (
+                      <>
+                        <div style={{
+                          position: 'absolute', top: -6, left: '50%', transform: 'translateX(-50%)',
+                          width: 48, height: 24, backgroundColor: 'rgba(255,129,58,0.3)',
+                          borderRadius: 999, filter: 'blur(8px)'
+                        }} />
+                        <div style={{
+                          position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                          width: 72, height: '100%',
+                          background: 'linear-gradient(to bottom, rgba(255,129,58,0.2), rgba(255,129,58,0.05), transparent)',
+                          filter: 'blur(8px)'
+                        }} />
+                        <div style={{
+                          position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                          width: 32, height: '100%',
+                          background: 'linear-gradient(to bottom, rgba(255,129,58,0.4), rgba(255,129,58,0.1), transparent)',
+                          filter: 'blur(4px)'
+                        }} />
+                      </>
+                    )}
                   </motion.div>
                 )}
               </Link>
