@@ -34,6 +34,8 @@ export interface ServiceDetail {
   stat: [string, string];
   hue: string;
   visual: ServiceVisualKind;
+  /** Optional hero image / animated GIF for the service card and detail page. */
+  image?: string;
   meta: Array<[string, string]>;
   deliverables: Array<{ title: string; blurb: string }>;
   phases: ServicePhase[];

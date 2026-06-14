@@ -123,7 +123,21 @@ export function ServiceDetailPage() {
               overflow: 'hidden',
             }}
           >
-            <ServiceVisual kind={service.visual} hue={service.hue} active />
+            {service.image ? (
+              <img
+                src={service.image}
+                alt=""
+                loading="lazy"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: 'block',
+                }}
+              />
+            ) : (
+              <ServiceVisual kind={service.visual} hue={service.hue} active />
+            )}
             <div
               style={{
                 position: 'absolute',
@@ -606,7 +620,7 @@ function RelatedServices({ current }: { current: ServiceDetail }) {
                     color: 'var(--fg-dim)',
                   }}
                 >
-                  Explore <Icon.Arrow size={12} />
+                  View details <Icon.Arrow size={12} />
                 </div>
               </Link>
             );

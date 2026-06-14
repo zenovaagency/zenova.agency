@@ -108,31 +108,13 @@ export function Background() {
       ctx.stroke();
     };
 
-    const drawGrid = () => {
-      const spacing = 70;
-      const offset = gridOffset.current % spacing;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-      ctx.lineWidth = 0.5;
-
-      ctx.beginPath();
-      for (let x = offset; x < w; x += spacing) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-      }
-      for (let y = offset; y < h; y += spacing) {
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-      }
-      ctx.stroke();
-    };
-
     const draw = () => {
       time.current += 0.016;
       gridOffset.current += 0.08;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.scale(dpr, dpr);
 
-      drawGrid();
+      // drawGrid();
 
       const mx = mouse.current.x;
       const my = mouse.current.y;

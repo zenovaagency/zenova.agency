@@ -12,7 +12,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
       <div style={{ position: 'absolute', inset: '14% 12%' }}>
         <div
           style={{
-            background: 'rgba(0,0,0,0.35)',
+            background: 'color-mix(in srgb, var(--bg) 35%, transparent)',
             border: '1px solid var(--line)',
             borderRadius: 10,
             overflow: 'hidden',
@@ -31,15 +31,15 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
               borderBottom: '1px solid var(--line)',
             }}
           >
-            <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'rgba(255,255,255,0.18)' }} />
-            <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'rgba(255,255,255,0.18)' }} />
-            <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'rgba(255,255,255,0.18)' }} />
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'color-mix(in srgb, var(--fg) 18%, transparent)' }} />
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'color-mix(in srgb, var(--fg) 18%, transparent)' }} />
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'color-mix(in srgb, var(--fg) 18%, transparent)' }} />
             <div
               style={{
                 marginLeft: 8,
                 height: 14,
                 borderRadius: 4,
-                background: 'rgba(255,255,255,0.07)',
+                background: 'color-mix(in srgb, var(--fg) 7%, transparent)',
                 flex: 1,
                 maxWidth: 120,
               }}
@@ -47,8 +47,8 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
           </div>
           <div style={{ flex: 1, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ height: 10, borderRadius: 3, background: `${hue}66`, width: '40%' }} />
-            <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.12)', width: '78%' }} />
-            <div style={{ height: 5, borderRadius: 3, background: 'rgba(255,255,255,0.1)', width: '62%' }} />
+            <div style={{ height: 5, borderRadius: 3, background: 'color-mix(in srgb, var(--fg) 12%, transparent)', width: '78%' }} />
+            <div style={{ height: 5, borderRadius: 3, background: 'color-mix(in srgb, var(--fg) 10%, transparent)', width: '62%' }} />
             <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
               <div
                 style={{
@@ -60,7 +60,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
                   animation: active ? 'pulse-dot 2.4s ease-in-out infinite' : 'none',
                 }}
               />
-              <div style={{ height: 22, borderRadius: 6, background: 'rgba(255,255,255,0.08)', width: 54 }} />
+              <div style={{ height: 22, borderRadius: 6, background: 'color-mix(in srgb, var(--fg) 8%, transparent)', width: 54 }} />
             </div>
             <div
               style={{
@@ -70,7 +70,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
                 gap: 8,
                 fontFamily: 'var(--font-mono)',
                 fontSize: 9,
-                color: 'rgba(255,255,255,0.5)',
+                color: 'color-mix(in srgb, var(--fg) 50%, transparent)',
                 letterSpacing: '0.1em',
               }}
             >
@@ -98,7 +98,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
           </linearGradient>
         </defs>
         {[0, 1, 2, 3].map((i) => (
-          <line key={i} x1="0" x2="300" y1={45 * (i + 1)} y2={45 * (i + 1)} stroke="rgba(255,255,255,0.06)" />
+          <line key={i} x1="0" x2="300" y1={45 * (i + 1)} y2={45 * (i + 1)} stroke="color-mix(in srgb, var(--fg) 6%, transparent)" />
         ))}
         <path
           d={`M 0 ${180 - pts[0] * 1.5} ${pts.map((p, i) => `L ${(i + 1) * (300 / pts.length)} ${180 - p * 1.6}`).join(' ')} L 300 180 L 0 180 Z`}
@@ -138,7 +138,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
             <stop offset="1" stopColor={hue} stopOpacity="0.7" />
           </linearGradient>
         </defs>
-        <path d="M 10 160 Q 130 160 200 60" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" fill="none" strokeDasharray="3 5" />
+        <path d="M 10 160 Q 130 160 200 60" stroke="color-mix(in srgb, var(--fg) 12%, transparent)" strokeWidth="1.5" fill="none" strokeDasharray="3 5" />
         <path
           d="M 10 160 Q 130 160 200 60"
           stroke="url(#rk)"
@@ -156,14 +156,14 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
           [180, 20],
           [120, 50],
         ].map(([x, y], i) => (
-          <circle key={i} cx={x} cy={y} r="1.4" fill="white" opacity={0.5} />
+          <circle key={i} cx={x} cy={y} r="1.4" fill="var(--fg)" opacity={0.5} />
         ))}
         <g
           transform={`translate(${active ? 200 : 10}, ${active ? 60 : 160}) rotate(${active ? -50 : -10})`}
           style={{ transition: 'transform 1.4s cubic-bezier(.2,.7,.2,1)' }}
         >
           <path d="M 0 0 L -6 14 L 6 14 Z" fill={hue} />
-          <circle cx="0" cy="4" r="2.6" fill="white" />
+          <circle cx="0" cy="4" r="2.6" fill="var(--fg)" />
           <path d="M -8 14 L -10 22 L -4 17 Z M 8 14 L 10 22 L 4 17 Z" fill={hue} opacity="0.7" />
           <path d="M -3 16 Q 0 28 3 16 Z" fill="#f59e0b" opacity={active ? 1 : 0} />
         </g>
@@ -188,7 +188,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
               flex: 1,
               padding: 8,
               borderRadius: 8,
-              background: 'rgba(0,0,0,0.25)',
+              background: 'color-mix(in srgb, var(--bg) 25%, transparent)',
               border: '1px solid var(--line)',
               display: 'flex',
               flexDirection: 'column',
@@ -197,7 +197,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: c }} />
-              <div style={{ height: 5, borderRadius: 2, background: 'rgba(255,255,255,0.18)', flex: 1 }} />
+              <div style={{ height: 5, borderRadius: 2, background: 'color-mix(in srgb, var(--fg) 18%, transparent)', flex: 1 }} />
             </div>
             {items.map((_, k) => (
               <div
@@ -205,7 +205,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
                 style={{
                   borderRadius: 6,
                   padding: 6,
-                  background: 'rgba(255,255,255,0.04)',
+                  background: 'color-mix(in srgb, var(--fg) 4%, transparent)',
                   border: '1px solid var(--line)',
                   animation: active
                     ? `fade-up .5s cubic-bezier(.2,.7,.2,1) both ${k * 0.12 + i * 0.08}s`
@@ -216,12 +216,12 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
                   style={{
                     height: 4,
                     borderRadius: 2,
-                    background: 'rgba(255,255,255,0.25)',
+                    background: 'color-mix(in srgb, var(--fg) 25%, transparent)',
                     width: '75%',
                     marginBottom: 5,
                   }}
                 />
-                <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.12)', width: '50%' }} />
+                <div style={{ height: 3, borderRadius: 2, background: 'color-mix(in srgb, var(--fg) 12%, transparent)', width: '50%' }} />
               </div>
             ))}
           </div>
@@ -236,7 +236,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
         style={{
           position: 'absolute',
           inset: '14% 12%',
-          background: 'rgba(0,0,0,0.25)',
+          background: 'color-mix(in srgb, var(--bg) 25%, transparent)',
           border: '1px solid var(--line)',
           borderRadius: 10,
           padding: 14,
@@ -248,9 +248,9 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
           <div style={{ width: 14, height: 14, borderRadius: 4, background: `${hue}66` }} />
-          <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.22)', width: 80 }} />
+          <div style={{ height: 6, borderRadius: 3, background: 'color-mix(in srgb, var(--fg) 22%, transparent)', width: 80 }} />
           <div style={{ flex: 1 }} />
-          <div className="mono" style={{ fontSize: 8, color: 'rgba(255,255,255,0.45)' }}>
+          <div className="mono" style={{ fontSize: 8, color: 'color-mix(in srgb, var(--fg) 45%, transparent)' }}>
             EDITING
           </div>
         </div>
@@ -269,7 +269,7 @@ export function ServiceVisual({ kind, hue, active }: ServiceVisualProps) {
             style={{
               height: 5,
               borderRadius: 3,
-              background: 'rgba(255,255,255,0.14)',
+              background: 'color-mix(in srgb, var(--fg) 14%, transparent)',
               width: active ? `${w * 100}%` : `${w * 60}%`,
               transition: `width 1s cubic-bezier(.2,.7,.2,1) ${i * 0.08}s`,
             }}
