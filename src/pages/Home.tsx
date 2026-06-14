@@ -6,7 +6,7 @@ import { Services } from '@/components/sections/Services';
 import { Process } from '@/components/sections/Process';
 import { LiveProgress } from '@/components/sections/LiveProgress';
 import { Work } from '@/components/sections/Work';
-import { Testimonials } from '@/components/sections/Testimonials';
+import Testimonials from '@/components/ui/testimonials-demo';
 import { FAQ } from '@/components/sections/FAQ';
 import { CTA } from '@/components/sections/CTA';
 import { useReveal } from '@/hooks/useReveal';
