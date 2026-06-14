@@ -1,18 +1,207 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Icon } from '@/components/icons/Icon';
-import { GhostButton } from '@/components/ui/GhostButton';
+import { motion } from 'framer-motion';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { ProjectPreview } from './ProjectPreview';
+import { GhostButton } from '@/components/ui/GhostButton';
 import { useProjects } from '@/admin/store';
+import type { ProjectDetail, ProjectImage } from '@/data/projects';
+
+function HoverSlideshow({
+  images,
+  fallback,
+}: {
+  images: ProjectImage[];
+  fallback: { tone: string; client: string };
+}) {
+  const [active, setActive] = useState(0);
+  const [hovered, setHovered] = useState(false);
+
+  useEffect(() => {
+    if (!hovered || images.length <= 1) return;
+    const interval = setInterval(() => {
+      setActive((prev) => (prev + 1) % images.length);
+    }, 1500);
+    return () => clearInterval(interval);
+  }, [hovered, images.length]);
+
+  if (images.length === 0) {
+    return (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          background: `linear-gradient(135deg, ${fallback.tone}35, ${fallback.tone}08)`,
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {images.map((img, i) => (
+        <motion.div
+          key={img.src}
+          initial={false}
+          animate={{
+            opacity: i === active ? 1 : 0,
+            x: i === active ? '0%' : i < active ? '-100%' : '100%',
+          }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <img
+            src={img.src}
+            alt={img.alt ?? fallback.client}
+            loading="lazy"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+function CaseStudyCard({ project, reversed, index }: { project: ProjectDetail; reversed: boolean; index: number }) {
+  const images = project.images ?? [];
+
+  return (
+    <motion.div
+      className="card work-case-card"
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{
+        duration: 0.7,
+        delay: index * 0.1,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      whileHover={{ y: -6 }}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: reversed ? '1fr 1.15fr' : '1.15fr 1fr',
+        gap: 48,
+        alignItems: 'center',
+        padding: 40,
+        borderRadius: 28,
+        border: '1px solid var(--line)',
+        background: 'var(--card)',
+        boxShadow: 'var(--card-shadow)',
+        cursor: 'default',
+      }}
+    >
+      <motion.div
+        style={{
+          order: reversed ? 2 : 1,
+          borderRadius: 20,
+          overflow: 'hidden',
+          border: '1px solid var(--line)',
+        }}
+        whileHover={{ scale: 1.02 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <Link
+          to={`/work/${project.slug}`}
+          style={{
+            display: 'block',
+            width: '100%',
+            aspectRatio: '4 / 3',
+          }}
+        >
+          <HoverSlideshow images={images} fallback={{ tone: project.tone, client: project.client }} />
+        </Link>
+      </motion.div>
+
+      <motion.div
+        style={{ order: reversed ? 1 : 2, display: 'flex', flexDirection: 'column', gap: 20 }}
+        initial={{ opacity: 0, x: reversed ? -30 : 30 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.6, delay: index * 0.1 + 0.2, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <Link to={`/work/${project.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <h3
+            className="display"
+            style={{
+              fontSize: 'clamp(22px, 2.8vw, 32px)',
+              fontWeight: 500,
+              lineHeight: 1.15,
+              margin: 0,
+            }}
+          >
+            {project.title}
+          </h3>
+        </Link>
+
+        <p style={{ margin: 0, color: 'var(--fg-dim)', fontSize: 15, lineHeight: 1.65 }}>
+          {project.summary}
+        </p>
+
+        {project.testimonial?.quote && (
+          <p
+            style={{
+              margin: 0,
+              color: 'var(--fg-dim)',
+              fontSize: 14,
+              lineHeight: 1.6,
+              borderLeft: `2px solid ${project.tone}`,
+              paddingLeft: 16,
+            }}
+          >
+            “{project.testimonial.quote}”
+          </p>
+        )}
+
+        {project.testimonial?.author && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: `${project.tone}20`,
+                border: `1px solid ${project.tone}50`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: project.tone,
+                fontFamily: 'var(--font-mono)',
+                fontSize: 12,
+              }}
+            >
+              {project.testimonial.author
+                .split(' ')
+                .map((n) => n[0])
+                .join('')
+                .slice(0, 2)}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--fg)' }}>
+                {project.testimonial.author}
+              </span>
+              <span style={{ fontSize: 13, color: 'var(--fg-dim)' }}>{project.testimonial.role}</span>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export function Work() {
   const [allProjects] = useProjects();
   const PROJECTS = allProjects.slice(0, 4);
-  const [hovered, setHovered] = useState<string | null>(null);
 
   return (
-    <section id="work" className="sec">
+    <section id="work" className="sec" style={{ padding: '120px 0' }}>
       <div className="container">
         <SectionHeader
           eyebrow="Our work"
@@ -20,139 +209,13 @@ export function Work() {
           sub="A few examples of what we’ve built and grown."
         />
 
-        <div className="work-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          {PROJECTS.map((p) => (
-            <Link
-              key={p.slug}
-              to={`/work/${p.slug}`}
-              onMouseEnter={() => setHovered(p.slug)}
-              onMouseLeave={() => setHovered(null)}
-              className="card work-card work-card__inner"
-              style={{
-                padding: 28,
-                borderRadius: 24,
-                display: 'flex',
-                flexDirection: 'column',
-                aspectRatio: '5 / 4',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  borderRadius: 16,
-                  position: 'relative',
-                  overflow: 'hidden',
-                  background: `
-                  linear-gradient(135deg, ${p.tone}40, ${p.tone}10),
-                  repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 12px),
-                  #0a0b13
-                `,
-                  border: '1px solid var(--line)',
-                }}
-              >
-                <ProjectPreview
-                  images={p.images}
-                  visualIdx={p.visualIdx}
-                  tone={p.tone}
-                  animate={hovered === p.slug}
-                />
-                <div
-                  className="mono"
-                  style={{
-                    position: 'absolute',
-                    top: 14,
-                    left: 14,
-                    padding: '4px 8px',
-                    borderRadius: 6,
-                    background: 'rgba(0,0,0,0.4)',
-                    backdropFilter: 'blur(6px)',
-                    color: 'rgba(236, 236, 242, 0.62)',
-                  }}
-                >
-                  {p.category}
-                </div>
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 14,
-                    right: 14,
-                    width: 36,
-                    height: 36,
-                    borderRadius: '50%',
-                    background: 'rgba(0,0,0,0.5)',
-                    backdropFilter: 'blur(6px)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'rgba(236, 236, 242, 0.62)',
-                    border: '1px solid var(--line)',
-                    transform: hovered === p.slug ? 'rotate(0)' : 'rotate(-45deg)',
-                    transition: 'transform .4s cubic-bezier(.2,.7,.2,1)',
-                  }}
-                >
-                  <Icon.ArrowUpRight size={16} />
-                </div>
-                {p.liveUrl?.trim() && (
-                  <button
-                    type="button"
-                    className="work-card__live"
-                    style={{ left: 14, bottom: 14 }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      window.open(p.liveUrl, '_blank', 'noopener,noreferrer');
-                    }}
-                    title={`Open live site: ${p.liveUrl}`}
-                    aria-label={`Open live site for ${p.client} in a new tab`}
-                  >
-                    <span className="work-card__live-dot" aria-hidden="true" />
-                    Live <Icon.ArrowUpRight size={11} />
-                  </button>
-                )}
-              </div>
-
-              <div style={{ paddingTop: 22, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      background: p.tone,
-                    }}
-                  />
-                  <span className="mono" style={{ color: 'var(--fg-dim)' }}>
-                    {p.client}
-                  </span>
-                </div>
-                <div className="display" style={{ fontSize: 22, fontWeight: 500, lineHeight: 1.2 }}>
-                  {p.title}
-                </div>
-                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 4 }}>
-                  {p.tags.map((t) => (
-                    <span
-                      key={t}
-                      style={{
-                        padding: '4px 10px',
-                        borderRadius: 999,
-                        fontSize: 12,
-                        border: '1px solid var(--line)',
-                        color: 'var(--fg-dim)',
-                        background: 'rgba(255,255,255,0.02)',
-                      }}
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </Link>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 40, marginTop: 72 }}>
+          {PROJECTS.map((p, idx) => (
+            <CaseStudyCard key={p.slug} project={p} reversed={idx % 2 === 1} index={idx} />
           ))}
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 64 }}>
           <GhostButton text="See all projects" onClick={() => { window.location.href = '/work'; }} />
         </div>
       </div>
