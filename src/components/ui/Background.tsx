@@ -46,15 +46,18 @@ export function Background() {
 
     const initShapes = () => {
       resize();
-      const count = Math.floor((w * h) / 18000);
+      const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+      const count = Math.floor((w * h) / 35000);
       shapes.current = Array.from({ length: count }, () => {
         const sides = Math.random() > 0.4
           ? [3, 4, 6][Math.floor(Math.random() * 3)]
-          : 0; // 0 = circle
+          : 0;
         const isOrange = Math.random() < 0.15;
         const baseAlpha = isOrange
           ? Math.random() * 0.2 + 0.08
-          : Math.random() * 0.12 + 0.03;
+          : isLight
+            ? Math.random() * 0.25 + 0.15
+            : Math.random() * 0.12 + 0.03;
         return {
           x: Math.random() * w,
           y: Math.random() * h,
@@ -73,7 +76,12 @@ export function Background() {
       });
     };
 
-    const drawPolygon = (cx: number, cy: number, r: number, sides: number, rot: number, alpha: number, isOrange: boolean, innerR: number) => {
+    const getFgRgb = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      return theme === 'light' ? '26, 20, 16' : '255, 255, 255';
+    };
+
+    const drawPolygon = (cx: number, cy: number, r: number, sides: number, rot: number, alpha: number, isOrange: boolean, innerR: number, fgRgb: string) => {
       if (sides === 0) {
         ctx.beginPath();
         ctx.arc(cx, cy, r, 0, Math.PI * 2);
@@ -88,7 +96,6 @@ export function Background() {
         }
         ctx.closePath();
 
-        // Inner shape
         if (innerR > 0) {
           for (let i = 0; i <= sides; i++) {
             const angle = rot + Math.PI / sides + (i / sides) * Math.PI * 2;
@@ -103,7 +110,7 @@ export function Background() {
 
       ctx.strokeStyle = isOrange
         ? `rgba(255, 129, 58, ${alpha})`
-        : `rgba(255, 255, 255, ${alpha})`;
+        : `rgba(${fgRgb}, ${alpha})`;
       ctx.lineWidth = isOrange ? 1 : 0.6;
       ctx.stroke();
     };
@@ -116,6 +123,7 @@ export function Background() {
 
       // drawGrid();
 
+      const fgRgb = getFgRgb();
       const mx = mouse.current.x;
       const my = mouse.current.y;
       const mouseActive = mouse.current.active;
@@ -145,7 +153,7 @@ export function Background() {
           : 0;
         const alpha = s.baseAlpha + mouseBoost + pulse * 0.12;
 
-        drawPolygon(s.x, s.y, s.r, s.sides, s.rot, alpha, s.isOrange, s.innerR);
+        drawPolygon(s.x, s.y, s.r, s.sides, s.rot, alpha, s.isOrange, s.innerR, fgRgb);
       }
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);

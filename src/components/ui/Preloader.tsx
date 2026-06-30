@@ -76,7 +76,7 @@ export function Preloader() {
       className={`preloader${phase === 'exiting' ? ' is-exiting' : ''}`}
       aria-hidden={phase === 'exiting'}
     >
-      <div className="preloader__grid" />
+
       <div className="preloader__accent-line" />
 
       <div className="preloader__stage">
