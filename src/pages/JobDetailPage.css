@@ -22,7 +22,7 @@
 
 /* Header */
 .jd-header {
-  padding: 160px 0 48px;
+  padding: 140px 24px 40px;
   border-bottom: 1px solid var(--line);
 }
 .jd-crumbs {
@@ -46,7 +46,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 26px;
+  margin-top: 24px;
   padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--tone, var(--accent-1)) 35%, transparent);
@@ -57,14 +57,14 @@
   letter-spacing: 0.12em;
 }
 .jd-header__title {
-  margin: 20px 0 0;
-  font-size: clamp(40px, 6.4vw, 88px);
-  font-weight: 500;
+  margin: 16px 0 0;
+  font-size: clamp(36px, 6.4vw, 84px);
+  font-weight: 600;
   line-height: 1;
   letter-spacing: -0.03em;
 }
 .jd-header__sub {
-  margin: 22px 0 0;
+  margin: 18px 0 0;
   max-width: 640px;
   font-size: clamp(15px, 1.3vw, 18px);
   line-height: 1.6;
@@ -75,13 +75,13 @@
 .jd-spec {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  margin: 44px 0 0;
+  margin: 36px 0 0;
   border: 1px solid var(--line-strong);
   border-radius: 14px;
   overflow: hidden;
 }
 .jd-spec__cell {
-  padding: 20px 22px;
+  padding: 18px 20px;
   border-left: 1px solid var(--line);
 }
 .jd-spec__cell:first-child {
@@ -95,35 +95,38 @@
   color: var(--fg-faint);
 }
 .jd-spec__cell dd {
-  margin: 8px 0 0;
-  font-size: clamp(16px, 1.6vw, 22px);
+  margin: 6px 0 0;
+  font-size: clamp(15px, 1.6vw, 20px);
   font-weight: 500;
 }
 
 /* Body — sticky rail + flowing content */
 .jd-body {
   display: grid;
-  grid-template-columns: minmax(280px, 340px) 1fr;
-  gap: clamp(32px, 5vw, 80px);
+  grid-template-columns: minmax(260px, 320px) 1fr;
+  gap: clamp(28px, 4vw, 64px);
   align-items: start;
-  padding-top: 56px;
+  padding-top: 48px;
   padding-bottom: 40px;
 }
 .jd-rail {
   position: sticky;
-  top: 110px;
+  top: 100px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 .jd-rail__card {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 26px 24px;
+  padding: 24px 22px;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 16px;
   background: var(--card);
+}
+.jd-rail__card .neon-button {
+  width: 100%;
 }
 .jd-rail__blurb {
   margin: 0;
@@ -149,8 +152,8 @@
   min-width: 0;
 }
 .jd-lede {
-  margin: 0 0 18px;
-  font-size: clamp(17px, 1.5vw, 20px);
+  margin: 0 0 16px;
+  font-size: clamp(16px, 1.4vw, 19px);
   line-height: 1.65;
   color: var(--fg-dim);
 }
@@ -158,8 +161,8 @@
   margin-bottom: 0;
 }
 .jd-section {
-  margin-top: clamp(40px, 5vh, 64px);
-  padding-top: 28px;
+  margin-top: clamp(32px, 4vh, 52px);
+  padding-top: 24px;
   border-top: 1px solid var(--line);
 }
 .jd-section:first-child {
@@ -169,11 +172,11 @@
 }
 .jd-list {
   list-style: none;
-  margin: 20px 0 0;
+  margin: 16px 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 .jd-list li {
   display: flex;
@@ -189,7 +192,7 @@
 
 /* Closing band */
 .jd-cta {
-  padding: 72px 0 120px;
+  padding: 56px 24px 100px;
 }
 .jd-cta__inner {
   display: flex;
@@ -198,12 +201,12 @@
   gap: 28px;
   flex-wrap: wrap;
   border-top: 1px solid var(--line-strong);
-  padding-top: 48px;
+  padding-top: 40px;
 }
 .jd-cta__title {
   margin: 0;
-  font-size: clamp(40px, 6vw, 84px);
-  font-weight: 500;
+  font-size: clamp(36px, 6vw, 80px);
+  font-weight: 600;
   line-height: 1;
   letter-spacing: -0.03em;
 }
@@ -216,10 +219,13 @@
 /* Responsive */
 @media (max-width: 900px) {
   .jd-header {
-    padding: 140px 0 40px;
+    padding: 120px 20px 36px;
   }
   .jd-body {
     grid-template-columns: 1fr;
+    padding-top: 36px;
+    padding-left: 20px;
+    padding-right: 20px;
   }
   .jd-rail {
     position: static;
@@ -232,5 +238,46 @@
   }
   .jd-spec__cell:nth-child(n + 3) {
     border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 560px) {
+  .jd-header {
+    padding: 100px 16px 28px;
+  }
+  .jd-header__title {
+    font-size: 32px;
+  }
+  .jd-header__sub {
+    margin-top: 14px;
+  }
+  .jd-body {
+    padding: 28px 16px 32px;
+  }
+  .jd-spec {
+    grid-template-columns: 1fr;
+  }
+  .jd-spec__cell {
+    border-left: none;
+    border-top: 1px solid var(--line);
+  }
+  .jd-spec__cell:first-child {
+    border-top: none;
+  }
+  .jd-cta {
+    padding: 40px 16px 80px;
+  }
+  .jd-cta__inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .jd-cta__actions {
+    width: 100%;
+  }
+  .jd-cta__actions .neon-button {
+    flex: 1;
+  }
+  .jd-rail__card {
+    padding: 20px 18px;
   }
 }
