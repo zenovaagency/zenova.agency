@@ -37,33 +37,33 @@
 }
 
 .inv-status-badge--draft {
-  background: rgba(220, 140, 30, 0.12);
+  background: #1f1800;
   color: #dc8c1e;
-  border: 1px solid rgba(220, 140, 30, 0.3);
+  border: 1px solid #4a3a00;
 }
 
 .inv-status-badge--sent {
-  background: rgba(58, 91, 255, 0.1);
+  background: #0f1533;
   color: #5b7bff;
-  border: 1px solid rgba(58, 91, 255, 0.3);
+  border: 1px solid #1a2b66;
 }
 
 .inv-status-badge--paid {
-  background: rgba(34, 168, 96, 0.1);
+  background: #0a1f14;
   color: #22a860;
-  border: 1px solid rgba(34, 168, 96, 0.3);
+  border: 1px solid #154a2e;
 }
 
 .inv-status-badge--overdue {
-  background: rgba(220, 60, 60, 0.1);
+  background: #200a0a;
   color: #dc3c3c;
-  border: 1px solid rgba(220, 60, 60, 0.3);
+  border: 1px solid #4a1a1a;
 }
 
 .inv-status-badge--cancelled {
-  background: rgba(160, 165, 178, 0.1);
-  color: var(--fg-faint);
-  border: 1px solid rgba(160, 165, 178, 0.3);
+  background: #17181c;
+  color: #a0a5b2;
+  border: 1px solid #2a2c33;
 }
 
 /* ------------------------------------------------------------------ */
@@ -98,14 +98,10 @@
 }
 
 .inv-section {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.005));
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 22px;
-}
-
-[data-theme='light'] .inv-section {
-  background: linear-gradient(180deg, rgba(14, 15, 23, 0.02), rgba(14, 15, 23, 0.005));
 }
 
 .inv-section__title {
@@ -165,9 +161,9 @@
 }
 
 .inv-items-table__remove:hover {
-  background: rgba(220, 60, 60, 0.1);
+  background: #200a0a;
   color: #dc3c3c;
-  border-color: rgba(220, 60, 60, 0.3);
+  border-color: #4a1a1a;
 }
 
 .inv-summary {
@@ -223,17 +219,13 @@
   position: fixed;
   inset: 0;
   z-index: 100;
-  background: rgba(6, 6, 12, 0.75);
+  background: var(--nav-bg-strong);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
   animation: inv-fade-in 0.2s ease-out;
-}
-
-[data-theme='light'] .inv-preview-overlay {
-  background: rgba(16, 18, 30, 0.5);
 }
 
 @keyframes inv-fade-in {
@@ -249,7 +241,7 @@
   border-radius: 18px;
   border: 1px solid var(--line-strong);
   background: var(--bg-2);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--card-shadow-hover);
   overflow: hidden;
   animation: inv-modal-in 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -294,7 +286,7 @@
   margin: 0 auto;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 24px #000;
   padding: 48px;
   color: #12121a;
   font-family: 'Manrope', sans-serif;

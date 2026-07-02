@@ -155,7 +155,7 @@ export function InvoiceList() {
 
       {filtered.length === 0 ? (
         <div className="adm-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
-          <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.3 }}>
+          <div style={{ fontSize: 40, marginBottom: 16, color: 'var(--fg-faint)' }}>
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--fg-faint)' }}>
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <polyline points="14 2 14 8 20 8" />

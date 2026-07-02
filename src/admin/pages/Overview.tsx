@@ -102,7 +102,7 @@ export function Overview() {
                   padding: '12px 14px',
                   borderRadius: 10,
                   border: '1px solid var(--line)',
-                  background: 'rgba(255,255,255,0.02)',
+                  background: 'var(--card)',
                   textDecoration: 'none',
                   color: 'var(--fg)',
                 }}
@@ -144,7 +144,7 @@ export function Overview() {
                     padding: '12px 14px',
                     borderRadius: 10,
                     border: '1px solid var(--line)',
-                    background: 'rgba(255,255,255,0.02)',
+                    background: 'var(--card)',
                     textDecoration: 'none',
                     color: 'var(--fg)',
                   }}
@@ -172,8 +172,8 @@ export function Overview() {
                         gap: 4,
                         padding: '4px 9px',
                         borderRadius: 999,
-                        background: 'rgba(61, 220, 151, 0.1)',
-                        border: '1px solid rgba(61, 220, 151, 0.3)',
+                        background: 'var(--card)',
+                        border: '1px solid rgba(61, 220, 151, 0.35)',
                         color: 'var(--fg)',
                         fontSize: 11,
                         textDecoration: 'none',

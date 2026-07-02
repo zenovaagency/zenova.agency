@@ -57,7 +57,7 @@ export function AdminLogin() {
             fontFamily: 'var(--font-display)',
             fontWeight: 600,
             fontSize: 18,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.35)',
+            boxShadow: '0 4px 16px #000',
           }}
         >
           Z
