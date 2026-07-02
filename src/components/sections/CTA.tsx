@@ -27,7 +27,7 @@ export function CTA() {
             <h2 className="display" style={{ fontSize: 'clamp(40px, 6vw, 80px)', margin: 0, fontWeight: 500 }}>
               {cta.title}
               <br />
-              <span className="gradient-text">{cta.accentTitle}</span>
+              <span className="gradient-text accent-italic">{cta.accentTitle}</span>
             </h2>
             <p
               className="cta-sub"

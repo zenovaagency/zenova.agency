@@ -25,7 +25,6 @@ function resolveBase(): string {
 }
 
 const base = resolveBase();
-// eslint-disable-next-line no-console
 console.log(`[vite] base=${base}`);
 
 export default defineConfig({

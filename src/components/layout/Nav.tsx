@@ -4,11 +4,13 @@ import { motion } from 'framer-motion';
 import { Logo } from './Logo';
 import { Icon } from '@/components/icons/Icon';
 import type { Theme } from '@/types/tweaks';
+import { applyTheme, getInitialTheme } from '@/lib/theme';
 
 const NAV_LINKS = [
   { label: 'Services', to: '/services' },
   { label: 'Process', to: '/process' },
   { label: 'Work', to: '/work' },
+  { label: 'Careers', to: '/careers' },
   { label: 'About', to: '/about' },
 ];
 
@@ -18,23 +20,10 @@ const THEME_LABELS: Record<Theme, string> = {
   light: 'Light',
 };
 
-function getStoredTheme(): Theme {
-  try {
-    const stored = localStorage.getItem('zenova-theme');
-    if (stored === 'dark' || stored === 'light') return stored;
-  } catch { /* noop */ }
-  return 'dark';
-}
-
-function applyTheme(theme: Theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  try { localStorage.setItem('zenova-theme', theme); } catch { /* noop */ }
-}
-
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<Theme>(getStoredTheme);
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const location = useLocation();
 
   useEffect(() => {
