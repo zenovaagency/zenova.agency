@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { NeonButton } from '@/components/ui/NeonButton';
+import { ApplyButton } from '@/components/ui/ApplyButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { Icon } from '@/components/icons/Icon';
 import { useJobs, useBrand } from '@/admin/store';
@@ -80,7 +80,7 @@ export function JobDetailPage() {
                 ? 'Apply through our hiring page — it only takes a few minutes.'
                 : `Send your CV and a short note to ${brand.careersEmail}.`}
             </p>
-            <NeonButton text="Apply now" size="md" onClick={apply} />
+            <ApplyButton text="Apply now" size="md" onClick={apply} />
           </div>
           <a className="jd-rail__mail mono" href={mailto}>
             Questions? {brand.careersEmail} <Icon.Arrow size={12} />
@@ -140,7 +140,7 @@ export function JobDetailPage() {
             your kind of work?
           </h2>
           <div className="jd-cta__actions">
-            <NeonButton text="Apply now" size="md" onClick={apply} />
+            <ApplyButton text="Apply now" size="md" onClick={apply} />
             <GhostButton text="See all roles" onClick={() => { window.location.href = '/careers'; }} />
           </div>
         </div>
