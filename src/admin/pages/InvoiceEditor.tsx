@@ -213,6 +213,7 @@ export function InvoiceEditor() {
                 + Add Item
               </button>
             </div>
+            <div className="inv-items-table__wrap">
             <table className="inv-items-table">
               <thead>
                 <tr>
@@ -275,6 +276,7 @@ export function InvoiceEditor() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
 
           <div className="inv-section">

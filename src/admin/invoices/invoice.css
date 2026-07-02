@@ -81,6 +81,10 @@
   .inv-editor {
     grid-template-columns: 1fr;
   }
+  .inv-editor__sidebar {
+    position: static;
+    top: auto;
+  }
 }
 
 .inv-editor__main {
@@ -116,9 +120,20 @@
   justify-content: space-between;
 }
 
+.inv-items-table__wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .inv-items-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+@media (max-width: 640px) {
+  .inv-items-table {
+    min-width: 480px;
+  }
 }
 
 .inv-items-table th {
@@ -289,7 +304,7 @@
   box-shadow: 0 4px 24px #000;
   padding: 48px;
   color: #12121a;
-  font-family: 'Manrope', sans-serif;
+  font-family: 'Satoshi', system-ui, sans-serif;
 }
 
 .inv-preview-doc__accent-bar {
@@ -307,7 +322,7 @@
 }
 
 .inv-preview-doc__company-name {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Clash Display', system-ui, sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #12121a;
@@ -321,7 +336,7 @@
 }
 
 .inv-preview-doc__invoice-title {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Clash Display', system-ui, sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #ff813a;

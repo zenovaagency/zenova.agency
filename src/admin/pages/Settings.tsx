@@ -203,6 +203,7 @@ export function Settings() {
         {draft.locations.map((l, i) => (
           <div
             key={l.id}
+            className="adm-grid-row"
             style={{
               display: 'grid',
               gridTemplateColumns: '1.4fr 0.6fr 2fr auto',

@@ -669,6 +669,7 @@
 .adm-textarea,
 .adm-select {
   width: 100%;
+  min-width: 0;
   padding: 11px 14px;
   border-radius: 10px;
   border: 1px solid var(--line);
@@ -723,6 +724,16 @@
   .adm-row--2,
   .adm-row--3 {
     grid-template-columns: 1fr;
+  }
+  .adm-overview-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Multi-input editor rows: stack on small phones so fields stay usable */
+@media (max-width: 560px) {
+  .adm-grid-row {
+    grid-template-columns: 1fr !important;
   }
 }
 
@@ -1045,7 +1056,8 @@
   font-size: 13px;
   font-weight: 500;
   box-shadow: 0 12px 32px var(--adm-shadow);
-  z-index: 100;
+  /* above .inv-preview-overlay (100) so toasts stay visible over the modal */
+  z-index: 120;
   display: flex;
   align-items: center;
   gap: 10px;

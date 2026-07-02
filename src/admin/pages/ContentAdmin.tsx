@@ -590,6 +590,7 @@ function AboutEditor({
         {about.roles.map((r, i) => (
           <div
             key={r.id}
+            className="adm-grid-row"
             style={{
               display: 'grid',
               gridTemplateColumns: '2fr 1fr 2fr auto',
