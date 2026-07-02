@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
@@ -8,6 +8,8 @@ import { ServiceDetailPage } from '@/pages/ServiceDetailPage';
 import { ProcessPage } from '@/pages/ProcessPage';
 import { WorkPage } from '@/pages/WorkPage';
 import { ProjectDetailPage } from '@/pages/ProjectDetailPage';
+import { CareersPage } from '@/pages/CareersPage';
+import { JobDetailPage } from '@/pages/JobDetailPage';
 import { AboutPage } from '@/pages/AboutPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
@@ -23,6 +25,8 @@ import { ServicesAdmin } from '@/admin/pages/ServicesAdmin';
 import { ServiceEditor } from '@/admin/pages/ServiceEditor';
 import { ProjectsAdmin } from '@/admin/pages/ProjectsAdmin';
 import { ProjectEditor } from '@/admin/pages/ProjectEditor';
+import { JobsAdmin } from '@/admin/pages/JobsAdmin';
+import { JobEditor } from '@/admin/pages/JobEditor';
 import { TeamAdmin } from '@/admin/pages/TeamAdmin';
 import { ContentAdmin } from '@/admin/pages/ContentAdmin';
 import { MediaAdmin } from '@/admin/pages/MediaAdmin';
@@ -34,6 +38,7 @@ import { TWEAK_DEFAULTS } from '@/config/tweaks';
 import { useSmoothScroll } from '@/hooks/useSmoothScroll';
 import { useTweaks } from '@/hooks/useTweaks';
 import { applyPalette } from '@/lib/palette';
+import { applyTheme, getInitialTheme } from '@/lib/theme';
 import { hydrateSite } from '@/admin/store';
 
 // Tweaks panel ships only in dev builds — lazy import is tree-shaken in prod.
@@ -52,9 +57,17 @@ export function App() {
     applyPalette(t.palette);
   }, [t.palette]);
 
+  // On mount, honor the user's stored theme choice; only follow t.theme when
+  // the dev tweaks panel actually changes it (never clobber storage with the
+  // static default).
+  const themeInitialized = useRef(false);
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', t.theme);
-    try { localStorage.setItem('zenova-theme', t.theme); } catch { /* noop */ }
+    if (!themeInitialized.current) {
+      themeInitialized.current = true;
+      applyTheme(getInitialTheme());
+      return;
+    }
+    applyTheme(t.theme);
   }, [t.theme]);
 
   return (
@@ -123,7 +136,7 @@ function PublicLayout({
   useSmoothScroll();
   const location = useLocation();
   const isKnownPath =
-    /^\/(services|process|work|about|contact)?(\/.*)?$/.test(location.pathname);
+    /^\/(services|process|work|about|contact|careers)?(\/.*)?$/.test(location.pathname);
   return (
     <>
       <Nav />
@@ -163,6 +176,8 @@ function AnimatedRoutes({ rotateMs, showMarquee, showTestimonials }: AnimatedRou
         <Route path="/process" element={<ProcessPage />} />
         <Route path="/work" element={<WorkPage />} />
         <Route path="/work/:slug" element={<ProjectDetailPage />} />
+        <Route path="/careers" element={<CareersPage />} />
+        <Route path="/careers/:slug" element={<JobDetailPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="*" element={<NotFoundPage />} />
@@ -179,6 +194,8 @@ function AdminRoutes() {
       <Route path="services/:slug" element={<ServiceEditor />} />
       <Route path="projects" element={<ProjectsAdmin />} />
       <Route path="projects/:slug" element={<ProjectEditor />} />
+      <Route path="jobs" element={<JobsAdmin />} />
+      <Route path="jobs/:slug" element={<JobEditor />} />
       <Route path="team" element={<TeamAdmin />} />
       <Route path="content" element={<ContentAdmin />} />
       <Route path="media" element={<MediaAdmin />} />

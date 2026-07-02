@@ -1,0 +1,236 @@
+/* ── Job detail: role dossier ── */
+
+.jd-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--fg-faint);
+}
+
+.jd-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--tone, var(--accent-1)) 30%, transparent);
+  background: color-mix(in srgb, var(--tone, var(--accent-1)) 10%, transparent);
+  color: var(--tone, var(--accent-1));
+}
+
+/* Header */
+.jd-header {
+  padding: 160px 0 48px;
+  border-bottom: 1px solid var(--line);
+}
+.jd-crumbs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--fg-faint);
+}
+.jd-crumbs a {
+  color: var(--fg-faint);
+  transition: color 0.2s;
+}
+.jd-crumbs a:hover {
+  color: var(--fg-dim);
+}
+.jd-crumbs__here {
+  color: var(--fg-dim);
+}
+.jd-header__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 26px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--tone, var(--accent-1)) 35%, transparent);
+  background: color-mix(in srgb, var(--tone, var(--accent-1)) 8%, transparent);
+  color: var(--tone, var(--accent-1));
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.jd-header__title {
+  margin: 20px 0 0;
+  font-size: clamp(40px, 6.4vw, 88px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.jd-header__sub {
+  margin: 22px 0 0;
+  max-width: 640px;
+  font-size: clamp(15px, 1.3vw, 18px);
+  line-height: 1.6;
+  color: var(--fg-dim);
+}
+
+/* Spec table */
+.jd-spec {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin: 44px 0 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.jd-spec__cell {
+  padding: 20px 22px;
+  border-left: 1px solid var(--line);
+}
+.jd-spec__cell:first-child {
+  border-left: none;
+}
+.jd-spec__cell dt {
+  margin: 0;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fg-faint);
+}
+.jd-spec__cell dd {
+  margin: 8px 0 0;
+  font-size: clamp(16px, 1.6vw, 22px);
+  font-weight: 500;
+}
+
+/* Body — sticky rail + flowing content */
+.jd-body {
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) 1fr;
+  gap: clamp(32px, 5vw, 80px);
+  align-items: start;
+  padding-top: 56px;
+  padding-bottom: 40px;
+}
+.jd-rail {
+  position: sticky;
+  top: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.jd-rail__card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 26px 24px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+}
+.jd-rail__blurb {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fg-dim);
+}
+.jd-rail__mail {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--fg-faint);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.jd-rail__mail:hover {
+  color: var(--tone, var(--accent-1));
+}
+
+/* Content column */
+.jd-content {
+  min-width: 0;
+}
+.jd-lede {
+  margin: 0 0 18px;
+  font-size: clamp(17px, 1.5vw, 20px);
+  line-height: 1.65;
+  color: var(--fg-dim);
+}
+.jd-lede:last-child {
+  margin-bottom: 0;
+}
+.jd-section {
+  margin-top: clamp(40px, 5vh, 64px);
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.jd-section:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.jd-list {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.jd-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--fg);
+}
+.jd-list li .jd-check {
+  margin-top: 2px;
+}
+
+/* Closing band */
+.jd-cta {
+  padding: 72px 0 120px;
+}
+.jd-cta__inner {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line-strong);
+  padding-top: 48px;
+}
+.jd-cta__title {
+  margin: 0;
+  font-size: clamp(40px, 6vw, 84px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.jd-cta__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .jd-header {
+    padding: 140px 0 40px;
+  }
+  .jd-body {
+    grid-template-columns: 1fr;
+  }
+  .jd-rail {
+    position: static;
+  }
+  .jd-spec {
+    grid-template-columns: 1fr 1fr;
+  }
+  .jd-spec__cell:nth-child(odd) {
+    border-left: none;
+  }
+  .jd-spec__cell:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+}
