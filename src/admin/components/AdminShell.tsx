@@ -96,6 +96,17 @@ const NAV: NavItem[] = [
     ),
   },
   {
+    to: '/admin/jobs',
+    label: 'Careers',
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="7" width="20" height="14" rx="2" />
+        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <path d="M2 13h20" />
+      </svg>
+    ),
+  },
+  {
     to: '/admin/team',
     label: 'Team',
     icon: (

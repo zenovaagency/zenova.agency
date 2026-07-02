@@ -23,6 +23,7 @@ import {
 } from '@/lib/session';
 import { SERVICES as DEFAULT_SERVICES, type ServiceDetail } from '@/data/services';
 import { PROJECTS as DEFAULT_PROJECTS, type ProjectDetail } from '@/data/projects';
+import { JOBS as DEFAULT_JOBS, type JobDetail } from '@/data/jobs';
 
 type Listener = () => void;
 type Status = 'idle' | 'loading' | 'ready' | 'error';
@@ -369,6 +370,11 @@ export const projectsStore = new Store<ProjectDetail[]>({
   resourcePath: '/admin/projects',
   cacheKey: 'zenova.cache.projects',
 });
+export const jobsStore = new Store<JobDetail[]>({
+  defaults: DEFAULT_JOBS,
+  resourcePath: '/admin/jobs',
+  cacheKey: 'zenova.cache.jobs',
+});
 export const teamStore = new Store<TeamMember[]>({
   defaults: DEFAULT_TEAM,
   resourcePath: '/admin/team',
@@ -388,6 +394,7 @@ export const brandStore = new Store<BrandSettings>({
 interface SiteBundle {
   services: ServiceDetail[];
   projects: ProjectDetail[];
+  jobs?: JobDetail[];
   team: TeamMember[];
   content: SiteContent;
   brand: BrandSettings;
@@ -400,6 +407,7 @@ export function hydrateSite(force = false): Promise<void> {
   if (!force && hydrationPromise) return hydrationPromise;
   servicesStore.markLoading();
   projectsStore.markLoading();
+  jobsStore.markLoading();
   teamStore.markLoading();
   contentStore.markLoading();
   brandStore.markLoading();
@@ -409,6 +417,9 @@ export function hydrateSite(force = false): Promise<void> {
       const bundle = await api<SiteBundle>('/public/site');
       servicesStore.hydrateFrom(bundle.services);
       projectsStore.hydrateFrom(bundle.projects);
+      // Guard: older backends may not include jobs in the bundle yet — keep
+      // the cached/default value in that case rather than wiping it.
+      if (bundle.jobs) jobsStore.hydrateFrom(bundle.jobs);
       teamStore.hydrateFrom(bundle.team);
       contentStore.hydrateFrom(bundle.content);
       brandStore.hydrateFrom(bundle.brand);
@@ -416,6 +427,7 @@ export function hydrateSite(force = false): Promise<void> {
       const message = err instanceof Error ? err.message : 'Failed to load site data.';
       servicesStore.markError(message);
       projectsStore.markError(message);
+      jobsStore.markError(message);
       teamStore.markError(message);
       contentStore.markError(message);
       brandStore.markError(message);
@@ -444,6 +456,9 @@ export function useServices() {
 export function useProjects() {
   return useStore(projectsStore);
 }
+export function useJobs() {
+  return useStore(jobsStore);
+}
 export function useTeam() {
   return useStore(teamStore);
 }
@@ -462,10 +477,15 @@ export function findProjectLive(slug: string): ProjectDetail | undefined {
   return projectsStore.get().find((p) => p.slug === slug);
 }
 
+export function findJobLive(slug: string): JobDetail | undefined {
+  return jobsStore.get().find((j) => j.slug === slug);
+}
+
 export async function resetAll(): Promise<void> {
   await Promise.all([
     servicesStore.reset(),
     projectsStore.reset(),
+    jobsStore.reset(),
     teamStore.reset(),
     contentStore.reset(),
     brandStore.reset(),
@@ -617,6 +637,73 @@ export async function patchProject(
   }
 }
 
+export async function patchJob(
+  slug: string,
+  partial: Partial<JobDetail>,
+): Promise<JobDetail> {
+  const prev = jobsStore.get();
+  const idx = prev.findIndex((j) => j.slug === slug);
+  if (idx < 0) throw new Error(`Job '${slug}' is not in the local store.`);
+  const optimistic = prev.slice();
+  optimistic[idx] = { ...optimistic[idx], ...partial };
+  jobsStore.setLocal(optimistic);
+  try {
+    const saved = await api<JobDetail>(
+      `/admin/jobs/${encodeURIComponent(slug)}`,
+      { method: 'PATCH', body: partial, auth: true },
+    );
+    const next = jobsStore.get().slice();
+    const j = next.findIndex((job) => job.slug === slug || job.slug === saved.slug);
+    if (j >= 0) next[j] = saved;
+    else next.push(saved);
+    jobsStore.setLocal(next);
+    return saved;
+  } catch (err) {
+    jobsStore.setLocal(prev);
+    throw err;
+  }
+}
+
+export async function createJob(job: JobDetail): Promise<JobDetail> {
+  const prev = jobsStore.get();
+  if (prev.some((j) => j.slug === job.slug)) {
+    throw new Error(`Job '${job.slug}' already exists.`);
+  }
+  const optimistic = [...prev, job];
+  jobsStore.setLocal(optimistic);
+  try {
+    const saved = await api<JobDetail>('/admin/jobs', {
+      method: 'POST',
+      body: job,
+      auth: true,
+    });
+    const next = jobsStore.get().slice();
+    const j = next.findIndex((item) => item.slug === saved.slug);
+    if (j >= 0) next[j] = saved;
+    else next.push(saved);
+    jobsStore.setLocal(next);
+    return saved;
+  } catch (err) {
+    jobsStore.setLocal(prev);
+    throw err;
+  }
+}
+
+export async function deleteJob(slug: string): Promise<void> {
+  const prev = jobsStore.get();
+  const optimistic = prev.filter((j) => j.slug !== slug);
+  jobsStore.setLocal(optimistic);
+  try {
+    await api<void>(`/admin/jobs/${encodeURIComponent(slug)}`, {
+      method: 'DELETE',
+      auth: true,
+    });
+  } catch (err) {
+    jobsStore.setLocal(prev);
+    throw err;
+  }
+}
+
 export async function patchTeamMember(
   memberId: string,
   partial: Partial<TeamMember>,
@@ -648,6 +735,7 @@ export function exportAll() {
   return {
     services: servicesStore.get(),
     projects: projectsStore.get(),
+    jobs: jobsStore.get(),
     team: teamStore.get(),
     content: contentStore.get(),
     brand: brandStore.get(),
@@ -657,6 +745,7 @@ export function exportAll() {
 export function importAll(data: ReturnType<typeof exportAll>) {
   if (data.services) servicesStore.setLocal(data.services);
   if (data.projects) projectsStore.setLocal(data.projects);
+  if (data.jobs) jobsStore.setLocal(data.jobs);
   if (data.team) teamStore.setLocal(data.team);
   if (data.content) contentStore.setLocal(data.content);
   if (data.brand) brandStore.setLocal(data.brand);
