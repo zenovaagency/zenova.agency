@@ -14,7 +14,6 @@ import { AboutPage } from '@/pages/AboutPage';
 import { ContactPage } from '@/pages/ContactPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { Login } from '@/pages/Login';
-import { Background } from '@/components/ui/Background';
 import { AuthGate } from '@/components/ui/AuthGate';
 import { Overview } from '@/admin/pages/Overview';
 import { ClientOverview } from '@/client/pages/Overview';
@@ -75,7 +74,6 @@ export function App() {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
-      <Background />
       <Routes>
         {/* Unified login endpoint */}
         <Route path="/login" element={<Login />} />
