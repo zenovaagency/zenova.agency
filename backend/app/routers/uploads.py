@@ -53,20 +53,14 @@ async def list_uploads(
     return UploadList(items=[_to_item(o) for o in objects], count=len(objects))
 
 
-@router.post("/image", response_model=UploadResult, status_code=status.HTTP_201_CREATED)
-async def upload(
+async def _do_upload(
     current: CurrentAdmin,
-    file: UploadFile = File(...),
-    prefix: str = Form("projects"),
-    force: bool = Form(False),
+    file: UploadFile,
+    prefix: str,
+    force: bool,
+    kind: str,
 ) -> UploadResult:
-    """Upload an image or video.
-
-    By default the object's key is derived from the uploaded filename so the
-    library stays human-readable and clients can detect re-uploads. If a key
-    already exists the request fails with ``409 duplicate_upload``; pass
-    ``force=true`` to store the file with a ``(1)`` / ``(2)`` suffix instead.
-    """
+    """Shared handler for image and video uploads."""
     settings = get_settings()
     if not settings.uploads_enabled:
         raise StorageDisabled()
@@ -97,7 +91,7 @@ async def upload(
         )
         raise
     logger.info(
-        "upload_image",
+        f"upload_{kind}",
         by=str(current.id),
         key=key,
         original_name=file.filename,
@@ -114,6 +108,37 @@ async def upload(
         size=size,
         renamed=renamed,
     )
+
+
+@router.post("/image", response_model=UploadResult, status_code=status.HTTP_201_CREATED)
+async def upload(
+    current: CurrentAdmin,
+    file: UploadFile = File(...),
+    prefix: str = Form("projects"),
+    force: bool = Form(False),
+) -> UploadResult:
+    """Upload an image.
+
+    By default the object's key is derived from the uploaded filename so the
+    library stays human-readable and clients can detect re-uploads. If a key
+    already exists the request fails with ``409 duplicate_upload``; pass
+    ``force=true`` to store the file with a ``(1)`` / ``(2)`` suffix instead.
+    """
+    return await _do_upload(current, file, prefix, force, "image")
+
+
+@router.post("/video", response_model=UploadResult, status_code=status.HTTP_201_CREATED)
+async def upload_video(
+    current: CurrentAdmin,
+    file: UploadFile = File(...),
+    prefix: str = Form("services"),
+    force: bool = Form(False),
+) -> UploadResult:
+    """Upload a video.
+
+    Same duplicate-handling semantics as ``POST /admin/uploads/image``.
+    """
+    return await _do_upload(current, file, prefix, force, "video")
 
 
 @router.delete("/image", status_code=status.HTTP_204_NO_CONTENT)

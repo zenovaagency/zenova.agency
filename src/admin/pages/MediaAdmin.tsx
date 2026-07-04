@@ -8,6 +8,7 @@ import {
   deleteUpload,
   listUploads,
   uploadImage,
+  uploadVideo,
   type UploadListItem,
 } from '@/admin/store';
 import { bumpLibraryCache } from '@/admin/components/ImageField';
@@ -68,7 +69,9 @@ export function MediaAdmin() {
     async (file: File, atPrefix: Prefix, force = false) => {
       setUploading(true);
       try {
-        const result = await uploadImage(file, { prefix: atPrefix, force });
+        const isVideo = file.type.startsWith('video/');
+        const uploadFn = isVideo ? uploadVideo : uploadImage;
+        const result = await uploadFn(file, { prefix: atPrefix, force });
         setToast(
           result.renamed
             ? `Uploaded as "${result.name}".`
@@ -141,7 +144,7 @@ export function MediaAdmin() {
     <AdminShell
       crumbs={[{ label: 'Media' }]}
       title="Media library"
-      sub="Images uploaded to Cloudflare R2. Filenames are kept so duplicates can be spotted before they pile up."
+      sub="Images and videos uploaded to Cloudflare R2. Filenames are kept so duplicates can be spotted before they pile up."
       actions={
         <>
           <button className="adm-btn" onClick={() => void refresh()} disabled={loading}>
@@ -166,6 +169,14 @@ export function MediaAdmin() {
           <span style={{ flex: 1 }} />
           <span style={{ fontSize: 12, color: 'var(--fg-faint)' }}>
             {items.length} {items.length === 1 ? 'file' : 'files'}
+            {items.length > 0 && (
+              <span>
+                {' · '}
+                {items.filter((it) => it.content_type.startsWith('image/')).length} images
+                {' / '}
+                {items.filter((it) => it.content_type.startsWith('video/')).length} videos
+              </span>
+            )}
           </span>
         </div>
 
@@ -190,7 +201,7 @@ export function MediaAdmin() {
             {uploading ? 'Uploading…' : 'Click or drop an image or video here'}
           </div>
           <div style={{ fontSize: 12, color: 'var(--fg-faint)', marginTop: 4 }}>
-            Up to 10 MB · jpg, png, webp, gif, avif, svg, mp4, webm · saved as <code>{prefix}/&lt;filename&gt;</code>
+            Up to 100 MB · jpg, png, webp, gif, avif, svg, mp4, webm, mov · saved as <code>{prefix}/&lt;filename&gt;</code>
           </div>
         </label>
       </div>
@@ -201,7 +212,7 @@ export function MediaAdmin() {
             A file named <code>{pendingDup.file.name}</code> already exists.
           </div>
           <div style={{ fontSize: 13, color: 'var(--fg-dim)', marginBottom: 12 }}>
-            Use the existing image, or upload this one as a new copy — it will be
+            Use the existing file, or upload this one as a new copy — it will be
             saved with a <code>(1)</code> / <code>(2)</code> suffix so both stay in
             the library.
           </div>

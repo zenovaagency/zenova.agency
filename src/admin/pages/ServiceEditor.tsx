@@ -11,8 +11,7 @@ import {
   Toast,
   Field,
 } from '@/admin/components/Form';
-import { ImageField } from '@/admin/components/ImageField';
-import { VideoField } from '@/admin/components/VideoField';
+import { MediaField } from '@/admin/components/MediaField';
 import { Toggle } from '@/components/ui/inputs';
 import { createService, patchService, useServices } from '@/admin/store';
 import type {
@@ -213,18 +212,13 @@ export function ServiceEditor() {
             options={VISUAL_OPTIONS.map((v) => ({ value: v, label: v }))}
             onChange={(v) => update('visual', v as ServiceVisualKind)}
           />
-          <ImageField
-            label="Card image"
-            hint="Upload an image or animated GIF, or pick one from the media library. Falls back to the generated visual above if empty."
-            value={draft.image ?? ''}
-            onChange={(v) => update('image', v || undefined)}
-            prefix="services"
-          />
-          <VideoField
-            label="Hero video"
-            hint="Upload an MP4/WebM video, or pick one from the media library. Plays automatically with the image above as poster."
-            value={draft.video ?? ''}
-            onChange={(v) => update('video', v || undefined)}
+          <MediaField
+            label="Card media"
+            hint="Upload or pick an image (poster/fallback) and optionally add a video that plays on hover."
+            image={draft.image ?? ''}
+            video={draft.video ?? ''}
+            onImageChange={(v) => update('image', v)}
+            onVideoChange={(v) => update('video', v)}
             prefix="services"
           />
           <div className="adm-row adm-row--2">
