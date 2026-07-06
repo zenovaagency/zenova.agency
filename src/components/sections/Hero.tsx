@@ -54,6 +54,8 @@ export function Hero({ rotateMs }: HeroProps) {
         />
       </div> */}
 
+      <div className="hero-ambient" aria-hidden="true" />
+
       <div style={{ maxWidth: 1100, width: '100%', textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <div
           style={{

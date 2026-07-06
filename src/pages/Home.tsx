@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Hero } from '@/components/sections/Hero';
-import { Marquee } from '@/components/sections/Marquee';
 import { Services } from '@/components/sections/Services';
 import { Process } from '@/components/sections/Process';
 import { Work } from '@/components/sections/Work';
@@ -38,7 +37,6 @@ export function Home({ rotateMs, showMarquee, showTestimonials }: HomeProps) {
   return (
     <>
       <Hero rotateMs={rotateMs} />
-      {showMarquee && <Marquee />}
       <Services />
       <Process />
       {/* <LiveProgress /> */}

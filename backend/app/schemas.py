@@ -175,15 +175,25 @@ class HeroStat(_Base):
     label: str
 
 
+class HeroBrand(_Base):
+    id: str
+    name: str = ""
+    image: str = ""
+
+
 class HeroContent(_Base):
     badge: str
     headline: str
+    headlineAccent: str = ""
     rotatingWords: list[str] = Field(default_factory=list)
     sub: str
     primaryCta: str
     primaryCtaHref: str = ""
     secondaryCta: str
     secondaryCtaHref: str = ""
+    ratingText: str = ""
+    avatars: list[str] = Field(default_factory=list)
+    brands: list[HeroBrand] = Field(default_factory=list)
     stats: list[HeroStat] = Field(default_factory=list)
 
 
@@ -216,6 +226,23 @@ class TestimonialItem(_Base):
 class MarqueeItem(_Base):
     id: str
     label: str
+
+
+class ProcessStep(_Base):
+    id: str
+    icon: str = "Compass"
+    title: str
+    timeline: str = ""
+    blurb: str = ""
+    deliverables: list[str] = Field(default_factory=list)
+
+
+class ProcessContent(_Base):
+    eyebrow: str = "How we work"
+    title: str = ""
+    titleAccent: str = ""
+    sub: str = ""
+    steps: list[ProcessStep] = Field(default_factory=list)
 
 
 class AboutValue(_Base):
@@ -251,6 +278,7 @@ class SiteContent(_Base):
     faqs: list[FAQItem] = Field(default_factory=list)
     testimonials: list[TestimonialItem] = Field(default_factory=list)
     marquee: list[MarqueeItem] = Field(default_factory=list)
+    process: ProcessContent = Field(default_factory=ProcessContent)
     contactEmail: EmailStr
     about: AboutContent = Field(default_factory=AboutContent)
 
@@ -375,6 +403,7 @@ class SiteContentPatch(_Base):
     faqs: list[FAQItem] | None = None
     testimonials: list[TestimonialItem] | None = None
     marquee: list[MarqueeItem] | None = None
+    process: ProcessContent | None = None
     contactEmail: EmailStr | None = None
     about: AboutContent | None = None
 

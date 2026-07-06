@@ -14,6 +14,9 @@
   cursor: pointer;
   border-radius: var(--radius);
   transition: transform 0.15s ease;
+  /* Glow follows the active theme accent (palette-aware). */
+  --neon-glow: var(--accent-1, #ff813a);
+  border-color: color-mix(in srgb, var(--neon-glow) 20%, transparent);
 }
 
 .neon-button:active {
@@ -29,7 +32,7 @@
   border-radius: var(--radius);
   background: radial-gradient(
     140px circle at var(--x, 50%) var(--y, 50%),
-    #ff813a 0%,
+    var(--neon-glow) 0%,
     transparent 70%
   );
   opacity: 0;
@@ -175,7 +178,7 @@
 /* ─── Hover states ─── */
 .neon-button:hover .neon-button__icon-wrapper {
   transform: scale(1.12);
-  background: #ff813a;
+  background: var(--neon-glow);
   color: #0a0a0a;
 }
 

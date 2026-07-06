@@ -1,45 +1,17 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ServiceVisual } from './ServiceVisual';
 import { ServiceMedia } from './ServiceMedia';
 import { Icon } from '@/components/icons/Icon';
 import { useServices } from '@/admin/store';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import type { ServiceDetail } from '@/data/services';
 
-const MotionLink = motion(Link);
-
-type CardSpec = {
-  size: string;
-  aspectRatio: string;
-  gridColumn: string;
-};
-
-interface PlacedService extends ServiceDetail {
-  size: string;
-  aspectRatio: string;
-  gridColumn: string;
-}
-
-function getLayout(services: ServiceDetail[]): PlacedService[] {
-  const specs: CardSpec[] = [
-    { size: 'a', aspectRatio: '4.5 / 3', gridColumn: '1 / span 9' },
-    { size: 'b', aspectRatio: '2.5 / 3', gridColumn: '10 / span 5' },
-    { size: 'c', aspectRatio: '5 / 3', gridColumn: '1 / span 14' },
-    { size: 'd', aspectRatio: '2.5 / 3', gridColumn: '1 / span 7' },
-    { size: 'e', aspectRatio: '2.5 / 3', gridColumn: '8 / span 7' },
-  ];
-
-  return services.map((s, i) => {
-    const spec = specs[i % specs.length];
-    return { ...s, ...spec };
-  });
-}
-
+/** Full-bleed visual: uploaded media (image/GIF/video) or the animated placeholder. */
 function ServiceVisualFull({ s, active }: { s: ServiceDetail; active: boolean }) {
   return (
     <div
-      className={`svc-bento-visual ${s.image ? 'svc-bento-visual--image' : ''}`}
+      className={`svc-panel__visual ${s.image ? 'svc-panel__visual--image' : ''}`}
       style={{
         position: 'absolute',
         inset: 0,
@@ -50,13 +22,7 @@ function ServiceVisualFull({ s, active }: { s: ServiceDetail; active: boolean })
       }}
     >
       {s.image || s.video ? (
-        <ServiceMedia
-          image={s.image}
-          video={s.video}
-          alt=""
-          loading="lazy"
-          objectFit="cover"
-        />
+        <ServiceMedia image={s.image} video={s.video} alt="" loading="lazy" objectFit="cover" />
       ) : (
         <ServiceVisual kind={s.visual} hue={s.hue} active={active} />
       )}
@@ -64,10 +30,12 @@ function ServiceVisualFull({ s, active }: { s: ServiceDetail; active: boolean })
   );
 }
 
+/** Bottom-up scrim built from theme tokens (+ hue tint) so text stays legible over any media. */
 function CardOverlay({ s }: { s: ServiceDetail }) {
   return (
     <div
-      className="svc-bento-overlay"
+      className="svc-panel__scrim"
+      aria-hidden="true"
       style={{
         position: 'absolute',
         inset: 0,
@@ -92,56 +60,61 @@ function CardOverlay({ s }: { s: ServiceDetail }) {
   );
 }
 
-function BentoCard({ s }: { s: PlacedService }) {
-  const [hovered, setHovered] = useState(false);
-  const isWide = s.size === 'a' || s.size === 'c';
+function ServicePanel({
+  s,
+  index,
+  total,
+  active,
+  onActivate,
+}: {
+  s: ServiceDetail;
+  index: number;
+  total: number;
+  active: boolean;
+  onActivate: () => void;
+}) {
+  const num = String(index + 1).padStart(2, '0');
   return (
-    <MotionLink
+    <Link
       to={`/services/${s.slug}`}
-      className={`svc-bento-card svc-bento-card--${s.size}`}
-      data-size={s.size}
-      style={{ aspectRatio: s.aspectRatio, textDecoration: 'none', color: 'inherit' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="svc-panel"
+      data-active={active}
+      style={{ '--hue': s.hue } as React.CSSProperties}
+      onMouseEnter={onActivate}
+      onFocus={onActivate}
     >
-      <ServiceVisualFull s={s} active={hovered} />
+      <ServiceVisualFull s={s} active={active} />
       <CardOverlay s={s} />
-      <div className="svc-bento-card__cta-center">
-        <span className="mono svc-bento-card__cta-btn">
+      <span className="svc-panel__bar" aria-hidden="true" />
+
+      {/* Collapsed spine — shown when the panel is not the active one (panels mode). */}
+      <div className="svc-panel__spine" aria-hidden="true">
+        <span className="mono svc-panel__spine-num">{num}</span>
+        <span className="display svc-panel__spine-title">{s.title}</span>
+      </div>
+
+      {/* Expanded content — revealed when active. */}
+      <div className="svc-panel__body">
+        <span className="mono svc-panel__num" aria-hidden="true">
+          {num} <span className="svc-panel__num-total">/ {String(total).padStart(2, '0')}</span>
+        </span>
+        <h3 className="display svc-panel__title">{s.title}</h3>
+        <p className="svc-panel__short">{s.short}</p>
+        <span className="mono svc-panel__cta">
           View details <Icon.Arrow size={12} />
         </span>
       </div>
-      <div className="svc-bento-card__content">
-        <h3
-          className="display"
-          style={{
-            fontSize: isWide ? 'clamp(22px, 3vw, 36px)' : 'clamp(18px, 2.4vw, 28px)',
-            fontWeight: 500,
-            margin: '0 0 8px',
-            lineHeight: 1.05,
-          }}
-        >
-          {s.title}
-        </h3>
-        <p
-          style={{
-            fontSize: isWide ? 'clamp(13px, 1.5vw, 15px)' : 'clamp(12px, 1.3vw, 13px)',
-            lineHeight: 1.55,
-            color: 'var(--fg-dim)',
-            margin: 0,
-            maxWidth: isWide ? 560 : undefined,
-          }}
-        >
-          {s.short}
-        </p>
-      </div>
-    </MotionLink>
+    </Link>
   );
 }
 
 export function Services() {
   const [SERVICES] = useServices();
-  const placed = getLayout(SERVICES);
+  // Expanding panels need a real hover pointer and room; otherwise fall back to a
+  // stacked card list where every panel is fully visible and tap-navigable.
+  const canExpand = useMediaQuery('(hover: hover) and (pointer: fine) and (min-width: 901px)');
+  const [active, setActive] = useState(0);
+  const total = SERVICES.length;
 
   return (
     <section id="services" className="sec" style={{ position: 'relative', padding: '120px 0 140px' }}>
@@ -168,12 +141,17 @@ export function Services() {
           </h2>
         </div>
 
-        {/* Bento grid */}
-        <div className="svc-bento-grid">
-          {placed.map((s) => (
-            <div key={s.slug} className={`svc-bento-item svc-bento-item--${s.size}`} style={{ gridColumn: s.gridColumn }}>
-              <BentoCard s={s} />
-            </div>
+        {/* Expanding panels */}
+        <div className="svc-panels" data-mode={canExpand ? 'panels' : 'stack'}>
+          {SERVICES.map((s, i) => (
+            <ServicePanel
+              key={s.slug}
+              s={s}
+              index={i}
+              total={total}
+              active={canExpand ? i === active : true}
+              onActivate={() => setActive(i)}
+            />
           ))}
         </div>
       </div>

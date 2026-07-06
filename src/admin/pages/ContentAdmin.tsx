@@ -17,12 +17,14 @@ import {
   type AboutMilestone,
   type AboutRole,
   type AboutValue,
+  type ProcessContent,
+  type ProcessStep,
   type SiteContent,
 } from '@/admin/store';
 import { Button } from '@/admin/components/Button';
 import { Icon } from '@/components/icons/Icon';
 
-type Tab = 'hero' | 'cta' | 'faq' | 'testimonials' | 'marquee' | 'about';
+type Tab = 'hero' | 'cta' | 'process' | 'faq' | 'testimonials' | 'marquee' | 'about';
 
 const ICON_OPTIONS = Object.keys(Icon).map((k) => ({ value: k, label: k }));
 
@@ -45,8 +47,9 @@ export function ContentAdmin() {
     setDraft(content);
   }, [content]);
 
-  // Defensive: older payloads may not have `about` yet.
+  // Defensive: older payloads may not have `about` / `process` yet.
   const about: AboutContent = draft.about ?? emptyAbout();
+  const process: ProcessContent = draft.process ?? contentStore.getDefaults().process;
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(content);
 
@@ -66,8 +69,8 @@ export function ContentAdmin() {
   const save = async () => {
     setSaving(true);
     try {
-      // Make sure `about` is always populated when we persist.
-      await contentStore.set({ ...draft, about });
+      // Make sure `about` and `process` are always populated when we persist.
+      await contentStore.set({ ...draft, about, process });
       setToast('Saved.');
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Save failed.');
@@ -81,6 +84,7 @@ export function ContentAdmin() {
   const tabs: Array<{ id: Tab; label: string }> = [
     { id: 'hero', label: 'Hero' },
     { id: 'cta', label: 'CTA' },
+    { id: 'process', label: `Process (${process.steps.length})` },
     { id: 'faq', label: `FAQs (${draft.faqs.length})` },
     { id: 'testimonials', label: `Testimonials (${draft.testimonials.length})` },
     { id: 'marquee', label: `Marquee (${draft.marquee.length})` },
@@ -91,7 +95,7 @@ export function ContentAdmin() {
     <AdminShell
       crumbs={[{ label: 'Site content' }]}
       title="Site content"
-      sub="Hero, CTA, FAQs, testimonials, the rotating word strip, and the About page. Click Save to publish changes."
+      sub="Hero, CTA, the process orbit, FAQs, testimonials, the rotating word strip, and the About page. Click Save to publish changes."
       actions={
         <>
           {dirty && (
@@ -135,20 +139,15 @@ export function ContentAdmin() {
       {tab === 'hero' && (
         <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <TextField
-            label="Status pill text"
-            value={draft.hero.badge}
-            onChange={(v) => updateHero({ badge: v })}
-          />
-          <TextField
             label="Headline"
             value={draft.hero.headline}
             onChange={(v) => updateHero({ headline: v })}
           />
-          <StringList
-            label="Rotating words"
-            hint="Cycle through these next to the headline."
-            values={draft.hero.rotatingWords}
-            onChange={(v) => updateHero({ rotatingWords: v })}
+          <TextField
+            label="Accent phrase (gradient, italic)"
+            hint="Appended after the headline in the brand gradient. Leave empty to omit."
+            value={draft.hero.headlineAccent ?? ''}
+            onChange={(v) => updateHero({ headlineAccent: v })}
           />
           <TextArea
             label="Sub-copy"
@@ -167,58 +166,45 @@ export function ContentAdmin() {
               <input
                 className="adm-input"
                 value={draft.hero.primaryCtaHref ?? ''}
-                placeholder="Link (#contact, /work, https://…)"
+                placeholder="Link (/contact, #services, https://…)"
                 onChange={(e) => updateHero({ primaryCtaHref: e.target.value })}
               />
             </div>
           </Field>
-          <Field label="Secondary button">
-            <div className="adm-row adm-row--2">
-              <input
-                className="adm-input"
-                value={draft.hero.secondaryCta}
-                placeholder="Label"
-                onChange={(e) => updateHero({ secondaryCta: e.target.value })}
-              />
-              <input
-                className="adm-input"
-                value={draft.hero.secondaryCtaHref ?? ''}
-                placeholder="Link (#services, /services, https://…)"
-                onChange={(e) => updateHero({ secondaryCtaHref: e.target.value })}
-              />
-            </div>
-          </Field>
-          <Field label="Stat tiles (number + label)">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {draft.hero.stats.map((s, i) => (
-                <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: 8 }}>
-                  <input
-                    className="adm-input"
-                    value={s.num}
-                    placeholder="20+"
-                    onChange={(e) => {
-                      const stats = draft.hero.stats.map((x, idx) =>
-                        idx === i ? { ...x, num: e.target.value } : x,
-                      );
-                      updateHero({ stats });
-                    }}
-                  />
-                  <input
-                    className="adm-input"
-                    value={s.label}
-                    placeholder="Projects shipped"
-                    onChange={(e) => {
-                      const stats = draft.hero.stats.map((x, idx) =>
-                        idx === i ? { ...x, label: e.target.value } : x,
-                      );
-                      updateHero({ stats });
-                    }}
+          <TextField
+            label="Rating text"
+            hint="Shown next to the avatar stack, e.g. “Trusted by 1000+ clients”. Leave empty to hide the rating block."
+            value={draft.hero.ratingText ?? ''}
+            onChange={(v) => updateHero({ ratingText: v })}
+          />
+
+          <Field
+            label="Avatar images"
+            hint="Small circular headshots shown as social proof next to the star rating."
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {(draft.hero.avatars ?? []).map((src, i) => (
+                <div
+                  key={i}
+                  style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8, alignItems: 'start' }}
+                >
+                  <ImageField
+                    label=""
+                    hint=""
+                    showPreview={false}
+                    prefix="hero"
+                    value={src}
+                    onChange={(v) =>
+                      updateHero({
+                        avatars: (draft.hero.avatars ?? []).map((x, idx) => (idx === i ? v : x)),
+                      })
+                    }
                   />
                   <button
                     className="adm-btn adm-btn--sm adm-btn--danger"
                     onClick={() =>
                       updateHero({
-                        stats: draft.hero.stats.filter((_, idx) => idx !== i),
+                        avatars: (draft.hero.avatars ?? []).filter((_, idx) => idx !== i),
                       })
                     }
                   >
@@ -228,14 +214,72 @@ export function ContentAdmin() {
               ))}
               <button
                 className="adm-btn adm-btn--sm"
+                style={{ alignSelf: 'flex-start' }}
+                onClick={() => updateHero({ avatars: [...(draft.hero.avatars ?? []), ''] })}
+              >
+                + Add avatar
+              </button>
+            </div>
+          </Field>
+
+          <Field
+            label="Brand logos"
+            hint="Scrolling logo strip shown below the hero. Add a name and a logo image for each."
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {(draft.hero.brands ?? []).map((b, i) => (
+                <div
+                  key={b.id}
+                  style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: 8, alignItems: 'start' }}
+                >
+                  <input
+                    className="adm-input"
+                    value={b.name}
+                    placeholder="Name"
+                    onChange={(e) =>
+                      updateHero({
+                        brands: (draft.hero.brands ?? []).map((x, idx) =>
+                          idx === i ? { ...x, name: e.target.value } : x,
+                        ),
+                      })
+                    }
+                  />
+                  <ImageField
+                    label=""
+                    hint=""
+                    showPreview={false}
+                    prefix="brands"
+                    value={b.image}
+                    onChange={(v) =>
+                      updateHero({
+                        brands: (draft.hero.brands ?? []).map((x, idx) =>
+                          idx === i ? { ...x, image: v } : x,
+                        ),
+                      })
+                    }
+                  />
+                  <button
+                    className="adm-btn adm-btn--sm adm-btn--danger"
+                    onClick={() =>
+                      updateHero({
+                        brands: (draft.hero.brands ?? []).filter((_, idx) => idx !== i),
+                      })
+                    }
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                className="adm-btn adm-btn--sm"
+                style={{ alignSelf: 'flex-start' }}
                 onClick={() =>
                   updateHero({
-                    stats: [...draft.hero.stats, { id: uid('s'), num: '', label: '' }],
+                    brands: [...(draft.hero.brands ?? []), { id: uid('b'), name: '', image: '' }],
                   })
                 }
-                style={{ alignSelf: 'flex-start' }}
               >
-                + Add stat
+                + Add brand
               </button>
             </div>
           </Field>
@@ -300,6 +344,13 @@ export function ContentAdmin() {
             </div>
           </Field>
         </div>
+      )}
+
+      {tab === 'process' && (
+        <ProcessEditor
+          process={process}
+          onChange={(p) => update({ process: p })}
+        />
       )}
 
       {tab === 'faq' && (
@@ -484,6 +535,144 @@ export function ContentAdmin() {
 
       <Toast message={toast} onClear={() => setToast(null)} />
     </AdminShell>
+  );
+}
+
+function ProcessEditor({
+  process,
+  onChange,
+}: {
+  process: ProcessContent;
+  onChange: (p: ProcessContent) => void;
+}) {
+  const setSteps = (steps: ProcessStep[]) => onChange({ ...process, steps });
+  const patchStep = (i: number, delta: Partial<ProcessStep>) =>
+    setSteps(process.steps.map((x, idx) => (idx === i ? { ...x, ...delta } : x)));
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= process.steps.length) return;
+    const steps = process.steps.slice();
+    [steps[i], steps[j]] = [steps[j], steps[i]];
+    setSteps(steps);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="adm-label">Section header</div>
+        <TextField
+          label="Eyebrow"
+          value={process.eyebrow}
+          onChange={(v) => onChange({ ...process, eyebrow: v })}
+        />
+        <div className="adm-row adm-row--2">
+          <TextField
+            label="Title"
+            value={process.title}
+            onChange={(v) => onChange({ ...process, title: v })}
+          />
+          <TextField
+            label="Title second line (dimmed)"
+            value={process.titleAccent}
+            onChange={(v) => onChange({ ...process, titleAccent: v })}
+          />
+        </div>
+        <TextArea
+          label="Sub-copy"
+          value={process.sub}
+          rows={2}
+          onChange={(v) => onChange({ ...process, sub: v })}
+        />
+      </div>
+
+      <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="adm-label">Phases (orbit order)</div>
+          <button
+            className="adm-btn adm-btn--sm"
+            onClick={() =>
+              setSteps([
+                ...process.steps,
+                { id: uid('p'), icon: 'Compass', title: '', timeline: '', blurb: '', deliverables: [] },
+              ])
+            }
+          >
+            + Add phase
+          </button>
+        </div>
+        {process.steps.map((s, i) => (
+          <div
+            key={s.id}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              padding: 12,
+              border: '1px solid var(--line)',
+              borderRadius: 12,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="adm-label">Phase {i + 1}</div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <button
+                  className="adm-btn adm-btn--sm"
+                  disabled={i === 0}
+                  title="Move earlier in the orbit"
+                  onClick={() => move(i, -1)}
+                >
+                  ↑
+                </button>
+                <button
+                  className="adm-btn adm-btn--sm"
+                  disabled={i === process.steps.length - 1}
+                  title="Move later in the orbit"
+                  onClick={() => move(i, 1)}
+                >
+                  ↓
+                </button>
+                <button
+                  className="adm-btn adm-btn--sm adm-btn--danger"
+                  onClick={() => setSteps(process.steps.filter((_, idx) => idx !== i))}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="adm-row adm-row--2">
+              <Select
+                label="Icon"
+                value={s.icon}
+                options={ICON_OPTIONS}
+                onChange={(v) => patchStep(i, { icon: v })}
+              />
+              <TextField
+                label="Timeline"
+                value={s.timeline}
+                onChange={(v) => patchStep(i, { timeline: v })}
+              />
+            </div>
+            <TextField
+              label="Title"
+              value={s.title}
+              onChange={(v) => patchStep(i, { title: v })}
+            />
+            <TextArea
+              label="Blurb"
+              value={s.blurb}
+              rows={2}
+              onChange={(v) => patchStep(i, { blurb: v })}
+            />
+            <StringList
+              label="Deliverables"
+              values={s.deliverables}
+              onChange={(deliverables) => patchStep(i, { deliverables })}
+              placeholder="e.g. Project plan"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

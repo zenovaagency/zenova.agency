@@ -64,6 +64,23 @@ export interface MarqueeItem {
   label: string;
 }
 
+export interface ProcessStep {
+  id: string;
+  icon: string;
+  title: string;
+  timeline: string;
+  blurb: string;
+  deliverables: string[];
+}
+
+export interface ProcessContent {
+  eyebrow: string;
+  title: string;
+  titleAccent: string;
+  sub: string;
+  steps: ProcessStep[];
+}
+
 export interface AboutValue {
   id: string;
   icon: string;
@@ -95,12 +112,16 @@ export interface SiteContent {
   hero: {
     badge: string;
     headline: string;
+    headlineAccent: string;
     rotatingWords: string[];
     sub: string;
     primaryCta: string;
     primaryCtaHref: string;
     secondaryCta: string;
     secondaryCtaHref: string;
+    ratingText: string;
+    avatars: string[];
+    brands: Array<{ id: string; name: string; image: string }>;
     stats: Array<{ id: string; num: string; label: string }>;
   };
   cta: {
@@ -116,6 +137,7 @@ export interface SiteContent {
   faqs: FAQItem[];
   testimonials: TestimonialItem[];
   marquee: MarqueeItem[];
+  process: ProcessContent;
   contactEmail: string;
   about: AboutContent;
 }
@@ -137,16 +159,31 @@ const DEFAULT_TEAM: TeamMember[] = [
   { id: 't4', name: 'Jordan Wei', role: 'Editorial Lead', bio: 'Heads up the content and brand voice work.', initials: 'JW', tone: '#cc6622' },
 ];
 
-const DEFAULT_CONTENT: SiteContent = {
+export const DEFAULT_CONTENT: SiteContent = {
   hero: {
     badge: 'Available for new projects',
-    headline: 'One team for',
+    headline: 'Building ambitious brands with',
+    headlineAccent: 'thoughtful design',
     rotatingWords: ['Web Development', 'Marketing', 'Startup Launch', 'Operations', 'Content'],
-    sub: 'Design, build, and grow — without juggling agencies. We handle the whole thing.',
-    primaryCta: 'Start a project',
+    sub: 'Zenova unifies design, development, marketing, and startup support into one seamless partnership — guiding ambitious modern businesses from strategy to launch and beyond.',
+    primaryCta: 'Get Started',
     primaryCtaHref: '/contact',
     secondaryCta: 'See our work',
     secondaryCtaHref: '#services',
+    ratingText: 'Trusted by 1000+ clients',
+    avatars: [
+      'https://images.shadcnspace.com/assets/profiles/user-1.jpg',
+      'https://images.shadcnspace.com/assets/profiles/user-2.jpg',
+      'https://images.shadcnspace.com/assets/profiles/user-3.jpg',
+      'https://images.shadcnspace.com/assets/profiles/user-5.jpg',
+    ],
+    brands: [
+      { id: 'b1', name: 'Brand 1', image: 'https://images.shadcnspace.com/assets/brand-logo/logoipsum-1.svg' },
+      { id: 'b2', name: 'Brand 2', image: 'https://images.shadcnspace.com/assets/brand-logo/logoipsum-2.svg' },
+      { id: 'b3', name: 'Brand 3', image: 'https://images.shadcnspace.com/assets/brand-logo/logoipsum-3.svg' },
+      { id: 'b4', name: 'Brand 4', image: 'https://images.shadcnspace.com/assets/brand-logo/logoipsum-4.svg' },
+      { id: 'b5', name: 'Brand 5', image: 'https://images.shadcnspace.com/assets/brand-logo/logoipsum-5.svg' },
+    ],
     stats: [
       { id: 's1', num: '20+', label: 'Projects shipped' },
       { id: 's2', num: '8', label: 'Active clients' },
@@ -190,6 +227,46 @@ const DEFAULT_CONTENT: SiteContent = {
     { id: 'm7', label: 'Strategy' },
     { id: 'm8', label: 'Operations' },
   ],
+  process: {
+    eyebrow: 'How we work',
+    title: 'A simple process,',
+    titleAccent: 'start to finish.',
+    sub: 'Four phases in constant motion. Select one to see what happens inside it.',
+    steps: [
+      {
+        id: 'p1',
+        icon: 'Compass',
+        title: 'Discover',
+        timeline: 'Week 1',
+        blurb: 'A working session to align on your goals, audience, and what success looks like.',
+        deliverables: ['Goals workshop', 'Project plan', 'Timeline', 'Success metrics'],
+      },
+      {
+        id: 'p2',
+        icon: 'Pen',
+        title: 'Design',
+        timeline: 'Week 2–4',
+        blurb: 'Brand, layout, and product design in one shared file. You see what we see, every day.',
+        deliverables: ['Brand identity', 'Page designs', 'Prototype', 'Design review'],
+      },
+      {
+        id: 'p3',
+        icon: 'Code',
+        title: 'Build',
+        timeline: 'Week 4–8',
+        blurb: 'We build it in small pieces with weekly demos. Code is yours, written to be easy to maintain.',
+        deliverables: ['Working website', 'CMS setup', 'Speed optimization', 'Handoff docs'],
+      },
+      {
+        id: 'p4',
+        icon: 'Rocket',
+        title: 'Grow',
+        timeline: 'Month 2+',
+        blurb: 'After launch we stay involved. Monthly cycles of marketing, SEO, and content to build on what we shipped.',
+        deliverables: ['Ad campaigns', 'SEO & content', 'Email automation', 'Monthly report'],
+      },
+    ],
+  },
   contactEmail: 'hello@zenova.bd',
   about: {
     values: [

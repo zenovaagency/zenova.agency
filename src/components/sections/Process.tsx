@@ -1,239 +1,221 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent, type ReactElement } from 'react';
 import { Icon } from '@/components/icons/Icon';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { DEFAULT_CONTENT, useContent } from '@/admin/store';
+import './Process.css';
 
-interface Step {
-  n: string;
-  title: string;
-  blurb: string;
-  deliverables: string[];
-  timeline: string;
-}
+const ICONS = Icon as unknown as Record<string, (props: { size?: number }) => ReactElement>;
 
-const STEPS: Step[] = [
-  {
-    n: '01',
-    title: 'Discover',
-    blurb: 'A working session to align on your goals, audience, and what success looks like.',
-    deliverables: ['Goals workshop', 'Project plan', 'Timeline', 'Success metrics'],
-    timeline: 'Week 1',
-  },
-  {
-    n: '02',
-    title: 'Design',
-    blurb: 'Brand, layout, and product design in one shared file. You see what we see, every day.',
-    deliverables: ['Brand identity', 'Page designs', 'Prototype', 'Design review'],
-    timeline: 'Week 2–4',
-  },
-  {
-    n: '03',
-    title: 'Build',
-    blurb: 'We build it in small pieces with weekly demos. Code is yours, written to be easy to maintain.',
-    deliverables: ['Working website', 'CMS setup', 'Speed optimization', 'Handoff docs'],
-    timeline: 'Week 4–8',
-  },
-  {
-    n: '04',
-    title: 'Grow',
-    blurb: 'After launch we stay involved. Monthly cycles of marketing, SEO, and content to build on what we shipped.',
-    deliverables: ['Ad campaigns', 'SEO & content', 'Email automation', 'Monthly report'],
-    timeline: 'Month 2+',
-  },
-];
+/** Angle (deg) an opened phase glides to — top of the ring, so its card hangs into the circle. */
+const FOCUS_ANGLE = 270;
 
 export function Process() {
-  const [active, setActive] = useState(0);
+  const [content] = useContent();
+  // Older cached/API payloads may not carry `process` yet — fall back to defaults.
+  const data =
+    content.process && content.process.steps.length > 0
+      ? content.process
+      : DEFAULT_CONTENT.process;
+  const steps = data.steps;
+
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [rotation, setRotation] = useState(0);
+  const isMobile = useMediaQuery('(max-width: 640px)');
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+
+  const radius = isMobile ? 128 : 210;
+  const spinning = openId === null && !reducedMotion;
 
   useEffect(() => {
-    const t = setInterval(() => setActive((a) => (a + 1) % STEPS.length), 6500);
+    if (!spinning) return;
+    const t = setInterval(() => setRotation((r) => (r + 0.25) % 360), 50);
     return () => clearInterval(t);
-  }, []);
+  }, [spinning]);
 
-  const current = STEPS[active];
+  useEffect(() => {
+    if (!openId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpenId(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [openId]);
+
+  const focus = (id: string) => {
+    const i = steps.findIndex((s) => s.id === id);
+    if (i < 0) return;
+    setOpenId(id);
+    setRotation(FOCUS_ANGLE - (i / steps.length) * 360);
+  };
+
+  const stop = (e: MouseEvent) => e.stopPropagation();
 
   return (
-    <section
-      id="process"
-      className="sec"
-    >
+    <section id="process" className="sec">
       <div className="container">
         <SectionHeader
-          eyebrow="How we work"
+          align="center"
+          eyebrow={data.eyebrow}
           title={
             <>
-              A simple process,
-              <br />
-              <span style={{ color: 'var(--fg-dim)' }}>start to finish.</span>
+              {data.title}
+              {data.titleAccent && (
+                <>
+                  <br />
+                  <span style={{ color: 'var(--fg-dim)' }}>{data.titleAccent}</span>
+                </>
+              )}
             </>
           }
-          sub="Four phases. Each one ends in something real you can review."
+          sub={data.sub}
         />
+      </div>
 
+      <div className="orbital-stage" onClick={() => setOpenId(null)}>
+        <div className="orbital-ambient" />
         <div
-          className="process-grid"
-          style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 48, alignItems: 'start' }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {STEPS.map((s, i) => {
-              const on = active === i;
-              return (
-                <button
-                  key={s.n}
-                  onMouseEnter={() => setActive(i)}
-                  onClick={() => setActive(i)}
-                  className={`card process-step ${on ? 'is-on' : ''}`}
-                  style={{
-                    textAlign: 'left',
-                    padding: '24px 28px',
-                    background: on ? 'var(--card-hover)' : 'rgba(255,255,255,0.015)',
-                    border: on ? '1px solid var(--accent-1)' : '1px solid var(--line)',
-                    borderRadius: 18,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 22,
-                    transition: 'all .35s cubic-bezier(.2,.7,.2,1)',
-                    transform: on ? 'translateX(8px)' : 'translateX(0)',
-                  }}
-                >
-                  <div
-                    className="mono"
-                    style={{ color: on ? 'var(--fg)' : 'var(--fg-faint)', width: 30, flexShrink: 0 }}
-                  >
-                    {s.n}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div
-                      className="display process-step__title"
-                      style={{
-                        fontSize: 26,
-                        fontWeight: 500,
-                        color: on ? 'var(--fg)' : 'var(--fg-dim)',
-                        transition: 'color .3s',
-                      }}
-                    >
-                      {s.title}
-                    </div>
-                    <div style={{ fontSize: 13, color: 'var(--fg-faint)', marginTop: 4 }}>{s.timeline}</div>
-                  </div>
-                  <div
-                    style={{
-                      width: 34,
-                      height: 34,
-                      borderRadius: 10,
-                      border: on ? '0px solid transparent' : '1px solid var(--line)',
-                      borderColor: on ? 'transparent' : 'var(--line)',
-                      background: on ? 'var(--accent-1)' : 'transparent',
-                      color: on ? '#0a0a0a' : 'var(--fg-faint)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'background .3s, color .3s, transform .3s'
-                    }}
-                  >
-                    <Icon.Arrow size={14} />
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+          className="orbital-ring orbital-ring--outer"
+          style={{ width: radius * 2 + 96, height: radius * 2 + 96 }}
+        />
+        <div className="orbital-ring" style={{ width: radius * 2, height: radius * 2 }} />
 
-          <div
-            className="card process-detail"
-            style={{
-              padding: 36,
-              borderRadius: 28,
-              background: 'var(--card)',
-              border: '1px solid var(--line-strong)',
-              position: 'sticky',
-              top: 110,
-              minHeight: 460,
-              overflow: 'hidden',
-            }}
-          >
+        <div className="orbital-core">
+          <span className="orbital-core__dot" />
+        </div>
+
+        {steps.map((s, i) => {
+          const angle = ((i / steps.length) * 360 + rotation) % 360;
+          const rad = (angle * Math.PI) / 180;
+          const x = radius * Math.cos(rad);
+          const y = radius * Math.sin(rad);
+          const depth = (1 + Math.sin(rad)) / 2; // 0 at the top of the ring, 1 at the bottom
+          const isOpen = openId === s.id;
+          const StepIcon = ICONS[s.icon] ?? Icon.Compass;
+          const next = steps[(i + 1) % steps.length];
+
+          return (
             <div
-              key={active}
-              style={{ position: 'relative', animation: 'fade-up .5s cubic-bezier(.2,.7,.2,1) both' }}
+              key={s.id}
+              className={`orbital-item ${isOpen ? 'is-open' : ''}`}
+              style={{
+                transform: `translate(${x}px, ${y}px)`,
+                zIndex: isOpen ? 200 : 100 + Math.round(50 * Math.sin(rad)),
+                opacity: isOpen ? 1 : openId ? 0.35 : 0.45 + 0.55 * depth,
+              }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div className="mono" style={{ color: 'var(--accent-1)' }}>
-                  Phase {current.n}
-                </div>
-                <div className="mono" style={{ color: 'var(--fg-faint)' }}>
-                  {current.timeline}
-                </div>
-              </div>
-              <div
-                className="display process-detail__title"
-                style={{
-                  fontSize: 56,
-                  fontWeight: 500,
-                  marginTop: 24,
-                  background: 'var(--grad)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  color: 'transparent',
+              <div className="orbital-halo" />
+              <button
+                type="button"
+                className={`orbital-node ${isOpen ? 'is-open' : ''}`}
+                aria-expanded={isOpen}
+                aria-label={`Phase ${i + 1}: ${s.title}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isOpen) setOpenId(null);
+                  else focus(s.id);
                 }}
               >
-                {current.title}
-              </div>
-              <p
-                className="process-detail__blurb"
-                style={{
-                  fontSize: 17,
-                  lineHeight: 1.6,
-                  color: 'var(--fg-dim)',
-                  marginTop: 18,
-                  marginBottom: 32,
-                }}
-              >
-                {current.blurb}
-              </p>
-              <div className="mono" style={{ color: 'var(--fg-faint)', marginBottom: 12 }}>
-                Deliverables
-              </div>
-              <div
-                className="process-detail__deliverables"
-                style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 14px' }}
-              >
-                {current.deliverables.map((d) => (
-                  <div
-                    key={d}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      fontSize: 14,
-                      color: 'var(--fg)',
-                    }}
-                  >
-                    <span
-                      style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent-1)' }}
-                    />
-                    {d}
-                  </div>
-                ))}
+                <StepIcon size={20} />
+              </button>
+              <div className="orbital-label mono">
+                {String(i + 1).padStart(2, '0')} · {s.title}
               </div>
 
-              <div
-                style={{
-                  marginTop: 36,
-                  height: 3,
-                  background: 'var(--line)',
-                  borderRadius: 3,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: `${((active + 1) / STEPS.length) * 100}%`,
-                    background: 'var(--accent-1)',
-                    transition: 'width .5s cubic-bezier(.2,.7,.2,1)',
-                  }}
-                />
-              </div>
+              {isOpen && (
+                <article className="orbital-card" onClick={stop}>
+                  <span className="orbital-card__stem" />
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                      <span className="orbital-card__icon">
+                        <StepIcon size={18} />
+                      </span>
+                      <span className="mono" style={{ color: 'var(--accent-1)' }}>
+                        Phase {String(i + 1).padStart(2, '0')}
+                      </span>
+                    </span>
+                    <span className="mono" style={{ color: 'var(--fg-faint)' }}>
+                      {s.timeline}
+                    </span>
+                  </div>
+                  <h3
+                    className="display gradient-text"
+                    style={{ fontSize: 30, fontWeight: 500, margin: '12px 0 0' }}
+                  >
+                    {s.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      lineHeight: 1.6,
+                      color: 'var(--fg-dim)',
+                      margin: '10px 0 0',
+                    }}
+                  >
+                    {s.blurb}
+                  </p>
+
+                  {s.deliverables.length > 0 && (
+                    <>
+                      <div className="mono" style={{ color: 'var(--fg-faint)', margin: '18px 0 10px' }}>
+                        Deliverables
+                      </div>
+                      <div className="orbital-card__grid">
+                        {s.deliverables.map((d) => (
+                          <div
+                            key={d}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 8,
+                              fontSize: 13,
+                              color: 'var(--fg)',
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 5,
+                                height: 5,
+                                borderRadius: '50%',
+                                background: 'var(--accent-1)',
+                                flexShrink: 0,
+                              }}
+                            />
+                            {d}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  <div className="orbital-card__bar">
+                    <span style={{ width: `${((i + 1) / steps.length) * 100}%` }} />
+                  </div>
+                  <button
+                    type="button"
+                    className="orbital-next"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      focus(next.id);
+                    }}
+                  >
+                    Next · {next.title}
+                    <Icon.Arrow size={12} />
+                  </button>
+                </article>
+              )}
             </div>
-          </div>
+          );
+        })}
+
+        <div className="orbital-hint mono">
+          {openId ? 'Click anywhere to resume the orbit' : 'Select a phase to pause the orbit'}
         </div>
       </div>
     </section>

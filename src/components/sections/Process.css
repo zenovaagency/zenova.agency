@@ -1,0 +1,393 @@
+/* ── Radial orbital process (“How we work”) ─────────────────────────────
+   Phases orbit a pulsing ember core. Clicking a node glides it to the top
+   of the ring and unfolds its detail card into the circle. All colors run
+   through the theme variables so light/dark both work. */
+
+.orbital-stage {
+  position: relative;
+  height: 680px;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.orbital-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 129, 58, 0.1) 0%,
+    rgba(255, 129, 58, 0.03) 38%,
+    transparent 62%
+  );
+}
+
+/* Orbit rings */
+.orbital-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.orbital-ring--outer {
+  border-style: dashed;
+  border-color: var(--line);
+  animation: orbital-spin 120s linear infinite;
+}
+@keyframes orbital-spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Ember core */
+.orbital-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  border-radius: 50%;
+  background: var(--grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  box-shadow: 0 0 44px rgba(255, 129, 58, 0.35);
+  animation: orbital-breathe 4.5s ease-in-out infinite;
+}
+.orbital-core::before,
+.orbital-core::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 129, 58, 0.35);
+  animation: orbital-ping 3.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.orbital-core::after {
+  inset: -16px;
+  border-color: rgba(255, 129, 58, 0.2);
+  animation-delay: 1.6s;
+}
+.orbital-core__dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  filter: blur(1px);
+}
+@keyframes orbital-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+@keyframes orbital-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  75%,
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbital-core,
+  .orbital-core::before,
+  .orbital-core::after,
+  .orbital-ring--outer {
+    animation: none;
+  }
+}
+
+/* Orbiting phase nodes */
+.orbital-item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 52px;
+  height: 52px;
+  margin: -26px 0 0 -26px;
+  transition:
+    transform 0.8s cubic-bezier(0.25, 0.6, 0.3, 1),
+    opacity 0.5s ease;
+}
+
+.orbital-halo {
+  position: absolute;
+  inset: -26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 129, 58, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* 3D “puck” node: fully opaque domed fill in the padding box, machined ember
+   rim in the border box, bevel carved with inset light (top) + shade (bottom). */
+.orbital-node {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background:
+    radial-gradient(circle at 32% 26%, #2c2c2c 0%, #181818 55%, #0e0e0e 100%) padding-box,
+    linear-gradient(165deg, #ffa870 0%, #ff813a 25%, #8c4520 55%, #3d2214 80%, #ff9a5c 100%)
+      border-box;
+  color: var(--accent-1);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.55),
+    0 3px 6px rgba(0, 0, 0, 0.4),
+    inset 0 2px 2px rgba(255, 255, 255, 0.14),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.55);
+  transition:
+    color 0.3s,
+    box-shadow 0.35s,
+    transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+/* Specular highlight on the dome */
+.orbital-node::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 22%;
+  width: 46%;
+  height: 32%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.orbital-node svg {
+  position: relative;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 6px rgba(255, 129, 58, 0.25));
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 0.35s;
+}
+.orbital-node:hover {
+  transform: translateY(-2px) scale(1.1);
+  box-shadow:
+    0 18px 32px rgba(0, 0, 0, 0.6),
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    0 0 22px rgba(255, 129, 58, 0.22),
+    inset 0 2px 2px rgba(255, 255, 255, 0.18),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.55);
+}
+.orbital-node:hover svg {
+  transform: scale(1.1) translateY(-1px);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 8px rgba(255, 129, 58, 0.45));
+}
+.orbital-node.is-open {
+  background:
+    radial-gradient(circle at 32% 26%, #ffb27f 0%, #ff813a 48%, #d95a10 100%) padding-box,
+    linear-gradient(165deg, #ffc79e 0%, #ff813a 40%, #a34a12 75%, #ffb27f 100%) border-box;
+  color: #0a0a0a;
+  transform: scale(1.28);
+  box-shadow:
+    0 14px 30px rgba(255, 100, 20, 0.35),
+    0 4px 10px rgba(0, 0, 0, 0.4),
+    inset 0 2px 3px rgba(255, 255, 255, 0.5),
+    inset 0 -5px 10px rgba(150, 55, 5, 0.55);
+}
+.orbital-node.is-open::before {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+}
+.orbital-node.is-open svg {
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.35)) drop-shadow(0 2px 2px rgba(120, 40, 0, 0.45));
+}
+
+/* Light theme: porcelain dome, deeper ember ink for contrast */
+:root[data-theme='light'] .orbital-node {
+  background:
+    radial-gradient(circle at 32% 26%, #ffffff 0%, #f3efe9 55%, #ded7cb 100%) padding-box,
+    linear-gradient(165deg, #ffb27a 0%, #ff813a 35%, #c95f1e 65%, #ffc9a0 100%) border-box;
+  color: #d95f10;
+  box-shadow:
+    0 10px 22px rgba(26, 20, 16, 0.18),
+    0 2px 5px rgba(26, 20, 16, 0.12),
+    inset 0 2px 2px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 8px rgba(26, 20, 16, 0.14);
+}
+:root[data-theme='light'] .orbital-node svg {
+  filter: drop-shadow(0 1px 1px rgba(26, 20, 16, 0.3));
+}
+:root[data-theme='light'] .orbital-node:hover {
+  box-shadow:
+    0 16px 28px rgba(26, 20, 16, 0.22),
+    0 3px 6px rgba(26, 20, 16, 0.12),
+    0 0 20px rgba(255, 129, 58, 0.25),
+    inset 0 2px 2px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 8px rgba(26, 20, 16, 0.14);
+}
+
+.orbital-label {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  color: var(--fg-faint);
+  pointer-events: none;
+  transition: opacity 0.25s, color 0.3s;
+}
+.orbital-item:hover .orbital-label {
+  color: var(--fg-dim);
+}
+.orbital-item.is-open .orbital-label {
+  opacity: 0;
+}
+
+/* Expanded phase card */
+.orbital-card {
+  position: absolute;
+  top: calc(100% + 30px);
+  left: 50%;
+  width: 330px;
+  padding: 22px 24px 24px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--card-shadow);
+  cursor: default;
+  text-align: left;
+  animation: orbital-card-in 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes orbital-card-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.orbital-card__stem {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  width: 1px;
+  height: 30px;
+  background: linear-gradient(to bottom, transparent, var(--accent-1));
+}
+.orbital-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, #282828, #151515) padding-box,
+    linear-gradient(165deg, #ff9a5c 0%, #8c4520 60%, #ff813a 100%) border-box;
+  color: var(--accent-1);
+  flex-shrink: 0;
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.12),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.45);
+}
+.orbital-card__icon svg {
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.55));
+}
+:root[data-theme='light'] .orbital-card__icon {
+  background:
+    linear-gradient(180deg, #ffffff, #ece7df) padding-box,
+    linear-gradient(165deg, #ffb27a 0%, #c95f1e 60%, #ff9a5c 100%) border-box;
+  color: #d95f10;
+  box-shadow:
+    0 3px 6px rgba(26, 20, 16, 0.14),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9),
+    inset 0 -2px 4px rgba(26, 20, 16, 0.12);
+}
+:root[data-theme='light'] .orbital-card__icon svg {
+  filter: drop-shadow(0 1px 1px rgba(26, 20, 16, 0.28));
+}
+.orbital-card__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+.orbital-card__bar {
+  height: 3px;
+  margin-top: 20px;
+  background: var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.orbital-card__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--grad);
+  transition: width 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.orbital-next {
+  margin-top: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--fg-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.25s, border-color 0.25s, background 0.25s;
+}
+.orbital-next:hover {
+  color: var(--fg);
+  border-color: var(--accent-1);
+  background: rgba(255, 129, 58, 0.08);
+}
+
+.orbital-hint {
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--fg-faint);
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .orbital-stage {
+    height: 700px;
+  }
+  .orbital-item {
+    width: 46px;
+    height: 46px;
+    margin: -23px 0 0 -23px;
+  }
+  .orbital-core {
+    width: 54px;
+    height: 54px;
+    margin: -27px 0 0 -27px;
+  }
+  .orbital-card {
+    width: min(300px, calc(100vw - 40px));
+    padding: 18px 18px 20px;
+  }
+  .orbital-card__grid {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+}
