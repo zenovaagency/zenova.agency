@@ -13,7 +13,10 @@ function splitIntoColumns<T>(items: T[], columnCount: number): T[][] {
 
 export const Testimonials = () => {
   const [content] = useContent();
-  const header = content.testimonialsSection ?? DEFAULT_CONTENT.testimonialsSection!;
+  const raw = content.testimonialsSection;
+  const header = raw?.eyebrow || raw?.title || raw?.titleAccent || raw?.sub
+    ? raw!
+    : DEFAULT_CONTENT.testimonialsSection!;
 
   const testimonials = content.testimonials.map((t) => ({
     text: t.quote,
@@ -28,7 +31,7 @@ export const Testimonials = () => {
   const [firstColumn, secondColumn, thirdColumn] = splitIntoColumns(doubledTestimonials, 3);
 
   return (
-    <section className="bg-background my-20 relative">
+    <section id="testimonials" className="sec">
       <div className="container z-10 mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -41,9 +44,12 @@ export const Testimonials = () => {
             eyebrow={header.eyebrow}
             title={
               <>
-                {header.title}{' '}
+                {header.title}
                 {header.titleAccent && (
-                  <span style={{ color: 'var(--fg-dim)' }}>{header.titleAccent}</span>
+                  <>
+                    <br />
+                    <span style={{ color: 'var(--fg-dim)' }}>{header.titleAccent}</span>
+                  </>
                 )}
               </>
             }

@@ -96,7 +96,10 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
 export function FAQ() {
   const [content] = useContent();
   const FAQS = content.faqs;
-  const header = content.faqSection ?? DEFAULT_CONTENT.faqSection!;
+  const raw = content.faqSection;
+  const header = raw?.eyebrow || raw?.title || raw?.titleAccent || raw?.sub
+    ? raw!
+    : DEFAULT_CONTENT.faqSection!;
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (

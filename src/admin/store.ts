@@ -277,8 +277,8 @@ export const DEFAULT_CONTENT: SiteContent = {
   testimonialsSection: {
     eyebrow: 'Testimonials',
     title: 'What our users',
-    titleAccent: 'say.',
-    sub: 'See what our customers have to say about us.',
+    titleAccent: 'are saying.',
+    sub: 'Real feedback from the teams and founders we\'ve partnered with — across branding, product, and growth.',
   },
   marquee: [
     { id: 'm1', label: 'Branding' },
