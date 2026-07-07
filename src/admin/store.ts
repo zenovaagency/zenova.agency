@@ -463,6 +463,7 @@ const DEFAULT_BRAND: BrandSettings = {
     { platform: 'linkedin', url: 'https://www.linkedin.com/company/zenova' },
     { platform: 'github', url: 'https://github.com/zenova' },
     { platform: 'dribbble', url: 'https://dribbble.com/zenova' },
+    { platform: 'facebook', url: 'https://facebook.com/zenova' },
   ],
 };
 

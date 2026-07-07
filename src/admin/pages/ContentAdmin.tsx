@@ -40,6 +40,7 @@ const SOCIAL_PLATFORMS = [
   'dribbble',
   'youtube',
   'instagram',
+  'facebook',
 ] as const;
 
 const PLATFORM_ICON: Record<string, keyof typeof Icon> = {
@@ -49,6 +50,7 @@ const PLATFORM_ICON: Record<string, keyof typeof Icon> = {
   dribbble: 'Dribbble',
   youtube: 'YouTube',
   instagram: 'Instagram',
+  facebook: 'Facebook',
 };
 
 function socialIcon(platform: string) {
