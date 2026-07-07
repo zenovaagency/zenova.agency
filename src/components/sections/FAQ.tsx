@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Icon } from '@/components/icons/Icon';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { SectionHeader } from '@/components/ui/SectionHeader';
-import { useContent } from '@/admin/store';
+import { DEFAULT_CONTENT, useContent } from '@/admin/store';
 
 interface QA {
   q: string;
@@ -96,6 +96,7 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
 export function FAQ() {
   const [content] = useContent();
   const FAQS = content.faqs;
+  const header = content.faqSection ?? DEFAULT_CONTENT.faqSection!;
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
@@ -106,15 +107,19 @@ export function FAQ() {
       <div className="container">
         <SectionHeader
           align="center"
-          eyebrow="FAQ"
+          eyebrow={header.eyebrow}
           title={
             <>
-              Common
-              <br />
-              <span style={{ color: 'var(--fg-dim)' }}>questions.</span>
+              {header.title}
+              {header.titleAccent && (
+                <>
+                  <br />
+                  <span style={{ color: 'var(--fg-dim)' }}>{header.titleAccent}</span>
+                </>
+              )}
             </>
           }
-          sub="If you don’t see your question here, just ask."
+          sub={header.sub}
         />
 
         <div

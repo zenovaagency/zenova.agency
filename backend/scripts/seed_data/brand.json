@@ -9,5 +9,11 @@
     { "id": "l1", "city": "Brooklyn, NY", "tz": "EST", "detail": "Headquarters" },
     { "id": "l2", "city": "Berlin", "tz": "CET", "detail": "European hub" },
     { "id": "l3", "city": "Remote", "tz": "Global", "detail": "We hire worldwide" }
+  ],
+  "socials": [
+    { "platform": "twitter", "url": "https://twitter.com/zenova" },
+    { "platform": "linkedin", "url": "https://www.linkedin.com/company/zenova" },
+    { "platform": "github", "url": "https://github.com/zenova" },
+    { "platform": "dribbble", "url": "https://dribbble.com/zenova" }
   ]
 }

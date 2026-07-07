@@ -245,6 +245,51 @@ class ProcessContent(_Base):
     steps: list[ProcessStep] = Field(default_factory=list)
 
 
+class SectionIntro(_Base):
+    eyebrow: str = ""
+    title: str = ""
+    titleAccent: str = ""
+    sub: str = ""
+
+
+class FooterLink(_Base):
+    id: str
+    label: str = ""
+    href: str = ""
+
+
+class FooterColumn(_Base):
+    id: str
+    title: str = ""
+    links: list[FooterLink] = Field(default_factory=list)
+
+
+class FooterContent(_Base):
+    tagline: str = ""
+    columns: list[FooterColumn] = Field(default_factory=list)
+    legalLinks: list[FooterLink] = Field(default_factory=list)
+    copyright: str = ""
+    strapline: str = ""
+
+
+class LegalSection(_Base):
+    id: str
+    heading: str = ""
+    body: str = ""
+
+
+class LegalDoc(_Base):
+    title: str = ""
+    updated: str = ""
+    intro: str = ""
+    sections: list[LegalSection] = Field(default_factory=list)
+
+
+class LegalContent(_Base):
+    privacy: LegalDoc = Field(default_factory=LegalDoc)
+    terms: LegalDoc = Field(default_factory=LegalDoc)
+
+
 class AboutValue(_Base):
     id: str
     icon: str
@@ -276,11 +321,15 @@ class SiteContent(_Base):
     hero: HeroContent
     cta: CTAContent
     faqs: list[FAQItem] = Field(default_factory=list)
+    faqSection: SectionIntro | None = None
     testimonials: list[TestimonialItem] = Field(default_factory=list)
+    testimonialsSection: SectionIntro | None = None
     marquee: list[MarqueeItem] = Field(default_factory=list)
     process: ProcessContent = Field(default_factory=ProcessContent)
     contactEmail: EmailStr
     about: AboutContent = Field(default_factory=AboutContent)
+    footer: FooterContent | None = None
+    legal: LegalContent | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -299,7 +348,10 @@ class BrandSettings(_Base):
     tagline: str
     contactEmail: EmailStr
     careersEmail: EmailStr
+    phone: str = ""
+    address: str = ""
     locations: list[BrandLocation] = Field(default_factory=list)
+    socials: list[SocialLink] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------
@@ -394,18 +446,25 @@ class BrandSettingsPatch(_Base):
     tagline: str | None = None
     contactEmail: EmailStr | None = None
     careersEmail: EmailStr | None = None
+    phone: str | None = None
+    address: str | None = None
     locations: list[BrandLocation] | None = None
+    socials: list[SocialLink] | None = None
 
 
 class SiteContentPatch(_Base):
     hero: HeroContent | None = None
     cta: CTAContent | None = None
     faqs: list[FAQItem] | None = None
+    faqSection: SectionIntro | None = None
     testimonials: list[TestimonialItem] | None = None
+    testimonialsSection: SectionIntro | None = None
     marquee: list[MarqueeItem] | None = None
     process: ProcessContent | None = None
     contactEmail: EmailStr | None = None
     about: AboutContent | None = None
+    footer: FooterContent | None = None
+    legal: LegalContent | None = None
 
 
 class TeamMemberPatch(_Base):

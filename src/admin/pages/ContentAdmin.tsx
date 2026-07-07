@@ -12,21 +12,57 @@ import {
 } from '@/admin/components/Form';
 import {
   contentStore,
+  useBrand,
   useContent,
   type AboutContent,
   type AboutMilestone,
   type AboutRole,
   type AboutValue,
+  type FooterColumn,
+  type FooterContent,
+  type FooterLink,
   type ProcessContent,
   type ProcessStep,
+  type SectionIntro,
   type SiteContent,
 } from '@/admin/store';
 import { Button } from '@/admin/components/Button';
 import { Icon } from '@/components/icons/Icon';
 
-type Tab = 'hero' | 'cta' | 'process' | 'faq' | 'testimonials' | 'marquee' | 'about';
+type Tab = 'hero' | 'cta' | 'process' | 'faq' | 'testimonials' | 'marquee' | 'about' | 'footer';
 
 const ICON_OPTIONS = Object.keys(Icon).map((k) => ({ value: k, label: k }));
+
+const SOCIAL_PLATFORMS = [
+  'twitter',
+  'linkedin',
+  'github',
+  'dribbble',
+  'youtube',
+  'instagram',
+] as const;
+
+const PLATFORM_ICON: Record<string, keyof typeof Icon> = {
+  twitter: 'TwitterX',
+  linkedin: 'LinkedIn',
+  github: 'GitHub',
+  dribbble: 'Dribbble',
+  youtube: 'YouTube',
+  instagram: 'Instagram',
+};
+
+function socialIcon(platform: string) {
+  const key = PLATFORM_ICON[platform];
+  return key ? Icon[key]({ size: 16 }) : null;
+}
+
+function emptyFooterColumn(): FooterColumn {
+  return { id: uid('fc'), title: '', links: [] };
+}
+
+function emptyFooterLink(): FooterLink {
+  return { id: uid('fl'), label: '', href: '' };
+}
 
 function uid(prefix: string) {
   return prefix + Math.random().toString(36).slice(2, 9);
@@ -34,6 +70,10 @@ function uid(prefix: string) {
 
 function emptyAbout(): AboutContent {
   return { values: [], roles: [], timeline: [] };
+}
+
+function emptyIntro(): SectionIntro {
+  return { eyebrow: '', title: '', titleAccent: '', sub: '' };
 }
 
 export function ContentAdmin() {
@@ -50,6 +90,10 @@ export function ContentAdmin() {
   // Defensive: older payloads may not have `about` / `process` yet.
   const about: AboutContent = draft.about ?? emptyAbout();
   const process: ProcessContent = draft.process ?? contentStore.getDefaults().process;
+  const faqSection: SectionIntro =
+    draft.faqSection ?? contentStore.getDefaults().faqSection ?? emptyIntro();
+  const testimonialsSection: SectionIntro =
+    draft.testimonialsSection ?? contentStore.getDefaults().testimonialsSection ?? emptyIntro();
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(content);
 
@@ -65,12 +109,35 @@ export function ContentAdmin() {
   const updateAbout = (delta: Partial<AboutContent>) => {
     setDraft((d) => ({ ...d, about: { ...(d.about ?? emptyAbout()), ...delta } }));
   };
+  const updateFaqSection = (delta: Partial<SectionIntro>) => {
+    setDraft((d) => ({ ...d, faqSection: { ...(d.faqSection ?? emptyIntro()), ...delta } }));
+  };
+  const updateTestimonialsSection = (delta: Partial<SectionIntro>) => {
+    setDraft((d) => ({
+      ...d,
+      testimonialsSection: { ...(d.testimonialsSection ?? emptyIntro()), ...delta },
+    }));
+  };
+  const updateFooter = (delta: Partial<FooterContent>) => {
+    setDraft((d) => ({
+      ...d,
+      footer: { ...(d.footer ?? contentStore.getDefaults().footer!), ...delta },
+    }));
+  };
 
   const save = async () => {
     setSaving(true);
     try {
-      // Make sure `about` and `process` are always populated when we persist.
-      await contentStore.set({ ...draft, about, process });
+      // Make sure `about`, `process` and the section headers are always
+      // populated when we persist.
+      await contentStore.set({
+        ...draft,
+        about,
+        process,
+        faqSection: draft.faqSection ?? emptyIntro(),
+        testimonialsSection: draft.testimonialsSection ?? emptyIntro(),
+        footer: draft.footer ?? contentStore.getDefaults().footer,
+      });
       setToast('Saved.');
     } catch (err) {
       setToast(err instanceof Error ? err.message : 'Save failed.');
@@ -89,6 +156,7 @@ export function ContentAdmin() {
     { id: 'testimonials', label: `Testimonials (${draft.testimonials.length})` },
     { id: 'marquee', label: `Marquee (${draft.marquee.length})` },
     { id: 'about', label: 'About page' },
+    { id: 'footer', label: 'Footer' },
   ];
 
   return (
@@ -139,16 +207,27 @@ export function ContentAdmin() {
       {tab === 'hero' && (
         <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <TextField
+            label="Availability pill text"
+            hint="The small pill above the headline, e.g. “Available for new projects”."
+            value={draft.hero.badge ?? ''}
+            onChange={(v) => updateHero({ badge: v })}
+          />
+          <TextField
             label="Headline"
             value={draft.hero.headline}
             onChange={(v) => updateHero({ headline: v })}
           />
-          <TextField
-            label="Accent phrase (gradient, italic)"
-            hint="Appended after the headline in the brand gradient. Leave empty to omit."
-            value={draft.hero.headlineAccent ?? ''}
-            onChange={(v) => updateHero({ headlineAccent: v })}
-          />
+          <Field
+            label="Rotating words"
+            hint="The gradient words that cycle beneath the headline."
+          >
+            <StringList
+              label=""
+              values={draft.hero.rotatingWords ?? []}
+              onChange={(rotatingWords) => updateHero({ rotatingWords })}
+              placeholder="e.g. Web Development"
+            />
+          </Field>
           <TextArea
             label="Sub-copy"
             value={draft.hero.sub}
@@ -171,89 +250,53 @@ export function ContentAdmin() {
               />
             </div>
           </Field>
-          <TextField
-            label="Rating text"
-            hint="Shown next to the avatar stack, e.g. “Trusted by 1000+ clients”. Leave empty to hide the rating block."
-            value={draft.hero.ratingText ?? ''}
-            onChange={(v) => updateHero({ ratingText: v })}
-          />
-
-          <Field
-            label="Avatar images"
-            hint="Small circular headshots shown as social proof next to the star rating."
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {(draft.hero.avatars ?? []).map((src, i) => (
-                <div
-                  key={i}
-                  style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8, alignItems: 'start' }}
-                >
-                  <ImageField
-                    label=""
-                    hint=""
-                    showPreview={false}
-                    prefix="hero"
-                    value={src}
-                    onChange={(v) =>
-                      updateHero({
-                        avatars: (draft.hero.avatars ?? []).map((x, idx) => (idx === i ? v : x)),
-                      })
-                    }
-                  />
-                  <button
-                    className="adm-btn adm-btn--sm adm-btn--danger"
-                    onClick={() =>
-                      updateHero({
-                        avatars: (draft.hero.avatars ?? []).filter((_, idx) => idx !== i),
-                      })
-                    }
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button
-                className="adm-btn adm-btn--sm"
-                style={{ alignSelf: 'flex-start' }}
-                onClick={() => updateHero({ avatars: [...(draft.hero.avatars ?? []), ''] })}
-              >
-                + Add avatar
-              </button>
+          <Field label="Secondary button">
+            <div className="adm-row adm-row--2">
+              <input
+                className="adm-input"
+                value={draft.hero.secondaryCta}
+                placeholder="Label"
+                onChange={(e) => updateHero({ secondaryCta: e.target.value })}
+              />
+              <input
+                className="adm-input"
+                value={draft.hero.secondaryCtaHref ?? ''}
+                placeholder="Link (#services, /work, https://…)"
+                onChange={(e) => updateHero({ secondaryCtaHref: e.target.value })}
+              />
             </div>
           </Field>
 
           <Field
-            label="Brand logos"
-            hint="Scrolling logo strip shown below the hero. Add a name and a logo image for each."
+            label="Stats"
+            hint="The four-up numbers strip below the buttons. Each has a value and a label."
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {(draft.hero.brands ?? []).map((b, i) => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {(draft.hero.stats ?? []).map((s, i) => (
                 <div
-                  key={b.id}
+                  key={s.id}
                   style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: 8, alignItems: 'start' }}
                 >
                   <input
                     className="adm-input"
-                    value={b.name}
-                    placeholder="Name"
+                    value={s.num}
+                    placeholder="Value (e.g. 20+)"
                     onChange={(e) =>
                       updateHero({
-                        brands: (draft.hero.brands ?? []).map((x, idx) =>
-                          idx === i ? { ...x, name: e.target.value } : x,
+                        stats: (draft.hero.stats ?? []).map((x, idx) =>
+                          idx === i ? { ...x, num: e.target.value } : x,
                         ),
                       })
                     }
                   />
-                  <ImageField
-                    label=""
-                    hint=""
-                    showPreview={false}
-                    prefix="brands"
-                    value={b.image}
-                    onChange={(v) =>
+                  <input
+                    className="adm-input"
+                    value={s.label}
+                    placeholder="Label (e.g. Projects shipped)"
+                    onChange={(e) =>
                       updateHero({
-                        brands: (draft.hero.brands ?? []).map((x, idx) =>
-                          idx === i ? { ...x, image: v } : x,
+                        stats: (draft.hero.stats ?? []).map((x, idx) =>
+                          idx === i ? { ...x, label: e.target.value } : x,
                         ),
                       })
                     }
@@ -262,7 +305,7 @@ export function ContentAdmin() {
                     className="adm-btn adm-btn--sm adm-btn--danger"
                     onClick={() =>
                       updateHero({
-                        brands: (draft.hero.brands ?? []).filter((_, idx) => idx !== i),
+                        stats: (draft.hero.stats ?? []).filter((_, idx) => idx !== i),
                       })
                     }
                   >
@@ -275,11 +318,11 @@ export function ContentAdmin() {
                 style={{ alignSelf: 'flex-start' }}
                 onClick={() =>
                   updateHero({
-                    brands: [...(draft.hero.brands ?? []), { id: uid('b'), name: '', image: '' }],
+                    stats: [...(draft.hero.stats ?? []), { id: uid('s'), num: '', label: '' }],
                   })
                 }
               >
-                + Add brand
+                + Add stat
               </button>
             </div>
           </Field>
@@ -355,6 +398,7 @@ export function ContentAdmin() {
 
       {tab === 'faq' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <SectionIntroEditor intro={faqSection} onChange={updateFaqSection} />
           {draft.faqs.map((f, i) => (
             <div
               key={f.id}
@@ -408,7 +452,12 @@ export function ContentAdmin() {
       )}
 
       {tab === 'testimonials' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <SectionIntroEditor
+            intro={testimonialsSection}
+            onChange={updateTestimonialsSection}
+          />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: 14 }}>
           {draft.testimonials.map((t, i) => (
             <div
               key={t.id}
@@ -499,6 +548,7 @@ export function ContentAdmin() {
           >
             + Add testimonial
           </button>
+          </div>
         </div>
       )}
 
@@ -533,8 +583,52 @@ export function ContentAdmin() {
         />
       )}
 
+      {tab === 'footer' && (
+        <FooterEditor
+          footer={draft.footer ?? contentStore.getDefaults().footer!}
+          onChange={updateFooter}
+        />
+      )}
+
       <Toast message={toast} onClear={() => setToast(null)} />
     </AdminShell>
+  );
+}
+
+function SectionIntroEditor({
+  intro,
+  onChange,
+}: {
+  intro: SectionIntro;
+  onChange: (delta: Partial<SectionIntro>) => void;
+}) {
+  return (
+    <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className="adm-label">Section header</div>
+      <TextField
+        label="Eyebrow"
+        value={intro.eyebrow}
+        onChange={(v) => onChange({ eyebrow: v })}
+      />
+      <div className="adm-row adm-row--2">
+        <TextField
+          label="Title"
+          value={intro.title}
+          onChange={(v) => onChange({ title: v })}
+        />
+        <TextField
+          label="Title second line (dimmed)"
+          value={intro.titleAccent}
+          onChange={(v) => onChange({ titleAccent: v })}
+        />
+      </div>
+      <TextArea
+        label="Sub-copy"
+        value={intro.sub}
+        rows={2}
+        onChange={(v) => onChange({ sub: v })}
+      />
+    </div>
   );
 }
 
@@ -669,6 +763,293 @@ function ProcessEditor({
               onChange={(deliverables) => patchStep(i, { deliverables })}
               placeholder="e.g. Project plan"
             />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FooterEditor({
+  footer,
+  onChange,
+}: {
+  footer: FooterContent;
+  onChange: (delta: Partial<FooterContent>) => void;
+}) {
+  const [brand, setBrand] = useBrand();
+  const socials = brand.socials ?? [];
+
+  const updateSocials = (socials: typeof brand.socials) => {
+    setBrand({ ...brand, socials });
+  };
+
+  const setColumns = (columns: FooterColumn[]) => onChange({ columns });
+  const setLinks = (colIdx: number, links: FooterLink[]) =>
+    setColumns(
+      footer.columns.map((c, i) => (i === colIdx ? { ...c, links } : c)),
+    );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="adm-label">General</div>
+        <TextArea
+          label="Tagline"
+          value={footer.tagline}
+          rows={2}
+          onChange={(v) => onChange({ tagline: v })}
+        />
+        <TextField
+          label="Copyright"
+          value={footer.copyright}
+          onChange={(v) => onChange({ copyright: v })}
+        />
+        <TextField
+          label="Strapline"
+          value={footer.strapline}
+          onChange={(v) => onChange({ strapline: v })}
+        />
+      </div>
+
+      <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="adm-label">Columns</div>
+          <button
+            className="adm-btn adm-btn--sm"
+            onClick={() => setColumns([...footer.columns, emptyFooterColumn()])}
+          >
+            + Add column
+          </button>
+        </div>
+        {footer.columns.map((col, ci) => (
+          <div
+            key={col.id}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              padding: 12,
+              border: '1px solid var(--line)',
+              borderRadius: 12,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="adm-label">Column {ci + 1}</div>
+              <button
+                className="adm-btn adm-btn--sm adm-btn--danger"
+                onClick={() => setColumns(footer.columns.filter((_, i) => i !== ci))}
+              >
+                ✕
+              </button>
+            </div>
+            <TextField
+              label="Title"
+              value={col.title}
+              onChange={(v) =>
+                setColumns(
+                  footer.columns.map((c, i) => (i === ci ? { ...c, title: v } : c)),
+                )
+              }
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="adm-label" style={{ fontSize: 12 }}>Links</div>
+                <button
+                  className="adm-btn adm-btn--sm"
+                  onClick={() =>
+                    setLinks(ci, [...col.links, emptyFooterLink()])
+                  }
+                >
+                  + Add link
+                </button>
+              </div>
+              {col.links.map((link, li) => (
+                <div
+                  key={link.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr auto',
+                    gap: 8,
+                    alignItems: 'center',
+                  }}
+                >
+                  <input
+                    className="adm-input"
+                    placeholder="Label"
+                    value={link.label}
+                    onChange={(e) =>
+                      setLinks(
+                        ci,
+                        col.links.map((x, idx) =>
+                          idx === li ? { ...x, label: e.target.value } : x,
+                        ),
+                      )
+                    }
+                  />
+                  <input
+                    className="adm-input"
+                    placeholder="/path or https://…"
+                    value={link.href}
+                    onChange={(e) =>
+                      setLinks(
+                        ci,
+                        col.links.map((x, idx) =>
+                          idx === li ? { ...x, href: e.target.value } : x,
+                        ),
+                      )
+                    }
+                  />
+                  <button
+                    className="adm-btn adm-btn--sm adm-btn--danger"
+                    onClick={() =>
+                      setLinks(ci, col.links.filter((_, i) => i !== li))
+                    }
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="adm-label">Legal links (bottom bar)</div>
+          <button
+            className="adm-btn adm-btn--sm"
+            onClick={() =>
+              onChange({ legalLinks: [...footer.legalLinks, emptyFooterLink()] })
+            }
+          >
+            + Add legal link
+          </button>
+        </div>
+        {footer.legalLinks.map((link, i) => (
+          <div
+            key={link.id}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr auto',
+              gap: 8,
+              alignItems: 'center',
+            }}
+          >
+            <input
+              className="adm-input"
+              placeholder="Label"
+              value={link.label}
+              onChange={(e) =>
+                onChange({
+                  legalLinks: footer.legalLinks.map((x, idx) =>
+                    idx === i ? { ...x, label: e.target.value } : x,
+                  ),
+                })
+              }
+            />
+            <input
+              className="adm-input"
+              placeholder="/path or https://…"
+              value={link.href}
+              onChange={(e) =>
+                onChange({
+                  legalLinks: footer.legalLinks.map((x, idx) =>
+                    idx === i ? { ...x, href: e.target.value } : x,
+                  ),
+                })
+              }
+            />
+            <button
+              className="adm-btn adm-btn--sm adm-btn--danger"
+              onClick={() =>
+                onChange({
+                  legalLinks: footer.legalLinks.filter((_, idx) => idx !== i),
+                })
+              }
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="adm-label">Social links</div>
+          <button
+            className="adm-btn adm-btn--sm"
+            onClick={() =>
+              updateSocials([...socials, { platform: 'twitter', url: '' }])
+            }
+          >
+            + Add social
+          </button>
+        </div>
+        {socials.map((s, i) => (
+          <div
+            key={i}
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '36px 1fr 1.5fr auto',
+              gap: 10,
+              alignItems: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                border: '1px solid var(--line)',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--fg-dim)',
+              }}
+            >
+              {socialIcon(s.platform) ?? (
+                <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}>{s.platform.slice(0, 2)}</span>
+              )}
+            </div>
+            <select
+              className="adm-input"
+              value={s.platform}
+              onChange={(e) =>
+                updateSocials(
+                  socials.map((x, idx) =>
+                    idx === i ? { ...x, platform: e.target.value } : x,
+                  ),
+                )
+              }
+            >
+              {SOCIAL_PLATFORMS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+            <input
+              className="adm-input"
+              placeholder="https://…"
+              value={s.url}
+              onChange={(e) =>
+                updateSocials(
+                  socials.map((x, idx) =>
+                    idx === i ? { ...x, url: e.target.value } : x,
+                  ),
+                )
+              }
+            />
+            <button
+              className="adm-btn adm-btn--sm adm-btn--danger"
+              onClick={() =>
+                updateSocials(socials.filter((_, idx) => idx !== i))
+              }
+            >
+              ✕
+            </button>
           </div>
         ))}
       </div>

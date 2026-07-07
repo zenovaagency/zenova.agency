@@ -1,7 +1,7 @@
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { motion } from "motion/react";
-import { useContent } from "@/admin/store";
+import { DEFAULT_CONTENT, useContent } from "@/admin/store";
 
 function splitIntoColumns<T>(items: T[], columnCount: number): T[][] {
   const columns: T[][] = Array.from({ length: columnCount }, () => []);
@@ -13,6 +13,7 @@ function splitIntoColumns<T>(items: T[], columnCount: number): T[][] {
 
 export const Testimonials = () => {
   const [content] = useContent();
+  const header = content.testimonialsSection ?? DEFAULT_CONTENT.testimonialsSection!;
 
   const testimonials = content.testimonials.map((t) => ({
     text: t.quote,
@@ -37,13 +38,16 @@ export const Testimonials = () => {
         >
           <SectionHeader
             align="center"
-            eyebrow="Testimonials"
+            eyebrow={header.eyebrow}
             title={
               <>
-                What our users <span style={{ color: 'var(--fg-dim)' }}>say.</span>
+                {header.title}{' '}
+                {header.titleAccent && (
+                  <span style={{ color: 'var(--fg-dim)' }}>{header.titleAccent}</span>
+                )}
               </>
             }
-            sub="See what our customers have to say about us."
+            sub={header.sub}
           />
         </motion.div>
 

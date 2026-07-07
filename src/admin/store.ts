@@ -108,6 +108,52 @@ export interface AboutContent {
   timeline: AboutMilestone[];
 }
 
+/** Reusable section header: eyebrow, a title with an optional dimmed second line, and sub-copy. */
+export interface SectionIntro {
+  eyebrow: string;
+  title: string;
+  titleAccent: string;
+  sub: string;
+}
+
+export interface FooterLink {
+  id: string;
+  label: string;
+  href: string;
+}
+
+export interface FooterColumn {
+  id: string;
+  title: string;
+  links: FooterLink[];
+}
+
+export interface FooterContent {
+  tagline: string;
+  columns: FooterColumn[];
+  legalLinks: FooterLink[];
+  copyright: string;
+  strapline: string;
+}
+
+export interface LegalSection {
+  id: string;
+  heading: string;
+  body: string;
+}
+
+export interface LegalDoc {
+  title: string;
+  updated: string;
+  intro: string;
+  sections: LegalSection[];
+}
+
+export interface LegalContent {
+  privacy: LegalDoc;
+  terms: LegalDoc;
+}
+
 export interface SiteContent {
   hero: {
     badge: string;
@@ -135,11 +181,15 @@ export interface SiteContent {
     secondaryHref: string;
   };
   faqs: FAQItem[];
+  faqSection?: SectionIntro;
   testimonials: TestimonialItem[];
+  testimonialsSection?: SectionIntro;
   marquee: MarqueeItem[];
   process: ProcessContent;
   contactEmail: string;
   about: AboutContent;
+  footer?: FooterContent;
+  legal?: LegalContent;
 }
 
 export interface BrandSettings {
@@ -150,6 +200,7 @@ export interface BrandSettings {
   phone: string;
   address: string;
   locations: Array<{ id: string; city: string; tz: string; detail: string }>;
+  socials?: SocialLink[];
 }
 
 const DEFAULT_TEAM: TeamMember[] = [
@@ -209,6 +260,12 @@ export const DEFAULT_CONTENT: SiteContent = {
     { id: 'f5', q: 'Can you work with our team?', a: 'Yes. We often plug into existing teams and follow your conventions.' },
     { id: 'f6', q: 'How soon can we start?', a: 'Usually 1 to 2 weeks after our intro call.' },
   ],
+  faqSection: {
+    eyebrow: 'FAQ',
+    title: 'Common',
+    titleAccent: 'questions.',
+    sub: 'If you don’t see your question here, just ask.',
+  },
   testimonials: [
     { id: 'q1', quote: 'They replaced three of our vendors. One team, one channel, one invoice.', name: 'Maya Okafor', role: 'COO, Northwind', tone: '#ff813a', image: 'https://ui-avatars.com/api/?name=Maya+Okafor&background=ff813a&color=fff' },
     { id: 'q2', quote: 'A working prototype in eleven days. Best momentum we’ve had in years.', name: 'Daniel Reyes', role: 'CEO, Stellar', tone: '#e06820', image: 'https://ui-avatars.com/api/?name=Daniel+Reyes&background=e06820&color=fff' },
@@ -217,6 +274,12 @@ export const DEFAULT_CONTENT: SiteContent = {
     { id: 'q5', quote: 'Traffic up 4x. CAC down a third. They run growth like a product team.', name: 'Aisha Mensah', role: 'Founder, Mosaic', tone: '#cc6622', image: 'https://ui-avatars.com/api/?name=Aisha+Mensah&background=cc6622&color=fff' },
     { id: 'q6', quote: 'Most agencies sell a deck. Zenova built us a system and taught us how to run it.', name: 'Leo Castelli', role: 'COO, Verge', tone: '#ffa870', image: 'https://ui-avatars.com/api/?name=Leo+Castelli&background=ffa870&color=fff' },
   ],
+  testimonialsSection: {
+    eyebrow: 'Testimonials',
+    title: 'What our users',
+    titleAccent: 'say.',
+    sub: 'See what our customers have to say about us.',
+  },
   marquee: [
     { id: 'm1', label: 'Branding' },
     { id: 'm2', label: 'Web Design' },
@@ -286,6 +349,101 @@ export const DEFAULT_CONTENT: SiteContent = {
       { id: 'tl4', year: '2026', what: 'Working with 8 active clients across 3 continents.' },
     ],
   },
+  footer: {
+    tagline: 'A small team that designs, builds, and grows modern businesses.',
+    columns: [
+      {
+        id: 'fc1',
+        title: 'Services',
+        links: [
+          { id: 'fl1', label: 'Web Development', href: '/services/web' },
+          { id: 'fl2', label: 'Marketing', href: '/services/marketing' },
+          { id: 'fl3', label: 'Startup Support', href: '/services/startup' },
+          { id: 'fl4', label: 'Operations', href: '/services/ops' },
+          { id: 'fl5', label: 'Content', href: '/services/content' },
+        ],
+      },
+      {
+        id: 'fc2',
+        title: 'Company',
+        links: [
+          { id: 'fl6', label: 'About', href: '/about' },
+          { id: 'fl7', label: 'Work', href: '/work' },
+          { id: 'fl8', label: 'Process', href: '/process' },
+          { id: 'fl9', label: 'Contact', href: '/contact' },
+        ],
+      },
+      {
+        id: 'fc3',
+        title: 'About',
+        links: [
+          { id: 'fll1', label: 'Privacy Policy', href: '/privacy' },
+          { id: 'fll2', label: 'Terms of Service', href: '/terms' },
+        ],
+      },
+    ],
+    legalLinks: [],
+    copyright: '© 2026 Zenova Solutions, Inc. All rights reserved.',
+    strapline: 'Design, build, and grow',
+  },
+  legal: {
+    privacy: {
+      title: 'Privacy Policy',
+      updated: 'Last updated: January 2026',
+      intro:
+        'This Privacy Policy explains how Zenova collects, uses, and protects your information when you use our website and services.',
+      sections: [
+        {
+          id: 'ps1',
+          heading: 'Information we collect',
+          body: 'We collect information you provide directly to us, such as when you fill out a contact form, subscribe to updates, or communicate with us.\n\nThis may include your name, email address, company, and any details you choose to share about your project.',
+        },
+        {
+          id: 'ps2',
+          heading: 'How we use your information',
+          body: 'We use the information we collect to respond to your enquiries, deliver our services, and improve your experience. We do not sell your personal information to third parties.',
+        },
+        {
+          id: 'ps3',
+          heading: 'Cookies',
+          body: 'We use cookies and similar technologies to remember your preferences and understand how our site is used. You can control cookies through your browser settings.',
+        },
+        {
+          id: 'ps4',
+          heading: 'Contact us',
+          body: 'If you have any questions about this Privacy Policy, please contact us at hello@zenova.bd.',
+        },
+      ],
+    },
+    terms: {
+      title: 'Terms of Service',
+      updated: 'Last updated: January 2026',
+      intro:
+        'These Terms of Service govern your use of the Zenova website and services. By using our site, you agree to these terms.',
+      sections: [
+        {
+          id: 'ts1',
+          heading: 'Use of our services',
+          body: 'You agree to use our website and services only for lawful purposes and in accordance with these terms.',
+        },
+        {
+          id: 'ts2',
+          heading: 'Intellectual property',
+          body: 'Unless otherwise stated, all content on this site is the property of Zenova. Work produced for clients is transferred to them per the terms of each engagement.',
+        },
+        {
+          id: 'ts3',
+          heading: 'Limitation of liability',
+          body: 'Our services are provided on an "as is" basis. To the fullest extent permitted by law, Zenova is not liable for any indirect or consequential damages arising from your use of our site.',
+        },
+        {
+          id: 'ts4',
+          heading: 'Contact us',
+          body: 'If you have any questions about these Terms, please contact us at hello@zenova.bd.',
+        },
+      ],
+    },
+  },
 };
 
 const DEFAULT_BRAND: BrandSettings = {
@@ -299,6 +457,12 @@ const DEFAULT_BRAND: BrandSettings = {
     { id: 'l1', city: 'Brooklyn, NY', tz: 'EST', detail: 'Headquarters' },
     { id: 'l2', city: 'Berlin', tz: 'CET', detail: 'European hub' },
     { id: 'l3', city: 'Remote', tz: 'Global', detail: 'We hire worldwide' },
+  ],
+  socials: [
+    { platform: 'twitter', url: 'https://twitter.com/zenova' },
+    { platform: 'linkedin', url: 'https://www.linkedin.com/company/zenova' },
+    { platform: 'github', url: 'https://github.com/zenova' },
+    { platform: 'dribbble', url: 'https://dribbble.com/zenova' },
   ],
 };
 

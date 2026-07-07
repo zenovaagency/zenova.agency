@@ -1,41 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Logo } from './Logo';
-
-interface FooterLink {
-  label: string;
-  to: { pathname: string; hash?: string };
-}
-
-interface FooterCol {
-  title: string;
-  links: FooterLink[];
-}
-
-const COLS: FooterCol[] = [
-  {
-    title: 'Services',
-    links: [
-      { label: 'Web Development', to: { pathname: '/services/web' } },
-      { label: 'Marketing', to: { pathname: '/services/marketing' } },
-      { label: 'Startup Support', to: { pathname: '/services/startup' } },
-      { label: 'Operations', to: { pathname: '/services/ops' } },
-      { label: 'Content', to: { pathname: '/services/content' } },
-    ],
-  },
-  {
-    title: 'Company',
-    links: [
-      { label: 'About', to: { pathname: '/about' } },
-      { label: 'Work', to: { pathname: '/work' } },
-      { label: 'Process', to: { pathname: '/process' } },
-      { label: 'Contact', to: { pathname: '/contact' } },
-    ],
-  },
-];
-
-const SOCIAL = ['Tw', 'Ln', 'Gh', 'Dr'];
+import { Icon } from '@/components/icons/Icon';
+import { DEFAULT_CONTENT, useBrand, useContent } from '@/admin/store';
 
 export function Footer() {
+  const [content] = useContent();
+  const [brand] = useBrand();
+  const footer = content.footer ?? DEFAULT_CONTENT.footer!;
+  const socials = brand.socials ?? [];
+
   return (
     <footer
       style={{
@@ -58,18 +31,19 @@ export function Footer() {
         }}
       />
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-        <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr repeat(2, 1fr)', gap: 48 }}>
+        <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 1fr) repeat(3, auto)', gap: 140, justifyContent: 'end' }}>
           <div>
             <Logo size={25} />
             <p style={{ color: 'var(--fg-dim)', fontSize: 14, lineHeight: 1.55, marginTop: 22, maxWidth: 320 }}>
-              A small team that designs, builds, and grows modern businesses.
+              {footer.tagline}
             </p>
             <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-              {SOCIAL.map((s) => (
+              {socials.map((s) => (
                 <a
-                  key={s}
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
+                  key={s.platform}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     width: 36,
                     height: 36,
@@ -78,26 +52,38 @@ export function Footer() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 11,
                     color: 'var(--fg-dim)',
-                    fontFamily: 'var(--font-mono)',
+                    textDecoration: 'none',
+                    transition: 'color .2s, border-color .2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--fg)';
+                    e.currentTarget.style.borderColor = 'var(--fg)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--fg-dim)';
+                    e.currentTarget.style.borderColor = 'var(--line)';
                   }}
                 >
-                  {s}
+                  {Icon[s.platform as keyof typeof Icon]?.({ size: 16 }) ?? (
+                    <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}>
+                      {s.platform.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
                 </a>
               ))}
             </div>
           </div>
-          {COLS.map((c) => (
-            <div key={c.title}>
+          {footer.columns.map((c) => (
+            <div key={c.id}>
               <div className="mono" style={{ color: 'var(--fg-faint)', marginBottom: 18 }}>
                 {c.title}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {c.links.map((l) => (
                   <Link
-                    key={l.label}
-                    to={l.to}
+                    key={l.id}
+                    to={l.href}
                     style={{ fontSize: 14, color: 'var(--fg-dim)' }}
                     onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--fg)')}
                     onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--fg-dim)')}
@@ -124,10 +110,10 @@ export function Footer() {
           }}
         >
           <div className="mono" style={{ color: 'var(--fg-faint)' }}>
-            © 2026 Zenova Solutions, Inc. All rights reserved.
+            {footer.copyright}
           </div>
           <div className="mono" style={{ color: 'var(--fg-faint)' }}>
-            Design, build, and grow
+            {footer.strapline}
           </div>
         </div>
       </div>
