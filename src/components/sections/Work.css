@@ -1,0 +1,305 @@
+/* ── Work section: ember-sweep ledger ──────────────────────────────────
+   Each project is an editorial ledger row revealed by a glowing ember
+   edge that sweeps across it, scrubbed by scroll (reversible). The sweep
+   is a bg-colored cover panel translating out — transform-only, so it
+   composites on the GPU. Sweep direction alternates per row. */
+
+.ember-row {
+  position: relative;
+}
+
+/* hairline rule that "ignites" from the sweep origin */
+.ember-row__rule {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--tone), var(--line) 55%, transparent);
+  transform-origin: left center;
+}
+
+.ember-row[data-dir='rtl'] .ember-row__rule {
+  transform-origin: right center;
+  background: linear-gradient(270deg, var(--tone), var(--line) 55%, transparent);
+}
+
+/* clips the sweeping cover + ghost numeral bleed */
+.ember-row__mask {
+  position: relative;
+  overflow: hidden;
+  padding: 64px 0;
+}
+
+/* oversized ghost ledger numeral behind the content */
+.ember-row__index {
+  position: absolute;
+  z-index: 0;
+  top: 26px;
+  left: -14px;
+  font-size: clamp(110px, 16vw, 200px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--tone) 40%, transparent);
+  user-select: none;
+  pointer-events: none;
+}
+
+.ember-row__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 64px;
+  align-items: center;
+}
+
+/* ── text column ── */
+
+.ember-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+
+.ember-row__kicker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg-faint);
+}
+
+.ember-row__client {
+  color: var(--tone);
+}
+
+.ember-row__title {
+  margin: 0;
+  font-size: clamp(30px, 3.4vw, 50px);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.ember-row__title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ember-row__title a:hover {
+  color: var(--tone);
+}
+
+.ember-row__summary {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--fg-dim);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.ember-row__stat {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.ember-row__stat-num {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--tone);
+}
+
+.ember-row__stat-label {
+  color: var(--fg-faint);
+}
+
+.ember-row__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ember-row__tag {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  color: var(--fg-dim);
+}
+
+.ember-row__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-top: 6px;
+  color: var(--tone);
+  text-decoration: none;
+}
+
+.ember-row__cta span {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ember-row__cta:hover span {
+  transform: translateX(4px);
+}
+
+/* ── media plate ── */
+
+.ember-row__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+
+.ember-row__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ember-row__media:hover img {
+  transform: scale(1.04);
+}
+
+.ember-row__media-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ember-row__media-initials {
+  font-family: var(--font-display);
+  font-size: clamp(70px, 9vw, 130px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  color: var(--tone);
+  opacity: 0.14;
+  user-select: none;
+}
+
+/* ── the sweeping cover: bg-colored panel with a glowing ember edge ── */
+
+.ember-row__cover {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: -90px;
+  right: -90px;
+  z-index: 2;
+  background: var(--bg);
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* the burn line at the reveal boundary */
+.ember-row__cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--tone) 18%, var(--tone) 82%, transparent);
+  box-shadow:
+    0 0 16px 1px var(--tone),
+    0 0 48px 6px color-mix(in srgb, var(--tone) 45%, transparent);
+}
+
+/* heat trail bleeding into the still-covered side */
+.ember-row__cover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 110px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--tone) 20%, transparent), transparent);
+}
+
+.ember-row[data-dir='rtl'] .ember-row__cover::before {
+  left: auto;
+  right: 0;
+}
+
+.ember-row[data-dir='rtl'] .ember-row__cover::after {
+  left: auto;
+  right: 0;
+  background: linear-gradient(270deg, color-mix(in srgb, var(--tone) 20%, transparent), transparent);
+}
+
+/* ── footer button, closes the ledger ── */
+
+.ember-ledger__footer {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--line);
+  padding-top: 56px;
+  margin-top: 8px;
+}
+
+/* ── responsive ── */
+
+@media (max-width: 900px) {
+  .ember-row__mask {
+    padding: 48px 0;
+  }
+  .ember-row__grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .ember-row__media-wrap {
+    order: -1;
+  }
+  .ember-row__index {
+    left: auto;
+    right: -6px;
+    top: 18px;
+    font-size: clamp(90px, 20vw, 140px);
+  }
+  .ember-row__title {
+    font-size: clamp(26px, 6vw, 36px);
+  }
+}
+
+@media (max-width: 640px) {
+  .ember-row__mask {
+    padding: 40px 0;
+  }
+  .ember-row__summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ember-row__cover {
+    display: none;
+  }
+  .ember-row__rule,
+  .ember-row__index,
+  .ember-row__text,
+  .ember-row__media-wrap {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .ember-row__media img,
+  .ember-row__cta span {
+    transition: none;
+  }
+}

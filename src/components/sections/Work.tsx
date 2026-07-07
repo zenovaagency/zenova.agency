@@ -1,204 +1,154 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useRef } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { useProjects } from '@/admin/store';
-import type { ProjectDetail, ProjectImage } from '@/data/projects';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
+import type { ProjectDetail } from '@/data/projects';
+import './Work.css';
 
-function HoverSlideshow({
-  images,
-  fallback,
-}: {
-  images: ProjectImage[];
-  fallback: { tone: string; client: string };
-}) {
-  const [active, setActive] = useState(0);
-  const [hovered, setHovered] = useState(false);
-
-  useEffect(() => {
-    if (!hovered || images.length <= 1) return;
-    const interval = setInterval(() => {
-      setActive((prev) => (prev + 1) % images.length);
-    }, 1500);
-    return () => clearInterval(interval);
-  }, [hovered, images.length]);
-
-  if (images.length === 0) {
-    return (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          background: `linear-gradient(135deg, ${fallback.tone}35, ${fallback.tone}08)`,
-        }}
-      />
-    );
-  }
-
-  return (
-    <div
-      style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {images.map((img, i) => (
-        <motion.div
-          key={img.src}
-          initial={false}
-          animate={{
-            opacity: i === active ? 1 : 0,
-            x: i === active ? '0%' : i < active ? '-100%' : '100%',
-          }}
-          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-          }}
-        >
-          <img
-            src={img.src}
-            alt={img.alt ?? fallback.client}
-            loading="lazy"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
-        </motion.div>
-      ))}
-    </div>
-  );
+function initialsOf(name: string) {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 }
 
-function CaseStudyCard({ project, reversed, index }: { project: ProjectDetail; reversed: boolean; index: number }) {
+function EmberRow({
+  project,
+  index,
+  reduced,
+}: {
+  project: ProjectDetail;
+  index: number;
+  reduced: boolean;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  // Sweep direction alternates per row: even → left-to-right, odd → right-to-left.
+  const dir = index % 2 === 0 ? 1 : -1;
+
+  // Burn-line progress: scrubbed while the row travels from 92% to 45% of the
+  // viewport, so scrolling back re-covers the row in reverse.
+  const { scrollYProgress: sweep } = useScroll({
+    target: ref,
+    offset: ['start 0.92', 'start 0.45'],
+  });
+  // Full traversal of the viewport, for the slow parallax drifts.
+  const { scrollYProgress: drift } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+
+  const coverX = useTransform(sweep, [0, 1], ['0%', `${dir * 118}%`]);
+  const settleX = useTransform(sweep, [0, 0.85], [dir * -28, 0]);
+  const ghostY = useTransform(drift, [0, 1], [70, -40]);
+  const ghostOpacity = useTransform(sweep, [0, 0.35], [0, 1]);
+  const mediaY = useTransform(drift, [0, 1], [26, -26]);
+
+  const [metricNum, metricLabel] = project.metric;
   const images = project.images ?? [];
 
   return (
-    <motion.div
-      className="card work-case-card"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{
-        duration: 0.7,
-        delay: index * 0.1,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      whileHover={{ y: -6 }}
-      style={{
-        display: 'grid',
-        gridTemplateColumns: reversed ? '1fr 1.15fr' : '1.15fr 1fr',
-        gap: 48,
-        alignItems: 'center',
-        padding: 40,
-        borderRadius: 28,
-        border: '1px solid var(--line)',
-        background: 'var(--card)',
-        boxShadow: 'var(--card-shadow)',
-        cursor: 'default',
-      }}
+    <article
+      ref={ref}
+      className="ember-row"
+      data-dir={dir === 1 ? 'ltr' : 'rtl'}
+      style={{ '--tone': project.tone } as React.CSSProperties}
     >
-      <motion.div
-        style={{
-          order: reversed ? 2 : 1,
-          borderRadius: 20,
-          overflow: 'hidden',
-          border: '1px solid var(--line)',
-        }}
-        whileHover={{ scale: 1.02 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <Link
-          to={`/work/${project.slug}`}
-          style={{
-            display: 'block',
-            width: '100%',
-            aspectRatio: '4 / 3',
-          }}
+      <motion.span
+        className="ember-row__rule"
+        aria-hidden
+        style={reduced ? undefined : { scaleX: sweep }}
+      />
+
+      <div className="ember-row__mask">
+        <motion.span
+          className="display ember-row__index"
+          aria-hidden
+          style={reduced ? undefined : { y: ghostY, opacity: ghostOpacity }}
         >
-          <HoverSlideshow images={images} fallback={{ tone: project.tone, client: project.client }} />
-        </Link>
-      </motion.div>
+          {String(index + 1).padStart(2, '0')}
+        </motion.span>
 
-      <motion.div
-        style={{ order: reversed ? 1 : 2, display: 'flex', flexDirection: 'column', gap: 20 }}
-        initial={{ opacity: 0, x: reversed ? -30 : 30 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.6, delay: index * 0.1 + 0.2, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <Link to={`/work/${project.slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-          <h3
-            className="display"
-            style={{
-              fontSize: 'clamp(22px, 2.8vw, 32px)',
-              fontWeight: 500,
-              lineHeight: 1.15,
-              margin: 0,
-            }}
+        <div className="ember-row__grid">
+          <motion.div className="ember-row__text" style={reduced ? undefined : { x: settleX }}>
+            <span className="mono ember-row__kicker">
+              <span className="ember-row__client">{project.client}</span>
+              <span aria-hidden>—</span>
+              {project.category} · {project.year}
+            </span>
+
+            <h3 className="display ember-row__title">
+              <Link to={`/work/${project.slug}`}>{project.title}</Link>
+            </h3>
+
+            <p className="ember-row__summary">{project.summary}</p>
+
+            <div className="ember-row__stat">
+              <span className="ember-row__stat-num">{metricNum}</span>
+              <span className="mono ember-row__stat-label">{metricLabel}</span>
+            </div>
+
+            {project.tags.length > 0 && (
+              <div className="ember-row__tags">
+                {project.tags.map((tag) => (
+                  <span key={tag} className="mono ember-row__tag">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <Link to={`/work/${project.slug}`} className="mono ember-row__cta">
+              View case study <span aria-hidden>→</span>
+            </Link>
+          </motion.div>
+
+          <motion.div
+            className="ember-row__media-wrap"
+            style={reduced ? undefined : { y: mediaY }}
           >
-            {project.title}
-          </h3>
-        </Link>
-
-        <p style={{ margin: 0, color: 'var(--fg-dim)', fontSize: 15, lineHeight: 1.65 }}>
-          {project.summary}
-        </p>
-
-        {project.testimonial?.quote && (
-          <p
-            style={{
-              margin: 0,
-              color: 'var(--fg-dim)',
-              fontSize: 14,
-              lineHeight: 1.6,
-              borderLeft: `2px solid ${project.tone}`,
-              paddingLeft: 16,
-            }}
-          >
-            “{project.testimonial.quote}”
-          </p>
-        )}
-
-        {project.testimonial?.author && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 4 }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: 10,
-                background: `${project.tone}20`,
-                border: `1px solid ${project.tone}50`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: project.tone,
-                fontFamily: 'var(--font-mono)',
-                fontSize: 12,
-              }}
+            <Link
+              to={`/work/${project.slug}`}
+              className="ember-row__media"
+              aria-label={`View ${project.client} case study`}
             >
-              {project.testimonial.author
-                .split(' ')
-                .map((n) => n[0])
-                .join('')
-                .slice(0, 2)}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--fg)' }}>
-                {project.testimonial.author}
-              </span>
-              <span style={{ fontSize: 13, color: 'var(--fg-dim)' }}>{project.testimonial.role}</span>
-            </div>
-          </div>
+              {images.length > 0 ? (
+                <img src={images[0].src} alt={images[0].alt ?? project.client} loading="lazy" />
+              ) : (
+                <div
+                  className="ember-row__media-fallback"
+                  style={{
+                    background: `linear-gradient(135deg, ${project.tone}35, ${project.tone}08)`,
+                  }}
+                >
+                  <span className="ember-row__media-initials">{initialsOf(project.client)}</span>
+                </div>
+              )}
+            </Link>
+          </motion.div>
+        </div>
+
+        {!reduced && (
+          <motion.div
+            className="ember-row__cover"
+            aria-hidden
+            style={{ x: coverX, skewX: dir * -10 }}
+          />
         )}
-      </motion.div>
-    </motion.div>
+      </div>
+    </article>
   );
 }
 
 export function Work() {
   const [allProjects] = useProjects();
-  const PROJECTS = allProjects.slice(0, 4);
+  const navigate = useNavigate();
+  const reduced = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const projects = allProjects.slice(0, 4);
 
   return (
     <section id="work" className="sec" style={{ padding: '120px 0' }}>
@@ -209,14 +159,14 @@ export function Work() {
           sub="A few examples of what we’ve built and grown."
         />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 40, marginTop: 72 }}>
-          {PROJECTS.map((p, idx) => (
-            <CaseStudyCard key={p.slug} project={p} reversed={idx % 2 === 1} index={idx} />
+        <div className="ember-ledger">
+          {projects.map((p, i) => (
+            <EmberRow key={p.slug} project={p} index={i} reduced={reduced} />
           ))}
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 64 }}>
-          <GhostButton text="See all projects" onClick={() => { window.location.href = '/work'; }} />
+        <div className="ember-ledger__footer">
+          <GhostButton text="See all projects" onClick={() => navigate('/work')} />
         </div>
       </div>
     </section>

@@ -865,26 +865,6 @@ section.sec {
   }
 }
 
-@media (max-width: 900px) {
-  .work-case-card {
-    grid-template-columns: 1fr !important;
-    gap: 32px !important;
-    padding: 28px !important;
-  }
-  .work-case-card > a,
-  .work-case-card > div {
-    order: unset !important;
-  }
-}
-@media (max-width: 480px) {
-  .work-case-card {
-    padding: 20px !important;
-    border-radius: 20px !important;
-  }
-  .work-case-card > a {
-    aspect-ratio: 16 / 10 !important;
-  }
-}
 @media (max-width: 640px) {
   .hero-stats {
     grid-template-columns: repeat(2, 1fr) !important;
