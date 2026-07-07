@@ -31,21 +31,6 @@
   padding: 64px 0;
 }
 
-/* oversized ghost ledger numeral behind the content */
-.ember-row__index {
-  position: absolute;
-  z-index: 0;
-  top: 26px;
-  left: -14px;
-  font-size: clamp(110px, 16vw, 200px);
-  line-height: 1;
-  letter-spacing: -0.04em;
-  color: transparent;
-  -webkit-text-stroke: 1.5px color-mix(in srgb, var(--tone) 40%, transparent);
-  user-select: none;
-  pointer-events: none;
-}
-
 .ember-row__grid {
   position: relative;
   z-index: 1;
@@ -53,6 +38,14 @@
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
   gap: 64px;
   align-items: center;
+}
+
+/* flip grid order for ltr rows: image on left, text on right */
+.ember-row[data-dir='ltr'] .ember-row__text {
+  order: 2;
+}
+.ember-row[data-dir='ltr'] .ember-row__media-wrap {
+  order: 1;
 }
 
 /* ── text column ── */
@@ -264,12 +257,6 @@
   .ember-row__media-wrap {
     order: -1;
   }
-  .ember-row__index {
-    left: auto;
-    right: -6px;
-    top: 18px;
-    font-size: clamp(90px, 20vw, 140px);
-  }
   .ember-row__title {
     font-size: clamp(26px, 6vw, 36px);
   }
@@ -292,7 +279,6 @@
     display: none;
   }
   .ember-row__rule,
-  .ember-row__index,
   .ember-row__text,
   .ember-row__media-wrap {
     transform: none !important;

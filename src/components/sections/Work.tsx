@@ -44,8 +44,6 @@ function EmberRow({
 
   const coverX = useTransform(sweep, [0, 1], ['0%', `${dir * 118}%`]);
   const settleX = useTransform(sweep, [0, 0.85], [dir * -28, 0]);
-  const ghostY = useTransform(drift, [0, 1], [70, -40]);
-  const ghostOpacity = useTransform(sweep, [0, 0.35], [0, 1]);
   const mediaY = useTransform(drift, [0, 1], [26, -26]);
 
   const [metricNum, metricLabel] = project.metric;
@@ -65,14 +63,6 @@ function EmberRow({
       />
 
       <div className="ember-row__mask">
-        <motion.span
-          className="display ember-row__index"
-          aria-hidden
-          style={reduced ? undefined : { y: ghostY, opacity: ghostOpacity }}
-        >
-          {String(index + 1).padStart(2, '0')}
-        </motion.span>
-
         <div className="ember-row__grid">
           <motion.div className="ember-row__text" style={reduced ? undefined : { x: settleX }}>
             <span className="mono ember-row__kicker">
