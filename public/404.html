@@ -7,17 +7,22 @@
     <script>
       // SPA redirect for GitHub Pages.
       //
-      // We can't read Vite's BASE_URL here. Use the base-segments meta tag to
-      // tell us how many leading path segments are the repo base (1 for project
-      // pages, 0 for custom domains / user sites). Extension-less paths are
-      // treated as SPA routes and redirected; paths ending in a file extension
-      // (e.g. missing assets) show the 404 fallback below.
+      // The base path is auto-detected: on *.github.io project sites the first
+      // path segment is the repo name, so keep=1. On custom domains there is no
+      // repo prefix, so keep=0. Override via meta[name="base-segments"] when
+      // the auto-detection is wrong (e.g. user/org *.github.io sites).
       (function () {
         var l = window.location;
         var segments = l.pathname.split('/').filter(Boolean);
         var meta = document.querySelector('meta[name="base-segments"]');
-        var keep = meta ? Number(meta.getAttribute('content')) : 1;
-        if (!Number.isFinite(keep) || keep < 0) keep = 1;
+        var onGitHubPages = /\.github\.io$/.test(l.hostname);
+        var keep;
+        if (meta) {
+          keep = Number(meta.getAttribute('content'));
+        } else {
+          keep = onGitHubPages ? 1 : 0;
+        }
+        if (!Number.isFinite(keep) || keep < 0) keep = onGitHubPages ? 1 : 0;
         if (keep > segments.length) keep = segments.length;
 
         var basePath = '/' + segments.slice(0, keep).join('/');
@@ -118,8 +123,14 @@
       (function () {
         var segments = window.location.pathname.split('/').filter(Boolean);
         var meta = document.querySelector('meta[name="base-segments"]');
-        var keep = meta ? Number(meta.getAttribute('content')) : 1;
-        if (!Number.isFinite(keep) || keep < 0) keep = 1;
+        var onGitHubPages = /\.github\.io$/.test(window.location.hostname);
+        var keep;
+        if (meta) {
+          keep = Number(meta.getAttribute('content'));
+        } else {
+          keep = onGitHubPages ? 1 : 0;
+        }
+        if (!Number.isFinite(keep) || keep < 0) keep = onGitHubPages ? 1 : 0;
         if (keep > segments.length) keep = segments.length;
         var basePath = '/' + segments.slice(0, keep).join('/');
         if (basePath !== '/') basePath += '/';

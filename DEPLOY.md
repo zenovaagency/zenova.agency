@@ -4,30 +4,24 @@ The site auto-deploys to GitHub Pages from `main` via `.github/workflows/deploy.
 
 ## One-time setup
 
-Before the first deploy works you have to point Pages at the workflow:
-
 1. Open the repo on GitHub → **Settings** → **Pages**.
 2. Under **Build and deployment → Source**, choose **GitHub Actions**.
-   *(Not "Deploy from a branch" — that serves raw source files, which is what
-   caused the `application/octet-stream` MIME error on `.tsx` files.)*
 3. Push to `main` (or run the workflow manually from the **Actions** tab).
 
 That's it. The site lives at `https://<owner>.github.io/<repo>/`.
 
 ## How the base path is resolved
 
-`vite.config.ts` reads two environment variables:
+`vite.config.ts` auto-detects the base from the CI environment:
 
-| Source | What it does |
+| Environment | Base |
 |---|---|
-| `GITHUB_ACTIONS` + `GITHUB_REPOSITORY` | Auto-set by GitHub Actions. Base becomes `/<repo>/` for a project site, or `/` for a `<owner>.github.io` user/org site. |
-| `BASE_PATH` (optional) | Manual override if you need a custom base. Example: `BASE_PATH=/foo/ npm run build`. |
-| neither | Base stays `/`. Used for local `npm run build`. |
+| Project site on GitHub Pages (e.g. `owner/repo`) | `/<repo>/` |
+| User/org site (`owner/owner.github.io`) | `/` |
+| Custom domain | Set `BASE_PATH` repository variable to `/` |
+| Local `npm run build` | `/` |
 
-Vite logs the resolved base on every build (`[vite] base=…`). The CI workflow
-also fails the build if `dist/index.html` still references raw TypeScript
-source — that would mean Pages is serving `.tsx` files instead of the
-compiled bundle.
+The resolved base is logged as `[vite] base=…` during build.
 
 ## SPA deep links (`/work/foo`, `/services/web`, etc.)
 
@@ -38,15 +32,15 @@ GitHub Pages doesn't natively support SPA routes. We use a two-file trick:
 - `index.html` has a tiny script that decodes the query back into a real path
   before React Router boots.
 
-The `404.html` script derives the number of leading base segments from the
-URL automatically. If you ever switch to a custom domain or a user/org site
-(`<owner>.github.io`), add this to `index.html` and `404.html`:
+The base path is auto-detected at runtime: on `*.github.io` hosts the first
+path segment is treated as the repo prefix (keep=1); on custom domains there
+is no prefix (keep=0). If the auto-detection gives the wrong result, set the
+`base-segments` meta tag in both `index.html` and `404.html`:
 
 ```html
 <meta name="base-segments" content="0" />
+<!-- 0 = custom domain / user site, 1 = project site (default) -->
 ```
-
-(Default is `1`, matching a project-site URL.)
 
 ## Troubleshooting
 
@@ -56,8 +50,10 @@ re-run the workflow.
 
 **Assets 404 at `/assets/index-XXX.js`**
 The base path didn't make it into the build. Look at the workflow run log
-for `[vite] base=…`. It should print `/<repo>/`, not `/`.
+for `[vite] base=…`. It should print `/<repo>/` for a project site. If it
+prints `/`, check that the `BASE_PATH` repository variable isn't overriding it.
 
 **Deep links 404 on refresh**
 The Pages site is missing `404.html`. Verify `dist/404.html` exists after
-the build — it ships from `public/404.html`.
+the build — it ships from `public/404.html`. Also check that the
+`base-segments` auto-detection is correct for your deployment.

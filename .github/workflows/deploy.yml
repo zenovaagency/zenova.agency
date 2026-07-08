@@ -1,9 +1,10 @@
 name: Deploy to GitHub Pages
 
-# Works for user/org sites (*.github.io repos) and project repos with or
-# without a custom domain. BASE_PATH defaults to "/" (custom domains / user
-# sites). For project repos served at https://<owner>.github.io/<repo>/,
-# set the BASE_PATH repository variable to "/<repo>/".
+# The base path is auto-detected from GITHUB_REPOSITORY:
+#   - User/org sites  (owner/owner.github.io)      → base "/"
+#   - Project sites   (owner/repo)                 → base "/repo/"
+#
+# For custom domains, set the BASE_PATH repository variable to "/".
 
 on:
   push:
@@ -43,8 +44,6 @@ jobs:
         run: npm run typecheck
 
       - name: Build
-        env:
-          BASE_PATH: '/'
         run: npm run build
 
       - name: Verify build output
