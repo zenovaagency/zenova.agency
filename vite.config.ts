@@ -11,16 +11,21 @@ import path from 'node:path';
 //
 // Locally — outside Actions — base is always `/`.
 function resolveBase(): string {
-  const override = process.env.BASE_PATH;
-  if (override) return override.endsWith('/') ? override : override + '/';
+  if (process.env.BASE_PATH) {
+    const base = process.env.BASE_PATH;
+    return base.endsWith("/") ? base : base + "/";
+  }
 
   const repo = process.env.GITHUB_REPOSITORY;
-  if (!repo || !process.env.GITHUB_ACTIONS) return '/';
+  if (!repo || !process.env.GITHUB_ACTIONS) return "/";
 
-  const [owner, name] = repo.split('/');
-  if (!owner || !name) return '/';
+  const [owner, name] = repo.split("/");
 
-  if (name.toLowerCase() === `${owner.toLowerCase()}.github.io`) return '/';
+  // User/Org Pages
+  if (name.toLowerCase() === `${owner.toLowerCase()}.github.io`) {
+    return "/";
+  }
+
   return `/${name}/`;
 }
 
