@@ -1,0 +1,12 @@
+# robots.txt for https://zenova.agency
+# Public marketing pages are crawlable; auth/portal areas are not.
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /client
+Disallow: /team
+Disallow: /login
+Disallow: /signin
+
+Sitemap: https://zenova.agency/sitemap.xml

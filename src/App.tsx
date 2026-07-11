@@ -40,6 +40,7 @@ import { applyPalette } from '@/lib/palette';
 import { applyTheme, getInitialTheme } from '@/lib/theme';
 import type { Theme } from '@/types/tweaks';
 import { hydrateSite } from '@/admin/store';
+import { SeoManager } from '@/seo/SeoManager';
 
 // Tweaks panel ships only in dev builds — lazy import is tree-shaken in prod.
 const ZenovaTweaks = import.meta.env.DEV
@@ -76,6 +77,7 @@ export function App() {
 
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <SeoManager />
       <Routes>
         {/* Unified login endpoint */}
         <Route path="/login" element={<Login />} />
