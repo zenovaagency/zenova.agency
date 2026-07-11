@@ -38,8 +38,8 @@ export const SITE = {
   description:
     'Zenova combines design, development, marketing, and startup support into one seamless partnership for ambitious modern businesses.',
   logo: 'https://zenova.agency/assets/zenova-logo.png',
-  /** Absolute URL to the social share image (ideally a 1200×630 card). */
-  ogImage: 'https://zenova.agency/uploads/zenova.png',
+  /** Absolute URL to the 1200×630 social share card. */
+  ogImage: 'https://zenova.agency/uploads/og-card.png',
   locale: 'en_US',
   email: 'hello@zenova.bd',
   /** Declared brand profiles (rendered in the site footer). Confirm/extend. */
