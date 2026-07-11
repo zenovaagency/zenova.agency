@@ -1,5 +1,6 @@
 export { Popover } from './Popover';
 export { Dropdown, type DropdownOption } from './Dropdown';
+export { Combobox } from './Combobox';
 export { Calendar, formatISO, parseISO } from './Calendar';
 export { DatePicker } from './DatePicker';
 export { TimePicker, formatTime24, parseTime } from './TimePicker';

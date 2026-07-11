@@ -991,6 +991,10 @@ export function exportAll() {
 }
 
 export function importAll(data: ReturnType<typeof exportAll>) {
+  // Only adopt the known top-level collections. A stale or foreign dump can't
+  // smuggle extra top-level keys into a store that would later be PUT wholesale
+  // and rejected by the backend's `extra="forbid"` schemas.
+  if (!data || typeof data !== 'object') return;
   if (data.services) servicesStore.setLocal(data.services);
   if (data.projects) projectsStore.setLocal(data.projects);
   if (data.jobs) jobsStore.setLocal(data.jobs);

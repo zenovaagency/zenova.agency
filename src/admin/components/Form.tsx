@@ -1,5 +1,6 @@
 import { useEffect, useState, type ChangeEvent, type ReactNode } from 'react';
-import { DatePicker, Dropdown, Toggle } from '@/components/ui/inputs';
+import { Combobox, DatePicker, Dropdown, Toggle } from '@/components/ui/inputs';
+import { isValidHex, isValidSlug, slugify } from '@/admin/lib/validate';
 
 export function Field({
   label,
@@ -43,6 +44,42 @@ export function TextField({
         placeholder={placeholder}
         onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
       />
+    </Field>
+  );
+}
+
+export function SlugField({
+  label,
+  hint,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  // `slugify` on every keystroke keeps the value inside the backend `Slug`
+  // pattern; the only reachable invalid state is empty.
+  const empty = value.length === 0;
+  const invalid = !empty && !isValidSlug(value);
+  return (
+    <Field label={label} hint={hint}>
+      <input
+        type="text"
+        className="adm-input"
+        style={empty || invalid ? { borderColor: '#dc3c3c' } : undefined}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(slugify(e.target.value))}
+      />
+      {(empty || invalid) && (
+        <p className="adm-help" style={{ color: '#dc3c3c' }}>
+          {empty ? 'Slug is required.' : 'Lowercase letters, numbers, and dashes only.'}
+        </p>
+      )}
     </Field>
   );
 }
@@ -99,6 +136,84 @@ export function Select({
         options={options}
         onChange={onChange}
         searchable={searchable}
+        placeholder={placeholder}
+      />
+    </Field>
+  );
+}
+
+export function ComboField({
+  label,
+  hint,
+  value,
+  suggestions,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  suggestions: string[];
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <Field label={label} hint={hint}>
+      <Combobox value={value} suggestions={suggestions} onChange={onChange} placeholder={placeholder} />
+    </Field>
+  );
+}
+
+export function TokenField({
+  label,
+  hint,
+  values,
+  onChange,
+  suggestions,
+  placeholder,
+}: {
+  label: string;
+  hint?: string;
+  values: string[];
+  onChange: (next: string[]) => void;
+  suggestions?: string[];
+  placeholder?: string;
+}) {
+  const [entry, setEntry] = useState('');
+  const add = (raw: string) => {
+    const t = raw.trim();
+    setEntry('');
+    if (!t || values.some((x) => x.toLowerCase() === t.toLowerCase())) return;
+    onChange([...values, t]);
+  };
+  const remove = (i: number) => onChange(values.filter((_, idx) => idx !== i));
+  const avail = (suggestions ?? []).filter(
+    (s) => !values.some((v) => v.toLowerCase() === s.trim().toLowerCase()),
+  );
+  return (
+    <Field label={label} hint={hint}>
+      {values.length > 0 && (
+        <div className="zui-tokens">
+          {values.map((v, i) => (
+            <span key={`${v}-${i}`} className="zui-token">
+              {v}
+              <button
+                type="button"
+                className="zui-token__remove"
+                onClick={() => remove(i)}
+                aria-label={`Remove ${v}`}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <Combobox
+        value={entry}
+        onChange={setEntry}
+        onSubmit={add}
+        suggestions={avail}
         placeholder={placeholder}
       />
     </Field>
@@ -176,13 +291,16 @@ export function ColorField({
   value: string;
   onChange: (v: string) => void;
 }) {
+  // The native color picker only ever emits valid hex; the text box lets the
+  // user type freely, so flag anything the backend `HexColor` would reject.
+  const invalid = value.length > 0 && !isValidHex(value);
   return (
     <Field label={label} hint={hint}>
       <div style={{ display: 'flex', gap: 10 }}>
         <input
           type="color"
           className="adm-input adm-input--color"
-          value={value}
+          value={isValidHex(value) ? value.slice(0, 7) : '#000000'}
           onChange={(e) => onChange(e.target.value)}
           style={{ width: 64, flexShrink: 0 }}
         />
@@ -191,9 +309,14 @@ export function ColorField({
           className="adm-input"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          style={{ fontFamily: 'var(--font-mono)', flex: 1 }}
+          style={{ fontFamily: 'var(--font-mono)', flex: 1, ...(invalid ? { borderColor: '#dc3c3c' } : {}) }}
         />
       </div>
+      {invalid && (
+        <p className="adm-help" style={{ color: '#dc3c3c' }}>
+          Enter a hex color like #ff813a.
+        </p>
+      )}
     </Field>
   );
 }

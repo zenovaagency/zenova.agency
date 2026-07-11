@@ -29,7 +29,7 @@ import {
   type SiteContent,
 } from '@/admin/store';
 import { Button } from '@/admin/components/Button';
-import { Toggle } from '@/components/ui/inputs';
+import { Dropdown, Toggle } from '@/components/ui/inputs';
 import { Icon } from '@/components/icons/Icon';
 
 type Tab =
@@ -1038,23 +1038,21 @@ function FooterEditor({
                 <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}>{s.platform.slice(0, 2)}</span>
               )}
             </div>
-            <select
-              className="adm-input"
+            <Dropdown
               value={s.platform}
-              onChange={(e) =>
+              options={SOCIAL_PLATFORMS.map((p) => ({
+                value: p,
+                label: p.charAt(0).toUpperCase() + p.slice(1),
+                icon: socialIcon(p),
+              }))}
+              onChange={(v) =>
                 updateSocials(
                   socials.map((x, idx) =>
-                    idx === i ? { ...x, platform: e.target.value } : x,
+                    idx === i ? { ...x, platform: v } : x,
                   ),
                 )
               }
-            >
-              {SOCIAL_PLATFORMS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+            />
             <input
               className="adm-input"
               placeholder="https://…"

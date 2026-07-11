@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
 import { Field, TextField, Toast } from '@/admin/components/Form';
+import { Combobox } from '@/components/ui/inputs';
+import { isValidEmail } from '@/admin/lib/validate';
 import {
   brandStore,
   exportAll,
@@ -10,6 +12,11 @@ import {
   useBrand,
   type BrandSettings,
 } from '@/admin/store';
+
+const TZ_OPTIONS = [
+  'UTC', 'GMT', 'EST', 'CST', 'MST', 'PST', 'CET', 'EET',
+  'IST', 'BST', 'JST', 'AEST', 'Global',
+];
 
 function uid() {
   return 'l' + Math.random().toString(36).slice(2, 9);
@@ -45,6 +52,14 @@ export function Settings() {
   };
 
   const save = async () => {
+    if (!isValidEmail(draft.contactEmail)) {
+      setToast('Contact email is not a valid address.');
+      return;
+    }
+    if (!isValidEmail(draft.careersEmail)) {
+      setToast('Careers email is not a valid address.');
+      return;
+    }
     setSaving(true);
     try {
       await brandStore.set(draft);
@@ -160,11 +175,13 @@ export function Settings() {
         <div className="adm-row adm-row--2">
           <TextField
             label="Contact email"
+            type="email"
             value={draft.contactEmail}
             onChange={(v) => updateDraft({ contactEmail: v })}
           />
           <TextField
             label="Careers email"
+            type="email"
             value={draft.careersEmail}
             onChange={(v) => updateDraft({ careersEmail: v })}
           />
@@ -217,11 +234,11 @@ export function Settings() {
               value={l.city}
               onChange={(e) => updateLocation(i, { city: e.target.value })}
             />
-            <input
-              className="adm-input"
+            <Combobox
               placeholder="TZ"
               value={l.tz}
-              onChange={(e) => updateLocation(i, { tz: e.target.value })}
+              suggestions={TZ_OPTIONS}
+              onChange={(v) => updateLocation(i, { tz: v })}
             />
             <input
               className="adm-input"

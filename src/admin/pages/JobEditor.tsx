@@ -4,12 +4,15 @@ import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
 import {
   ColorField,
+  ComboField,
   DateField,
+  SlugField,
   StringList,
   TextArea,
   TextField,
   Toast,
 } from '@/admin/components/Form';
+import { isValidHex, isValidSlug } from '@/admin/lib/validate';
 import { jobsStore, patchJob, useJobs } from '@/admin/store';
 import type { JobDetail } from '@/data/jobs';
 import { emptyJob } from './JobsAdmin';
@@ -34,6 +37,19 @@ export function JobEditor() {
     if (existing) setDraft(existing);
   }, [existing]);
 
+  const departmentSuggestions = useMemo(
+    () => ['Design', 'Engineering', 'Growth', 'Operations', ...jobs.map((j) => j.department)],
+    [jobs]
+  );
+  const locationSuggestions = useMemo(
+    () => ['Remote', 'Hybrid', ...jobs.map((j) => j.location)],
+    [jobs]
+  );
+  const typeSuggestions = useMemo(
+    () => ['Full-time', 'Part-time', 'Contract', 'Internship', ...jobs.map((j) => j.type)],
+    [jobs]
+  );
+
   if (!draft) {
     return (
       <AdminShell title="Opening not found" crumbs={[{ label: 'Careers', to: '/admin/jobs' }, { label: '404' }]}>
@@ -48,6 +64,14 @@ export function JobEditor() {
 
   const save = async () => {
     if (!draft) return;
+    if (!isValidSlug(draft.slug)) {
+      setToast('Enter a valid slug — lowercase letters, numbers, and dashes.');
+      return;
+    }
+    if (!isValidHex(draft.tone)) {
+      setToast('Accent tone must be a hex color like #ff813a.');
+      return;
+    }
     if (isNew) {
       if (jobs.some((j) => j.slug === draft.slug)) {
         setToast(`Slug "${draft.slug}" already exists — pick another.`);
@@ -119,13 +143,13 @@ export function JobEditor() {
       {tab === 'basics' && (
         <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="adm-row adm-row--2">
-            <TextField label="Slug" value={draft.slug} onChange={(v) => update('slug', v)} hint="Becomes /careers/<slug>." />
+            <SlugField label="Slug" value={draft.slug} onChange={(v) => update('slug', v)} hint="Becomes /careers/<slug>." />
             <TextField label="Title" value={draft.title} onChange={(v) => update('title', v)} placeholder="Senior Product Designer" />
           </div>
           <div className="adm-row adm-row--3">
-            <TextField label="Department" value={draft.department} onChange={(v) => update('department', v)} placeholder="Design" />
-            <TextField label="Location" value={draft.location} onChange={(v) => update('location', v)} placeholder="Remote" />
-            <TextField label="Employment type" value={draft.type} onChange={(v) => update('type', v)} placeholder="Full-time" />
+            <ComboField label="Department" value={draft.department} suggestions={departmentSuggestions} onChange={(v) => update('department', v)} placeholder="Design" />
+            <ComboField label="Location" value={draft.location} suggestions={locationSuggestions} onChange={(v) => update('location', v)} placeholder="Remote" />
+            <ComboField label="Employment type" value={draft.type} suggestions={typeSuggestions} onChange={(v) => update('type', v)} placeholder="Full-time" />
           </div>
           <TextArea label="Summary" hint="Shown on the /careers card." value={draft.summary} onChange={(v) => update('summary', v)} rows={2} />
           <div className="adm-row adm-row--2">

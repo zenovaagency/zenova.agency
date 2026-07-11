@@ -137,7 +137,7 @@ export function Services() {
           <h2 className="display" style={{ fontSize: 'clamp(36px,5vw,68px)', margin: 0, fontWeight: 500 }}>
             What we do.
             <br />
-            <span style={{ color: 'var(--fg-dim)' }}>All under one roof.</span>
+            <span style={{ color: 'var(--fg-dim)' }}>Integrated Design, Development & Growth.</span>
           </h2>
         </div>
 

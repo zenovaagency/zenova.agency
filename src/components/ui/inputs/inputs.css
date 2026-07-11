@@ -209,6 +209,103 @@
 }
 
 /* ----------------------------------------------------------------------- */
+/* Combobox (creatable text input + suggestions)                            */
+/* ----------------------------------------------------------------------- */
+
+.zui-combobox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.zui-combobox__input {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 36px 9px 14px; /* right padding leaves room for the caret */
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+[data-theme='light'] .zui-combobox__input {
+  background: rgba(14, 15, 23, 0.02);
+}
+.zui-combobox__input::placeholder {
+  color: var(--fg-faint);
+}
+.zui-combobox__input:hover:not(:disabled) {
+  border-color: var(--line-strong);
+}
+.zui-combobox__input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--accent-1) 55%, transparent);
+  background: color-mix(in srgb, var(--accent-1) 6%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-1) 18%, transparent);
+}
+.zui-combobox__input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.zui-combobox__caret {
+  position: absolute;
+  right: 12px;
+  color: var(--fg-faint);
+  pointer-events: none;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------------------- */
+/* Token / chip list (multi-value field)                                    */
+/* ----------------------------------------------------------------------- */
+
+.zui-tokens {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.zui-tokens:not(:empty) {
+  margin-bottom: 8px;
+}
+.zui-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px 5px 11px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent-1) 40%, var(--line));
+  background: color-mix(in srgb, var(--accent-1) 12%, transparent);
+  color: var(--fg);
+  font-size: 13px;
+  line-height: 1;
+}
+.zui-token__remove {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--fg-dim);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.zui-token__remove:hover {
+  background: var(--line-strong);
+  color: var(--fg);
+}
+
+/* ----------------------------------------------------------------------- */
 /* Calendar / DatePicker                                                    */
 /* ----------------------------------------------------------------------- */
 

@@ -13,10 +13,13 @@ import {
   type InvoiceItem,
   type InvoiceStatus,
 } from '@/admin/invoices/types';
+import { ComboField, DateField, Select } from '@/admin/components/Form';
 import '@/admin/invoices/invoice.css';
 
 const STATUSES: InvoiceStatus[] = ['draft', 'sent', 'paid', 'overdue', 'cancelled'];
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'BDT', 'INR', 'JPY'];
+const PAYMENT_TERMS = ['Net 15', 'Net 30', 'Net 60', 'Due on receipt'];
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 export function InvoiceEditor() {
   const { id } = useParams<{ id: string }>();
@@ -120,54 +123,31 @@ export function InvoiceEditor() {
                   onChange={(e) => update({ number: e.target.value })}
                 />
               </div>
-              <div className="adm-field">
-                <label className="adm-label">Issue Date</label>
-                <input
-                  className="adm-input"
-                  type="date"
-                  value={invoice.issueDate}
-                  onChange={(e) => update({ issueDate: e.target.value })}
-                />
-              </div>
-              <div className="adm-field">
-                <label className="adm-label">Due Date</label>
-                <input
-                  className="adm-input"
-                  type="date"
-                  value={invoice.dueDate}
-                  onChange={(e) => update({ dueDate: e.target.value })}
-                />
-              </div>
+              <DateField
+                label="Issue Date"
+                value={invoice.issueDate}
+                onChange={(v) => update({ issueDate: v })}
+              />
+              <DateField
+                label="Due Date"
+                value={invoice.dueDate}
+                onChange={(v) => update({ dueDate: v })}
+              />
             </div>
             <div className="adm-row adm-row--2" style={{ marginTop: 14 }}>
-              <div className="adm-field">
-                <label className="adm-label">Status</label>
-                <select
-                  className="adm-select"
-                  value={invoice.status}
-                  onChange={(e) => update({ status: e.target.value as InvoiceStatus })}
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="adm-field">
-                <label className="adm-label">Currency</label>
-                <select
-                  className="adm-select"
-                  value={invoice.currency}
-                  onChange={(e) => update({ currency: e.target.value })}
-                >
-                  {CURRENCIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <Select
+                label="Status"
+                value={invoice.status}
+                options={STATUSES.map((s) => ({ value: s, label: cap(s) }))}
+                onChange={(v) => update({ status: v as InvoiceStatus })}
+              />
+              <Select
+                label="Currency"
+                value={invoice.currency}
+                searchable
+                options={CURRENCIES.map((c) => ({ value: c, label: c }))}
+                onChange={(v) => update({ currency: v })}
+              />
             </div>
           </div>
 
@@ -305,15 +285,13 @@ export function InvoiceEditor() {
                   onChange={(e) => update({ discount: parseFloat(e.target.value) || 0 })}
                 />
               </div>
-              <div className="adm-field">
-                <label className="adm-label">Payment Terms</label>
-                <input
-                  className="adm-input"
-                  value={invoice.paymentTerms}
-                  onChange={(e) => update({ paymentTerms: e.target.value })}
-                  placeholder="Net 30"
-                />
-              </div>
+              <ComboField
+                label="Payment Terms"
+                value={invoice.paymentTerms}
+                suggestions={PAYMENT_TERMS}
+                onChange={(v) => update({ paymentTerms: v })}
+                placeholder="Net 30"
+              />
             </div>
             <div className="adm-field" style={{ marginTop: 14 }}>
               <label className="adm-label">Notes</label>

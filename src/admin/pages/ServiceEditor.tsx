@@ -4,15 +4,19 @@ import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
 import {
   ColorField,
+  ComboField,
   Select,
+  SlugField,
   StringList,
   TextArea,
   TextField,
   Toast,
+  TokenField,
   Field,
 } from '@/admin/components/Form';
 import { MediaField } from '@/admin/components/MediaField';
 import { Toggle } from '@/components/ui/inputs';
+import { isValidHex, isValidSlug } from '@/admin/lib/validate';
 import { createService, patchService, useServices } from '@/admin/store';
 import type {
   ServiceDetail,
@@ -44,6 +48,15 @@ export function ServiceEditor() {
     if (existing) setDraft(existing);
   }, [existing]);
 
+  const tagSuggestions = useMemo(
+    () => ['Build', 'Grow', 'Launch', 'Operate', 'Voice', ...services.map((s) => s.tag)],
+    [services]
+  );
+  const relatedSuggestions = useMemo(
+    () => services.filter((s) => s.slug !== draft?.slug).map((s) => s.slug),
+    [services, draft?.slug]
+  );
+
   if (!draft) {
     return (
       <AdminShell title="Service not found" crumbs={[{ label: 'Services', to: '/admin/services' }, { label: '404' }]}>
@@ -58,6 +71,14 @@ export function ServiceEditor() {
 
   const save = async () => {
     if (!draft) return;
+    if (!isValidSlug(draft.slug)) {
+      setToast('Enter a valid slug — lowercase letters, numbers, and dashes.');
+      return;
+    }
+    if (!isValidHex(draft.hue)) {
+      setToast('Accent hue must be a hex color like #ff813a.');
+      return;
+    }
     if (isNew) {
       if (services.some((s) => s.slug === draft.slug)) {
         setToast(`Slug "${draft.slug}" already exists — pick another.`);
@@ -132,11 +153,11 @@ export function ServiceEditor() {
       {tab === 'basics' && (
         <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="adm-row adm-row--2">
-            <TextField label="Slug" hint="Lowercase, dash-separated. Becomes /services/<slug>." value={draft.slug} onChange={(v) => update('slug', v)} />
+            <SlugField label="Slug" hint="Lowercase, dash-separated. Becomes /services/<slug>." value={draft.slug} onChange={(v) => update('slug', v)} />
             <TextField label="Title" value={draft.title} onChange={(v) => update('title', v)} />
           </div>
           <div className="adm-row adm-row--3">
-            <TextField label="Tag" hint="Short label, e.g. Build / Grow." value={draft.tag} onChange={(v) => update('tag', v)} />
+            <ComboField label="Tag" hint="Short label, e.g. Build / Grow." value={draft.tag} suggestions={tagSuggestions} onChange={(v) => update('tag', v)} />
             <Select
               label="Icon"
               value={draft.icon}
@@ -184,23 +205,14 @@ export function ServiceEditor() {
             onChange={(v) => update('bullets', v)}
             placeholder="e.g. Next.js & TypeScript engineering"
           />
-          <Field label="Related services" hint="Comma-separated slugs of other services to surface as 'pairs well with'.">
-            <input
-              type="text"
-              className="adm-input"
-              value={draft.related.join(', ')}
-              placeholder="web, marketing, ops"
-              onChange={(e) =>
-                update(
-                  'related',
-                  e.target.value
-                    .split(',')
-                    .map((s) => s.trim())
-                    .filter(Boolean)
-                )
-              }
-            />
-          </Field>
+          <TokenField
+            label="Related services"
+            hint="Slugs of other services to surface as 'pairs well with'."
+            values={draft.related}
+            onChange={(v) => update('related', v)}
+            suggestions={relatedSuggestions}
+            placeholder="Add a service slug…"
+          />
         </div>
       )}
 

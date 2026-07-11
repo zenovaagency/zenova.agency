@@ -4,14 +4,19 @@ import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
 import {
   ColorField,
+  ComboField,
   Field,
+  SlugField,
   StringList,
   TextArea,
   TextField,
   Toast,
+  TokenField,
 } from '@/admin/components/Form';
+import { SegmentedControl } from '@/components/ui/inputs';
 import { ImageField } from '@/admin/components/ImageField';
-import { patchProject, projectsStore, useProjects } from '@/admin/store';
+import { isValidHex, isValidSlug } from '@/admin/lib/validate';
+import { patchProject, projectsStore, useProjects, useServices } from '@/admin/store';
 import type {
   ProjectDetail,
   ProjectImage,
@@ -26,6 +31,7 @@ export function ProjectEditor() {
   const { slug = '' } = useParams();
   const nav = useNavigate();
   const [projects] = useProjects();
+  const [services] = useServices();
   const isNew = slug === 'new';
   const existing = useMemo(
     () => (isNew ? emptyProject() : projects.find((p) => p.slug === slug)),
@@ -39,6 +45,19 @@ export function ProjectEditor() {
   useEffect(() => {
     if (existing) setDraft(existing);
   }, [existing]);
+
+  const categorySuggestions = useMemo(() => projects.map((p) => p.category), [projects]);
+  const industrySuggestions = useMemo(() => projects.map((p) => p.industry), [projects]);
+  const yearSuggestions = useMemo(() => {
+    const now = new Date().getFullYear();
+    const recent = Array.from({ length: 7 }, (_, i) => String(now - i));
+    return [...recent, ...projects.map((p) => p.year)];
+  }, [projects]);
+  const tagSuggestions = useMemo(() => projects.flatMap((p) => p.tags), [projects]);
+  const serviceSuggestions = useMemo(
+    () => [...services.map((s) => s.title), ...projects.flatMap((p) => p.services)],
+    [services, projects]
+  );
 
   if (!draft) {
     return (
@@ -54,6 +73,14 @@ export function ProjectEditor() {
 
   const save = async () => {
     if (!draft) return;
+    if (!isValidSlug(draft.slug)) {
+      setToast('Enter a valid slug — lowercase letters, numbers, and dashes.');
+      return;
+    }
+    if (!isValidHex(draft.tone)) {
+      setToast('Accent tone must be a hex color like #ff813a.');
+      return;
+    }
     if (isNew) {
       if (projects.some((p) => p.slug === draft.slug)) {
         setToast(`Slug "${draft.slug}" already exists — pick another.`);
@@ -128,13 +155,13 @@ export function ProjectEditor() {
       {tab === 'basics' && (
         <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="adm-row adm-row--2">
-            <TextField label="Slug" value={draft.slug} onChange={(v) => update('slug', v)} hint="Becomes /work/<slug>." />
+            <SlugField label="Slug" value={draft.slug} onChange={(v) => update('slug', v)} hint="Becomes /work/<slug>." />
             <TextField label="Client" value={draft.client} onChange={(v) => update('client', v)} />
           </div>
           <div className="adm-row adm-row--3">
-            <TextField label="Category" value={draft.category} onChange={(v) => update('category', v)} />
-            <TextField label="Industry" value={draft.industry} onChange={(v) => update('industry', v)} />
-            <TextField label="Year" value={draft.year} onChange={(v) => update('year', v)} />
+            <ComboField label="Category" value={draft.category} suggestions={categorySuggestions} onChange={(v) => update('category', v)} placeholder="e.g. SaaS" />
+            <ComboField label="Industry" value={draft.industry} suggestions={industrySuggestions} onChange={(v) => update('industry', v)} placeholder="e.g. Fintech" />
+            <ComboField label="Year" value={draft.year} suggestions={yearSuggestions} onChange={(v) => update('year', v)} placeholder="2025" />
           </div>
           <TextField label="Title" value={draft.title} onChange={(v) => update('title', v)} />
           <TextField
@@ -151,40 +178,22 @@ export function ProjectEditor() {
             <TextField label="Team shape" value={draft.team} onChange={(v) => update('team', v)} placeholder="5 people · 1 Slack channel" />
             <ColorField label="Accent tone" value={draft.tone} onChange={(v) => update('tone', v)} />
           </div>
-          <Field label="Tags" hint="Comma-separated. Drive the filter chips on /work.">
-            <input
-              type="text"
-              className="adm-input"
-              value={draft.tags.join(', ')}
-              placeholder="Brand, Web, Marketing"
-              onChange={(e) =>
-                update(
-                  'tags',
-                  e.target.value
-                    .split(',')
-                    .map((s) => s.trim())
-                    .filter(Boolean)
-                )
-              }
-            />
-          </Field>
-          <Field label="Services" hint="Free-text labels (shown in the sidebar).">
-            <input
-              type="text"
-              className="adm-input"
-              value={draft.services.join(', ')}
-              placeholder="Website Development, Marketing Solutions"
-              onChange={(e) =>
-                update(
-                  'services',
-                  e.target.value
-                    .split(',')
-                    .map((s) => s.trim())
-                    .filter(Boolean)
-                )
-              }
-            />
-          </Field>
+          <TokenField
+            label="Tags"
+            hint="Drive the filter chips on /work."
+            values={draft.tags}
+            onChange={(v) => update('tags', v)}
+            suggestions={tagSuggestions}
+            placeholder="Add a tag…"
+          />
+          <TokenField
+            label="Services"
+            hint="Labels shown in the sidebar."
+            values={draft.services}
+            onChange={(v) => update('services', v)}
+            suggestions={serviceSuggestions}
+            placeholder="Add a service…"
+          />
           <Field label="Headline metric (the big one on cards)">
             <div className="adm-row adm-row--2">
               <input
@@ -201,14 +210,15 @@ export function ProjectEditor() {
               />
             </div>
           </Field>
-          <Field label="Visual variant (0 – 3)">
-            <input
-              type="number"
-              min={0}
-              max={3}
-              className="adm-input"
+          <Field label="Visual variant" hint="The animated SVG shown when no hero image is set.">
+            <SegmentedControl
               value={draft.visualIdx}
-              onChange={(e) => update('visualIdx', Number(e.target.value) || 0)}
+              onChange={(v) => update('visualIdx', v)}
+              ariaLabel="Visual variant"
+              options={Array.from(
+                { length: Math.min(11, Math.max(4, draft.visualIdx + 1)) },
+                (_, i) => ({ value: i, label: `Variant ${i + 1}` })
+              )}
             />
           </Field>
         </div>
