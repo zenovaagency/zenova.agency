@@ -1,0 +1,196 @@
+/* ------------------------------------------------------------------ */
+/*  RichTextEditor — dependency-free WYSIWYG for the admin Legal editor */
+/* ------------------------------------------------------------------ */
+
+.rte {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  overflow: hidden;
+}
+
+.rte__toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+}
+
+.rte__sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 4px;
+  background: var(--line);
+}
+
+.rte__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 7px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--fg-dim);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.rte__btn:hover {
+  background: var(--card-hover);
+  color: var(--fg);
+  border-color: var(--line);
+}
+
+.rte__btn.is-active {
+  background: var(--card-hover);
+  color: var(--accent-1);
+  border-color: var(--line-strong);
+}
+
+.rte__select {
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.rte__select:focus {
+  outline: none;
+  border-color: var(--accent-2);
+}
+
+/* --- Editing surface ------------------------------------------------ */
+
+.rte__surface {
+  padding: 20px 22px;
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  outline: none;
+  overflow-wrap: break-word;
+  /* The toolbar stays put while the body scrolls inside a capped height. */
+  max-height: min(520px, 60vh);
+  overflow-y: auto;
+}
+
+.rte__surface.is-empty::before {
+  content: attr(data-placeholder);
+  color: var(--fg-faint);
+  pointer-events: none;
+}
+
+.rte__surface:focus {
+  box-shadow: inset 0 0 0 2px var(--accent-2-soft, transparent);
+}
+
+.rte__surface > :first-child {
+  margin-top: 0;
+}
+
+.rte__surface > :last-child {
+  margin-bottom: 0;
+}
+
+.rte__surface h2 {
+  font-size: 1.35rem;
+  font-weight: 650;
+  line-height: 1.3;
+  margin: 1.6em 0 0.5em;
+  color: var(--fg);
+}
+
+.rte__surface h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 1.3em 0 0.4em;
+  color: var(--fg);
+}
+
+.rte__surface p {
+  margin: 0 0 1em;
+}
+
+.rte__surface ul,
+.rte__surface ol {
+  margin: 0 0 1em;
+  padding-left: 1.6em;
+  list-style-position: outside;
+}
+
+/* Tailwind Preflight resets list markers globally — restore them here. */
+.rte__surface ul {
+  list-style-type: disc;
+}
+
+.rte__surface ol {
+  list-style-type: decimal;
+}
+
+.rte__surface li {
+  margin: 0.3em 0;
+}
+
+.rte__surface a {
+  color: var(--accent-1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rte__surface blockquote {
+  margin: 0 0 1em;
+  padding: 0.4em 0 0.4em 1em;
+  border-left: 3px solid var(--accent-1);
+  color: var(--fg-dim);
+  font-style: italic;
+}
+
+.rte__surface pre {
+  margin: 0 0 1em;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.rte__surface code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.1em 0.35em;
+  border-radius: 5px;
+  background: var(--card-hover);
+}
+
+.rte__surface pre code {
+  padding: 0;
+  background: none;
+}
+
+.rte__surface hr {
+  margin: 1.5em 0;
+  border: none;
+  border-top: 1px solid var(--line);
+}

@@ -148,8 +148,11 @@ export interface LegalSection {
 export interface LegalDoc {
   title: string;
   updated: string;
-  intro: string;
-  sections: LegalSection[];
+  /** Rich HTML body authored in the admin Legal editor. */
+  body: string;
+  /** Legacy fields kept optional so pre-rich-editor content still validates. */
+  intro?: string;
+  sections?: LegalSection[];
 }
 
 export interface LegalContent {
@@ -215,6 +218,86 @@ const DEFAULT_TEAM: TeamMember[] = [
   { id: 't4', name: 'Jordan Wei', role: 'Editorial Lead', bio: 'Heads up the content and brand voice work.', initials: 'JW', tone: '#cc6622' },
 ];
 
+// Default legal copy, authored as the rich HTML the Legal editor produces.
+// SEO-oriented: descriptive <h2> section headings, scannable lists, and a
+// clear last-updated line rendered separately by the page.
+const DEFAULT_PRIVACY_HTML = `
+<p>This Privacy Policy explains how Zenova ("we", "us", or "our") collects, uses, shares, and protects your personal information when you visit our website, contact us, or engage our design, development, marketing, and startup services. We are committed to handling your data transparently and in line with applicable data protection laws, including the GDPR and CCPA.</p>
+<h2>Information We Collect</h2>
+<p>We only collect information that helps us respond to you and deliver our services. This includes:</p>
+<ul>
+  <li><strong>Information you provide.</strong> Your name, email address, phone number, company, and any project details you share through our contact form, email, or during a call.</li>
+  <li><strong>Usage data.</strong> Anonymised analytics such as pages visited, referring site, browser type, device, and approximate location, collected to improve our website.</li>
+  <li><strong>Cookies and similar technologies.</strong> Small files that remember your preferences and help us understand how the site is used.</li>
+</ul>
+<h2>How We Use Your Information</h2>
+<p>We use the information we collect to:</p>
+<ul>
+  <li>Respond to your enquiries and provide the services you request;</li>
+  <li>Prepare proposals, quotes, and deliverables for your project;</li>
+  <li>Send you relevant updates about your engagement (you can opt out at any time);</li>
+  <li>Improve our website, content, and overall customer experience;</li>
+  <li>Comply with our legal and contractual obligations.</li>
+</ul>
+<p>We do <strong>not</strong> sell, rent, or trade your personal information to third parties.</p>
+<h2>Legal Bases for Processing</h2>
+<p>Where the GDPR applies, we rely on the following legal bases: your <em>consent</em>, the performance of a <em>contract</em> with you, our <em>legitimate interests</em> in operating and improving our business, and where necessary to meet a <em>legal obligation</em>.</p>
+<h2>Cookies and Tracking</h2>
+<p>We use essential cookies to run the site and optional analytics cookies to measure performance. You can control or disable cookies through your browser settings; note that disabling essential cookies may affect how the site works.</p>
+<h2>How We Share Information</h2>
+<p>We share personal data only with trusted service providers who help us operate — for example hosting, analytics, and email delivery — and only to the extent needed to perform their function. These providers are bound by confidentiality and data-protection obligations. We may also disclose information where required by law.</p>
+<h2>Data Retention</h2>
+<p>We keep your information only for as long as necessary to fulfil the purposes described here, to comply with our legal obligations, resolve disputes, and enforce our agreements. When it is no longer needed, we securely delete or anonymise it.</p>
+<h2>Data Security</h2>
+<p>We apply appropriate technical and organisational measures — including encryption in transit, access controls, and regular reviews — to protect your information against unauthorised access, loss, or misuse.</p>
+<h2>Your Rights</h2>
+<p>Depending on your location, you may have the right to access, correct, delete, or restrict the use of your personal data, to object to processing, and to data portability. To exercise any of these rights, contact us using the details below.</p>
+<h2>International Transfers</h2>
+<p>Your information may be processed in countries other than your own. Where we transfer data internationally, we take steps to ensure it receives an adequate level of protection consistent with this policy.</p>
+<h2>Children's Privacy</h2>
+<p>Our website and services are not directed to children under 16, and we do not knowingly collect their personal information.</p>
+<h2>Changes to This Policy</h2>
+<p>We may update this Privacy Policy from time to time. When we do, we will revise the "last updated" date above. Significant changes will be highlighted on this page.</p>
+<h2>Contact Us</h2>
+<p>If you have any questions about this Privacy Policy or how we handle your data, please contact us at <a href="mailto:hello@zenova.agency">hello@zenova.agency</a>.</p>
+`.trim();
+
+const DEFAULT_TERMS_HTML = `
+<p>These Terms &amp; Conditions ("Terms") govern your access to and use of the Zenova website and the design, development, marketing, and startup services we provide. By using our website or engaging our services, you agree to these Terms. Please read them carefully.</p>
+<h2>Acceptance of Terms</h2>
+<p>By accessing this website or entering into an engagement with Zenova, you confirm that you have read, understood, and agree to be bound by these Terms and by any project-specific agreement or statement of work we sign with you.</p>
+<h2>Services We Provide</h2>
+<p>Zenova offers web and app development, marketing, content, operations, automation, and startup support. The exact scope, deliverables, timeline, and fees for any engagement are defined in a separate proposal or statement of work, which takes precedence over these Terms where they conflict.</p>
+<h2>Client Responsibilities</h2>
+<p>To deliver our best work, we rely on you to:</p>
+<ul>
+  <li>Provide accurate, complete information and timely feedback;</li>
+  <li>Supply any content, assets, or access we reasonably need;</li>
+  <li>Ensure you hold the rights to any materials you provide to us;</li>
+  <li>Use our website and services only for lawful purposes.</li>
+</ul>
+<h2>Quotes, Fees, and Payment</h2>
+<p>Fees are set out in your proposal or statement of work. Unless stated otherwise, invoices are due within the agreed payment terms. Late or missed payments may result in paused work. Deposits and milestone payments, where applicable, are non-refundable once the corresponding work has begun.</p>
+<h2>Intellectual Property</h2>
+<p>Unless otherwise stated, all content, branding, and materials on this website are the property of Zenova and protected by applicable intellectual-property laws. Ownership of work produced for a client transfers to that client upon full payment, in accordance with the terms of each engagement. We may showcase completed work in our portfolio unless we agree otherwise in writing.</p>
+<h2>Confidentiality</h2>
+<p>Each party agrees to keep confidential any non-public information shared during an engagement and to use it only for the purpose of delivering the services.</p>
+<h2>Warranties and Disclaimers</h2>
+<p>Our website and services are provided on an "as is" and "as available" basis. To the fullest extent permitted by law, we disclaim all warranties, express or implied, including fitness for a particular purpose and non-infringement. We do not warrant that the website will be uninterrupted or error-free.</p>
+<h2>Limitation of Liability</h2>
+<p>To the fullest extent permitted by law, Zenova shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our website or services. Our total liability for any claim shall not exceed the amount you paid us for the engagement giving rise to the claim.</p>
+<h2>Indemnification</h2>
+<p>You agree to indemnify and hold Zenova harmless from any claims, losses, or expenses arising from your breach of these Terms or your misuse of our website or services.</p>
+<h2>Term and Termination</h2>
+<p>Either party may terminate an engagement in accordance with the notice provisions of the relevant statement of work. Upon termination, you agree to pay for all work completed up to the termination date.</p>
+<h2>Governing Law</h2>
+<p>These Terms are governed by the laws of the jurisdiction in which Zenova operates, without regard to conflict-of-law principles. Any disputes will be subject to the exclusive jurisdiction of the courts of that location.</p>
+<h2>Changes to These Terms</h2>
+<p>We may update these Terms from time to time. Continued use of our website or services after changes take effect constitutes acceptance of the revised Terms. The "last updated" date above reflects the latest revision.</p>
+<h2>Contact Us</h2>
+<p>If you have any questions about these Terms &amp; Conditions, please contact us at <a href="mailto:hello@zenova.agency">hello@zenova.agency</a>.</p>
+`.trim();
+
 export const DEFAULT_CONTENT: SiteContent = {
   hero: {
     badge: 'Available for new projects',
@@ -254,8 +337,8 @@ export const DEFAULT_CONTENT: SiteContent = {
     sub: 'A quick 30-minute call. No pitch, just your project.',
     primary: 'Book a call',
     primaryHref: '/contact',
-    secondary: 'hello@zenova.bd',
-    secondaryHref: 'mailto:hello@zenova.bd',
+    secondary: 'hello@zenova.agency',
+    secondaryHref: 'mailto:hello@zenova.agency',
   },
   faqs: [
     { id: 'f1', q: 'How are you different from an agency?', a: 'One team handles design, build, and growth. No handoffs between vendors — same people from start to finish.' },
@@ -335,7 +418,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       },
     ],
   },
-  contactEmail: 'hello@zenova.bd',
+  contactEmail: 'hello@zenova.agency',
   about: {
     values: [
       { id: 'v1', icon: 'Layers', title: 'One team, start to finish', blurb: 'The people you meet on day one are the same people on day ninety. No handoffs.', hue: '#ff813a' },
@@ -383,7 +466,7 @@ export const DEFAULT_CONTENT: SiteContent = {
         title: 'About',
         links: [
           { id: 'fll1', label: 'Privacy Policy', href: '/privacy' },
-          { id: 'fll2', label: 'Terms of Service', href: '/terms' },
+          { id: 'fll2', label: 'Terms & Conditions', href: '/terms' },
         ],
       },
     ],
@@ -395,58 +478,12 @@ export const DEFAULT_CONTENT: SiteContent = {
     privacy: {
       title: 'Privacy Policy',
       updated: 'Last updated: January 2026',
-      intro:
-        'This Privacy Policy explains how Zenova collects, uses, and protects your information when you use our website and services.',
-      sections: [
-        {
-          id: 'ps1',
-          heading: 'Information we collect',
-          body: 'We collect information you provide directly to us, such as when you fill out a contact form, subscribe to updates, or communicate with us.\n\nThis may include your name, email address, company, and any details you choose to share about your project.',
-        },
-        {
-          id: 'ps2',
-          heading: 'How we use your information',
-          body: 'We use the information we collect to respond to your enquiries, deliver our services, and improve your experience. We do not sell your personal information to third parties.',
-        },
-        {
-          id: 'ps3',
-          heading: 'Cookies',
-          body: 'We use cookies and similar technologies to remember your preferences and understand how our site is used. You can control cookies through your browser settings.',
-        },
-        {
-          id: 'ps4',
-          heading: 'Contact us',
-          body: 'If you have any questions about this Privacy Policy, please contact us at hello@zenova.bd.',
-        },
-      ],
+      body: DEFAULT_PRIVACY_HTML,
     },
     terms: {
-      title: 'Terms of Service',
+      title: 'Terms & Conditions',
       updated: 'Last updated: January 2026',
-      intro:
-        'These Terms of Service govern your use of the Zenova website and services. By using our site, you agree to these terms.',
-      sections: [
-        {
-          id: 'ts1',
-          heading: 'Use of our services',
-          body: 'You agree to use our website and services only for lawful purposes and in accordance with these terms.',
-        },
-        {
-          id: 'ts2',
-          heading: 'Intellectual property',
-          body: 'Unless otherwise stated, all content on this site is the property of Zenova. Work produced for clients is transferred to them per the terms of each engagement.',
-        },
-        {
-          id: 'ts3',
-          heading: 'Limitation of liability',
-          body: 'Our services are provided on an "as is" basis. To the fullest extent permitted by law, Zenova is not liable for any indirect or consequential damages arising from your use of our site.',
-        },
-        {
-          id: 'ts4',
-          heading: 'Contact us',
-          body: 'If you have any questions about these Terms, please contact us at hello@zenova.bd.',
-        },
-      ],
+      body: DEFAULT_TERMS_HTML,
     },
   },
   pricing: DEFAULT_PRICING,
@@ -455,8 +492,8 @@ export const DEFAULT_CONTENT: SiteContent = {
 const DEFAULT_BRAND: BrandSettings = {
   studioName: 'Zenova',
   tagline: 'Design, build, and grow — one team.',
-  contactEmail: 'hello@zenova.bd',
-  careersEmail: 'careers@zenova.bd',
+  contactEmail: 'hello@zenova.agency',
+  careersEmail: 'careers@zenova.agency',
   phone: '+1 (555) 123-4567',
   address: '123 Atlantic Ave, Brooklyn, NY 11201',
   locations: [

@@ -41,10 +41,10 @@ export interface CompanyInfo {
 
 export const DEFAULT_COMPANY: CompanyInfo = {
   name: 'Zenova',
-  email: 'hello@zenova.bd',
+  email: 'hello@zenova.agency',
   phone: '',
   address: 'Brooklyn, NY',
-  website: 'zenova.bd',
+  website: 'zenova.agency',
   logoUrl: '',
   taxId: '',
   bankName: '',
