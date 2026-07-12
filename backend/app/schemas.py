@@ -281,6 +281,9 @@ class LegalSection(_Base):
 class LegalDoc(_Base):
     title: str = ""
     updated: str = ""
+    # Rich HTML body authored in the admin Legal editor.
+    body: str = ""
+    # Legacy fields kept so pre-rich-editor content still validates.
     intro: str = ""
     sections: list[LegalSection] = Field(default_factory=list)
 

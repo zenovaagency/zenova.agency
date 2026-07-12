@@ -43,8 +43,8 @@
     "sub": "A quick 30-minute call. No pitch, just your project.",
     "primary": "Book a call",
     "primaryHref": "/contact",
-    "secondary": "hello@zenova.bd",
-    "secondaryHref": "mailto:hello@zenova.bd"
+    "secondary": "hello@zenova.agency",
+    "secondaryHref": "mailto:hello@zenova.agency"
   },
   "faqs": [
     { "id": "f1", "q": "How are you different from an agency?", "a": "One team handles design, build, and growth. No handoffs between vendors — same people from start to finish." },
@@ -124,7 +124,7 @@
       }
     ]
   },
-  "contactEmail": "hello@zenova.bd",
+  "contactEmail": "hello@zenova.agency",
   "about": {
     "values": [
       { "id": "v1", "icon": "Layers", "title": "One team, start to finish", "blurb": "The people you meet on day one are the same people on day ninety. No handoffs.", "hue": "#3a5bff" },
@@ -189,7 +189,7 @@
         { "id": "ps1", "heading": "Information we collect", "body": "We collect information you provide directly to us, such as when you fill out a contact form, subscribe to updates, or communicate with us.\n\nThis may include your name, email address, company, and any details you choose to share about your project." },
         { "id": "ps2", "heading": "How we use your information", "body": "We use the information we collect to respond to your enquiries, deliver our services, and improve your experience. We do not sell your personal information to third parties." },
         { "id": "ps3", "heading": "Cookies", "body": "We use cookies and similar technologies to remember your preferences and understand how our site is used. You can control cookies through your browser settings." },
-        { "id": "ps4", "heading": "Contact us", "body": "If you have any questions about this Privacy Policy, please contact us at hello@zenova.bd." }
+        { "id": "ps4", "heading": "Contact us", "body": "If you have any questions about this Privacy Policy, please contact us at hello@zenova.agency." }
       ]
     },
     "terms": {
@@ -200,7 +200,7 @@
         { "id": "ts1", "heading": "Use of our services", "body": "You agree to use our website and services only for lawful purposes and in accordance with these terms." },
         { "id": "ts2", "heading": "Intellectual property", "body": "Unless otherwise stated, all content on this site is the property of Zenova. Work produced for clients is transferred to them per the terms of each engagement." },
         { "id": "ts3", "heading": "Limitation of liability", "body": "Our services are provided on an \"as is\" basis. To the fullest extent permitted by law, Zenova is not liable for any indirect or consequential damages arising from your use of our site." },
-        { "id": "ts4", "heading": "Contact us", "body": "If you have any questions about these Terms, please contact us at hello@zenova.bd." }
+        { "id": "ts4", "heading": "Contact us", "body": "If you have any questions about these Terms, please contact us at hello@zenova.agency." }
       ]
     }
   },

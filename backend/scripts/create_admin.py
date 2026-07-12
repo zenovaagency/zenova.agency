@@ -2,7 +2,7 @@
 
 Usage:
     python -m scripts.create_admin --email you@example.com --name "Your Name"
-    python -m scripts.create_admin --email dev@zenova.bd --name "Mira" --role team
+    python -m scripts.create_admin --email dev@zenova.agency --name "Mira" --role team
     python -m scripts.create_admin --email client@northwind.co --name "Maya" --role client
 
 You will be prompted for a password (hidden). Pass ``--password`` to skip the
