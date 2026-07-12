@@ -17,6 +17,7 @@ import { SegmentedControl } from '@/components/ui/inputs';
 import { ImageField } from '@/admin/components/ImageField';
 import { isValidHex, isValidSlug } from '@/admin/lib/validate';
 import { patchProject, projectsStore, useProjects, useServices } from '@/admin/store';
+import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
 import type {
   ProjectDetail,
   ProjectImage,
@@ -291,6 +292,37 @@ export function ProjectEditor() {
   );
 }
 
+/** Thumbnail preview whose box adapts to the image's real aspect ratio. */
+function ImageThumb({ src, alt }: { src: string; alt?: string }) {
+  const ar = clampRatio(useImageRatio(src || undefined), RATIO_BOUNDS.card);
+  return (
+    <div
+      style={{
+        aspectRatio: ar ?? '4 / 3',
+        borderRadius: 12,
+        overflow: 'hidden',
+        border: '1px solid var(--line)',
+        background: '#0a0b13',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: 'var(--fg-faint)',
+        fontSize: 12,
+      }}
+    >
+      {src ? (
+        <img
+          src={src}
+          alt={alt ?? ''}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      ) : (
+        'No URL'
+      )}
+    </div>
+  );
+}
+
 function ImagesEditor({
   images,
   onChange,
@@ -346,30 +378,7 @@ function ImagesEditor({
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: 14, alignItems: 'start' }}>
-            <div
-              style={{
-                aspectRatio: '4 / 3',
-                borderRadius: 12,
-                overflow: 'hidden',
-                border: '1px solid var(--line)',
-                background: '#0a0b13',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--fg-faint)',
-                fontSize: 12,
-              }}
-            >
-              {img.src ? (
-                <img
-                  src={img.src}
-                  alt={img.alt ?? ''}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
-              ) : (
-                'No URL'
-              )}
-            </div>
+            <ImageThumb src={img.src} alt={img.alt} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               <ImageField
                 value={img.src}

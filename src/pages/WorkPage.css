@@ -132,7 +132,7 @@
   color: var(--fg);
 }
 .wrk-featured__visual {
-  aspect-ratio: 21 / 9;
+  aspect-ratio: var(--img-ar, 21 / 9);
 }
 .wrk-featured__body {
   padding: 28px 0 0;
@@ -213,7 +213,7 @@
   order: 1;
 }
 .wrk-row__visual {
-  aspect-ratio: 4 / 3;
+  aspect-ratio: var(--img-ar, 4 / 3);
 }
 .wrk-row__body {
   min-width: 0;
@@ -302,6 +302,6 @@
     order: 0;
   }
   .wrk-featured__visual {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: var(--img-ar, 16 / 10);
   }
 }

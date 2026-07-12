@@ -5,6 +5,7 @@ import { SectionHeader } from '@/components/ui/SectionHeader';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { useProjects } from '@/admin/store';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
 import type { ProjectDetail } from '@/data/projects';
 import './Work.css';
 
@@ -48,6 +49,7 @@ function EmberRow({
 
   const [metricNum, metricLabel] = project.metric;
   const images = project.images ?? [];
+  const mediaAr = clampRatio(useImageRatio(images[0]?.src), RATIO_BOUNDS.card);
 
   return (
     <article
@@ -105,6 +107,7 @@ function EmberRow({
               to={`/work/${project.slug}`}
               className="ember-row__media"
               aria-label={`View ${project.client} case study`}
+              style={mediaAr ? ({ '--img-ar': mediaAr } as React.CSSProperties) : undefined}
             >
               {images.length > 0 ? (
                 <img src={images[0].src} alt={images[0].alt ?? project.client} loading="lazy" />

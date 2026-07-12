@@ -4,6 +4,7 @@ import { ProjectPreview } from '@/components/sections/ProjectPreview';
 import { Icon } from '@/components/icons/Icon';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { useProjects } from '@/admin/store';
+import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
 import type { ProjectDetail } from '@/data/projects';
 import { scrollToTop } from '@/lib/scroll';
 import './WorkPage.css';
@@ -30,6 +31,53 @@ function LivePill({ project }: { project: ProjectDetail }) {
   );
 }
 
+function WorkRow({
+  project: p,
+  index: i,
+  hovered,
+  setHovered,
+}: {
+  project: ProjectDetail;
+  index: number;
+  hovered: string | null;
+  setHovered: (slug: string | null) => void;
+}) {
+  const ar = clampRatio(useImageRatio(p.images?.[0]?.src), RATIO_BOUNDS.card);
+  return (
+    <Link
+      to={`/work/${p.slug}`}
+      className={`wrk-row reveal${i % 2 === 1 ? ' wrk-row--flip' : ''}`}
+      style={{ '--tone': p.tone } as React.CSSProperties}
+      onMouseEnter={() => setHovered(p.slug)}
+      onMouseLeave={() => setHovered(null)}
+    >
+      <div
+        className="wrk-row__visual wrk-visual"
+        style={ar ? ({ '--img-ar': ar } as React.CSSProperties) : undefined}
+      >
+        <ProjectPreview images={p.images} visualIdx={p.visualIdx} tone={p.tone} animate={hovered === p.slug} />
+        <span className="wrk-visual__chip mono">
+          {p.category} · {p.year}
+        </span>
+        <LivePill project={p} />
+      </div>
+      <div className="wrk-row__body">
+        <div className="wrk-row__client mono">
+          <span className="wrk-dot" />
+          {p.client}
+        </div>
+        <h3 className="wrk-row__title display">{p.title}</h3>
+        <p className="wrk-row__summary">{p.summary}</p>
+        <div className="wrk-row__foot">
+          <span className="wrk-metric wrk-metric--sm display">{p.metric[0]}</span>
+          <span className="wrk-metric__label mono">{p.metric[1]}</span>
+        </div>
+        <span className="wrk-row__tags mono">{p.tags.join(' / ')}</span>
+      </div>
+    </Link>
+  );
+}
+
 export function WorkPage() {
   const [ALL] = useProjects();
   const [filter, setFilter] = useState('All');
@@ -50,6 +98,7 @@ export function WorkPage() {
   const filtered = filter === 'All' ? ALL : ALL.filter((p) => p.tags.includes(filter));
   const featured = filtered[0];
   const rest = filtered.slice(1);
+  const featuredAr = clampRatio(useImageRatio(featured?.images?.[0]?.src), RATIO_BOUNDS.banner);
 
   return (
     <div className="wrk">
@@ -94,7 +143,10 @@ export function WorkPage() {
               onMouseEnter={() => setHovered(featured.slug)}
               onMouseLeave={() => setHovered(null)}
             >
-              <div className="wrk-featured__visual wrk-visual">
+              <div
+                className="wrk-featured__visual wrk-visual"
+                style={featuredAr ? ({ '--img-ar': featuredAr } as React.CSSProperties) : undefined}
+              >
                 <ProjectPreview
                   images={featured.images}
                   visualIdx={featured.visualIdx}
@@ -131,35 +183,7 @@ export function WorkPage() {
         <section className="wrk-rows">
           <div className="container">
             {rest.map((p, i) => (
-              <Link
-                key={p.slug}
-                to={`/work/${p.slug}`}
-                className={`wrk-row reveal${i % 2 === 1 ? ' wrk-row--flip' : ''}`}
-                style={{ '--tone': p.tone } as React.CSSProperties}
-                onMouseEnter={() => setHovered(p.slug)}
-                onMouseLeave={() => setHovered(null)}
-              >
-                <div className="wrk-row__visual wrk-visual">
-                  <ProjectPreview images={p.images} visualIdx={p.visualIdx} tone={p.tone} animate={hovered === p.slug} />
-                  <span className="wrk-visual__chip mono">
-                    {p.category} · {p.year}
-                  </span>
-                  <LivePill project={p} />
-                </div>
-                <div className="wrk-row__body">
-                  <div className="wrk-row__client mono">
-                    <span className="wrk-dot" />
-                    {p.client}
-                  </div>
-                  <h3 className="wrk-row__title display">{p.title}</h3>
-                  <p className="wrk-row__summary">{p.summary}</p>
-                  <div className="wrk-row__foot">
-                    <span className="wrk-metric wrk-metric--sm display">{p.metric[0]}</span>
-                    <span className="wrk-metric__label mono">{p.metric[1]}</span>
-                  </div>
-                  <span className="wrk-row__tags mono">{p.tags.join(' / ')}</span>
-                </div>
-              </Link>
+              <WorkRow key={p.slug} project={p} index={i} hovered={hovered} setHovered={setHovered} />
             ))}
           </div>
         </section>

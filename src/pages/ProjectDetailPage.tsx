@@ -7,6 +7,7 @@ import { NeonButton } from '@/components/ui/NeonButton';
 import { Icon } from '@/components/icons/Icon';
 import { type ProjectDetail, type ProjectImage } from '@/data/projects';
 import { useProjects } from '@/admin/store';
+import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
 import { scrollToTop } from '@/lib/scroll';
 import './ProjectDetailPage.css';
 
@@ -32,6 +33,10 @@ export function ProjectDetailPage() {
   useEffect(() => {
     scrollToTop();
   }, [slug]);
+
+  // Called before the early return so the hook count stays stable across renders.
+  const heroSrc = project?.images?.find((img) => Boolean(img?.src))?.src;
+  const bannerAr = clampRatio(useImageRatio(heroSrc), RATIO_BOUNDS.banner);
 
   if (!project) {
     return <Navigate to="/work" replace />;
@@ -95,7 +100,10 @@ export function ProjectDetailPage() {
         </div>
 
         <div className="container">
-          <div className="pd-banner">
+          <div
+            className="pd-banner"
+            style={bannerAr ? ({ '--img-ar': bannerAr } as React.CSSProperties) : undefined}
+          >
             {hasImages ? (
               <button
                 type="button"
