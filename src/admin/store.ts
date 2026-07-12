@@ -1101,7 +1101,7 @@ export async function uploadVideo(
   fd.append('file', file);
   fd.append('prefix', opts.prefix ?? 'services');
   if (opts.force) fd.append('force', 'true');
-  return api<UploadedImage>('/admin/uploads/image', {
+  return api<UploadedImage>('/admin/uploads/video', {
     method: 'POST',
     formData: fd,
     auth: true,

@@ -654,3 +654,32 @@ class UploadItem(_Base):
 class UploadList(_Base):
     items: list[UploadItem]
     count: int
+
+
+# ---------------------------------------------------------------------------
+# Contact / leads
+# ---------------------------------------------------------------------------
+
+ContactMessage = Annotated[str, StringConstraints(min_length=1, max_length=5000)]
+
+
+class ContactCreate(_Base):
+    name: UserName
+    email: EmailStr
+    message: ContactMessage
+    # Honeypot: a field hidden from real users. Bots tend to fill every input,
+    # so a non-empty value marks the submission as spam (silently dropped).
+    company_website: str = ""
+
+
+class LeadOut(_Base):
+    id: str
+    name: str
+    email: EmailStr
+    message: str
+    is_read: bool
+    created_at: datetime
+
+
+class LeadPatch(_Base):
+    is_read: bool | None = None

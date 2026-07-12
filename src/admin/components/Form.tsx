@@ -367,16 +367,13 @@ export function StringList({
 }
 
 export function Toast({ message, onClear }: { message: string | null; onClear: () => void }) {
-  const [show, setShow] = useState(false);
+  // `message` alone drives visibility — the toast mounts when it's set and the
+  // timer clears it. No mirror state, so nothing to sync in the effect body.
   useEffect(() => {
     if (!message) return;
-    setShow(true);
-    const t = setTimeout(() => {
-      setShow(false);
-      onClear();
-    }, 2200);
+    const t = setTimeout(onClear, 2200);
     return () => clearTimeout(t);
   }, [message, onClear]);
-  if (!show || !message) return null;
+  if (!message) return null;
   return <div className="adm-toast">{message}</div>;
 }

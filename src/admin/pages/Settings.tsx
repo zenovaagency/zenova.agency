@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { Field, TextField, Toast } from '@/admin/components/Form';
 import { Combobox } from '@/components/ui/inputs';
 import { isValidEmail } from '@/admin/lib/validate';
@@ -24,14 +25,19 @@ function uid() {
 
 export function Settings() {
   const [brand] = useBrand();
+  const confirm = useConfirm();
   const [draft, setDraft] = useState<BrandSettings>(brand);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  // Re-seed the draft when the published brand changes (save, reset, cross-tab).
+  // Reconciled during render, not in an effect, to avoid a cascading re-render.
+  const [syncedBrand, setSyncedBrand] = useState(brand);
+  if (syncedBrand !== brand) {
+    setSyncedBrand(brand);
     setDraft(brand);
-  }, [brand]);
+  }
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(brand);
 
@@ -139,9 +145,12 @@ export function Settings() {
             className="adm-btn adm-btn--danger"
             onClick={async () => {
               if (
-                !window.confirm(
-                  'Reset ALL content (services, projects, team, site copy, brand) to factory defaults on the server? This cannot be undone.',
-                )
+                !(await confirm({
+                  title: 'Reset everything?',
+                  body: 'Resets ALL content (services, projects, team, site copy, brand) to factory defaults on the server. This cannot be undone.',
+                  confirmLabel: 'Reset everything',
+                  danger: true,
+                }))
               ) {
                 return;
               }

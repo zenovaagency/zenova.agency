@@ -30,7 +30,7 @@ export function JobDetailPage() {
     if (job.applyUrl.trim()) {
       window.open(job.applyUrl, '_blank', 'noopener,noreferrer');
     } else {
-      window.location.href = mailto;
+      window.location.assign(mailto);
     }
   };
 

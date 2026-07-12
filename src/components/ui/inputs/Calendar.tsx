@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const MONTHS = [
@@ -66,10 +66,13 @@ export function Calendar({ value, onChange, min, max, showFooter = true, onClear
   const selected = parseISO(value);
   const [cursor, setCursor] = useState<Date>(startOfMonth(selected ?? today));
 
-  // Re-anchor when the selected month changes externally.
-  useEffect(() => {
+  // Re-anchor to the selected month when the value changes externally.
+  // Reconciled during render, not in an effect, to avoid a cascading re-render.
+  const [syncedValue, setSyncedValue] = useState(value);
+  if (syncedValue !== value) {
+    setSyncedValue(value);
     if (selected) setCursor(startOfMonth(selected));
-  }, [value]);
+  }
 
   const minDate = parseISO(min) ?? null;
   const maxDate = parseISO(max) ?? null;
@@ -176,4 +179,5 @@ export function Calendar({ value, onChange, min, max, showFooter = true, onClear
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- date helpers colocated with the Calendar input
 export { formatISO, parseISO };

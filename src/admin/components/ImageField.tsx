@@ -30,6 +30,7 @@ async function ensureLibrary(force = false): Promise<UploadListItem[]> {
   return res.items;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- shared media-library hook colocated with the field
 export function useLibrary(): {
   items: UploadListItem[];
   loading: boolean;
@@ -82,6 +83,7 @@ export function useLibrary(): {
   return { items, loading, error, refresh };
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- cache helper colocated with the field
 export function bumpLibraryCache(item?: UploadListItem) {
   if (!libraryCache) return;
   if (item) {

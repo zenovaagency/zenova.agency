@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { ImageField } from '@/admin/components/ImageField';
 import {
   ColorField,
@@ -92,14 +93,20 @@ function emptyIntro(): SectionIntro {
 
 export function ContentAdmin() {
   const [content] = useContent();
+  const confirm = useConfirm();
   const [draft, setDraft] = useState<SiteContent>(content);
   const [tab, setTab] = useState<Tab>('hero');
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  // Re-seed the draft when the published content changes (save, reset,
+  // cross-tab). Reconciled during render instead of in an effect to avoid a
+  // cascading re-render. `content` is a stable reference from the store.
+  const [syncedContent, setSyncedContent] = useState(content);
+  if (syncedContent !== content) {
+    setSyncedContent(content);
     setDraft(content);
-  }, [content]);
+  }
 
   // Defensive: older payloads may not have `about` / `process` yet.
   const about: AboutContent = draft.about ?? emptyAbout();
@@ -197,8 +204,15 @@ export function ContentAdmin() {
           </Button>
           <button
             className="adm-btn"
-            onClick={() => {
-              if (window.confirm('Reset site content to defaults?')) {
+            onClick={async () => {
+              if (
+                await confirm({
+                  title: 'Reset site content?',
+                  body: 'Restores the default site copy. Local edits will be lost.',
+                  confirmLabel: 'Reset',
+                  danger: true,
+                })
+              ) {
                 contentStore.reset().catch((err) =>
                   setToast(err instanceof Error ? err.message : 'Reset failed.'),
                 );
@@ -1308,6 +1322,7 @@ function PricingEditor({
   services: PricingService[];
   onChange: (next: PricingService[]) => void;
 }) {
+  const confirm = useConfirm();
   const [selected, setSelected] = useState(0);
   const sel = Math.min(selected, Math.max(services.length - 1, 0));
   const svc = services[sel];
@@ -1368,8 +1383,16 @@ function PricingEditor({
                 </button>
                 <button
                   className="adm-btn adm-btn--sm adm-btn--danger"
-                  onClick={() => {
-                    if (!window.confirm(`Remove the "${svc.label}" pricing tab and its plans?`)) return;
+                  onClick={async () => {
+                    if (
+                      !(await confirm({
+                        title: `Remove the "${svc.label}" tab?`,
+                        body: 'This removes the pricing tab and all of its plans.',
+                        confirmLabel: 'Remove tab',
+                        danger: true,
+                      }))
+                    )
+                      return;
                     onChange(services.filter((_, idx) => idx !== sel));
                     setSelected(Math.max(sel - 1, 0));
                   }}

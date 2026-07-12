@@ -10,13 +10,19 @@ export function useCountUp(
   duration = 1600,
   decimals = 0,
 ): string {
-  const [value, setValue] = useState(prefersReducedMotion() ? end : 0);
+  const reduced = prefersReducedMotion();
+  const [value, setValue] = useState(reduced ? end : 0);
+
+  // With reduced motion, jump straight to the target (also covers `end`
+  // changing after mount). Reconciled during render, not in an effect.
+  const [syncedEnd, setSyncedEnd] = useState(end);
+  if (reduced && syncedEnd !== end) {
+    setSyncedEnd(end);
+    setValue(end);
+  }
 
   useEffect(() => {
-    if (prefersReducedMotion()) {
-      setValue(end);
-      return;
-    }
+    if (reduced) return;
 
     let raf = 0;
     const start = performance.now();
@@ -30,7 +36,7 @@ export function useCountUp(
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [end, duration]);
+  }, [end, duration, reduced]);
 
   return value.toLocaleString(undefined, {
     minimumFractionDigits: decimals,

@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 from app.config import get_settings
+from app.netutil import client_ip
 
 
 def _key(request) -> str:  # type: ignore[no-untyped-def]
-    return get_remote_address(request)
+    # Key on the forwarded client IP (not the socket peer) so throttling works
+    # behind Render's proxy, where every request otherwise shares one IP.
+    return client_ip(request)
 
 
 _settings = get_settings()

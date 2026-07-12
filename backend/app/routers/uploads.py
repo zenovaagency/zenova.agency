@@ -15,6 +15,7 @@ from app.storage import (
     DuplicateUpload,
     StorageDisabled,
     StoredObject,
+    UploadTooLarge,
     delete_object,
     list_objects,
     upload_image,
@@ -68,6 +69,16 @@ async def _do_upload(
         raise ValidationFailed("Missing filename.")
     if not file.content_type:
         raise ValidationFailed("Missing content type.")
+
+    # Reject oversize uploads before buffering the whole file into memory.
+    # Starlette populates ``file.size`` from the multipart parser, so this
+    # avoids materialising a large body just to reject it. ``upload_image``
+    # re-checks the true byte count as defense-in-depth.
+    limit_bytes = settings.r2_max_upload_mb * 1024 * 1024
+    if file.size is not None and file.size > limit_bytes:
+        raise UploadTooLarge(
+            f"File is {file.size} bytes; limit is {settings.r2_max_upload_mb} MiB."
+        )
 
     contents = await file.read()
     size = len(contents)

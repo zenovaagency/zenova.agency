@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { Toast } from '@/admin/components/Form';
 import { Icon, type IconName } from '@/components/icons/Icon';
 import { createService, deleteService, servicesStore, useServices } from '@/admin/store';
@@ -40,10 +41,12 @@ function emptyService(): ServiceDetail {
   };
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- option constants + factory colocated with the admin page
 export { ICON_OPTIONS, VISUAL_OPTIONS, emptyService };
 
 export function ServicesAdmin() {
   const [services] = useServices();
+  const confirm = useConfirm();
   const [busy, setBusy] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -72,7 +75,15 @@ export function ServicesAdmin() {
   };
 
   const remove = async (s: ServiceDetail) => {
-    if (!window.confirm(`Delete "${s.title}"? This cannot be undone.`)) return;
+    if (
+      !(await confirm({
+        title: `Delete "${s.title}"?`,
+        body: 'This cannot be undone.',
+        confirmLabel: 'Delete',
+        danger: true,
+      }))
+    )
+      return;
     setBusy(s.slug);
     try {
       await deleteService(s.slug);
@@ -93,8 +104,15 @@ export function ServicesAdmin() {
         <>
           <button
             className="adm-btn"
-            onClick={() => {
-              if (window.confirm('Reset services to factory defaults? Local edits will be lost.')) {
+            onClick={async () => {
+              if (
+                await confirm({
+                  title: 'Reset services?',
+                  body: 'Restores the factory defaults. Local edits will be lost.',
+                  confirmLabel: 'Reset',
+                  danger: true,
+                })
+              ) {
                 servicesStore.reset();
               }
             }}

@@ -143,22 +143,33 @@ export function Dropdown<V extends string | number = string>({
 
   const selected = options.find((o) => o.value === value) ?? null;
 
-  useEffect(() => {
-    if (!open) {
+  // When the menu opens, highlight the selected row (or the first); when it
+  // closes, clear the search. Reconciled during render to avoid cascading
+  // re-renders on the open/close transition.
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (prevOpen !== open) {
+    setPrevOpen(open);
+    if (open) {
+      setActiveIdx(Math.max(0, filtered.findIndex((o) => o.value === value)));
+    } else {
       setQuery('');
       setActiveIdx(0);
-      return;
     }
-    // Focus the search after the portal mounts.
-    requestAnimationFrame(() => {
-      if (searchable) searchRef.current?.focus();
-    });
-    const idx = Math.max(
-      0,
-      filtered.findIndex((o) => o.value === value),
-    );
-    setActiveIdx(idx);
-  }, [open, searchable, filtered, value]);
+  }
+
+  // While open, keep the highlight valid as the filtered list narrows (typing).
+  const [syncedFiltered, setSyncedFiltered] = useState(filtered);
+  if (syncedFiltered !== filtered) {
+    setSyncedFiltered(filtered);
+    if (open) setActiveIdx(Math.max(0, filtered.findIndex((o) => o.value === value)));
+  }
+
+  // Focus the search field after the portal mounts.
+  useEffect(() => {
+    if (!open || !searchable) return;
+    const raf = requestAnimationFrame(() => searchRef.current?.focus());
+    return () => cancelAnimationFrame(raf);
+  }, [open, searchable]);
 
   // Scroll active option into view.
   useEffect(() => {

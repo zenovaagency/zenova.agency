@@ -95,6 +95,10 @@ export function TweaksPanel({ title = 'Tweaks', children }: TweaksPanelProps) {
       ref={dragRef}
       className="twk-panel"
       data-noncommentable=""
+      // Intentionally reads the ref during render to keep the dragged position
+      // across re-renders; drag updates the ref imperatively to avoid per-frame
+      // re-renders (dev-only tooling).
+      // eslint-disable-next-line react-hooks/refs
       style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}
     >
       <div className="twk-hd" onMouseDown={onDragStart}>
@@ -221,7 +225,11 @@ export function TweakRadio<T extends string | number>({
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
   const valueRef = useRef(value);
-  valueRef.current = value;
+  // Keep the latest value available to the pointer handlers without writing the
+  // ref during render.
+  useEffect(() => {
+    valueRef.current = value;
+  });
 
   const labelLen = (o: RadioOption<T>) =>
     String(typeof o === 'object' ? (o as { label: string }).label : o).length;

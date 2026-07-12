@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { projectsStore, useProjects } from '@/admin/store';
 import type { ProjectDetail } from '@/data/projects';
 
@@ -63,6 +64,7 @@ function LiveUrlCell({ url, slug }: { url: string; slug: string }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- factory helper colocated with the admin page
 export function emptyProject(): ProjectDetail {
   return {
     slug: 'new-project-' + Math.random().toString(36).slice(2, 6),
@@ -96,6 +98,7 @@ export function emptyProject(): ProjectDetail {
 
 export function ProjectsAdmin() {
   const [projects] = useProjects();
+  const confirm = useConfirm();
 
   const duplicate = (p: ProjectDetail) => {
     projectsStore.set([
@@ -104,8 +107,16 @@ export function ProjectsAdmin() {
     ]);
   };
 
-  const remove = (p: ProjectDetail) => {
-    if (!window.confirm(`Delete "${p.client}"? This cannot be undone.`)) return;
+  const remove = async (p: ProjectDetail) => {
+    if (
+      !(await confirm({
+        title: `Delete "${p.client}"?`,
+        body: 'This cannot be undone.',
+        confirmLabel: 'Delete',
+        danger: true,
+      }))
+    )
+      return;
     projectsStore.set(projects.filter((x) => x.slug !== p.slug));
   };
 
@@ -118,8 +129,15 @@ export function ProjectsAdmin() {
         <>
           <button
             className="adm-btn"
-            onClick={() => {
-              if (window.confirm('Reset case studies to factory defaults?')) {
+            onClick={async () => {
+              if (
+                await confirm({
+                  title: 'Reset case studies?',
+                  body: 'Restores the factory defaults. Local edits will be lost.',
+                  confirmLabel: 'Reset',
+                  danger: true,
+                })
+              ) {
                 projectsStore.reset();
               }
             }}

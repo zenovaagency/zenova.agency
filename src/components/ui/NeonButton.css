@@ -23,6 +23,14 @@
   transform: scale(0.98);
 }
 
+.neon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.neon-button:disabled:active {
+  transform: none;
+}
+
 /* ─── Outer border + glow ─── */
 .neon-button::before,
 .neon-button-glow {

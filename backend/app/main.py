@@ -22,6 +22,7 @@ from app.routers import (
     auth,
     brand,
     client_project,
+    contact,
     content,
     jobs,
     projects,
@@ -124,6 +125,7 @@ def create_app() -> FastAPI:
     app.include_router(uploads.router, prefix=prefix)
     app.include_router(users.router, prefix=prefix)
     app.include_router(client_project.router, prefix=prefix)
+    app.include_router(contact.router, prefix=prefix)
 
     return app
 

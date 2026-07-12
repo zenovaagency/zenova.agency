@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { Toast } from '@/admin/components/Form';
 import { Dropdown } from '@/components/ui/inputs';
 import { ApiError } from '@/lib/api';
@@ -37,6 +38,7 @@ function formatWhen(iso: string | null): string {
 }
 
 export function MediaAdmin() {
+  const confirm = useConfirm();
   const [items, setItems] = useState<UploadListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [prefix, setPrefix] = useState<Prefix>('projects');
@@ -62,6 +64,9 @@ export function MediaAdmin() {
   }, []);
 
   useEffect(() => {
+    // Genuine data fetch on mount (state is set inside the async call, after an
+    // await), not the mirror-a-prop anti-pattern the rule targets.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refresh();
   }, [refresh]);
 
@@ -122,7 +127,15 @@ export function MediaAdmin() {
   };
 
   const onDelete = async (item: UploadListItem) => {
-    if (!window.confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
+    if (
+      !(await confirm({
+        title: `Delete "${item.name}"?`,
+        body: 'This permanently removes the file from storage and cannot be undone.',
+        confirmLabel: 'Delete',
+        danger: true,
+      }))
+    )
+      return;
     try {
       await deleteUpload(item.key);
       setItems((prev) => prev.filter((it) => it.key !== item.key));

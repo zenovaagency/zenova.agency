@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/admin/components/Button';
 import { TeamShell } from '@/team/components/TeamShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { DateField, Field, Select, TextField, Toast } from '@/admin/components/Form';
 import { Dropdown } from '@/components/ui/inputs';
 import { useTeamSession } from '@/team/store';
@@ -59,6 +60,7 @@ function formatRelative(iso: string): string {
 export function TeamOverview() {
   const snap = useProjectSnapshot();
   const sessionUser = useTeamSession();
+  const confirm = useConfirm();
   const [draft, setDraft] = useState<ProjectSnapshot>(snap);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -72,9 +74,12 @@ export function TeamOverview() {
   }, []);
 
   // Keep the draft in sync if the underlying snapshot changes (e.g. cross-tab).
-  useEffect(() => {
+  // Reconciled during render, not in an effect, to avoid a cascading re-render.
+  const [syncedSnap, setSyncedSnap] = useState(snap);
+  if (syncedSnap !== snap) {
+    setSyncedSnap(snap);
     setDraft(snap);
-  }, [snap]);
+  }
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(snap);
 
@@ -110,7 +115,15 @@ export function TeamOverview() {
   const discard = () => setDraft(snap);
 
   const handleReset = async () => {
-    if (!window.confirm('Reset project to demo defaults? This wipes any local edits.')) return;
+    if (
+      !(await confirm({
+        title: 'Reset project?',
+        body: 'Restores the demo defaults and wipes any local edits.',
+        confirmLabel: 'Reset',
+        danger: true,
+      }))
+    )
+      return;
     try {
       await resetProject();
       setToast('Project reset to defaults.');
@@ -294,12 +307,11 @@ function ActivityComposer({ snap, sessionUserName, onPosted, onError }: Composer
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // If the roster changes (e.g. cross-tab sync) and the picked author disappears,
-  // fall back to the first available one.
-  useEffect(() => {
-    if (!authors.find((a) => a.key === authorKey)) {
-      setAuthorKey(defaultAuthor);
-    }
-  }, [authors, authorKey, defaultAuthor]);
+  // fall back to the first available one. Clamped during render (the condition
+  // is false once authorKey is valid again, so this can't loop).
+  if (!authors.some((a) => a.key === authorKey)) {
+    setAuthorKey(defaultAuthor);
+  }
 
   const author = authors.find((a) => a.key === authorKey) ?? authors[0];
   const ready = !!author && what.trim().length > 0 && !posting;

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { invoiceStore, useInvoices, useCompanyInfo } from '@/admin/invoices/store';
 import { emptyInvoice, formatCurrency, totalOf, formatDate } from '@/admin/invoices/types';
 import type { InvoiceStatus } from '@/admin/invoices/types';
@@ -36,6 +37,7 @@ export function InvoiceList() {
   const invoices = useInvoices();
   const company = useCompanyInfo();
   const navigate = useNavigate();
+  const confirm = useConfirm();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<InvoiceStatus | 'all'>('all');
   const [showSettings, setShowSettings] = useState(false);
@@ -86,8 +88,16 @@ export function InvoiceList() {
     if (copy) navigate(`/admin/invoices/${copy.id}`);
   };
 
-  const remove = (id: string, name: string) => {
-    if (!window.confirm(`Delete invoice for "${name}"? This cannot be undone.`)) return;
+  const remove = async (id: string, name: string) => {
+    if (
+      !(await confirm({
+        title: `Delete invoice for "${name}"?`,
+        body: 'This cannot be undone.',
+        confirmLabel: 'Delete',
+        danger: true,
+      }))
+    )
+      return;
     invoiceStore.deleteInvoice(id);
   };
 

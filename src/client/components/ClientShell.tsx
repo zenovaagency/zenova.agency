@@ -105,9 +105,13 @@ export function ClientShell({
     };
   }, [userMenuOpen]);
 
-  useEffect(() => {
+  // Close the mobile drawer when navigating. Reconciled during render (not in
+  // an effect) so the drawer never paints open on the new page.
+  const [drawerPath, setDrawerPath] = useState(location.pathname);
+  if (drawerPath !== location.pathname) {
+    setDrawerPath(location.pathname);
     setMobileOpen(false);
-  }, [location.pathname]);
+  }
 
   useEffect(() => {
     if (!mobileOpen) return;

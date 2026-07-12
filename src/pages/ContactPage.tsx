@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { type FormEvent, useEffect, useState } from 'react';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { Icon } from '@/components/icons/Icon';
 import { useBrand } from '@/admin/store';
+import { submitContact } from '@/lib/contact';
 import { scrollToTop } from '@/lib/scroll';
 import './ContactPage.css';
 
@@ -16,9 +17,37 @@ interface ContactDetail {
 export function ContactPage() {
   const [brand] = useBrand();
   const [submitted, setSubmitted] = useState(false);
+  const [name, setName] = useState('');
+  const [emailValue, setEmailValue] = useState('');
+  const [message, setMessage] = useState('');
+  const [honeypot, setHoneypot] = useState(''); // bots fill hidden fields; humans don't
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     scrollToTop();
   }, []);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (sending) return;
+    setError(null);
+    setSending(true);
+    try {
+      await submitContact({
+        name: name.trim(),
+        email: emailValue.trim(),
+        message: message.trim(),
+        company_website: honeypot,
+      });
+      setSubmitted(true);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Something went wrong. Please try again.',
+      );
+    } finally {
+      setSending(false);
+    }
+  };
 
   const email = brand?.contactEmail ?? 'hello@zenova.bd';
   const phone = brand?.phone ?? '+1 (555) 123-4567';
@@ -105,18 +134,22 @@ export function ContactPage() {
             <p className="ct-success__text">Thanks for reaching out. We&rsquo;ll be in touch shortly.</p>
           </div>
         ) : (
-          <form
-            className="ct-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              setSubmitted(true);
-            }}
-          >
+          <form className="ct-form" onSubmit={handleSubmit} noValidate>
             <div className="ct-field">
               <label className="ct-field__label mono" htmlFor="ct-name">
                 Name
               </label>
-              <input id="ct-name" className="ct-field__input" type="text" placeholder="Your name" required autoComplete="name" />
+              <input
+                id="ct-name"
+                className="ct-field__input"
+                type="text"
+                placeholder="Your name"
+                required
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={sending}
+              />
             </div>
 
             <div className="ct-field">
@@ -130,6 +163,9 @@ export function ContactPage() {
                 placeholder="you@company.com"
                 required
                 autoComplete="email"
+                value={emailValue}
+                onChange={(e) => setEmailValue(e.target.value)}
+                disabled={sending}
               />
             </div>
 
@@ -143,14 +179,40 @@ export function ContactPage() {
                 rows={6}
                 placeholder="Tell us about your project, idea, or challenge&hellip;"
                 required
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                disabled={sending}
               />
             </div>
+
+            {/* Honeypot: off-screen, non-tabbable, hidden from assistive tech. */}
+            <input
+              className="ct-hp"
+              type="text"
+              name="company_website"
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+            />
+
+            {error && (
+              <p className="ct-form__error" role="alert">
+                {error}
+              </p>
+            )}
 
             <div className="ct-form__footer">
               <a href={`mailto:${email}?subject=Book%20a%2030-minute%20call`} className="ct-form__book">
                 <GhostButton text="Book 30 min call" size="sm" />
               </a>
-              <NeonButton text="Send message" size="sm" />
+              <NeonButton
+                text={sending ? 'Sending…' : 'Send message'}
+                size="sm"
+                type="submit"
+                disabled={sending}
+              />
             </div>
           </form>
         )}

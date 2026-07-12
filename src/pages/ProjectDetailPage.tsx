@@ -21,9 +21,16 @@ export function ProjectDetailPage() {
   const project = PROJECTS.find((p) => p.slug === slug);
   const [lbIndex, setLbIndex] = useState<number | null>(null);
 
+  // Reset the lightbox when navigating to a different project. Reconciled
+  // during render, not in an effect, to avoid a cascading re-render.
+  const [syncedSlug, setSyncedSlug] = useState(slug);
+  if (syncedSlug !== slug) {
+    setSyncedSlug(slug);
+    setLbIndex(null);
+  }
+
   useEffect(() => {
     scrollToTop();
-    setLbIndex(null);
   }, [slug]);
 
   if (!project) {

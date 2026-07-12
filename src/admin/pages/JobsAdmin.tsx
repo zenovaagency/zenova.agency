@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { jobsStore, useJobs } from '@/admin/store';
 import type { JobDetail } from '@/data/jobs';
 
@@ -8,6 +9,7 @@ function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- factory helper colocated with the admin page
 export function emptyJob(): JobDetail {
   return {
     slug: 'new-role-' + Math.random().toString(36).slice(2, 6),
@@ -27,6 +29,7 @@ export function emptyJob(): JobDetail {
 
 export function JobsAdmin() {
   const [jobs] = useJobs();
+  const confirm = useConfirm();
 
   const duplicate = (j: JobDetail) => {
     jobsStore.set([
@@ -35,8 +38,16 @@ export function JobsAdmin() {
     ]);
   };
 
-  const remove = (j: JobDetail) => {
-    if (!window.confirm(`Delete "${j.title}"? This cannot be undone.`)) return;
+  const remove = async (j: JobDetail) => {
+    if (
+      !(await confirm({
+        title: `Delete "${j.title}"?`,
+        body: 'This cannot be undone.',
+        confirmLabel: 'Delete',
+        danger: true,
+      }))
+    )
+      return;
     jobsStore.set(jobs.filter((x) => x.slug !== j.slug));
   };
 
@@ -49,8 +60,15 @@ export function JobsAdmin() {
         <>
           <button
             className="adm-btn"
-            onClick={() => {
-              if (window.confirm('Reset job openings to factory defaults?')) {
+            onClick={async () => {
+              if (
+                await confirm({
+                  title: 'Reset job openings?',
+                  body: 'Restores the factory defaults. Local edits will be lost.',
+                  confirmLabel: 'Reset',
+                  danger: true,
+                })
+              ) {
                 jobsStore.reset();
               }
             }}

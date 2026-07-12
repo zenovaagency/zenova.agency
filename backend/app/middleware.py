@@ -22,19 +22,13 @@ from starlette.requests import Request
 from starlette.responses import Response
 from starlette.types import ASGIApp
 
+from app.netutil import client_ip as _client_ip
+
 REQUEST_ID_HEADER = "X-Request-ID"
 _SILENT_PATHS = {"/health", "/livez", "/readyz", "/", "/favicon.ico"}
 _UA_LIMIT = 80
 
 logger = structlog.get_logger("zenova.http")
-
-
-def _client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        # Take the first IP — the originating client.
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "-"
 
 
 class RequestIDMiddleware(BaseHTTPMiddleware):

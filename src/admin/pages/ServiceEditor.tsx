@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
@@ -44,9 +44,14 @@ export function ServiceEditor() {
   const [tab, setTab] = useState<Tab>('basics');
   const [toast, setToast] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Re-seed the draft when the resolved record changes (navigation, store
+  // update). Reconciled during render, not in an effect, to avoid a cascading
+  // re-render. `existing` is memoised, so this only fires on a real change.
+  const [syncedExisting, setSyncedExisting] = useState(existing);
+  if (syncedExisting !== existing) {
+    setSyncedExisting(existing);
     if (existing) setDraft(existing);
-  }, [existing]);
+  }
 
   const tagSuggestions = useMemo(
     () => ['Build', 'Grow', 'Launch', 'Operate', 'Voice', ...services.map((s) => s.tag)],

@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { ColorField, TextArea, TextField, Toast } from '@/admin/components/Form';
 import { ImageField } from '@/admin/components/ImageField';
 import { teamStore, useTeam, type TeamMember } from '@/admin/store';
@@ -36,13 +37,18 @@ function uid() {
 
 export function TeamAdmin() {
   const [team] = useTeam();
+  const confirm = useConfirm();
   const [draft, setDraft] = useState<TeamMember[]>(team);
   const [toast, setToast] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  // Re-seed the draft when the published team changes (save, reset, cross-tab).
+  // Reconciled during render, not in an effect, to avoid a cascading re-render.
+  const [syncedTeam, setSyncedTeam] = useState(team);
+  if (syncedTeam !== team) {
+    setSyncedTeam(team);
     setDraft(team);
-  }, [team]);
+  }
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(team);
 
@@ -53,8 +59,16 @@ export function TeamAdmin() {
     setDraft((d) => d.map((m, idx) => (idx === i ? { ...m, ...patch } : m)));
   };
 
-  const remove = (i: number) => {
-    if (!window.confirm(`Remove ${draft[i].name}?`)) return;
+  const remove = async (i: number) => {
+    if (
+      !(await confirm({
+        title: `Remove ${draft[i].name}?`,
+        body: 'They will be removed from the team draft. Save to publish the change.',
+        confirmLabel: 'Remove',
+        danger: true,
+      }))
+    )
+      return;
     setDraft((d) => d.filter((_, idx) => idx !== i));
   };
 
@@ -107,8 +121,15 @@ export function TeamAdmin() {
           </Button>
           <button
             className="adm-btn"
-            onClick={() => {
-              if (window.confirm('Reset team to defaults?')) {
+            onClick={async () => {
+              if (
+                await confirm({
+                  title: 'Reset team?',
+                  body: 'Restores the default team members. Local edits will be lost.',
+                  confirmLabel: 'Reset',
+                  danger: true,
+                })
+              ) {
                 teamStore.reset().catch(showError);
               }
             }}

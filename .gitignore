@@ -33,3 +33,4 @@ vite.config.d.ts
 # Archived pre-refactor sources — kept locally, not for commit
 _legacy/
 backend/scripts/create_admin_direct.py
+SEO-NEXT-STEPS.md

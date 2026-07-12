@@ -57,6 +57,10 @@ export function Popover({
   if (!isValidElement(trigger)) {
     throw new Error('Popover: `trigger` must be a valid React element.');
   }
+  // Merge our anchor ref with whatever ref the consumer already put on the
+  // trigger. Reading `trigger.ref` and writing the forwarded ref's `.current`
+  // is the intent here, so the ref/immutability rules are disabled locally.
+  /* eslint-disable react-hooks/refs, react-hooks/immutability */
   const triggerWithRef = cloneElement(trigger as ReactElement<{ ref?: (el: HTMLElement | null) => void }>, {
     ref: (el: HTMLElement | null) => {
       triggerRef.current = el;
@@ -65,6 +69,7 @@ export function Popover({
       else if (original && typeof original === 'object') (original as { current: HTMLElement | null }).current = el;
     },
   });
+  /* eslint-enable react-hooks/refs, react-hooks/immutability */
 
   const compute = () => {
     const t = triggerRef.current;
@@ -90,6 +95,10 @@ export function Popover({
 
   useLayoutEffect(() => {
     if (!open) {
+      // Genuine layout effect: position is derived from DOM measurement in
+      // compute(); clearing it on close keeps the next open hidden until
+      // re-measured. Not the mirror-a-prop anti-pattern the rule targets.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPosition(null);
       return;
     }

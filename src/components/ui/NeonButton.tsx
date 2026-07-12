@@ -8,6 +8,9 @@ export interface NeonButtonProps {
   onClick?: () => void;
   className?: string;
   size?: NeonButtonSize;
+  /** Omit to keep the native default (submit inside a <form>). */
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
 }
 
 const SIZE_ICON: Record<NeonButtonSize, number> = {
@@ -22,6 +25,8 @@ export function NeonButton({
   onClick,
   className = '',
   size = 'sm',
+  type,
+  disabled = false,
 }: NeonButtonProps) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -50,6 +55,8 @@ export function NeonButton({
       className={`neon-button neon-button--${size} ${className}`}
       ref={buttonRef}
       onClick={onClick}
+      type={type}
+      disabled={disabled}
     >
       <div className="neon-button-glow" />
       <div className="neon-button-content">

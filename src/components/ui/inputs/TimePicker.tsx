@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useState } from 'react';
+import { forwardRef, useState } from 'react';
 import { Popover } from './Popover';
 import { TimePickerPanel } from './TimePickerPanel';
 
@@ -133,14 +133,16 @@ export function TimePicker({
   const [h24, setH24] = useState<number>(parsed?.h24 ?? 12);
   const [minute, setMinute] = useState<number>(parsed ? Math.round(parsed.m / minuteStep) * minuteStep : 0);
 
-  useEffect(() => {
-    if (!open) return;
-    if (parsed) {
+  // When the popover opens, seed the working values from the current value.
+  // Reconciled during render on the open transition, not in an effect.
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (prevOpen !== open) {
+    setPrevOpen(open);
+    if (open && parsed) {
       setH24(parsed.h24);
       setMinute(Math.round(parsed.m / minuteStep) * minuteStep);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }
 
   const apply = () => {
     onChange(formatInternal(h24, minute));
@@ -203,4 +205,5 @@ export function TimePicker({
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- time helpers colocated with the TimePicker input
 export { formatInternal as formatTime24, parseTime };

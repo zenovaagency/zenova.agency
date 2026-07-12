@@ -35,7 +35,6 @@ function statusColor(status: string): RGB {
 
 export function generateInvoicePDF(invoice: Invoice, company: CompanyInfo): jsPDF {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  let y = MARGIN;
 
   doc.setFillColor(...COL.bg);
   doc.rect(0, 0, PAGE_W, PAGE_H, 'F');
@@ -43,7 +42,7 @@ export function generateInvoicePDF(invoice: Invoice, company: CompanyInfo): jsPD
   doc.setFillColor(...COL.accent);
   doc.rect(0, 0, PAGE_W, 4, 'F');
 
-  y = 24;
+  let y = 24;
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);

@@ -32,6 +32,7 @@ import { InputsShowcase } from '@/admin/pages/InputsShowcase';
 import { InvoiceList } from '@/admin/pages/InvoiceList';
 import { InvoiceEditor } from '@/admin/pages/InvoiceEditor';
 import { UsersAdmin } from '@/admin/pages/UsersAdmin';
+import { Inbox } from '@/admin/pages/Inbox';
 import { TWEAK_DEFAULTS } from '@/config/tweaks';
 import { useSmoothScroll } from '@/hooks/useSmoothScroll';
 import { useReveal } from '@/hooks/useReveal';
@@ -40,6 +41,7 @@ import { applyPalette } from '@/lib/palette';
 import { applyTheme, getInitialTheme } from '@/lib/theme';
 import type { Theme } from '@/types/tweaks';
 import { hydrateSite } from '@/admin/store';
+import { ConfirmProvider } from '@/admin/components/ConfirmProvider';
 import { SeoManager } from '@/seo/SeoManager';
 
 // Tweaks panel ships only in dev builds — lazy import is tree-shaken in prod.
@@ -78,6 +80,7 @@ export function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <SeoManager />
+      <ConfirmProvider>
       <Routes>
         {/* Unified login endpoint */}
         <Route path="/login" element={<Login />} />
@@ -135,6 +138,7 @@ export function App() {
           <ZenovaTweaks tweaks={t} setTweak={setTweak} />
         </Suspense>
       )}
+      </ConfirmProvider>
     </BrowserRouter>
   );
 }
@@ -221,6 +225,7 @@ function AdminRoutes() {
       <Route path="invoices" element={<InvoiceList />} />
       <Route path="invoices/:id" element={<InvoiceEditor />} />
       <Route path="users" element={<UsersAdmin />} />
+      <Route path="inbox" element={<Inbox />} />
       <Route path="settings" element={<AdminSettings />} />
       <Route path="inputs" element={<InputsShowcase />} />
     </Routes>

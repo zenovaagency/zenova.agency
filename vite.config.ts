@@ -34,7 +34,6 @@ function seoPrerenderPlugin(): Plugin {
       }
 
       fs.writeFileSync(path.join(distDir, 'sitemap.xml'), sitemapXml());
-      // eslint-disable-next-line no-console
       console.log(`[seo] prerendered ${count} routes + sitemap.xml`);
     },
   };

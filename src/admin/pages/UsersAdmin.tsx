@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AdminShell } from '@/admin/components/AdminShell';
+import { useConfirm } from '@/admin/components/confirm-context';
 import { Button } from '@/admin/components/Button';
 import { Select, TextField, Toast, ToggleField } from '@/admin/components/Form';
 import {
@@ -161,6 +162,7 @@ function UserForm({
 
 export function UsersAdmin() {
   const me = useSession();
+  const confirm = useConfirm();
   const [users, setUsers] = useState<UserAccount[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [tab, setTab] = useState<RoleTab>('all');
@@ -255,7 +257,15 @@ export function UsersAdmin() {
   };
 
   const remove = async (u: UserAccount) => {
-    if (!window.confirm(`Delete ${u.email}? They will no longer be able to sign in.`)) return;
+    if (
+      !(await confirm({
+        title: `Delete ${u.name}?`,
+        body: `${u.email} will no longer be able to sign in. This cannot be undone.`,
+        confirmLabel: 'Delete user',
+        danger: true,
+      }))
+    )
+      return;
     setBusy(u.id);
     try {
       await deleteUser(u.id);

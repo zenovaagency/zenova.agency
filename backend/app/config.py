@@ -41,6 +41,7 @@ class Settings(BaseSettings):
 
     rate_limit_login: str = "10/minute"
     rate_limit_default: str = "120/minute"
+    rate_limit_contact: str = "5/minute"
 
     r2_account_id: str = ""
     r2_access_key_id: str = ""
