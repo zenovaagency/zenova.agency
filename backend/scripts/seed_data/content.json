@@ -61,12 +61,12 @@
     "sub": "If you don't see your question here, just ask."
   },
   "testimonials": [
-    { "id": "q1", "quote": "They replaced three of our vendors. One team, one channel, one invoice.", "name": "Maya Okafor", "role": "COO, Northwind", "tone": "#3a5bff" },
-    { "id": "q2", "quote": "A working prototype in eleven days. Best momentum we've had in years.", "name": "Daniel Reyes", "role": "CEO, Stellar", "tone": "#6d4cff" },
-    { "id": "q3", "quote": "We came in for a site. We left with a full growth plan and real pipeline.", "name": "Priya Nair", "role": "Head of Growth, Aperture", "tone": "#a855f7" },
-    { "id": "q4", "quote": "The cleanest handoff we've ever seen. Our team picked it up the next morning.", "name": "Jonas Weber", "role": "CTO, Cobalt", "tone": "#5b6cff" },
-    { "id": "q5", "quote": "Traffic up 4x. CAC down a third. They run growth like a product team.", "name": "Aisha Mensah", "role": "Founder, Mosaic", "tone": "#7a55ff" },
-    { "id": "q6", "quote": "Most agencies sell a deck. Zenova built us a system and taught us how to run it.", "name": "Leo Castelli", "role": "COO, Verge", "tone": "#9a4dff" }
+    { "id": "q1", "quote": "They replaced three of our vendors. One team, one channel, one invoice.", "name": "Maya Okafor", "role": "COO, Northwind", "tone": "#ff813a" },
+    { "id": "q2", "quote": "A working prototype in eleven days. Best momentum we've had in years.", "name": "Daniel Reyes", "role": "CEO, Stellar", "tone": "#e06820" },
+    { "id": "q3", "quote": "We came in for a site. We left with a full growth plan and real pipeline.", "name": "Priya Nair", "role": "Head of Growth, Aperture", "tone": "#ff6b1a" },
+    { "id": "q4", "quote": "The cleanest handoff we've ever seen. Our team picked it up the next morning.", "name": "Jonas Weber", "role": "CTO, Cobalt", "tone": "#ff9a5c" },
+    { "id": "q5", "quote": "Traffic up 4x. CAC down a third. They run growth like a product team.", "name": "Aisha Mensah", "role": "Founder, Mosaic", "tone": "#cc6622" },
+    { "id": "q6", "quote": "Most agencies sell a deck. Zenova built us a system and taught us how to run it.", "name": "Leo Castelli", "role": "COO, Verge", "tone": "#ffa870" }
   ],
   "testimonialsSection": {
     "eyebrow": "Testimonials",
@@ -127,9 +127,9 @@
   "contactEmail": "hello@zenova.agency",
   "about": {
     "values": [
-      { "id": "v1", "icon": "Layers", "title": "One team, start to finish", "blurb": "The people you meet on day one are the same people on day ninety. No handoffs.", "hue": "#3a5bff" },
-      { "id": "v2", "icon": "Spark", "title": "Build, then talk", "blurb": "We ship working things, not decks about working things.", "hue": "#6d4cff" },
-      { "id": "v3", "icon": "Compass", "title": "Outcomes over output", "blurb": "Every project ends with one number we agreed to move. We share it either way.", "hue": "#a855f7" }
+      { "id": "v1", "icon": "Layers", "title": "One team, start to finish", "blurb": "The people you meet on day one are the same people on day ninety. No handoffs.", "hue": "#ff813a" },
+      { "id": "v2", "icon": "Spark", "title": "Build, then talk", "blurb": "We ship working things, not decks about working things.", "hue": "#e06820" },
+      { "id": "v3", "icon": "Compass", "title": "Outcomes over output", "blurb": "Every project ends with one number we agreed to move. We share it either way.", "hue": "#ff9a5c" }
     ],
     "roles": [
       { "id": "r1", "title": "Senior product designer", "location": "Remote", "href": "" },

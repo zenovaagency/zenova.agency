@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Logo } from './Logo';
 import { Icon } from '@/components/icons/Icon';
 import { ParticleWordmark } from '@/components/ui/ParticleWordmark';
-import { DEFAULT_CONTENT, useBrand, useContent } from '@/admin/store';
+import { DEFAULT_CONTENT, useBrand, useContent, useServices } from '@/admin/store';
 
 const PLATFORM_ICON: Record<string, keyof typeof Icon> = {
   twitter: 'TwitterX',
@@ -17,8 +17,15 @@ const PLATFORM_ICON: Record<string, keyof typeof Icon> = {
 export function Footer() {
   const [content] = useContent();
   const [brand] = useBrand();
+  const [services] = useServices();
   const footer = content.footer ?? DEFAULT_CONTENT.footer!;
   const socials = brand.socials ?? [];
+
+  const serviceLinks = services.map((s) => ({
+    id: `fl-svc-${s.slug}`,
+    label: s.title,
+    href: `/services/${s.slug}`,
+  }));
 
   return (
     <footer
@@ -91,7 +98,7 @@ export function Footer() {
                 {c.title}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {c.links.map((l) => (
+                {(c.title === 'Services' ? serviceLinks : c.links).map((l) => (
                   <Link
                     key={l.id}
                     to={l.href}

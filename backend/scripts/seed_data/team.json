@@ -5,7 +5,7 @@
     "role": "Co-founder, Design",
     "bio": "Leads brand and product design. Previously at Linear.",
     "initials": "MA",
-    "tone": "#3a5bff"
+    "tone": "#ff813a"
   },
   {
     "id": "t2",
@@ -13,7 +13,7 @@
     "role": "Co-founder, Engineering",
     "bio": "Leads the build team. Previously at Stripe and Vercel.",
     "initials": "TR",
-    "tone": "#6d4cff"
+    "tone": "#e06820"
   },
   {
     "id": "t3",
@@ -21,7 +21,7 @@
     "role": "Head of Growth",
     "bio": "Runs marketing, paid media and lifecycle programs.",
     "initials": "SP",
-    "tone": "#a855f7"
+    "tone": "#ff9a5c"
   },
   {
     "id": "t4",
@@ -29,6 +29,6 @@
     "role": "Editorial Lead",
     "bio": "Heads up the content and brand voice work.",
     "initials": "JW",
-    "tone": "#7a55ff"
+    "tone": "#cc6622"
   }
 ]

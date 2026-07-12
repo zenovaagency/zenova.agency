@@ -9,7 +9,7 @@
     "hero": "We build websites that load fast, look great, and are easy for your team to update.",
     "bullets": ["Modern web apps", "Easy-to-edit content", "Fast and optimized", "Built-in analytics"],
     "stat": ["<1.2s", "Average load time"],
-    "hue": "#3a5bff",
+    "hue": "#ff813a",
     "visual": "browser",
     "meta": [["<1.2s", "Load time"], ["6 – 10 wks", "Build time"], ["100%", "Mobile ready"], ["12 mo", "Free support"]],
     "deliverables": [
@@ -48,7 +48,7 @@
     "hero": "We help you grow your audience and bring in real customers — not just clicks.",
     "bullets": ["SEO that ranks", "Paid ads that convert", "Email automation", "Clear reports"],
     "stat": ["3.4×", "Average growth in 90 days"],
-    "hue": "#5b6cff",
+    "hue": "#ff6b1a",
     "visual": "curve",
     "meta": [["3.4×", "Avg growth"], ["90 days", "To see results"], ["1", "Simple dashboard"], ["24/7", "Tracking"]],
     "deliverables": [
@@ -88,7 +88,7 @@
     "hero": "Have an idea? We help you turn it into a real product and find your first customers.",
     "bullets": ["Pitch deck", "MVP build", "Branding", "Go-to-market plan"],
     "stat": ["11 days", "Fastest MVP we built"],
-    "hue": "#7a55ff",
+    "hue": "#e06820",
     "visual": "rocket",
     "meta": [["11 days", "Fastest MVP"], ["8 wks", "Typical launch"], ["1", "Dedicated team"], ["$0", "Hidden fees"]],
     "deliverables": [
@@ -128,7 +128,7 @@
     "hero": "We help small teams work like big ones — with better tools, clear processes, and weekly routines.",
     "bullets": ["Tool audits", "CRM setup", "Team playbooks", "Weekly reports"],
     "stat": ["38%", "Time saved per month"],
-    "hue": "#9a4dff",
+    "hue": "#ffa870",
     "visual": "kanban",
     "meta": [["38%", "Time saved"], ["1 mo", "Quick wins"], ["$0", "Wasted licenses"], ["1", "Source of truth"]],
     "deliverables": [
@@ -168,7 +168,7 @@
     "hero": "We write content people want to read — and search engines love.",
     "bullets": ["Brand voice", "SEO articles", "Landing pages", "Newsletters"],
     "stat": ["+212%", "Avg traffic in 6 months"],
-    "hue": "#a855f7",
+    "hue": "#ff9a5c",
     "visual": "editor",
     "meta": [["+212%", "Traffic growth"], ["4 / wk", "Articles published"], ["100%", "Original work"], ["1", "Editor on your team"]],
     "deliverables": [

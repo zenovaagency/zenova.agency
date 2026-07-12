@@ -4,7 +4,7 @@ import { Icon } from '@/components/icons/Icon';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { PricingCard } from '@/components/pricing/PricingCard';
-import { useContent } from '@/admin/store';
+import { useContent, useServices } from '@/admin/store';
 import { PRICING } from '@/data/pricing';
 import { scrollToTop } from '@/lib/scroll';
 import './PricingPage.css';
@@ -43,11 +43,23 @@ const PRICING_FAQ: Array<{ q: string; a: string }> = [
 
 export function PricingPage() {
   const [content] = useContent();
+  const [services] = useServices();
   // Rate cards come from the admin content store (Admin → Pricing);
   // fall back to the bundled defaults until it's hydrated/populated.
   const pricing = content.pricing?.length ? content.pricing : PRICING;
 
-  const [active, setActive] = useState(() => pricing[0]?.slug ?? '');
+  // Drive tabs from the services list so slugs/labels/hues always match.
+  // Plans are looked up from pricing by slug; services without a pricing
+  // entry still get a tab (with no plans shown).
+  const pricingBySlug = new Map(pricing.map((p) => [p.slug, p]));
+  const tabs = services.map((s) => ({
+    slug: s.slug,
+    label: s.title,
+    hue: s.hue,
+    plans: pricingBySlug.get(s.slug)?.plans ?? [],
+  }));
+
+  const [active, setActive] = useState(() => tabs[0]?.slug ?? '');
   const reduceMotion = useReducedMotion() ?? false;
   const tabsScrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -73,7 +85,7 @@ export function PricingPage() {
 
   // Fall back to the first tab if the active slug disappears (e.g. after
   // hydration replaces the list or a tab is removed in the admin).
-  const current = pricing.find((p) => p.slug === active) ?? pricing[0];
+  const current = tabs.find((t) => t.slug === active) ?? tabs[0];
 
   return (
     <div className="pcx">
@@ -99,7 +111,7 @@ export function PricingPage() {
         <div className="container">
           <div className="pcx-tabs__scroll" ref={tabsScrollRef}>
             <div className="pcx-tabs__row" role="tablist" aria-label="Service pricing">
-              {pricing.map((s) => (
+              {tabs.map((s) => (
                 <button
                   key={s.slug}
                   type="button"
