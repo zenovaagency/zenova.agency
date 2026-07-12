@@ -23,6 +23,7 @@ export function Overview() {
     { label: 'New service', to: '/admin/services/new', icon: '✦' },
     { label: 'New case study', to: '/admin/projects/new', icon: '◆' },
     { label: 'Add team member', to: '/admin/team', icon: '◉' },
+    { label: 'Edit pricing', to: '/admin/pricing', icon: '❖' },
     { label: 'Edit homepage hero', to: '/admin/content', icon: '◐' },
   ];
 

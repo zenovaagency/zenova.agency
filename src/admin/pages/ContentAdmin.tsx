@@ -22,7 +22,6 @@ import {
   type FooterColumn,
   type FooterContent,
   type FooterLink,
-  type PricingPlan,
   type PricingService,
   type ProcessContent,
   type ProcessStep,
@@ -30,7 +29,7 @@ import {
   type SiteContent,
 } from '@/admin/store';
 import { Button } from '@/admin/components/Button';
-import { Dropdown, Toggle } from '@/components/ui/inputs';
+import { Dropdown } from '@/components/ui/inputs';
 import { Icon } from '@/components/icons/Icon';
 
 type Tab =
@@ -40,7 +39,6 @@ type Tab =
   | 'faq'
   | 'testimonials'
   | 'marquee'
-  | 'pricing'
   | 'about'
   | 'footer';
 
@@ -179,7 +177,6 @@ export function ContentAdmin() {
     { id: 'faq', label: `FAQs (${draft.faqs.length})` },
     { id: 'testimonials', label: `Testimonials (${draft.testimonials.length})` },
     { id: 'marquee', label: `Marquee (${draft.marquee.length})` },
-    { id: 'pricing', label: `Pricing (${pricing.length})` },
     { id: 'about', label: 'About page' },
     { id: 'footer', label: 'Footer' },
   ];
@@ -188,7 +185,7 @@ export function ContentAdmin() {
     <AdminShell
       crumbs={[{ label: 'Site content' }]}
       title="Site content"
-      sub="Hero, CTA, the process orbit, FAQs, testimonials, the rotating word strip, the pricing page, and the About page. Click Save to publish changes."
+      sub="Hero, CTA, the process orbit, FAQs, testimonials, the rotating word strip, and the About page. Click Save to publish changes."
       actions={
         <>
           {dirty && (
@@ -615,13 +612,6 @@ export function ContentAdmin() {
         />
       )}
 
-      {tab === 'pricing' && (
-        <PricingEditor
-          services={pricing}
-          onChange={(next) => update({ pricing: next })}
-        />
-      )}
-
       {tab === 'footer' && (
         <FooterEditor
           footer={draft.footer ?? contentStore.getDefaults().footer!}
@@ -956,66 +946,6 @@ function FooterEditor({
 
       <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="adm-label">Legal links (bottom bar)</div>
-          <button
-            className="adm-btn adm-btn--sm"
-            onClick={() =>
-              onChange({ legalLinks: [...footer.legalLinks, emptyFooterLink()] })
-            }
-          >
-            + Add legal link
-          </button>
-        </div>
-        {footer.legalLinks.map((link, i) => (
-          <div
-            key={link.id}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr auto',
-              gap: 8,
-              alignItems: 'center',
-            }}
-          >
-            <input
-              className="adm-input"
-              placeholder="Label"
-              value={link.label}
-              onChange={(e) =>
-                onChange({
-                  legalLinks: footer.legalLinks.map((x, idx) =>
-                    idx === i ? { ...x, label: e.target.value } : x,
-                  ),
-                })
-              }
-            />
-            <input
-              className="adm-input"
-              placeholder="/path or https://…"
-              value={link.href}
-              onChange={(e) =>
-                onChange({
-                  legalLinks: footer.legalLinks.map((x, idx) =>
-                    idx === i ? { ...x, href: e.target.value } : x,
-                  ),
-                })
-              }
-            />
-            <button
-              className="adm-btn adm-btn--sm adm-btn--danger"
-              onClick={() =>
-                onChange({
-                  legalLinks: footer.legalLinks.filter((_, idx) => idx !== i),
-                })
-              }
-            >
-              ✕
-            </button>
-          </div>
-        ))}
-      </div>
-
-      <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div className="adm-label">Social links</div>
           <button
             className="adm-btn adm-btn--sm"
@@ -1290,197 +1220,6 @@ function AboutEditor({
           </div>
         ))}
       </div>
-    </div>
-  );
-}
-
-function emptyPricingPlan(): PricingPlan {
-  return {
-    id: uid('pp'),
-    name: '',
-    info: '',
-    price: '',
-    timeline: '',
-    features: [],
-    cta: 'Start this project',
-  };
-}
-
-function emptyPricingService(): PricingService {
-  return {
-    slug: uid('ps'),
-    label: 'New service',
-    hue: '#ff813a',
-    plans: [emptyPricingPlan(), emptyPricingPlan(), emptyPricingPlan()],
-  };
-}
-
-function PricingEditor({
-  services,
-  onChange,
-}: {
-  services: PricingService[];
-  onChange: (next: PricingService[]) => void;
-}) {
-  const confirm = useConfirm();
-  const [selected, setSelected] = useState(0);
-  const sel = Math.min(selected, Math.max(services.length - 1, 0));
-  const svc = services[sel];
-
-  const patchService = (i: number, delta: Partial<PricingService>) =>
-    onChange(services.map((x, idx) => (idx === i ? { ...x, ...delta } : x)));
-  const patchPlan = (pi: number, delta: Partial<PricingPlan>) =>
-    patchService(sel, {
-      plans: svc.plans.map((p, idx) => (idx === pi ? { ...p, ...delta } : p)),
-    });
-  const moveService = (dir: -1 | 1) => {
-    const j = sel + dir;
-    if (j < 0 || j >= services.length) return;
-    const next = services.slice();
-    [next[sel], next[j]] = [next[j], next[sel]];
-    onChange(next);
-    setSelected(j);
-  };
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div className="adm-tabs">
-        {services.map((s, i) => (
-          <button
-            key={s.slug}
-            className={`adm-tab${sel === i ? ' is-active' : ''}`}
-            onClick={() => setSelected(i)}
-          >
-            {s.label || 'Untitled'}
-          </button>
-        ))}
-        <button
-          className="adm-btn adm-btn--sm"
-          onClick={() => {
-            onChange([...services, emptyPricingService()]);
-            setSelected(services.length);
-          }}
-        >
-          + Add service tab
-        </button>
-      </div>
-
-      {svc && (
-        <>
-          <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div className="adm-label">Service tab</div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="adm-btn adm-btn--sm" onClick={() => moveService(-1)} disabled={sel === 0}>
-                  ← Move
-                </button>
-                <button
-                  className="adm-btn adm-btn--sm"
-                  onClick={() => moveService(1)}
-                  disabled={sel === services.length - 1}
-                >
-                  Move →
-                </button>
-                <button
-                  className="adm-btn adm-btn--sm adm-btn--danger"
-                  onClick={async () => {
-                    if (
-                      !(await confirm({
-                        title: `Remove the "${svc.label}" tab?`,
-                        body: 'This removes the pricing tab and all of its plans.',
-                        confirmLabel: 'Remove tab',
-                        danger: true,
-                      }))
-                    )
-                      return;
-                    onChange(services.filter((_, idx) => idx !== sel));
-                    setSelected(Math.max(sel - 1, 0));
-                  }}
-                >
-                  Remove tab
-                </button>
-              </div>
-            </div>
-            <div className="adm-row adm-row--2">
-              <TextField
-                label="Tab label"
-                value={svc.label}
-                onChange={(v) => patchService(sel, { label: v })}
-              />
-              <ColorField
-                label="Accent color"
-                hint="Tints the tab pill, prices, and check marks for this service."
-                value={svc.hue}
-                onChange={(v) => patchService(sel, { hue: v })}
-              />
-            </div>
-          </div>
-
-          {svc.plans.map((p, pi) => (
-            <div key={p.id} className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div className="adm-label">Card {pi + 1}</div>
-                <button
-                  className="adm-btn adm-btn--sm adm-btn--danger"
-                  onClick={() =>
-                    patchService(sel, { plans: svc.plans.filter((_, idx) => idx !== pi) })
-                  }
-                >
-                  Remove
-                </button>
-              </div>
-              <div className="adm-row adm-row--3">
-                <TextField label="Name" value={p.name} onChange={(v) => patchPlan(pi, { name: v })} />
-                <TextField
-                  label="Price"
-                  hint="Free-form, e.g. $8k, from $24k, Custom."
-                  value={p.price}
-                  onChange={(v) => patchPlan(pi, { price: v })}
-                />
-                <TextField
-                  label="Timeline"
-                  hint="Shown after “One-time ·”."
-                  value={p.timeline}
-                  onChange={(v) => patchPlan(pi, { timeline: v })}
-                />
-              </div>
-              <TextArea
-                label="Info line"
-                value={p.info}
-                onChange={(v) => patchPlan(pi, { info: v })}
-                rows={2}
-              />
-              <StringList
-                label="Features"
-                values={p.features}
-                onChange={(v) => patchPlan(pi, { features: v })}
-                placeholder="e.g. Up to 6 pages"
-              />
-              <div className="adm-row adm-row--2">
-                <TextField
-                  label="Button label"
-                  value={p.cta}
-                  onChange={(v) => patchPlan(pi, { cta: v })}
-                />
-                <Field label="Popular?">
-                  <Toggle
-                    checked={!!p.highlighted}
-                    onChange={(v) => patchPlan(pi, { highlighted: v })}
-                    label="Badge + glow — mark one card per tab"
-                  />
-                </Field>
-              </div>
-            </div>
-          ))}
-          <button
-            className="adm-btn"
-            style={{ alignSelf: 'flex-start' }}
-            onClick={() => patchService(sel, { plans: [...svc.plans, emptyPricingPlan()] })}
-          >
-            + Add card
-          </button>
-        </>
-      )}
     </div>
   );
 }
