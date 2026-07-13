@@ -3,10 +3,10 @@
 
 User-agent: *
 Allow: /
-Disallow: /admin
-Disallow: /client
-Disallow: /team
-Disallow: /login
-Disallow: /signin
+Disallow: /admin/
+Disallow: /client/
+Disallow: /team/
+Disallow: /login/
+Disallow: /signin/
 
 Sitemap: https://zenova.agency/sitemap.xml
