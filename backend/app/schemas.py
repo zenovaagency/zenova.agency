@@ -104,11 +104,9 @@ class ProjectImage(_Base):
 class ProjectDetail(_Base):
     slug: Slug
     client: str
-    category: str
     industry: str
     title: str
     summary: str
-    tags: list[str] = Field(default_factory=list)
     tone: HexColor
     year: str
     duration: str
@@ -550,11 +548,9 @@ class ServicePatch(_Base):
 class ProjectPatch(_Base):
     slug: Slug | None = None
     client: str | None = None
-    category: str | None = None
     industry: str | None = None
     title: str | None = None
     summary: str | None = None
-    tags: list[str] | None = None
     tone: HexColor | None = None
     year: str | None = None
     duration: str | None = None

@@ -70,7 +70,7 @@ function EmberRow({
             <span className="mono ember-row__kicker">
               <span className="ember-row__client">{project.client}</span>
               <span aria-hidden>—</span>
-              {project.category} · {project.year}
+              {project.year}
             </span>
 
             <h3 className="display ember-row__title">
@@ -83,16 +83,6 @@ function EmberRow({
               <span className="ember-row__stat-num">{metricNum}</span>
               <span className="mono ember-row__stat-label">{metricLabel}</span>
             </div>
-
-            {project.tags.length > 0 && (
-              <div className="ember-row__tags">
-                {project.tags.map((tag) => (
-                  <span key={tag} className="mono ember-row__tag">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
 
             <Link to={`/work/${project.slug}`} className="mono ember-row__cta" aria-label={`View ${project.client} case study`}>
               View case study <span aria-hidden>→</span>

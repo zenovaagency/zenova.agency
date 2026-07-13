@@ -159,7 +159,7 @@ export function Overview() {
                   <div>
                     <div style={{ fontWeight: 500, fontSize: 14 }}>{p.client}</div>
                     <div style={{ fontSize: 12, color: 'var(--fg-faint)' }}>
-                      {p.category} · {p.year} · {p.metric[0]}
+                      {p.year} · {p.metric[0]}
                     </div>
                   </div>
                   {live ? (

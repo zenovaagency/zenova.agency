@@ -52,14 +52,12 @@ export function ProjectEditor() {
     if (existing) setDraft(existing);
   }
 
-  const categorySuggestions = useMemo(() => projects.map((p) => p.category), [projects]);
   const industrySuggestions = useMemo(() => projects.map((p) => p.industry), [projects]);
   const yearSuggestions = useMemo(() => {
     const now = new Date().getFullYear();
     const recent = Array.from({ length: 7 }, (_, i) => String(now - i));
     return [...recent, ...projects.map((p) => p.year)];
   }, [projects]);
-  const tagSuggestions = useMemo(() => projects.flatMap((p) => p.tags), [projects]);
   const serviceSuggestions = useMemo(
     () => [...services.map((s) => s.title), ...projects.flatMap((p) => p.services)],
     [services, projects]
@@ -164,8 +162,7 @@ export function ProjectEditor() {
             <SlugField label="Slug" value={draft.slug} onChange={(v) => update('slug', v)} hint="Becomes /work/<slug>." />
             <TextField label="Client" value={draft.client} onChange={(v) => update('client', v)} />
           </div>
-          <div className="adm-row adm-row--3">
-            <ComboField label="Category" value={draft.category} suggestions={categorySuggestions} onChange={(v) => update('category', v)} placeholder="e.g. SaaS" />
+          <div className="adm-row adm-row--2">
             <ComboField label="Industry" value={draft.industry} suggestions={industrySuggestions} onChange={(v) => update('industry', v)} placeholder="e.g. Fintech" />
             <ComboField label="Year" value={draft.year} suggestions={yearSuggestions} onChange={(v) => update('year', v)} placeholder="2025" />
           </div>
@@ -184,14 +181,6 @@ export function ProjectEditor() {
             <TextField label="Team shape" value={draft.team} onChange={(v) => update('team', v)} placeholder="5 people · 1 Slack channel" />
             <ColorField label="Accent tone" value={draft.tone} onChange={(v) => update('tone', v)} />
           </div>
-          <TokenField
-            label="Tags"
-            hint="Drive the filter chips on /work."
-            values={draft.tags}
-            onChange={(v) => update('tags', v)}
-            suggestions={tagSuggestions}
-            placeholder="Add a tag…"
-          />
           <TokenField
             label="Services"
             hint="Labels shown in the sidebar."

@@ -111,19 +111,6 @@
   color: var(--fg-faint);
 }
 
-.ember-row__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.ember-row__tag {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 12px;
-  color: var(--fg-dim);
-}
-
 .ember-row__cta {
   display: inline-flex;
   align-items: center;

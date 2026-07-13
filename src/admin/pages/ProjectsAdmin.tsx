@@ -69,11 +69,9 @@ export function emptyProject(): ProjectDetail {
   return {
     slug: 'new-project-' + Math.random().toString(36).slice(2, 6),
     client: 'New client',
-    category: 'Category',
     industry: '',
     title: 'Untitled case study',
     summary: '',
-    tags: [],
     tone: '#e06820',
     year: String(new Date().getFullYear()),
     duration: '',
@@ -153,11 +151,10 @@ export function ProjectsAdmin() {
       <div className="adm-list">
         <div
           className="adm-list__row adm-list__row--head"
-          style={{ gridTemplateColumns: '40px 1.4fr 0.9fr 0.5fr 0.7fr 1fr 220px' }}
+          style={{ gridTemplateColumns: '40px 1.4fr 0.5fr 0.7fr 1fr 220px' }}
         >
           <div></div>
           <div>Client / title</div>
-          <div>Category</div>
           <div>Year</div>
           <div>Metric</div>
           <div>Live URL</div>
@@ -167,7 +164,7 @@ export function ProjectsAdmin() {
           <div
             key={p.slug}
             className="adm-list__row"
-            style={{ gridTemplateColumns: '40px 1.4fr 0.9fr 0.5fr 0.7fr 1fr 220px' }}
+            style={{ gridTemplateColumns: '40px 1.4fr 0.5fr 0.7fr 1fr 220px' }}
           >
             <div className="adm-list__cell adm-list__cell--lead">
               <span
@@ -178,9 +175,6 @@ export function ProjectsAdmin() {
             <div className="adm-list__cell adm-list__cell--primary">
               <div style={{ fontSize: 14, fontWeight: 500 }}>{p.client}</div>
               <div style={{ fontSize: 12, color: 'var(--fg-faint)' }}>{p.title}</div>
-            </div>
-            <div className="adm-list__cell" data-label="Category" style={{ color: 'var(--fg-dim)', fontSize: 13 }}>
-              {p.category}
             </div>
             <div className="adm-list__cell" data-label="Year" style={{ color: 'var(--fg-dim)', fontSize: 13 }}>
               {p.year}

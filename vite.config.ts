@@ -54,7 +54,6 @@ function resolveBase(): string {
 const base = resolveBase();
 
 function stripUnusedPreloads(): Plugin {
-  const KEEP = ['vendor-react', 'vendor-motion', 'vendor-lenis', 'vendor-', 'index-', 'App-'];
   return {
     name: 'strip-unused-preloads',
     enforce: 'post',

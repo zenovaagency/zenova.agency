@@ -80,7 +80,7 @@ export function ProjectDetailPage() {
             <span className="pd-crumbs__here">{project.client}</span>
           </nav>
           <div className="pd-hero__kicker mono reveal">
-            {project.category} · {project.year} · {project.industry}
+            {project.year} · {project.industry}
           </div>
           <h1 className="pd-hero__client display reveal reveal-blur reveal-d1">{project.client}</h1>
           <p className="pd-hero__lede reveal reveal-d2">{project.hero}</p>
@@ -119,13 +119,6 @@ export function ProjectDetailPage() {
             ) : (
               <ProjectPreview images={images} visualIdx={project.visualIdx} tone={project.tone} animate />
             )}
-            <div className="pd-banner__tags" aria-hidden="true">
-              {project.tags.map((t) => (
-                <span key={t} className="pd-banner__tag mono">
-                  {t}
-                </span>
-              ))}
-            </div>
             {hasLiveUrl && (
               <a className="pd-banner__live mono" href={liveUrl} target="_blank" rel="noreferrer noopener" title={liveUrl}>
                 <span className="pd-banner__live-dot" aria-hidden="true" />

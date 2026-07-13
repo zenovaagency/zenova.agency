@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProjectPreview } from '@/components/sections/ProjectPreview';
 import { Icon } from '@/components/icons/Icon';
@@ -8,8 +8,6 @@ import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
 import type { ProjectDetail } from '@/data/projects';
 import { scrollToTop } from '@/lib/scroll';
 import './WorkPage.css';
-
-const FILTERS = ['All', 'Brand', 'Web', 'Marketing', 'Product', 'Content', 'Ops'];
 
 function LivePill({ project }: { project: ProjectDetail }) {
   if (!project.liveUrl?.trim()) return null;
@@ -56,9 +54,7 @@ function WorkRow({
         style={ar ? ({ '--img-ar': ar } as React.CSSProperties) : undefined}
       >
         <ProjectPreview images={p.images} visualIdx={p.visualIdx} tone={p.tone} animate={hovered === p.slug} />
-        <span className="wrk-visual__chip mono">
-          {p.category} · {p.year}
-        </span>
+        <span className="wrk-visual__chip mono">{p.year}</span>
         <LivePill project={p} />
       </div>
       <div className="wrk-row__body">
@@ -72,7 +68,6 @@ function WorkRow({
           <span className="wrk-metric wrk-metric--sm display">{p.metric[0]}</span>
           <span className="wrk-metric__label mono">{p.metric[1]}</span>
         </div>
-        <span className="wrk-row__tags mono">{p.tags.join(' / ')}</span>
       </div>
     </Link>
   );
@@ -80,24 +75,14 @@ function WorkRow({
 
 export function WorkPage() {
   const [ALL] = useProjects();
-  const [filter, setFilter] = useState('All');
   const [hovered, setHovered] = useState<string | null>(null);
 
   useEffect(() => {
     scrollToTop();
   }, []);
 
-  const counts = useMemo(() => {
-    const map = new Map<string, number>();
-    FILTERS.forEach((f) => {
-      map.set(f, f === 'All' ? ALL.length : ALL.filter((p) => p.tags.includes(f)).length);
-    });
-    return map;
-  }, [ALL]);
-
-  const filtered = filter === 'All' ? ALL : ALL.filter((p) => p.tags.includes(filter));
-  const featured = filtered[0];
-  const rest = filtered.slice(1);
+  const featured = ALL[0];
+  const rest = ALL.slice(1);
   const featuredAr = clampRatio(useImageRatio(featured?.images?.[0]?.src), RATIO_BOUNDS.banner);
 
   return (
@@ -113,23 +98,6 @@ export function WorkPage() {
             <br />
             <em>not promises.</em>
           </h1>
-          <nav className="wrk-filters mono reveal reveal-d2" aria-label="Filter projects">
-            {FILTERS.map((f) => {
-              const n = counts.get(f) ?? 0;
-              const on = filter === f;
-              return (
-                <button
-                  key={f}
-                  type="button"
-                  className={`wrk-filter${on ? ' is-active' : ''}`}
-                  disabled={n === 0}
-                  onClick={() => setFilter(f)}
-                >
-                  {f} <sup>{n}</sup>
-                </button>
-              );
-            })}
-          </nav>
         </div>
       </header>
 
@@ -153,9 +121,7 @@ export function WorkPage() {
                   tone={featured.tone}
                   animate={hovered === featured.slug}
                 />
-                <span className="wrk-visual__chip mono">
-                  {featured.category} · {featured.year}
-                </span>
+                <span className="wrk-visual__chip mono">{featured.year}</span>
                 <LivePill project={featured} />
               </div>
               <div className="wrk-featured__body">
@@ -168,7 +134,6 @@ export function WorkPage() {
                 <div className="wrk-featured__foot">
                   <span className="wrk-metric display">{featured.metric[0]}</span>
                   <span className="wrk-metric__label mono">{featured.metric[1]}</span>
-                  <span className="wrk-featured__tags mono">{featured.tags.join(' / ')}</span>
                   <span className="wrk-featured__arrow">
                     <Icon.ArrowUpRight size={20} />
                   </span>
@@ -189,11 +154,11 @@ export function WorkPage() {
         </section>
       )}
 
-      {filtered.length === 0 && (
+      {ALL.length === 0 && (
         <section className="wrk-rows">
           <div className="container">
             <div className="wrk-empty">
-              Nothing in this category yet. Get in touch and we&rsquo;ll send more examples.
+              No projects yet. Get in touch and we&rsquo;ll send more examples.
             </div>
           </div>
         </section>

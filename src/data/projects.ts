@@ -23,11 +23,9 @@ export interface ProjectImage {
 export interface ProjectDetail {
   slug: string;
   client: string;
-  category: string;
   industry: string;
   title: string;
   summary: string;
-  tags: string[];
   tone: string;
   year: string;
   duration: string;
@@ -49,11 +47,9 @@ export const PROJECTS: ProjectDetail[] = [
   {
     slug: 'northwind-labs',
     client: 'Northwind Labs',
-    category: 'SaaS',
     industry: 'Developer tools',
     title: 'A new site and brand for a developer platform.',
     summary: 'A complete rebrand, a faster site, and content that brought in 2x the signups.',
-    tags: ['Brand', 'Web', 'Marketing'],
     tone: '#ff813a',
     year: '2025',
     duration: '14 weeks',
@@ -94,11 +90,9 @@ export const PROJECTS: ProjectDetail[] = [
   {
     slug: 'aperture-health',
     client: 'Aperture Health',
-    category: 'Healthcare',
     industry: 'Patient portal',
     title: 'A patient portal that actually gets used.',
     summary: 'We replaced three vendors with one product and saved 38 minutes per appointment.',
-    tags: ['Product', 'UX'],
     tone: '#e06820',
     year: '2025',
     duration: '22 weeks',
@@ -139,11 +133,9 @@ export const PROJECTS: ProjectDetail[] = [
   {
     slug: 'stellar-capital',
     client: 'Stellar Capital',
-    category: 'Fintech',
     industry: 'Startup',
     title: 'From pitch deck to funded startup in 11 weeks.',
     summary: 'We helped Stellar build their MVP, pitch investors, and close a $4.2M seed round.',
-    tags: ['Startup', 'GTM'],
     tone: '#ff9a5c',
     year: '2024',
     duration: '11 weeks',
@@ -184,11 +176,9 @@ export const PROJECTS: ProjectDetail[] = [
   {
     slug: 'cobalt-studio',
     client: 'Cobalt Studio',
-    category: 'Media',
     industry: 'Publishing',
     title: 'A content engine that ships 4 articles a week.',
     summary: 'We helped Cobalt grow traffic 3x and their newsletter 5x — without paid ads.',
-    tags: ['Content', 'SEO'],
     tone: '#c06028',
     year: '2025',
     duration: '12 months',
@@ -229,11 +219,9 @@ export const PROJECTS: ProjectDetail[] = [
   {
     slug: 'mosaic',
     client: 'Mosaic',
-    category: 'Consumer',
     industry: 'App',
     title: 'Growth from zero to 10,000 users in 90 days.',
     summary: 'We helped Mosaic launch a growth program that cut their cost per user by 42%.',
-    tags: ['Marketing', 'Web'],
     tone: '#cc6622',
     year: '2024',
     duration: '90 days',
@@ -274,11 +262,9 @@ export const PROJECTS: ProjectDetail[] = [
   {
     slug: 'verge',
     client: 'Verge',
-    category: 'Operations',
     industry: 'Finance',
     title: 'New billing system. Zero invoices dropped.',
     summary: 'We rebuilt a tangled billing system and saved their finance team two days every month.',
-    tags: ['Ops', 'Web'],
     tone: '#ff6b1a',
     year: '2024',
     duration: '18 weeks',
