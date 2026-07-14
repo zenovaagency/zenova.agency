@@ -29,11 +29,13 @@ export function ContactPage() {
   const [servicesFromStore] = useServices();
 
   const SERVICES: DropdownOption<string>[] = useMemo(
-    () =>
-      servicesFromStore.map((s) => ({
+    () => [
+      ...servicesFromStore.map((s) => ({
         value: s.slug,
         label: s.title,
       })),
+      { value: 'other', label: 'Other' },
+    ],
     [servicesFromStore],
   );
   useEffect(() => {
