@@ -4,6 +4,10 @@
 
 .legal {
   padding: 140px 0 96px;
+  /* Opt out of the global main > section content-visibility: auto rule.
+     SEO pages render a single section inside <main>; on mobile viewports
+     content-visibility can skip-paint or size the section incorrectly. */
+  content-visibility: visible;
 }
 
 .legal__inner {

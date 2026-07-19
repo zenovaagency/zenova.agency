@@ -95,7 +95,11 @@ export function SeoCatchAllPage() {
 
   const bodyHtml = useMemo(() => {
     if (!page) return '';
-    return DOMPurify.sanitize(page.content_html);
+    // Strip inline styles so legacy saved content cannot hardcode colors that
+    // clash with the active theme. Safe structural tags are preserved.
+    return DOMPurify.sanitize(page.content_html, {
+      FORBID_ATTR: ['style'],
+    });
   }, [page]);
 
   if (!slug || notFound || error) return <NotFoundPage />;
@@ -106,10 +110,10 @@ export function SeoCatchAllPage() {
       <section className="legal">
         <div className="container legal__inner">
           <header className="legal__head">
-            <h1 className="legal__title display reveal reveal-blur">{page.title}</h1>
+            <h1 className="legal__title display">{page.title}</h1>
           </header>
           <article
-            className="legal-prose reveal reveal-d2"
+            className="legal-prose"
             dangerouslySetInnerHTML={{ __html: bodyHtml }}
           />
         </div>
