@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ClipboardEvent, type ReactNode } from 'react';
+import DOMPurify from 'dompurify';
 import './RichTextEditor.css';
 
 interface RichTextEditorProps {
@@ -73,10 +74,8 @@ function markdownToHtml(raw: string): string {
   return out;
 }
 
-const MARKDOWN_LINK_RE = /\[[^\]]+\]\([^)\s]+\)|\([^)]+\)\[[^\]\s]+\]/;
-
 /**
- * A dependency-free WYSIWYG editor built on `contentEditable` +
+ * A WYSIWYG editor built on `contentEditable` +
  * `document.execCommand`. It is a controlled component that emits HTML through
  * `onChange`. The DOM is only re-synced from `value` when they actually differ
  * (e.g. an external reset or tab switch), so typing never loses the caret.
@@ -105,9 +104,10 @@ export function RichTextEditor({
   const emit = () => {
     const el = ref.current;
     if (!el) return;
-    // The browser's createLink command injects inline font styles onto anchors;
-    // strip them so links inherit the page's prose styling when rendered.
-    el.querySelectorAll('a[style]').forEach((a) => a.removeAttribute('style'));
+    // execCommand and external paste can leave inline styles (color, font,
+    // background) that break theme switching. Strip them so the saved HTML
+    // always inherits the site's CSS variables.
+    el.querySelectorAll('[style]').forEach((node) => node.removeAttribute('style'));
     onChange(el.innerHTML);
   };
 
@@ -150,11 +150,53 @@ export function RichTextEditor({
     emit();
   };
 
+  /** Sanitize pasted HTML: keep safe semantic tags but remove inline styles
+   *  (especially color/background) so the pasted text follows the site theme. */
+  const sanitizePastedHtml = (html: string): string => {
+    return DOMPurify.sanitize(html, {
+      FORBID_ATTR: ['style', 'class', 'id'],
+      ALLOWED_TAGS: [
+        'p',
+        'br',
+        'h2',
+        'h3',
+        'h4',
+        'strong',
+        'b',
+        'em',
+        'i',
+        'u',
+        's',
+        'strike',
+        'del',
+        'a',
+        'ul',
+        'ol',
+        'li',
+        'blockquote',
+        'pre',
+        'code',
+        'hr',
+      ],
+    });
+  };
+
   const handlePaste = (e: ClipboardEvent<HTMLDivElement>) => {
-    const text = e.clipboardData?.getData('text/plain') ?? '';
-    if (!text || !MARKDOWN_LINK_RE.test(text)) return; // let normal paste run
+    const clipboard = e.clipboardData;
+    if (!clipboard) return;
+
+    const html = clipboard.getData('text/html');
+    const text = clipboard.getData('text/plain');
+
     e.preventDefault();
-    document.execCommand('insertHTML', false, markdownToHtml(text));
+
+    if (html) {
+      // Rich paste: strip styles/classes but keep formatting.
+      document.execCommand('insertHTML', false, sanitizePastedHtml(html));
+    } else if (text) {
+      // Plain paste: convert markdown links and line breaks, then insert.
+      document.execCommand('insertHTML', false, markdownToHtml(text));
+    }
     emit();
   };
 
