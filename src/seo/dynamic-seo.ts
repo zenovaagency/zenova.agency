@@ -22,7 +22,6 @@ export interface DynamicSeoEntry {
     publishedTime?: string;
     modifiedTime?: string;
     author?: string;
-    tags?: string[];
   };
   /** Additional JSON-LD objects appended after jsonLdObjects(meta). */
   extraJsonLd?: Array<Record<string, unknown>>;

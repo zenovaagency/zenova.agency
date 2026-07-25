@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchBlogList, type PublicBlogListItem } from '@/lib/publicContentApi';
 import { SkeletonListBody } from '@/components/ui/Skeleton';
 import { scrollToTop } from '@/lib/scroll';
@@ -32,15 +32,6 @@ function BlogCard({ post, index }: { post: PublicBlogListItem; index: number }) 
         )}
       </div>
       <div className="blg-card__body">
-        {post.tags.length > 0 && (
-          <div className="blg-card__tags mono">
-            {post.tags.slice(0, 3).map((t) => (
-              <span key={t} className="blg-chip">
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
         <h2 className="blg-card__title">{post.title}</h2>
         {post.excerpt && <p className="blg-card__excerpt">{post.excerpt}</p>}
         <div className="blg-card__meta mono">
@@ -76,15 +67,6 @@ function FeaturedCard({ post }: { post: PublicBlogListItem }) {
           <span className="blg-feat__tick" />
           Latest
         </div>
-        {post.tags.length > 0 && (
-          <div className="blg-card__tags mono">
-            {post.tags.slice(0, 3).map((t) => (
-              <span key={t} className="blg-chip">
-                {t}
-              </span>
-            ))}
-          </div>
-        )}
         <h2 className="blg-feat__title">{post.title}</h2>
         {post.excerpt && <p className="blg-feat__excerpt">{post.excerpt}</p>}
         <div className="blg-card__meta mono">
@@ -101,25 +83,18 @@ function FeaturedCard({ post }: { post: PublicBlogListItem }) {
 }
 
 export function BlogPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const tag = searchParams.get('tag') ?? '';
-
-  // Results are keyed by the request that produced them (tag + retry
-  // counter): when the key changes, the derived `items` falls back to null
-  // (skeleton) without resetting state inside the fetch effect.
   const [result, setResult] = useState<{
-    key: string;
-    items: PublicBlogListItem[];
+    key: number;
+    items: PublicBlogListItem[] | null;
     total: number;
-  } | null>(null);
-  const [failure, setFailure] = useState<{ key: string; message: string } | null>(null);
+    failure: string | null;
+  }>({ key: 0, items: null, total: 0, failure: null });
   const [loadingMore, setLoadingMore] = useState(false);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const requestKey = `${reloadKey}:${tag}`;
-  const items = result?.key === requestKey ? result.items : null;
-  const total = result?.key === requestKey ? result.total : 0;
-  const error = failure?.key === requestKey ? failure.message : null;
+  const items = result.key === reloadKey ? result.items : null;
+  const total = result.key === reloadKey ? result.total : 0;
+  const failure = result.key === reloadKey ? result.failure : null;
 
   useEffect(() => {
     scrollToTop();
@@ -127,31 +102,35 @@ export function BlogPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetchBlogList({ limit: PAGE_SIZE, offset: 0, tag: tag || undefined })
+    fetchBlogList({ limit: PAGE_SIZE, offset: 0 })
       .then((res) => {
-        if (!cancelled) setResult({ key: requestKey, items: res.items, total: res.total });
+        if (!cancelled) {
+          setResult({ key: reloadKey, items: res.items, total: res.total, failure: null });
+        }
       })
       .catch((err) => {
         if (!cancelled) {
-          setFailure({
-            key: requestKey,
-            message: err instanceof Error ? err.message : 'Failed to load posts.',
+          setResult({
+            key: reloadKey,
+            items: null,
+            total: 0,
+            failure: err instanceof Error ? err.message : 'Failed to load posts.',
           });
         }
       });
     return () => {
       cancelled = true;
     };
-  }, [requestKey, tag]);
+  }, [reloadKey]);
 
   const loadMore = async () => {
     if (!items || loadingMore) return;
     setLoadingMore(true);
     try {
-      const res = await fetchBlogList({ limit: PAGE_SIZE, offset: items.length, tag: tag || undefined });
+      const res = await fetchBlogList({ limit: PAGE_SIZE, offset: items.length });
       setResult((prev) =>
-        prev && prev.key === requestKey
-          ? { key: prev.key, items: [...prev.items, ...res.items], total: res.total }
+        prev && prev.key === reloadKey
+          ? { key: prev.key, items: [...prev.items!, ...res.items], total: res.total, failure: null }
           : prev,
       );
     } catch {
@@ -159,16 +138,6 @@ export function BlogPage() {
     } finally {
       setLoadingMore(false);
     }
-  };
-
-  const tags = useMemo(
-    () => Array.from(new Set((items ?? []).flatMap((p) => p.tags))).slice(0, 10),
-    [items],
-  );
-
-  const setTag = (next: string) => {
-    if (next) setSearchParams({ tag: next }, { replace: false });
-    else setSearchParams({}, { replace: false });
   };
 
   return (
@@ -193,63 +162,25 @@ export function BlogPage() {
 
       <section className="blg-list">
         <div className="container">
-          {(tags.length > 0 || tag || (items !== null && items.length > 0)) && (
-            <div className="blg-toolbar reveal">
-              <div className="blg-filters mono" role="group" aria-label="Filter posts by tag">
-                {(tags.length > 0 || tag) && (
-                  <>
-                    <button
-                      className={`blg-chip blg-chip--btn${tag === '' ? ' is-active' : ''}`}
-                      onClick={() => setTag('')}
-                    >
-                      All
-                    </button>
-                    {(tag && !tags.includes(tag) ? [tag, ...tags] : tags).map((t) => (
-                      <button
-                        key={t}
-                        className={`blg-chip blg-chip--btn${tag === t ? ' is-active' : ''}`}
-                        onClick={() => setTag(t === tag ? '' : t)}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </>
-                )}
-              </div>
-              {items !== null && items.length > 0 && (
-                <span className="blg-count mono">
-                  {total} {total === 1 ? 'post' : 'posts'}
-                </span>
-              )}
-            </div>
-          )}
-
-          {error ? (
+          {failure ? (
             <div className="blg-state">
-              <p>{error}</p>
+              <p>{failure}</p>
               <button className="blg-more" onClick={() => setReloadKey((k) => k + 1)}>
                 Try again
               </button>
             </div>
           ) : items === null ? (
-            <SkeletonListBody feature={!tag} count={6} min={300} />
+            <SkeletonListBody feature count={6} min={300} />
           ) : items.length === 0 ? (
             <div className="blg-state">
-              <p>{tag ? `No posts tagged “${tag}” yet.` : 'No posts yet — check back soon.'}</p>
-              {tag && (
-                <button className="blg-more" onClick={() => setTag('')}>
-                  Show all posts
-                </button>
-              )}
+              <p>No posts yet — check back soon.</p>
             </div>
           ) : (
             <>
-              {/* The newest post gets a full-width feature slot when the list
-                  is unfiltered; tag views stay a plain grid. */}
-              {!tag && <FeaturedCard post={items[0]} />}
-              {(!tag ? items.slice(1) : items).length > 0 && (
+              <FeaturedCard post={items[0]} />
+              {items.slice(1).length > 0 && (
                 <div className="blg-grid">
-                  {(!tag ? items.slice(1) : items).map((post, i) => (
+                  {items.slice(1).map((post, i) => (
                     <BlogCard key={post.slug} post={post} index={i} />
                   ))}
                 </div>

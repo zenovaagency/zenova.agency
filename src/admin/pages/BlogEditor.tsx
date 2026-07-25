@@ -10,7 +10,6 @@ import {
   TextArea,
   TextField,
   Toast,
-  TokenField,
 } from '@/admin/components/Form';
 import { ImageField } from '@/admin/components/ImageField';
 import { RichTextEditor } from '@/admin/components/RichTextEditor';
@@ -34,7 +33,6 @@ function emptyPost(): BlogPostInput {
     content_html: '',
     cover_image_url: null,
     author_name: null,
-    tags: [],
     status: 'draft',
     published_at: null,
     meta_title: null,
@@ -268,19 +266,12 @@ function BlogEditorForm({ slug }: { slug: string }) {
               clearable
             />
           </div>
-          <div className="adm-row adm-row--2">
+          <div className="adm-row">
             <TextField
               label="Author"
               value={draft.author_name ?? ''}
               onChange={(v) => update('author_name', v || null)}
               placeholder="Zenova Team"
-            />
-            <TokenField
-              label="Tags"
-              values={draft.tags}
-              onChange={(v) => update('tags', v)}
-              placeholder="design, engineering…"
-              hint="Used for the tag filter on /blog."
             />
           </div>
         </div>

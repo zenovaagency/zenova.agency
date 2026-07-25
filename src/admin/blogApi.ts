@@ -18,7 +18,6 @@ export interface BlogPost {
   content_html: string;
   cover_image_url: string | null;
   author_name: string | null;
-  tags: string[];
   status: BlogStatus;
   published_at: string | null;
   meta_title: string | null;

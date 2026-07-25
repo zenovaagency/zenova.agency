@@ -37,58 +37,11 @@
   line-height: 1.65;
 }
 
-/* ── Filters ── */
+/* ── List ── */
 
 .blg-list {
   padding: 48px 0 96px;
 }
-.blg-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 36px;
-}
-.blg-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.blg-count {
-  flex: none;
-  color: var(--fg-faint);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.blg-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  color: var(--fg-faint);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
-}
-.blg-chip--btn {
-  cursor: pointer;
-  background: none;
-  transition: color 0.2s, border-color 0.2s;
-}
-.blg-chip--btn:hover {
-  color: var(--fg);
-  border-color: var(--fg-faint);
-}
-.blg-chip--btn.is-active {
-  color: var(--accent-1);
-  border-color: var(--accent-1);
-}
-
-/* ── Card grid ── */
 
 .blg-grid {
   display: grid;
@@ -143,11 +96,6 @@
   gap: 12px;
   padding: 20px 22px 22px;
   flex: 1;
-}
-.blg-card__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
 }
 .blg-card__title {
   margin: 0;

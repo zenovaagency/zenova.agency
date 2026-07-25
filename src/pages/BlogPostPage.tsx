@@ -103,7 +103,7 @@ export function BlogPostPage() {
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
 
-  const [related, setRelated] = useState<{ items: PublicBlogListItem[]; byTag: boolean } | null>(null);
+  const [related, setRelated] = useState<PublicBlogListItem[] | null>(null);
   const [_progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -160,7 +160,6 @@ export function BlogPostPage() {
         publishedTime: post.published_at ?? undefined,
         modifiedTime: post.updated_at,
         author: post.author_name ?? undefined,
-        tags: post.tags,
       },
       extraJsonLd: [
         {
@@ -171,7 +170,6 @@ export function BlogPostPage() {
           ...(image ? { image } : {}),
           ...(post.published_at ? { datePublished: post.published_at } : {}),
           dateModified: post.updated_at,
-          ...(post.tags.length ? { keywords: post.tags.join(', ') } : {}),
           author: post.author_name
             ? { '@type': 'Person', name: post.author_name }
             : { '@id': `${SITE.url}/#organization` },
@@ -186,38 +184,24 @@ export function BlogPostPage() {
 
   const bodyHtml = useMemo(() => (post ? prepareBody(post.content_html) : ''), [post]);
 
-  // Related posts: prefer posts sharing the first tag, top up with the latest
-  // posts; failures just hide the section. fetchBlogList is cached, so this
-  // piggybacks on the listing page's requests when possible.
+  // Related posts: top up with the latest posts; failures just hide the section.
+  // fetchBlogList is cached, so this piggybacks on the listing page's requests when possible.
   useEffect(() => {
     if (!post) return;
     let cancelled = false;
     const load = async () => {
-      let picks: PublicBlogListItem[] = [];
-      let byTag = false;
-      const tag = post.tags[0];
-      if (tag) {
-        try {
-          const res = await fetchBlogList({ tag, limit: 4 });
-          picks = res.items.filter((p) => p.slug !== post.slug).slice(0, 3);
-          byTag = picks.length > 0;
-        } catch {
-          // Fall through to the latest-posts top-up.
+      const picks: PublicBlogListItem[] = [];
+      try {
+        const res = await fetchBlogList({ limit: 6 });
+        for (const p of res.items) {
+          if (picks.length >= 3) break;
+          if (p.slug === post.slug || picks.some((x) => x.slug === p.slug)) continue;
+          picks.push(p);
         }
+      } catch {
+        // Hide the section if the list cannot be loaded.
       }
-      if (picks.length < 3) {
-        try {
-          const res = await fetchBlogList({ limit: 6 });
-          for (const p of res.items) {
-            if (picks.length >= 3) break;
-            if (p.slug === post.slug || picks.some((x) => x.slug === p.slug)) continue;
-            picks.push(p);
-          }
-        } catch {
-          // Show whatever the tag query produced (possibly nothing).
-        }
-      }
-      if (!cancelled) setRelated({ items: picks, byTag });
+      if (!cancelled) setRelated(picks);
     };
     void load();
     return () => {
@@ -313,15 +297,6 @@ export function BlogPostPage() {
         </nav>
 
         <header className="bpp-head">
-          {post.tags.length > 0 && (
-            <div className="bpp-tags mono reveal">
-              {post.tags.map((t) => (
-                <Link key={t} to={`/blog?tag=${encodeURIComponent(t)}`} className="bpp-chip">
-                  {t}
-                </Link>
-              ))}
-            </div>
-          )}
           <h1 className="bpp-title display reveal reveal-blur">{post.title}</h1>
           <div className="bpp-meta mono reveal reveal-d1">
             {post.author_name && <span>{post.author_name}</span>}
@@ -374,13 +349,11 @@ export function BlogPostPage() {
           </div>
 
           <aside className="bpp-side reveal reveal-d2">
-            {related && related.items.length > 0 && (
+            {related && related.length > 0 && (
               <section className="bpp-side__block bpp-rel" aria-label="Related posts">
-                <h2 className="bpp-side__label mono">
-                  {related.byTag ? 'Related posts' : 'More from the blog'}
-                </h2>
+                <h2 className="bpp-side__label mono">More from the blog</h2>
                 <div className="bpp-rel__list">
-                  {related.items.map((p) => (
+                  {related.map((p) => (
                     <RelatedCard key={p.slug} post={p} />
                   ))}
                 </div>

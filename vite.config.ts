@@ -33,7 +33,7 @@ interface ApiSeoPageListItem {
  * deploy refreshes the static snapshots.
  */
 async function fetchDynamicSeoRoutes(warn: (msg: string) => void): Promise<SeoMeta[]> {
-  const apiBase = process.env.VITE_API_URL ?? 'https://api.zenova.agency//api/v1';
+  const apiBase = process.env.VITE_API_URL ?? 'https://api.zenova.agency/api/v1';
   // Render free-tier cold starts can take ~30s — budget generously.
   const getJson = async <T,>(route: string): Promise<T> => {
     const res = await fetch(`${apiBase}${route}`, { signal: AbortSignal.timeout(45_000) });

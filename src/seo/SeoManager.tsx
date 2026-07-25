@@ -42,7 +42,7 @@ export function SeoManager() {
     setMeta('name', 'twitter:description', meta.description);
     setMeta('name', 'twitter:image', ogImage);
 
-    // `article:*` tags only exist on article routes — clear stale ones first.
+    // `article:*` meta only exists on article routes — clear stale ones first.
     document.head
       .querySelectorAll('meta[property^="article:"]')
       .forEach((n) => n.remove());
@@ -51,7 +51,6 @@ export function SeoManager() {
       if (a.publishedTime) addMeta('property', 'article:published_time', a.publishedTime);
       if (a.modifiedTime) addMeta('property', 'article:modified_time', a.modifiedTime);
       if (a.author) addMeta('property', 'article:author', a.author);
-      for (const tag of a.tags ?? []) addMeta('property', 'article:tag', tag);
     }
 
     // Replace any prior route's JSON-LD with this route's graph.
@@ -78,7 +77,7 @@ function setMeta(attr: 'name' | 'property', key: string, content: string) {
   el.setAttribute('content', content);
 }
 
-/** Append without deduplicating — for repeatable tags like `article:tag`. */
+/** Append a new meta element without deduplicating. */
 function addMeta(attr: 'name' | 'property', key: string, content: string) {
   const el = document.createElement('meta');
   el.setAttribute(attr, key);

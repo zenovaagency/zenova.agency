@@ -15,7 +15,6 @@ export interface PublicBlogListItem {
   excerpt: string;
   cover_image_url: string | null;
   author_name: string | null;
-  tags: string[];
   published_at: string | null;
 }
 
@@ -60,11 +59,10 @@ function cached<T>(cache: Map<string, Promise<T>>, key: string, load: () => Prom
   return promise;
 }
 
-export function fetchBlogList(opts: { limit?: number; offset?: number; tag?: string } = {}): Promise<PublicBlogList> {
+export function fetchBlogList(opts: { limit?: number; offset?: number } = {}): Promise<PublicBlogList> {
   const params = new URLSearchParams();
   if (opts.limit !== undefined) params.set('limit', String(opts.limit));
   if (opts.offset !== undefined) params.set('offset', String(opts.offset));
-  if (opts.tag) params.set('tag', opts.tag);
   const qs = params.toString();
   const path = `/public/blog${qs ? `?${qs}` : ''}`;
   return cached(listCache, path, () => api<PublicBlogList>(path));
