@@ -36,7 +36,7 @@
       { "q": "What about SEO when moving from an old site?", "a": "We keep your search rankings safe with proper redirects and a careful migration plan." },
       { "q": "Is design included?", "a": "Yes. Design and development are one package — no separate vendors." }
     ],
-    "related": ["marketing", "startup", "content"]
+    "related": ["marketing", "app", "ai"]
   },
   {
     "slug": "marketing",
@@ -76,7 +76,7 @@
       { "q": "Do you make the ad creative?", "a": "Yes — copy, images, and short videos are all included." },
       { "q": "How do you measure success?", "a": "We agree on the metrics upfront and report against them every month." }
     ],
-    "related": ["content", "web", "ops"]
+    "related": ["web", "startup", "ai"]
   },
   {
     "slug": "startup",
@@ -116,86 +116,84 @@
       { "q": "What if we already have a developer?", "a": "Even better. We focus on design and growth and work alongside them." },
       { "q": "How fast can we launch?", "a": "Most MVPs launch in 6 to 8 weeks. Faster is possible for simpler products." }
     ],
-    "related": ["web", "marketing", "content"]
+    "related": ["web", "app", "marketing"]
   },
   {
-    "slug": "ops",
-    "icon": "Layers",
-    "tag": "Operate",
-    "title": "Operations",
-    "short": "Smarter tools and processes so your team can do more with less.",
-    "lede": "Smarter tools and processes so your team can do more with less.",
-    "hero": "We help small teams work like big ones — with better tools, clear processes, and weekly routines.",
-    "bullets": ["Tool audits", "CRM setup", "Team playbooks", "Weekly reports"],
-    "stat": ["38%", "Time saved per month"],
-    "hue": "#ffa870",
-    "visual": "kanban",
-    "meta": [["38%", "Time saved"], ["1 mo", "Quick wins"], ["$0", "Wasted licenses"], ["1", "Source of truth"]],
+    "slug": "app",
+    "icon": "AppDev",
+    "tag": "Build",
+    "title": "App Development",
+    "short": "Native and cross-platform apps that your users will love.",
+    "lede": "Native and cross-platform apps that your users will love.",
+    "hero": "We design and build mobile apps that are fast, reliable, and delightful to use.",
+    "bullets": ["iOS & Android", "Cross-platform", "App store launch", "Ongoing support"],
+    "stat": ["4.8★", "Avg app rating"],
+    "hue": "#ea580c",
+    "visual": "browser",
+    "meta": [["4.8★", "Avg rating"], ["8 – 14 wks", "Build time"], ["2", "Platforms"], ["30 d", "Free support"]],
     "deliverables": [
-      { "title": "Tool audit", "blurb": "We review what you use and cut what you don't need." },
-      { "title": "CRM setup", "blurb": "A clean sales pipeline that your team actually uses." },
-      { "title": "Playbooks", "blurb": "Simple docs for how things get done. No more tribal knowledge." },
-      { "title": "Hiring help", "blurb": "Scorecards, interview structure, and onboarding flows." },
-      { "title": "Reports", "blurb": "One weekly view. Founders, team, and board all aligned." }
+      { "title": "Working app", "blurb": "A fully functional app published on the App Store and Google Play." },
+      { "title": "Design system", "blurb": "Consistent UI components and design patterns across every screen." },
+      { "title": "Backend setup", "blurb": "APIs, databases, and auth — everything your app needs to run." },
+      { "title": "App store assets", "blurb": "Screenshots, descriptions, and icons optimized for conversion." }
     ],
     "phases": [
-      { "n": "01", "title": "Audit", "blurb": "We talk to your team and review your tools.", "out": "Priority list" },
-      { "n": "02", "title": "Cleanup", "blurb": "Cut waste, document what works, fix what doesn't.", "out": "Cleaner stack" },
-      { "n": "03", "title": "Routines", "blurb": "Install the weekly and monthly rhythms that keep things moving.", "out": "Working system" },
-      { "n": "04", "title": "Handoff", "blurb": "Train your team and step back to a strategic role.", "out": "Self-running ops" }
+      { "n": "01", "title": "Define", "blurb": "We map out user flows, features, and technical requirements.", "out": "Product spec" },
+      { "n": "02", "title": "Design", "blurb": "High-fidelity screens and interactive prototypes for every view.", "out": "Design file" },
+      { "n": "03", "title": "Build", "blurb": "Sprint-by-sprint development with test builds you can try.", "out": "Beta app" },
+      { "n": "04", "title": "Launch", "blurb": "Submit to stores, monitor feedback, and ship v1.0.", "out": "Live app" }
     ],
-    "stack": ["HubSpot", "Notion", "Linear", "Slack", "Zapier", "Stripe"],
+    "stack": ["React Native", "Flutter", "Swift", "Kotlin", "Firebase", "Supabase"],
     "packages": [
-      { "name": "Audit", "price": "$4k", "cadence": "3 weeks", "fits": "Teams not sure where to start.", "includes": ["Team interviews", "Tool review", "Priority memo", "Roadmap"] },
-      { "name": "Full ops", "price": "$6k / mo", "cadence": "Min. 6 months", "fits": "Teams of 10–40 without a head of ops.", "includes": ["Embedded ops lead", "Tool setup", "Playbooks", "Hiring help"], "featured": true },
-      { "name": "Strategic", "price": "from $10k / mo", "cadence": "Flexible", "fits": "Larger teams that need senior support.", "includes": ["Senior operator", "Board reporting", "Vendor management", "Quarterly planning"] }
+      { "name": "MVP", "price": "from $20k", "cadence": "8 weeks", "fits": "Startups testing a product idea with real users.", "includes": ["Core features", "1 platform", "Basic design", "30-day support"] },
+      { "name": "Full app", "price": "from $45k", "cadence": "12 weeks", "fits": "Businesses launching on both platforms.", "includes": ["All features", "iOS + Android", "Full design", "90-day support"], "featured": true },
+      { "name": "Ongoing team", "price": "from $15k / mo", "cadence": "Rolling", "fits": "Product teams needing continuous development.", "includes": ["Dedicated dev team", "Bi-weekly releases", "Monitoring", "Strategy"] }
     ],
     "faqs": [
-      { "q": "Are you a fractional COO firm?", "a": "Close. We pair an operator with a tools expert so plans actually ship." },
-      { "q": "Will you help us cut tool costs?", "a": "Yes. Most clients see lower SaaS bills within the first two months." },
-      { "q": "What's the minimum engagement?", "a": "Six months. Most clients keep us on after that, but as needed." },
-      { "q": "Do you help with hiring?", "a": "We set up the process and sit in on early interviews. We don't recruit for you." }
+      { "q": "Do you build for both iOS and Android?", "a": "Yes. We use cross-platform frameworks that give native performance on both." },
+      { "q": "Can you work with our existing codebase?", "a": "Absolutely. We'll audit your code first and plan the work accordingly." },
+      { "q": "Do you handle app store submission?", "a": "Yes — we manage the entire submission process for both stores." },
+      { "q": "What about updates after launch?", "a": "We offer ongoing maintenance plans to keep your app current and bug-free." }
     ],
-    "related": ["marketing", "web", "content"]
+    "related": ["web", "ai", "startup"]
   },
   {
-    "slug": "content",
-    "icon": "Pen",
-    "tag": "Voice",
-    "title": "Content",
-    "short": "Blog posts, landing copy, and emails that sound human and rank well.",
-    "lede": "Blog posts, landing copy, and emails that sound human and rank well.",
-    "hero": "We write content people want to read — and search engines love.",
-    "bullets": ["Brand voice", "SEO articles", "Landing pages", "Newsletters"],
-    "stat": ["+212%", "Avg traffic in 6 months"],
-    "hue": "#ff9a5c",
+    "slug": "ai",
+    "icon": "Bot",
+    "tag": "Build",
+    "title": "AI Development",
+    "short": "Custom AI agents, chatbots, and automations wired into your business.",
+    "lede": "Custom AI agents, chatbots, and automations wired into your business.",
+    "hero": "We build AI that does real work — agents, chatbots, and automations trained on your data and connected to your tools.",
+    "bullets": ["AI chat agents", "Workflow automation", "Custom model training", "Tool integrations"],
+    "stat": ["73%", "Auto-resolve rate"],
+    "hue": "#c2410c",
     "visual": "editor",
-    "meta": [["+212%", "Traffic growth"], ["4 / wk", "Articles published"], ["100%", "Original work"], ["1", "Editor on your team"]],
+    "meta": [["73%", "Auto-resolve"], ["24/7", "Availability"], ["5 min", "Setup time"], ["3", "Languages"]],
     "deliverables": [
-      { "title": "Brand voice guide", "blurb": "A short doc that helps anyone write in your tone." },
-      { "title": "Content calendar", "blurb": "Six months of topics, ready to ship." },
-      { "title": "Articles", "blurb": "Long-form posts, written and edited by humans." },
-      { "title": "Landing copy", "blurb": "Headlines and pages that turn visitors into customers." },
-      { "title": "Newsletter", "blurb": "A regular email that builds your audience." }
+      { "title": "Working AI", "blurb": "A trained agent or chatbot deployed on your website or platform of choice." },
+      { "title": "Conversation flows", "blurb": "Designed dialogues for common scenarios and edge cases." },
+      { "title": "Integration", "blurb": "Connected to your CRM, knowledge base, or ticketing system." },
+      { "title": "Analytics", "blurb": "Track conversations, resolution rates, and customer satisfaction." }
     ],
     "phases": [
-      { "n": "01", "title": "Voice", "blurb": "We learn your style and build a writing guide.", "out": "Voice guide" },
-      { "n": "02", "title": "Plan", "blurb": "A six-month calendar with topics, briefs, and dates.", "out": "Content plan" },
-      { "n": "03", "title": "Publish", "blurb": "We write, edit, and publish on schedule.", "out": "Growing library" },
-      { "n": "04", "title": "Promote", "blurb": "We share your work everywhere your audience is.", "out": "Wider reach" }
+      { "n": "01", "title": "Design", "blurb": "We map out user intents, conversation flows, and personality.", "out": "Flow diagram" },
+      { "n": "02", "title": "Train", "blurb": "We feed your data and train the model on your domain.", "out": "Trained model" },
+      { "n": "03", "title": "Deploy", "blurb": "Integrate and launch on your website, Slack, or WhatsApp.", "out": "Live bot" },
+      { "n": "04", "title": "Optimize", "blurb": "Monitor conversations and improve responses over time.", "out": "Performance report" }
     ],
-    "stack": ["Notion", "WordPress", "Substack", "Ahrefs", "ConvertKit"],
+    "stack": ["OpenAI", "LangChain", "Python", "Zapier", "Make", "Slack API"],
     "packages": [
-      { "name": "Voice + pilot", "price": "$5k", "cadence": "4 weeks", "fits": "Teams without a clear content voice yet.", "includes": ["Voice guide", "Three articles", "Topic plan", "Brief template"] },
-      { "name": "Full program", "price": "from $4k / mo", "cadence": "Min. 6 months", "fits": "Teams ready to publish weekly.", "includes": ["Editor", "4 articles/mo", "SEO optimization", "Quarterly review"], "featured": true },
-      { "name": "Editor only", "price": "from $2k / mo", "cadence": "Flexible", "fits": "You have writers. You need an editor.", "includes": ["Weekly edits", "Voice coaching", "Brief reviews", "Quarterly retro"] }
+      { "name": "Quick bot", "price": "$6k", "cadence": "3 weeks", "fits": "Teams wanting to test AI support on a single channel.", "includes": ["Basic flows", "1 channel", "Training data prep", "2-week monitoring"] },
+      { "name": "Full assistant", "price": "from $15k", "cadence": "6 weeks", "fits": "Companies wanting a comprehensive AI support agent.", "includes": ["Custom training", "Multi-channel", "CRM integration", "Analytics", "1 month support"], "featured": true },
+      { "name": "Enterprise", "price": "Custom", "cadence": "Varies", "fits": "Large teams with complex workflows and compliance needs.", "includes": ["Custom LLM fine-tuning", "On-premise deploy", "Compliance review", "Dedicated support"] }
     ],
     "faqs": [
-      { "q": "Do you ghostwrite?", "a": "Yes. Under your byline or your team's. Every piece is reviewed by an editor." },
-      { "q": "How is this different from a content mill?", "a": "Small team, real editors, human writers. Quality over quantity." },
-      { "q": "Can you write technical content?", "a": "Yes. We have writers experienced with developer tools and B2B software." },
-      { "q": "Do you guarantee rankings?", "a": "No serious SEO firm does. We do forecast traffic ranges and hold to them." }
+      { "q": "Can it understand our specific industry?", "a": "Yes. We train the model on your docs, FAQs, and past conversations." },
+      { "q": "What channels does it work on?", "a": "Web chat, Slack, WhatsApp, Messenger, and custom API integrations." },
+      { "q": "How is this different from a FAQ bot?", "a": "It understands context, handles multi-turn conversations, and can take actions like creating tickets." },
+      { "q": "Do you offer human handoff?", "a": "Yes. When the AI can't resolve an issue, it seamlessly transfers to a human agent." }
     ],
-    "related": ["marketing", "web", "startup"]
+    "related": ["web", "app", "marketing"]
   }
 ]

@@ -110,19 +110,6 @@ export function ProjectDetailPage() {
           </div>
           <h1 className="pd-hero__client display reveal reveal-blur reveal-d1">{project.client}</h1>
           <p className="pd-hero__lede reveal reveal-d2">{project.hero}</p>
-
-          <div className="pd-hero__metrics reveal reveal-d3">
-            <div className="pd-hero__headline-metric">
-              <span className="pd-metric display">{project.metric[0]}</span>
-              <span className="pd-metric__label mono">{project.metric[1]}</span>
-            </div>
-            {project.metrics.map((m) => (
-              <div key={m.label} className="pd-hero__stat">
-                <span className="pd-hero__stat-num display">{m.num}</span>
-                <span className="pd-hero__stat-label mono">{m.label}</span>
-              </div>
-            ))}
-          </div>
         </div>
 
         <div className="container">
@@ -312,10 +299,6 @@ function PdNavCard({ project, dir }: { project: ProjectDetail; dir: 'prev' | 'ne
     >
       <span className="pd-nav__dir mono">{dir === 'prev' ? '← Previous' : 'Next →'}</span>
       <span className="pd-nav__client display">{project.client}</span>
-      <span className="pd-nav__meta">
-        <span className="pd-nav__metric display">{project.metric[0]}</span>
-        <span className="pd-nav__metric-label mono">{project.metric[1]}</span>
-      </span>
     </Link>
   );
 }

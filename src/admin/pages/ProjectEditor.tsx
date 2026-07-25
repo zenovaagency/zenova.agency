@@ -21,12 +21,11 @@ import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
 import type {
   ProjectDetail,
   ProjectImage,
-  ProjectMetric,
   ProjectSection,
 } from '@/data/projects';
 import { emptyProject } from './ProjectsAdmin';
 
-type Tab = 'basics' | 'images' | 'metrics' | 'sections' | 'meta' | 'testimonial';
+type Tab = 'basics' | 'images' | 'sections' | 'meta' | 'testimonial';
 
 export function ProjectEditor() {
   const { slug = '' } = useParams();
@@ -111,7 +110,6 @@ export function ProjectEditor() {
   const TABS: Array<{ id: Tab; label: string }> = [
     { id: 'basics', label: 'Basics' },
     { id: 'images', label: `Images (${draft.images?.length ?? 0})` },
-    { id: 'metrics', label: `Metrics (${draft.metrics.length})` },
     { id: 'sections', label: `Narrative (${draft.sections.length})` },
     { id: 'meta', label: 'Stack & deliverables' },
     { id: 'testimonial', label: 'Testimonial' },
@@ -189,22 +187,6 @@ export function ProjectEditor() {
             suggestions={serviceSuggestions}
             placeholder="Add a service…"
           />
-          <Field label="Headline metric (the big one on cards)">
-            <div className="adm-row adm-row--2">
-              <input
-                className="adm-input"
-                value={draft.metric[0]}
-                placeholder="+212%"
-                onChange={(e) => update('metric', [e.target.value, draft.metric[1]])}
-              />
-              <input
-                className="adm-input"
-                value={draft.metric[1]}
-                placeholder="Trial signups, Q over Q"
-                onChange={(e) => update('metric', [draft.metric[0], e.target.value])}
-              />
-            </div>
-          </Field>
           <Field label="Visual variant" hint="The animated SVG shown when no hero image is set.">
             <SegmentedControl
               value={draft.visualIdx}
@@ -224,10 +206,6 @@ export function ProjectEditor() {
           images={draft.images ?? []}
           onChange={(v) => update('images', v)}
         />
-      )}
-
-      {tab === 'metrics' && (
-        <MetricsEditor metrics={draft.metrics} onChange={(v) => update('metrics', v)} />
       )}
 
       {tab === 'sections' && (
@@ -401,48 +379,6 @@ function ImagesEditor({
         style={{ alignSelf: 'flex-start' }}
       >
         + Add image
-      </button>
-    </div>
-  );
-}
-
-function MetricsEditor({
-  metrics,
-  onChange,
-}: {
-  metrics: ProjectMetric[];
-  onChange: (next: ProjectMetric[]) => void;
-}) {
-  const update = (i: number, patch: Partial<ProjectMetric>) => {
-    const next = [...metrics];
-    next[i] = { ...next[i], ...patch };
-    onChange(next);
-  };
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {metrics.map((m, i) => (
-        <div key={i} className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="adm-label">Metric {i + 1}</div>
-            <button
-              className="adm-btn adm-btn--sm adm-btn--danger"
-              onClick={() => onChange(metrics.filter((_, idx) => idx !== i))}
-            >
-              Remove
-            </button>
-          </div>
-          <div className="adm-row adm-row--2">
-            <TextField label="Number" value={m.num} onChange={(v) => update(i, { num: v })} />
-            <TextField label="Label" value={m.label} onChange={(v) => update(i, { label: v })} />
-          </div>
-        </div>
-      ))}
-      <button
-        className="adm-btn"
-        onClick={() => onChange([...metrics, { num: '', label: '' }])}
-        style={{ alignSelf: 'flex-start' }}
-      >
-        + Add metric
       </button>
     </div>
   );

@@ -62,7 +62,7 @@
   margin-bottom: 26px;
 }
 
-/* ── Card grid ── mirrors .blg-grid / .car-grid / .abt-team__grid / .pcx-grid,
+/* ── Card grid ── mirrors .blg-grid / .car-grid / .pcx-grid,
    whose minmax() floors differ per page and arrive via --skel-min */
 .skel-grid {
   display: grid;

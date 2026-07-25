@@ -329,7 +329,7 @@ export function ColorField({
   const id = useFieldId();
   // The native color picker only ever emits valid hex; the text box lets the
   // user type freely, so flag anything the backend `HexColor` would reject.
-  const invalid = value.length > 0 && !isValidHex(value);
+  const invalid = (value ?? '').length > 0 && !isValidHex(value);
   return (
     <Field label={label} hint={hint}>
       <div style={{ display: 'flex', gap: 10 }}>

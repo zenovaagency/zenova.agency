@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="%BASE_URL%assets/favicon/favicon-16x16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="%BASE_URL%assets/favicon/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="96x96" href="%BASE_URL%assets/favicon/favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="%BASE_URL%assets/favicon/favicon-192x192.png" />
     <link rel="apple-touch-icon" sizes="57x57" href="%BASE_URL%assets/favicon/apple-icon-57x57.png" />
     <link rel="apple-touch-icon" sizes="60x60" href="%BASE_URL%assets/favicon/apple-icon-60x60.png" />
     <link rel="apple-touch-icon" sizes="72x72" href="%BASE_URL%assets/favicon/apple-icon-72x72.png" />
@@ -42,10 +43,10 @@
     <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
     <link rel="preconnect" href="https://zenova-api.onrender.com" crossorigin />
     <link rel="preconnect" href="https://ui-avatars.com" crossorigin />
-    <link rel="preload" href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@300,400,500,700&display=swap" as="style" />
+    <link rel="preload" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" as="style" />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" as="style" />
     <link
-      href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@300,400,500,700&display=swap"
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap"
       rel="stylesheet"
       media="print"
       onload="this.media='all'"
@@ -57,7 +58,7 @@
       onload="this.media='all'"
     />
     <noscript>
-      <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet" />
+      <link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet" />
       <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     </noscript>
 
@@ -80,9 +81,7 @@
       })(window.location);
     </script>
     <script>
-      document.documentElement.setAttribute('data-theme',
-        (function() { try { var t = localStorage.getItem('zenova-theme'); if (t === 'dark' || t === 'light') return t; } catch(e){} return 'dark'; })()
-      );
+      document.documentElement.setAttribute('data-theme', 'light');
     </script>
   </head>
   <body>

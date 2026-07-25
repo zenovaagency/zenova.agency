@@ -92,6 +92,15 @@ export interface AboutValue {
   hue: string;
 }
 
+export interface AboutFounder {
+  id: string;
+  quote: string;
+  name: string;
+  role: string;
+  avatar?: string;
+  tone: string;
+}
+
 export interface AboutRole {
   id: string;
   title: string;
@@ -107,6 +116,7 @@ export interface AboutMilestone {
 
 export interface AboutContent {
   values: AboutValue[];
+  founders: AboutFounder[];
   roles: AboutRole[];
   timeline: AboutMilestone[];
 }
@@ -207,6 +217,8 @@ export interface BrandSettings {
   careersEmail: string;
   phone: string;
   address: string;
+  /** Brand accent hex. Drives the site-wide accent ramp (and the logo) at runtime. */
+  accent: string;
   locations: Array<{ id: string; city: string; tz: string; detail: string }>;
   socials?: SocialLink[];
 }
@@ -303,8 +315,8 @@ export const DEFAULT_CONTENT: SiteContent = {
     badge: 'Available for new projects',
     headline: 'Building ambitious brands with',
     headlineAccent: 'thoughtful design',
-    rotatingWords: ['Web Development', 'Marketing', 'Startup Launch', 'Operations', 'Content'],
-    sub: 'Zenova unifies design, development, marketing, and startup support into one seamless partnership — guiding ambitious modern businesses from strategy to launch and beyond.',
+    rotatingWords: ['Web Development', 'App Development', 'Marketing', 'Startup Support', 'AI'],
+    sub: 'Design, development, and growth — one team, from strategy to launch.',
     primaryCta: 'Get Started',
     primaryCtaHref: '/contact',
     secondaryCta: 'See our work',
@@ -323,12 +335,7 @@ export const DEFAULT_CONTENT: SiteContent = {
       { id: 'b4', name: 'Brand 4', image: 'https://images.shadcnspace.com/assets/brand-logo/logoipsum-4.svg' },
       { id: 'b5', name: 'Brand 5', image: 'https://images.shadcnspace.com/assets/brand-logo/logoipsum-5.svg' },
     ],
-    stats: [
-      { id: 's1', num: '20+', label: 'Projects shipped' },
-      { id: 's2', num: '8', label: 'Active clients' },
-      { id: 's3', num: '4.9', label: 'Client rating' },
-      { id: 's4', num: '2026', label: 'Since' },
-    ],
+    stats: [],
   },
   cta: {
     eyebrow: 'Open for new projects',
@@ -425,6 +432,24 @@ export const DEFAULT_CONTENT: SiteContent = {
       { id: 'v2', icon: 'Spark', title: 'Build, then talk', blurb: 'We ship working things, not decks about working things.', hue: '#e06820' },
       { id: 'v3', icon: 'Compass', title: 'Outcomes over output', blurb: 'Every project ends with one number we agreed to move. We share it either way.', hue: '#ff9a5c' },
     ],
+    founders: [
+      {
+        id: 'f1',
+        quote:
+          'We kept meeting founders who had three vendors and no one accountable for the result. That gap is the whole reason Zenova exists.',
+        name: 'Mira Aldana',
+        role: 'Co-founder, Design',
+        tone: '#ff813a',
+      },
+      {
+        id: 'f2',
+        quote:
+          'Everything we ship has to survive contact with real users. If it only looks good in a deck, we have not finished the job.',
+        name: 'Tobias Reinhardt',
+        role: 'Co-founder, Engineering',
+        tone: '#e06820',
+      },
+    ],
     roles: [
       { id: 'r1', title: 'Senior product designer', location: 'Remote', href: '' },
       { id: 'r2', title: 'Senior engineer', location: 'Remote', href: '' },
@@ -497,6 +522,7 @@ const DEFAULT_BRAND: BrandSettings = {
   careersEmail: 'careers@zenova.agency',
   phone: '+1 (555) 123-4567',
   address: '123 Atlantic Ave, Brooklyn, NY 11201',
+  accent: '#ff813a',
   locations: [
     { id: 'l1', city: 'Brooklyn, NY', tz: 'EST', detail: 'Headquarters' },
     { id: 'l2', city: 'Berlin', tz: 'CET', detail: 'European hub' },

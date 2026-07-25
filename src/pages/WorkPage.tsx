@@ -64,10 +64,6 @@ function WorkRow({
         </div>
         <h3 className="wrk-row__title display">{p.title}</h3>
         <p className="wrk-row__summary">{p.summary}</p>
-        <div className="wrk-row__foot">
-          <span className="wrk-metric wrk-metric--sm display">{p.metric[0]}</span>
-          <span className="wrk-metric__label mono">{p.metric[1]}</span>
-        </div>
       </div>
     </Link>
   );
@@ -132,8 +128,6 @@ export function WorkPage() {
                 <h2 className="wrk-featured__title display">{featured.title}</h2>
                 <p className="wrk-featured__summary">{featured.summary}</p>
                 <div className="wrk-featured__foot">
-                  <span className="wrk-metric display">{featured.metric[0]}</span>
-                  <span className="wrk-metric__label mono">{featured.metric[1]}</span>
                   <span className="wrk-featured__arrow">
                     <Icon.ArrowUpRight size={20} />
                   </span>

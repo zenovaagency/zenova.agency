@@ -21,19 +21,11 @@ const TRUST: Array<{ icon: keyof typeof Icon; title: string; body: string }> = [
 const PRICING_FAQ: Array<{ q: string; a: string }> = [
   {
     q: 'What does the price actually include?',
-    a: 'Everything needed to ship the scope we agree on — strategy, design, build, and launch. If it is in the scope, it is in the price. No line-item surprises.',
-  },
-  {
-    q: 'Why one-time pricing instead of monthly retainers?',
-    a: 'We scope, price, and ship each engagement as a project. You own the outcome and are never locked into an open-ended monthly bill.',
+    a: 'Everything needed to ship the scope we agree on — strategy, design, build, and launch. If it is in the scope, it is in the price.',
   },
   {
     q: 'What if my project does not fit a listed tier?',
     a: 'Most do not fit exactly — the rate cards are honest starting points. Book a scoping call and we will shape a fixed quote around your actual needs.',
-  },
-  {
-    q: 'Can the price change mid-project?',
-    a: 'Only if the scope does. The number we agree on after scoping is fixed; any new request gets its own small, clearly-quoted add-on.',
   },
   {
     q: 'How do payments work?',
@@ -226,8 +218,8 @@ export function PricingPage() {
             before we start.
           </h2>
           <p className="pcx-note__sub">
-            These prices are honest starting points. After one scoping call you get a fixed quote and
-            a real timeline — and that number doesn&rsquo;t move unless the scope does.
+            The rate cards are honest starting points. One scoping call turns them into a fixed quote
+            and a real timeline.
           </p>
           <div className="pcx-note__actions">
             <NeonButton text="Book a scoping call" to="/contact" />

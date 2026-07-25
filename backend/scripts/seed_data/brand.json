@@ -5,6 +5,7 @@
   "careersEmail": "careers@zenova.agency",
   "phone": "+1 (555) 123-4567",
   "address": "123 Atlantic Ave, Brooklyn, NY 11201",
+  "accent": "#ff813a",
   "locations": [
     { "id": "l1", "city": "Brooklyn, NY", "tz": "EST", "detail": "Headquarters" },
     { "id": "l2", "city": "Berlin", "tz": "CET", "detail": "European hub" },

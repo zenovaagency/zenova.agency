@@ -322,7 +322,7 @@
 }
 
 .inv-preview-doc__company-name {
-  font-family: 'Clash Display', system-ui, sans-serif;
+  font-family: 'Satoshi', system-ui, sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: #12121a;
@@ -336,7 +336,7 @@
 }
 
 .inv-preview-doc__invoice-title {
-  font-family: 'Clash Display', system-ui, sans-serif;
+  font-family: 'Satoshi', system-ui, sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #ff813a;

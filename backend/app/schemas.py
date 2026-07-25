@@ -79,11 +79,6 @@ class ServiceDetail(_Base):
 # Projects
 # ---------------------------------------------------------------------------
 
-class ProjectMetric(_Base):
-    num: str
-    label: str
-
-
 class ProjectSection(_Base):
     title: str
     body: list[str] = Field(default_factory=list)
@@ -113,8 +108,6 @@ class ProjectDetail(_Base):
     team: str
     services: list[str] = Field(default_factory=list)
     hero: str
-    metric: tuple[str, str]
-    metrics: list[ProjectMetric] = Field(default_factory=list)
     sections: list[ProjectSection] = Field(default_factory=list)
     deliverables: list[str] = Field(default_factory=list)
     stack: list[str] = Field(default_factory=list)
@@ -299,6 +292,15 @@ class AboutValue(_Base):
     hue: HexColor
 
 
+class AboutFounder(_Base):
+    id: str
+    quote: str
+    name: str
+    role: str
+    avatar: str | None = None
+    tone: HexColor
+
+
 class AboutRole(_Base):
     id: str
     title: str
@@ -314,6 +316,7 @@ class AboutMilestone(_Base):
 
 class AboutContent(_Base):
     values: list[AboutValue] = Field(default_factory=list)
+    founders: list[AboutFounder] = Field(default_factory=list)
     roles: list[AboutRole] = Field(default_factory=list)
     timeline: list[AboutMilestone] = Field(default_factory=list)
 
@@ -374,6 +377,10 @@ class BrandSettings(_Base):
     careersEmail: EmailStr
     phone: str = ""
     address: str = ""
+    # Brand accent, applied site-wide at runtime (the logo + UI derive a ramp
+    # from it). Default preserves the original Ember orange; the default also
+    # back-fills pre-existing JSONB rows that predate this field.
+    accent: HexColor = "#ff813a"
     locations: list[BrandLocation] = Field(default_factory=list)
     socials: list[SocialLink] = Field(default_factory=list)
 
@@ -491,6 +498,7 @@ class BrandSettingsPatch(_Base):
     careersEmail: EmailStr | None = None
     phone: str | None = None
     address: str | None = None
+    accent: HexColor | None = None
     locations: list[BrandLocation] | None = None
     socials: list[SocialLink] | None = None
 
@@ -557,8 +565,6 @@ class ProjectPatch(_Base):
     team: str | None = None
     services: list[str] | None = None
     hero: str | None = None
-    metric: tuple[str, str] | None = None
-    metrics: list[ProjectMetric] | None = None
     sections: list[ProjectSection] | None = None
     deliverables: list[str] | None = None
     stack: list[str] | None = None

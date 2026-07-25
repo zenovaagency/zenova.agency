@@ -98,10 +98,12 @@ export function ServiceDetailPage() {
             )}
           </div>
 
-          <div className="sd-rail__stat">
-            <span className="sd-rail__stat-num display">{service.stat[0]}</span>
-            <span className="sd-rail__stat-label mono">{service.stat[1]}</span>
-          </div>
+          {(service.short || service.hero) && (
+            <div className="sd-rail__note">
+              <div className="sd-label mono">Overview</div>
+              <p>{service.short || service.hero}</p>
+            </div>
+          )}
 
           <ul className="sd-rail__bullets">
             {service.bullets.map((b) => (

@@ -5,12 +5,12 @@
     "headlineAccent": "thoughtful design",
     "rotatingWords": [
       "Web Development",
+      "App Development",
       "Marketing",
-      "Startup Launch",
-      "Operations",
-      "Content"
+      "Startup Support",
+      "AI"
     ],
-    "sub": "Zenova unifies design, development, marketing, and startup support into one seamless partnership — guiding ambitious modern businesses from strategy to launch and beyond.",
+    "sub": "Design, development, and growth — one team, from strategy to launch.",
     "primaryCta": "Get Started",
     "primaryCtaHref": "/contact",
     "secondaryCta": "See our work",
@@ -29,12 +29,7 @@
       { "id": "b4", "name": "Brand 4", "image": "https://images.shadcnspace.com/assets/brand-logo/logoipsum-4.svg" },
       { "id": "b5", "name": "Brand 5", "image": "https://images.shadcnspace.com/assets/brand-logo/logoipsum-5.svg" }
     ],
-    "stats": [
-      { "id": "s1", "num": "20+", "label": "Projects shipped" },
-      { "id": "s2", "num": "8", "label": "Active clients" },
-      { "id": "s3", "num": "4.9", "label": "Client rating" },
-      { "id": "s4", "num": "2026", "label": "Since" }
-    ]
+    "stats": []
   },
   "cta": {
     "eyebrow": "Open for new projects",
@@ -130,6 +125,10 @@
       { "id": "v1", "icon": "Layers", "title": "One team, start to finish", "blurb": "The people you meet on day one are the same people on day ninety. No handoffs.", "hue": "#ff813a" },
       { "id": "v2", "icon": "Spark", "title": "Build, then talk", "blurb": "We ship working things, not decks about working things.", "hue": "#e06820" },
       { "id": "v3", "icon": "Compass", "title": "Outcomes over output", "blurb": "Every project ends with one number we agreed to move. We share it either way.", "hue": "#ff9a5c" }
+    ],
+    "founders": [
+      { "id": "f1", "quote": "We kept meeting founders who had three vendors and no one accountable for the result. That gap is the whole reason Zenova exists.", "name": "Mira Aldana", "role": "Co-founder, Design", "tone": "#ff813a" },
+      { "id": "f2", "quote": "Everything we ship has to survive contact with real users. If it only looks good in a deck, we have not finished the job.", "name": "Tobias Reinhardt", "role": "Co-founder, Engineering", "tone": "#e06820" }
     ],
     "roles": [
       { "id": "r1", "title": "Senior product designer", "location": "Remote", "href": "" },

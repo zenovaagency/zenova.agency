@@ -17,7 +17,7 @@
 }
 
 .ghost-button:focus-visible {
-  outline: 3px solid #ff813a;
+  outline: 3px solid var(--accent-1);
   outline-offset: 3px;
 }
 

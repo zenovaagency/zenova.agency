@@ -1,8 +1,3 @@
-export interface ProjectMetric {
-  num: string;
-  label: string;
-}
-
 export interface ProjectSection {
   title: string;
   body: string[];
@@ -32,8 +27,6 @@ export interface ProjectDetail {
   team: string;
   services: string[];
   hero: string;
-  metric: [string, string];
-  metrics: ProjectMetric[];
   sections: ProjectSection[];
   deliverables: string[];
   stack: string[];
@@ -56,12 +49,6 @@ export const PROJECTS: ProjectDetail[] = [
     team: '5 people',
     services: ['Web Development', 'Marketing', 'Content'],
     hero: 'Northwind had a great product but an outdated website. We refreshed the brand and built a site that matches their pace.',
-    metric: ['+212%', 'More signups'],
-    metrics: [
-      { num: '+212%', label: 'More signups' },
-      { num: '0.9s', label: 'New load time' },
-      { num: '+340%', label: 'Organic traffic' },
-    ],
     sections: [
       {
         title: 'The problem',
@@ -99,12 +86,6 @@ export const PROJECTS: ProjectDetail[] = [
     team: '6 people',
     services: ['Web Development', 'Operations'],
     hero: 'Patients were using three different tools to book, fill forms, and view records. We combined them into one simple portal.',
-    metric: ['38 min', 'Saved per visit'],
-    metrics: [
-      { num: '38 min', label: 'Saved per visit' },
-      { num: '92%', label: 'Patients self-onboard' },
-      { num: '+24', label: 'NPS improvement' },
-    ],
     sections: [
       {
         title: 'The problem',
@@ -142,12 +123,6 @@ export const PROJECTS: ProjectDetail[] = [
     team: '4 people',
     services: ['Startup Support', 'Web Development', 'Marketing'],
     hero: 'Two founders, 12 weeks of runway, and an idea. We helped them build, launch, and raise.',
-    metric: ['$4.2M', 'Seed raised'],
-    metrics: [
-      { num: '$4.2M', label: 'Seed raised' },
-      { num: '11 days', label: 'To first product' },
-      { num: '14', label: 'Paid pilots' },
-    ],
     sections: [
       {
         title: 'The problem',
@@ -185,12 +160,6 @@ export const PROJECTS: ProjectDetail[] = [
     team: '3 people',
     services: ['Content', 'Marketing'],
     hero: 'Cobalt had three great writers but no system. We added an editor and a clear process.',
-    metric: ['4 / wk', 'Articles published'],
-    metrics: [
-      { num: '4 / wk', label: 'Articles published' },
-      { num: '+340%', label: 'Traffic growth' },
-      { num: '5×', label: 'Newsletter growth' },
-    ],
     sections: [
       {
         title: 'The problem',
@@ -228,12 +197,6 @@ export const PROJECTS: ProjectDetail[] = [
     team: '4 people',
     services: ['Marketing', 'Web Development'],
     hero: 'After their launch buzz faded, Mosaic needed a real growth plan. We built one that worked.',
-    metric: ['10k+', 'Users in 90 days'],
-    metrics: [
-      { num: '10k+', label: 'Users in 90 days' },
-      { num: '−42%', label: 'Lower cost per user' },
-      { num: '+14pp', label: 'Better retention' },
-    ],
     sections: [
       {
         title: 'The problem',
@@ -271,12 +234,6 @@ export const PROJECTS: ProjectDetail[] = [
     team: '4 people',
     services: ['Operations', 'Web Development'],
     hero: 'Verge’s billing system was held together by two engineers and a folder of recordings. We turned it into something the finance team owns.',
-    metric: ['2 days', 'Saved per month'],
-    metrics: [
-      { num: '2 days', label: 'Saved per month' },
-      { num: '0', label: 'Invoices dropped' },
-      { num: '−61%', label: 'Faster month-end' },
-    ],
     sections: [
       {
         title: 'The problem',

@@ -11,12 +11,6 @@
     "team": "5 people",
     "services": ["Web Development", "Marketing", "Content"],
     "hero": "Northwind had a great product but an outdated website. We refreshed the brand and built a site that matches their pace.",
-    "metric": ["+212%", "More signups"],
-    "metrics": [
-      { "num": "+212%", "label": "More signups" },
-      { "num": "0.9s", "label": "New load time" },
-      { "num": "+340%", "label": "Organic traffic" }
-    ],
     "sections": [
       { "title": "The problem", "body": ["Northwind had shipped three big product updates but their site still talked about the old version. Signups were buried, the blog was empty, and the brand looked five years old."] },
       { "title": "What we did", "body": ["We refreshed the brand, rebuilt the site, and set up a content team to publish weekly. Everything launched in 14 weeks.", "By month three, organic traffic had doubled and signups were up over 200%."] }
@@ -39,12 +33,6 @@
     "team": "6 people",
     "services": ["Web Development", "Operations"],
     "hero": "Patients were using three different tools to book, fill forms, and view records. We combined them into one simple portal.",
-    "metric": ["38 min", "Saved per visit"],
-    "metrics": [
-      { "num": "38 min", "label": "Saved per visit" },
-      { "num": "92%", "label": "Patients self-onboard" },
-      { "num": "+24", "label": "NPS improvement" }
-    ],
     "sections": [
       { "title": "The problem", "body": ["Patients had to enter their information into three separate systems. Staff spent hours copying data between them."] },
       { "title": "What we did", "body": ["We built a single portal that handles booking, intake, and records in one place. The old tools became invisible to patients.", "After six months, staff saved 38 minutes per visit and patient satisfaction was up significantly."] }
@@ -67,12 +55,6 @@
     "team": "4 people",
     "services": ["Startup Support", "Web Development", "Marketing"],
     "hero": "Two founders, 12 weeks of runway, and an idea. We helped them build, launch, and raise.",
-    "metric": ["$4.2M", "Seed raised"],
-    "metrics": [
-      { "num": "$4.2M", "label": "Seed raised" },
-      { "num": "11 days", "label": "To first product" },
-      { "num": "14", "label": "Paid pilots" }
-    ],
     "sections": [
       { "title": "The problem", "body": ["Stellar had a deck and a thesis but no product. Investors wanted to see something real before writing checks."] },
       { "title": "What we did", "body": ["In week one we built a working MVP. By week three they had a polished site and pitch deck.", "They closed a $4.2M seed eight weeks after kickoff and had 14 paid pilots before launch."] }
@@ -95,12 +77,6 @@
     "team": "3 people",
     "services": ["Content", "Marketing"],
     "hero": "Cobalt had three great writers but no system. We added an editor and a clear process.",
-    "metric": ["4 / wk", "Articles published"],
-    "metrics": [
-      { "num": "4 / wk", "label": "Articles published" },
-      { "num": "+340%", "label": "Traffic growth" },
-      { "num": "5×", "label": "Newsletter growth" }
-    ],
     "sections": [
       { "title": "The problem", "body": ["Cobalt had talented writers but no system. Briefs were verbal, SEO was an afterthought, and publishing dates kept slipping."] },
       { "title": "What we did", "body": ["We set up an editorial calendar, brief templates, and a clear publishing rhythm. The writers kept their voice — we just gave them better support.", "A year later, traffic was up 3x and the newsletter had grown 5x with no paid spend."] }
@@ -123,12 +99,6 @@
     "team": "4 people",
     "services": ["Marketing", "Web Development"],
     "hero": "After their launch buzz faded, Mosaic needed a real growth plan. We built one that worked.",
-    "metric": ["10k+", "Users in 90 days"],
-    "metrics": [
-      { "num": "10k+", "label": "Users in 90 days" },
-      { "num": "−42%", "label": "Lower cost per user" },
-      { "num": "+14pp", "label": "Better retention" }
-    ],
     "sections": [
       { "title": "The problem", "body": ["After a strong launch, growth had stalled. The team had no clear plan for what to do next."] },
       { "title": "What we did", "body": ["We tested four different messages, killed what didn't work, and doubled down on what did. We also added email automation to keep users engaged.", "In 90 days they hit 10,000 users at 42% lower cost than before."] }
@@ -151,12 +121,6 @@
     "team": "4 people",
     "services": ["Operations", "Web Development"],
     "hero": "Verge's billing system was held together by two engineers and a folder of recordings. We turned it into something the finance team owns.",
-    "metric": ["2 days", "Saved per month"],
-    "metrics": [
-      { "num": "2 days", "label": "Saved per month" },
-      { "num": "0", "label": "Invoices dropped" },
-      { "num": "−61%", "label": "Faster month-end" }
-    ],
     "sections": [
       { "title": "The problem", "body": ["Closing the books took three days every month. Pricing changes took an engineering quarter."] },
       { "title": "What we did", "body": ["We rebuilt the billing system from scratch on Stripe. We ran it alongside the old system for six weeks before switching over.", "The first month-end after launch closed in a day and a half. New pricing now ships in a week."] }

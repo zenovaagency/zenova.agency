@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Logo } from './Logo';
+import { LogoBadge } from './Logo';
 import { Icon } from '@/components/icons/Icon';
 import { ParticleWordmark } from '@/components/ui/ParticleWordmark';
 import { DEFAULT_CONTENT, useBrand, useContent, useServices } from '@/admin/store';
@@ -61,7 +61,7 @@ export function Footer() {
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
         <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: `minmax(200px, 1fr) repeat(${footer.columns.length}, auto)`, gap: 140, justifyContent: 'end' }}>
           <div>
-            <Logo size={25} />
+            <LogoBadge size={52} word />
             <p style={{ color: 'var(--fg-dim)', fontSize: 14, lineHeight: 1.55, marginTop: 22, maxWidth: 320 }}>
               {footer.tagline}
             </p>

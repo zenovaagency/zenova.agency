@@ -1,66 +1,47 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon, type IconName, type IconComponent } from '@/components/icons/Icon';
-import { NeonButton } from '@/components/ui/NeonButton';
-import { GhostButton } from '@/components/ui/GhostButton';
-import { useTeam, useBrand, useContent } from '@/admin/store';
+import { useContent } from '@/admin/store';
+import { fetchBlogList, type PublicBlogListItem } from '@/lib/publicContentApi';
 import { scrollToTop } from '@/lib/scroll';
+import { formatDate } from '@/lib/date';
 import './AboutPage.css';
 
-const SOCIAL_ICON: Record<string, (s: number) => JSX.Element> = {
-  twitter: (s) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4l11.733 16h4L8 4H4z" /><path d="M4 20l6.768-6.768M20 4l-6.768 6.768" />
-    </svg>
-  ),
-  linkedin: (s) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="5" width="16" height="16" rx="2" /><path d="M6 9v8M6 6v.01M10 11v6M14 9v6" />
-    </svg>
-  ),
-  github: (s) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M15 22v-4a4.8 4.8 0 00-1-3.5c3 0 6-2 6-5.5a4.3 4.3 0 00-.4-2.9 3 3 0 000-2.4s-1-.3-3.3 1.3a11.4 11.4 0 00-6 0C8 3.7 7 4 7 4a3 3 0 000 2.4 4.3 4.3 0 00-.4 2.9c0 3.5 3 5.5 6 5.5a4.8 4.8 0 00-1 3.5v4" /><path d="M9 18c-3 .7-3-2-4-2" />
-    </svg>
-  ),
-  dribbble: (s) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" /><path d="M19.13 5.09C15.22 9.14 10 10.44 2.25 10.94" /><path d="M21.75 12.84c-6.62-1.41-12.14 1-16.38 6.32" /><path d="M8.56 2.75c4.37 6 6 9.42 8 17.72" />
-    </svg>
-  ),
-  instagram: (s) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="5" /><circle cx="17.5" cy="6.5" r=".75" />
-    </svg>
-  ),
-  facebook: (s) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
-    </svg>
-  ),
-  website: (s) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-    </svg>
-  ),
-  email: (s) => (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 4L12 13 2 4" />
-    </svg>
-  ),
-};
+/** Initials fallback for a founder with no avatar set. */
+function initialsOf(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? '')
+    .join('');
+}
 
 export function AboutPage() {
-  const [TEAM] = useTeam();
-  const [brand] = useBrand();
   const [content] = useContent();
-  const LOCATIONS = brand.locations ?? [];
   const VALUES = content.about?.values ?? [];
+  const FOUNDERS = content.about?.founders ?? [];
   const ROLES = content.about?.roles ?? [];
   const TIMELINE = content.about?.timeline ?? [];
+  const [posts, setPosts] = useState<PublicBlogListItem[]>([]);
 
   useEffect(() => {
     scrollToTop();
+  }, []);
+
+  // Latest writing, shown as the page's closing note. The blog is a separate
+  // API from the site bundle, so this fetches on its own and stays silent on
+  // failure — About should never surface a blog error.
+  useEffect(() => {
+    let alive = true;
+    fetchBlogList({ limit: 3 })
+      .then((r) => {
+        if (alive) setPosts(r.items);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const founded = TIMELINE[0]?.year ?? '2019';
@@ -76,8 +57,6 @@ export function AboutPage() {
           </h1>
           <div className="abt-statement__meta mono reveal reveal-d1">
             <span>Founded {founded}</span>
-            <span>{TEAM.length} people</span>
-            <span>{LOCATIONS.length} locations</span>
             <span>Design · Build · Growth</span>
           </div>
         </div>
@@ -109,12 +88,45 @@ export function AboutPage() {
         </div>
       </section>
 
+      {FOUNDERS.length > 0 && (
+        <section className="abt-founders">
+          <div className="container">
+            <div className="abt-kicker mono reveal">
+              <span className="abt-kicker__tick" />
+              The founders
+            </div>
+            <div className="abt-founders__grid reveal reveal-d1">
+              {FOUNDERS.map((f) => (
+                <figure
+                  key={f.id}
+                  className="abt-founder"
+                  style={{ '--tone': f.tone } as React.CSSProperties}
+                >
+                  <blockquote className="abt-founder__quote display">{f.quote}</blockquote>
+                  <figcaption className="abt-founder__by">
+                    {f.avatar ? (
+                      <img className="abt-founder__avatar" src={f.avatar} alt={f.name} loading="lazy" />
+                    ) : (
+                      <span className="abt-founder__initials display">{initialsOf(f.name)}</span>
+                    )}
+                    <span className="abt-founder__id">
+                      <span className="abt-founder__name">{f.name}</span>
+                      <span className="abt-founder__role mono">{f.role}</span>
+                    </span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {VALUES.length > 0 && (
         <section className="abt-values">
           <div className="container">
             <div className="abt-kicker mono reveal">
               <span className="abt-kicker__tick" />
-              What we believe
+              Why we're different
             </div>
             <div className="abt-values__list reveal reveal-d1">
               {VALUES.map((v, i) => {
@@ -137,75 +149,8 @@ export function AboutPage() {
         </section>
       )}
 
-      {TEAM.length > 0 && (
-        <section className="abt-team">
-          <div className="container">
-            <div className="abt-kicker mono reveal">
-              <span className="abt-kicker__tick" />
-              The team — {TEAM.length} people
-            </div>
-            <div className="abt-team__grid reveal reveal-d1">
-              {TEAM.map((m) => (
-                <div key={m.id} className="abt-member" style={{ '--tone': m.tone } as React.CSSProperties}>
-                  {m.avatar ? (
-                    <img className="abt-member__avatar" src={m.avatar} alt={m.name} loading="lazy" />
-                  ) : (
-                    <div className="abt-member__initials display">{m.initials}</div>
-                  )}
-                  <div className="abt-member__name display">{m.name}</div>
-                  <div className="abt-member__role">{m.role}</div>
-                  <p className="abt-member__bio">{m.bio}</p>
-                  {m.socials && m.socials.length > 0 && (
-                    <div className="abt-member__socials">
-                      {m.socials.map((s, si) => {
-                        const icon = SOCIAL_ICON[s.platform];
-                        if (!icon) return null;
-                        return (
-                          <a
-                            key={si}
-                            className="abt-member__social"
-                            href={s.platform === 'email' ? `mailto:${s.url}` : s.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            title={s.platform}
-                            aria-label={s.platform}
-                          >
-                            {icon(15)}
-                          </a>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {TIMELINE.length > 0 && (
-        <section className="abt-milestones">
-          <div className="container">
-            <div className="abt-kicker mono reveal">
-              <span className="abt-kicker__tick" />
-              Milestones
-            </div>
-          </div>
-          <div className="abt-milestones__scroller" data-lenis-prevent>
-            <div className="abt-milestones__track">
-              {TIMELINE.map((m) => (
-                <div key={m.id} className="abt-milestone">
-                  <span className="abt-milestone__year display">{m.year}</span>
-                  <span className="abt-milestone__what">{m.what}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       <section className="abt-careers">
-        <div className="container abt-careers__grid">
+        <div className="container">
           <div className="abt-careers__jobs reveal">
             <div className="abt-kicker mono">
               <span className="abt-kicker__tick" />
@@ -240,38 +185,45 @@ export function AboutPage() {
               View all openings <Icon.Arrow size={12} />
             </Link>
           </div>
+        </div>
+      </section>
 
-          <div className="abt-locations reveal reveal-d1">
-            <div className="abt-kicker mono">
+      {posts.length > 0 && (
+        <section className="abt-blog">
+          <div className="container">
+            <div className="abt-kicker mono reveal">
               <span className="abt-kicker__tick" />
-              Where we are
+              From the blog
             </div>
-            <div className="abt-locations__list">
-              {LOCATIONS.map((l) => (
-                <div key={l.id} className="abt-location">
-                  <span className="abt-location__city display">{l.city}</span>
-                  <span className="abt-location__detail">{l.detail}</span>
-                  <span className="abt-location__tz mono">{l.tz}</span>
-                </div>
-              ))}
+            <div className="abt-blog__grid reveal reveal-d1">
+              {posts.map((p) => {
+                const date = formatDate(p.published_at);
+                return (
+                  <Link key={p.slug} to={`/blog/${p.slug}`} className="abt-post">
+                    <div className="abt-post__media">
+                      {p.cover_image_url ? (
+                        <img src={p.cover_image_url} alt="" loading="lazy" />
+                      ) : (
+                        <span className="abt-post__placeholder" aria-hidden="true" />
+                      )}
+                    </div>
+                    <h3 className="abt-post__title display">{p.title}</h3>
+                    {p.excerpt && <p className="abt-post__excerpt">{p.excerpt}</p>}
+                    {date && (
+                      <time className="abt-post__date mono" dateTime={p.published_at ?? undefined}>
+                        {date}
+                      </time>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
+            <Link className="abt-blog__all mono" to="/blog">
+              View all posts <Icon.Arrow size={12} />
+            </Link>
           </div>
-        </div>
-      </section>
-
-      <section className="abt-cta">
-        <div className="container abt-cta__inner reveal">
-          <h2 className="abt-cta__title display">
-            Like how
-            <br />
-            we think?
-          </h2>
-          <div className="abt-cta__actions">
-            <NeonButton text="Get in touch" to="/contact" />
-            <GhostButton text="See our work" to="/work" />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 }

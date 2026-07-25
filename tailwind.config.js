@@ -15,7 +15,7 @@ export default {
         foreground: "var(--fg)",
         border: "var(--line)",
         primary: {
-          DEFAULT: "#ff813a",
+          DEFAULT: "var(--accent-1)",
           foreground: "#fff",
         },
         destructive: {
@@ -39,7 +39,7 @@ export default {
           foreground: "var(--fg)",
         },
         input: "var(--line)",
-        ring: "#ff813a",
+        ring: "var(--accent-1)",
       },
       borderColor: {
         DEFAULT: "var(--line)",

@@ -139,25 +139,19 @@
   height: 100%;
   object-fit: cover;
 }
-.sd-rail__stat {
+.sd-rail__note {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
   padding: 20px 22px;
   border: 1px dashed color-mix(in srgb, var(--hue, var(--accent-1)) 45%, transparent);
   border-radius: 14px;
 }
-.sd-rail__stat-num {
-  font-size: clamp(34px, 3vw, 44px);
-  font-weight: 500;
-  line-height: 1;
-  color: var(--hue, var(--accent-1));
-}
-.sd-rail__stat-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--fg-faint);
+.sd-rail__note p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--fg-dim);
 }
 .sd-rail__bullets {
   list-style: none;

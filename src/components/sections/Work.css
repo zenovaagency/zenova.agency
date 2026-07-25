@@ -15,13 +15,11 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, var(--tone), var(--line) 55%, transparent);
   transform-origin: left center;
 }
 
 .ember-row[data-dir='rtl'] .ember-row__rule {
   transform-origin: right center;
-  background: linear-gradient(270deg, var(--tone), var(--line) 55%, transparent);
 }
 
 /* clips the sweeping cover + ghost numeral bleed */
@@ -91,24 +89,6 @@
   color: var(--fg-dim);
   font-size: 15px;
   line-height: 1.65;
-}
-
-.ember-row__stat {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-}
-
-.ember-row__stat-num {
-  font-family: var(--font-display);
-  font-size: 30px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  color: var(--tone);
-}
-
-.ember-row__stat-label {
-  color: var(--fg-faint);
 }
 
 .ember-row__cta {
@@ -193,10 +173,7 @@
   bottom: 0;
   left: 0;
   width: 2px;
-  background: linear-gradient(180deg, transparent, var(--tone) 18%, var(--tone) 82%, transparent);
-  box-shadow:
-    0 0 16px 1px var(--tone),
-    0 0 48px 6px color-mix(in srgb, var(--tone) 45%, transparent);
+  background: var(--tone);
 }
 
 /* heat trail bleeding into the still-covered side */
@@ -207,7 +184,6 @@
   bottom: 0;
   left: 0;
   width: 110px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--tone) 20%, transparent), transparent);
 }
 
 .ember-row[data-dir='rtl'] .ember-row__cover::before {
@@ -218,7 +194,6 @@
 .ember-row[data-dir='rtl'] .ember-row__cover::after {
   left: auto;
   right: 0;
-  background: linear-gradient(270deg, color-mix(in srgb, var(--tone) 20%, transparent), transparent);
 }
 
 /* ── footer button, closes the ledger ── */

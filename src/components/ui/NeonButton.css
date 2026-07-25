@@ -8,7 +8,7 @@
   align-items: center;
   appearance: none;
   background: none;
-  border: 1px solid rgba(255, 129, 58, 0.2);
+  border: 1px solid color-mix(in srgb, var(--accent-1) 20%, transparent);
   padding: 0;
   outline: none;
   cursor: pointer;
@@ -20,7 +20,7 @@
 }
 
 .neon-button:focus-visible {
-  outline: 3px solid #ff813a;
+  outline: 3px solid var(--accent-1);
   outline-offset: 3px;
 }
 

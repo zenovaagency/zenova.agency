@@ -5,8 +5,8 @@
   --fg: #f0ede8;
   --fg-dim: rgba(240, 237, 232, 0.58);
   --fg-faint: rgba(240, 237, 232, 0.50);
-  --line: rgba(255, 129, 58, 0.1);
-  --line-strong: rgba(255, 129, 58, 0.2);
+  --line: color-mix(in srgb, var(--accent-1) 10%, transparent);
+  --line-strong: color-mix(in srgb, var(--accent-1) 20%, transparent);
   --card: #141414;
   --card-hover: #1c1c1c;
   --nav-bg: rgba(10, 10, 10, 0.55);
@@ -19,12 +19,14 @@
   --accent-3: #ff9a5c;
   --grad: linear-gradient(90deg, #ff813a, #ff6b1a 50%, #ff9a5c);
   --grad-soft: linear-gradient(135deg, rgba(255, 129, 58, 0.18), rgba(255, 154, 92, 0.18));
-  --font-display: 'Clash Display', system-ui, sans-serif;
+  --font-display: 'Satoshi', system-ui, sans-serif;
   --font-body: 'Satoshi', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --font-accent: 'Instrument Serif', Georgia, serif;
   --scroll-thumb: rgba(255, 255, 255, 0.08);
   --scroll-thumb-hover: rgba(255, 255, 255, 0.16);
+  /* Navbar mark: light mark in dark mode. */
+  --logo-mark: #ffffff;
 }
 :root[data-theme='light'] {
   --bg: #faf8f5;
@@ -48,6 +50,8 @@
   --grad-ink: linear-gradient(90deg, #dd5c0c 0%, #c44a08 50%, #ef6f18 100%);
   --scroll-thumb: rgba(26, 20, 16, 0.15);
   --scroll-thumb-hover: rgba(26, 20, 16, 0.28);
+  /* Navbar mark: dark mark in light mode. */
+  --logo-mark: #0a0a0a;
 }
 
 * {
@@ -82,7 +86,7 @@ button {
   cursor: pointer;
 }
 ::selection {
-  background: rgba(255, 129, 58, 0.4);
+  background: color-mix(in srgb, var(--accent-1) 40%, transparent);
   color: white;
 }
 
@@ -153,15 +157,15 @@ button {
   background:
     radial-gradient(
       circle at 50% 0%,
-      rgba(255,129,58,.16) 0%,
-      rgba(255,129,58,.08) 30%,
+      color-mix(in srgb, var(--accent-1) 16%, transparent) 0%,
+      color-mix(in srgb, var(--accent-1) 8%, transparent) 30%,
       transparent 70%
     );
 }
 :root[data-theme='light'] .hero-ambient {
   background:
-    radial-gradient(60% 55% at 50% 0%, rgba(255, 129, 58, 0.09), transparent 70%),
-    radial-gradient(42% 42% at 82% 16%, rgba(255, 122, 48, 0.07), transparent 72%);
+    radial-gradient(60% 55% at 50% 0%, color-mix(in srgb, var(--accent-1) 9%, transparent), transparent 70%),
+    radial-gradient(42% 42% at 82% 16%, color-mix(in srgb, var(--accent-1) 7%, transparent), transparent 72%);
 }
 @keyframes hero-glow {
   from {
@@ -477,6 +481,7 @@ section.sec {
 .zlogo-mark {
   height: 1.0em;
   width: auto;
+  aspect-ratio: 899 / 921;
   display: block;
   margin-right: 0.06em;
   transform: translateY(-0.04em);
@@ -491,6 +496,43 @@ section.sec {
   display: inline-block;
   height: 1em;
   width: auto;
+  aspect-ratio: 899 / 921;
+}
+/* Footer lockup — the navbar badge mark plus the "enova" wordmark. The badge
+   viewBox carries ~26% empty margin either side of the glyph, so the tile is
+   pulled in on both sides to keep the lockup flush left and the word tight
+   against the Z. */
+.zlogo--badge .logo-badge {
+  margin-left: -0.39em;
+  margin-right: -0.31em;
+}
+
+/* Navbar badge logo — rounded tile + mark, both theme-driven. Pops in on mount. */
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  animation: logo-badge-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.logo-badge svg {
+  display: block;
+}
+@keyframes logo-badge-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5) rotate(-90deg);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-badge {
+    animation: none;
+  }
 }
 
 /* Kinetic logo entrance (opt-in via .zlogo--animate): the Z pops in with a
@@ -1188,9 +1230,9 @@ section.sec {
 }
 
 .nav-link:hover {
-  color: #ff813a !important;
-  background: radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255,129,58,0.15), transparent);
-  text-shadow: 0 0 18px rgba(255,129,58,0.35);
+  color: var(--accent-1) !important;
+  background: radial-gradient(ellipse 80% 60% at 50% 40%, color-mix(in srgb, var(--accent-1) 15%, transparent), transparent);
+  text-shadow: 0 0 18px color-mix(in srgb, var(--accent-1) 35%, transparent);
 }
 :root[data-theme='light'] .nav-link:hover {
   color: #000 !important;
@@ -1198,69 +1240,33 @@ section.sec {
   text-shadow: 0 0 18px rgba(0,0,0,0.35);
 }
 
-.nav-lamp {
-  animation: nav-lamp-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+/* Active nav link — filled accent-tinted pill behind the label, with a soft
+   glow. Sits below the label (which carries its own zIndex: 1). */
+.nav-pill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
   pointer-events: none;
+  background: color-mix(in srgb, var(--accent-1) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent-1) 30%, transparent);
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--accent-1) 22%, transparent),
+    inset 0 0 12px color-mix(in srgb, var(--accent-1) 10%, transparent);
+  animation: nav-pill-in 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
-@keyframes nav-lamp-in {
-  from { opacity: 0; transform: scale(0.96); }
+@keyframes nav-pill-in {
+  from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
 }
-.nav-lamp__core {
-  position: absolute;
-  top: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 32px;
-  height: 4px;
-  background-color: #ff813a;
-  border-top-left-radius: 999px;
-  border-top-right-radius: 999px;
-  box-shadow: 0 0 12px rgba(255, 129, 58, 0.8);
+:root[data-theme='light'] .nav-pill {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.08);
 }
-:root[data-theme='light'] .nav-lamp__core {
-  background-color: #000;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
-}
-.nav-lamp__halo {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48px;
-  height: 24px;
-  background-color: rgba(255, 129, 58, 0.3);
-  border-radius: 999px;
-  filter: blur(8px);
-}
-:root[data-theme='light'] .nav-lamp__halo {
-  background-color: rgba(0, 0, 0, 0.15);
-}
-.nav-lamp__beam {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 72px;
-  height: 100%;
-  background: linear-gradient(to bottom, rgba(255, 129, 58, 0.2), rgba(255, 129, 58, 0.05), transparent);
-  filter: blur(8px);
-}
-:root[data-theme='light'] .nav-lamp__beam {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.03), transparent);
-}
-.nav-lamp__glow {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 32px;
-  height: 100%;
-  background: linear-gradient(to bottom, rgba(255, 129, 58, 0.4), rgba(255, 129, 58, 0.1), transparent);
-  filter: blur(4px);
-}
-:root[data-theme='light'] .nav-lamp__glow {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.06), transparent);
+@media (prefers-reduced-motion: reduce) {
+  .nav-pill {
+    animation: none;
+  }
 }
 
 .hamburger-bars {
@@ -1815,8 +1821,8 @@ section.sec {
 .auth-input:focus {
   outline: none;
   border-color: var(--accent-2);
-  background: rgba(255,129,58,0.05);
-  box-shadow: 0 0 0 3px rgba(255,129,58,0.08);
+  background: color-mix(in srgb, var(--accent-1) 5%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-1) 8%, transparent);
 }
 
 .auth-input::placeholder {

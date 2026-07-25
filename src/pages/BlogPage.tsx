@@ -3,16 +3,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { fetchBlogList, type PublicBlogListItem } from '@/lib/publicContentApi';
 import { SkeletonListBody } from '@/components/ui/Skeleton';
 import { scrollToTop } from '@/lib/scroll';
+import { formatDate } from '@/lib/date';
 import './BlogPage.css';
 
 const PAGE_SIZE = 12;
-
-function formatDate(iso: string | null): string {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-}
 
 function BlogCard({ post, index }: { post: PublicBlogListItem; index: number }) {
   const date = formatDate(post.published_at);

@@ -11,7 +11,6 @@ interface HeroProps {
 export function Hero({ rotateMs }: HeroProps) {
   const [content] = useContent();
   const SERVICES = content.hero.rotatingWords;
-  const STATS = content.hero.stats;
   return (
     <section
       id="top"
@@ -117,43 +116,6 @@ export function Hero({ rotateMs }: HeroProps) {
           />
         </div>
 
-        <div
-          className="hero-stats"
-          style={{
-            marginTop: 80,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 24,
-            maxWidth: 820,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            padding: '24px 0',
-            borderTop: '1px solid var(--line)',
-            borderBottom: '1px solid var(--line)',
-            animation: 'fade-up 1.5s cubic-bezier(.2,.7,.2,1) both 1.1s',
-          }}
-        >
-          {STATS.map((stat) => (
-            <div key={stat.id} style={{ textAlign: 'center' }}>
-              <div className="display" style={{ fontSize: 'clamp(20px,2.2vw,28px)', fontWeight: 500 }}>
-                {stat.num}
-              </div>
-              <div className="mono" style={{ color: 'var(--fg-faint)', marginTop: 6 }}>
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div
-          style={{
-            marginTop: 48,
-            display: 'flex',
-            justifyContent: 'center',
-            animation: 'fade-up 1.5s cubic-bezier(.2,.7,.2,1) both 1.2s',
-          }}
-        >
-        </div>
       </div>
 
       <div

@@ -1,6 +1,7 @@
 """One-off cleanup: strip removed fields from existing project rows.
 
-The ``category`` and ``tags`` fields were dropped from the project schema. Since
+The ``category``, ``tags``, ``metric`` and ``metrics`` fields were dropped from
+the project schema. Since
 projects are stored as JSONB and validated on read with
 ``ProjectDetail.model_validate(row.data)`` — and the schema base sets
 ``extra="forbid"`` — any existing row that still carries those keys would raise a
@@ -21,7 +22,7 @@ from sqlalchemy import select
 from app.db import session_scope
 from app.models import Project
 
-STALE_KEYS = ("category", "tags")
+STALE_KEYS = ("category", "tags", "metric", "metrics")
 
 
 async def strip_fields() -> None:

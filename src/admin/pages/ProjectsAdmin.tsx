@@ -78,8 +78,6 @@ export function emptyProject(): ProjectDetail {
     team: '',
     services: [],
     hero: '',
-    metric: ['', ''],
-    metrics: [],
     sections: [],
     deliverables: [],
     stack: [],
@@ -151,12 +149,11 @@ export function ProjectsAdmin() {
       <div className="adm-list">
         <div
           className="adm-list__row adm-list__row--head"
-          style={{ gridTemplateColumns: '40px 1.4fr 0.5fr 0.7fr 1fr 220px' }}
+          style={{ gridTemplateColumns: '40px 1.4fr 0.5fr 1fr 220px' }}
         >
           <div></div>
           <div>Client / title</div>
           <div>Year</div>
-          <div>Metric</div>
           <div>Live URL</div>
           <div style={{ textAlign: 'right' }}>Actions</div>
         </div>
@@ -164,7 +161,7 @@ export function ProjectsAdmin() {
           <div
             key={p.slug}
             className="adm-list__row"
-            style={{ gridTemplateColumns: '40px 1.4fr 0.5fr 0.7fr 1fr 220px' }}
+            style={{ gridTemplateColumns: '40px 1.4fr 0.5fr 1fr 220px' }}
           >
             <div className="adm-list__cell adm-list__cell--lead">
               <span
@@ -178,20 +175,6 @@ export function ProjectsAdmin() {
             </div>
             <div className="adm-list__cell" data-label="Year" style={{ color: 'var(--fg-dim)', fontSize: 13 }}>
               {p.year}
-            </div>
-            <div className="adm-list__cell" data-label="Metric">
-              <span
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: 15,
-                  background: `linear-gradient(90deg, ${p.tone}, var(--accent-3))`,
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  color: 'transparent',
-                }}
-              >
-                {p.metric[0]}
-              </span>
             </div>
             <div className="adm-list__cell" data-label="Live URL">
               <LiveUrlCell url={p.liveUrl ?? ''} slug={p.slug} />

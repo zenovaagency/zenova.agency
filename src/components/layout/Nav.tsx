@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Logo } from './Logo';
+import { LogoBadge } from './Logo';
 import { Icon } from '@/components/icons/Icon';
-import type { Theme } from '@/types/tweaks';
-import { applyTheme, getInitialTheme, subscribeTheme, toggleTheme } from '@/lib/theme';
 
 const NAV_LINKS = [
   { label: 'Services', to: '/services' },
@@ -13,23 +11,16 @@ const NAV_LINKS = [
   { label: 'About', to: '/about' },
 ];
 
-const THEME_LABELS: Record<Theme, string> = {
-  dark: 'Dark',
-  light: 'Light',
-};
-
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const location = useLocation();
 
+  // The public site is light-only. Force it (without persisting) so returning
+  // from a portal — which may have flipped to dark — always renders light.
   useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
-
-  // Sync when a portal or another tab flips the theme.
-  useEffect(() => subscribeTheme(setTheme), []);
+    document.documentElement.setAttribute('data-theme', 'light');
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -53,10 +44,6 @@ export function Nav() {
     };
   }, [menuOpen]);
 
-  const cycleTheme = () => {
-    setTheme((prev) => toggleTheme(prev));
-  };
-
   return (
     <nav
       style={{
@@ -79,8 +66,8 @@ export function Nav() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          height: 60,
-          padding: '0 10px 0 18px',
+          height: 68,
+          padding: '0 10px 0 14px',
           borderRadius: 999,
           background: scrolled ? 'var(--nav-bg-strong)' : 'var(--nav-bg)',
           backdropFilter: 'blur(20px) saturate(140%)',
@@ -91,7 +78,7 @@ export function Nav() {
         }}
       >
         <Link to="/" style={{ display: 'inline-flex' }} onClick={() => setMenuOpen(false)}>
-          <Logo size={25} animate />
+          <LogoBadge size={46} />
         </Link>
         <div className="nav-links" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           {NAV_LINKS.map((l) => {
@@ -107,69 +94,18 @@ export function Nav() {
                   borderRadius: 999,
                   fontSize: 14,
                   fontWeight: 500,
-                  color: active ? (theme === 'light' ? '#000' : '#ff813a') : 'var(--fg-dim)',
+                  color: active ? 'var(--fg)' : 'var(--fg-dim)',
                   transition: 'color .2s',
                   textDecoration: 'none',
                 }}
               >
                 <span style={{ position: 'relative', zIndex: 1 }}>{l.label}</span>
-                {active && (
-                  <div
-                    className="nav-lamp"
-                    data-theme={theme}
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      zIndex: 0,
-                      borderRadius: 999,
-                    }}
-                  >
-                    <div className="nav-lamp__glow" />
-                    <div className="nav-lamp__halo" />
-                    <div className="nav-lamp__beam" />
-                    <div className="nav-lamp__core" />
-                  </div>
-                )}
+                {active && <span className="nav-pill" aria-hidden="true" />}
               </Link>
             );
           })}
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          {/* Theme toggle */}
-          <button
-            onClick={cycleTheme}
-            aria-label={`Theme: ${THEME_LABELS[theme]}`}
-            title={`Theme: ${THEME_LABELS[theme]}`}
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 999,
-              border: '1px solid var(--line)',
-              background: 'transparent',
-              color: 'var(--fg-dim)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              fontSize: 14,
-              transition: 'color 0.2s, background 0.2s',
-              padding: 0,
-              marginRight: 2,
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--accent-1)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--fg-dim)'; }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {theme === 'dark' ? (
-                <><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></>
-              ) : (
-                <><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></>
-              )}
-            </svg>
-          </button>
-
           <div className="nav-desktop-only" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <Link
               to="/contact"
@@ -255,7 +191,7 @@ export function Nav() {
                 flex: 1,
                 height: 46,
                 borderRadius: 14,
-                background: 'rgba(255,255,255,0.04)',
+                background: 'var(--card)',
                 color: 'var(--fg)',
                 fontWeight: 600,
                 fontSize: 14,
@@ -263,7 +199,7 @@ export function Nav() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 textDecoration: 'none',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid var(--line)',
               }}
             >
               Get in touch

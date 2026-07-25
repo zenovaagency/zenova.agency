@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
@@ -7,9 +7,8 @@ import { TWEAK_DEFAULTS } from '@/config/tweaks';
 import { useSmoothScroll } from '@/hooks/useSmoothScroll';
 import { useReveal } from '@/hooks/useReveal';
 import { useTweaks } from '@/hooks/useTweaks';
-import { applyPalette } from '@/lib/palette';
-import { applyTheme, getInitialTheme } from '@/lib/theme';
-import type { Theme } from '@/types/tweaks';
+import { applyPalette, deriveRamp } from '@/lib/palette';
+import { useBrand } from '@/admin/store';
 import { ConfirmProvider } from '@/admin/components/ConfirmProvider';
 import { SeoManager } from '@/seo/SeoManager';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
@@ -51,27 +50,26 @@ const TeamRoutesLazy = lazy(() => import('@/team/TeamRoutes'));
 
 export function App() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  const [brand] = useBrand();
 
+  // The site-wide accent comes from admin brand settings. On first paint `brand`
+  // is the cached/default value (Ember orange); once hydrateSite() resolves, the
+  // stored accent applies. The dev ZenovaTweaks panel keeps its own applyPalette
+  // effect as an override, so this is the single production driver.
   useEffect(() => {
-    applyPalette(t.palette);
-  }, [t.palette]);
+    applyPalette(deriveRamp(brand.accent));
+  }, [brand.accent]);
 
   useEffect(() => {
     import('@/admin/store').then(m => m.hydrateSite()).catch(() => {});
   }, []);
 
-  const prevTweakTheme = useRef<Theme | null>(null);
+  // Light-only public site: force the light theme on mount. Set the attribute
+  // directly (rather than applyTheme) so it doesn't persist over a portal
+  // user's stored preference.
   useEffect(() => {
-    if (prevTweakTheme.current === null) {
-      prevTweakTheme.current = t.theme;
-      applyTheme(getInitialTheme());
-      return;
-    }
-    if (prevTweakTheme.current !== t.theme) {
-      prevTweakTheme.current = t.theme;
-      applyTheme(t.theme);
-    }
-  }, [t.theme]);
+    document.documentElement.setAttribute('data-theme', 'light');
+  }, []);
 
   return (
     <ErrorBoundary>

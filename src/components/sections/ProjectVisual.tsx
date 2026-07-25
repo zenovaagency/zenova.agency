@@ -63,7 +63,7 @@ export function ProjectVisual({ idx, tone, animate }: ProjectVisualProps) {
             transform="rotate(-90 100 100)"
             style={{ transition: 'stroke-dashoffset .8s cubic-bezier(.2,.7,.2,1)' }}
           />
-          <text x="100" y="105" textAnchor="middle" fontFamily="Clash Display" fontSize="34" fill="white" fontWeight="500">
+          <text x="100" y="105" textAnchor="middle" fontFamily="Satoshi" fontSize="34" fill="white" fontWeight="500">
             {animate ? '82%' : '65%'}
           </text>
           <text

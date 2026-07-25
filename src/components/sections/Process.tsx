@@ -88,6 +88,8 @@ export function Process() {
           const angle = ((i / steps.length) * 360 + rotation) % 360;
           const rad = (angle * Math.PI) / 180;
           const x = radius * Math.cos(rad);
+          // Flat 2D orbit: no vertical foreshortening, so nodes trace a true circle
+          // and keep a constant size all the way round.
           const y = radius * Math.sin(rad);
           const isOpen = openId === s.id;
           const StepIcon = ICONS[s.icon] ?? Icon.Compass;
@@ -99,7 +101,7 @@ export function Process() {
               className={`orbital-item ${isOpen ? 'is-open' : ''}`}
               style={{
                 transform: `translate(${x}px, ${y}px)`,
-                zIndex: isOpen ? 200 : 100 + Math.round(50 * Math.sin(rad)),
+                zIndex: isOpen ? 200 : 100,
                 opacity: isOpen ? 1 : openId ? 0.35 : 1,
               }}
             >

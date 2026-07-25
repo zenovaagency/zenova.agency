@@ -1,11 +1,12 @@
 /* ── Radial orbital process (“How we work”) ─────────────────────────────
-   Phases orbit a pulsing ember core. Clicking a node glides it to the top
-   of the ring and unfolds its detail card into the circle. All colors run
-   through the theme variables so light/dark both work. */
+   Phases orbit a pulsing ember core on a flat 2D circle — constant node
+   size all the way round, no perspective. Clicking a node glides it to the
+   top of the ring and unfolds its detail card into the circle. All colors
+   run through the theme variables so light/dark both work. */
 
 .orbital-stage {
   position: relative;
-  height: 680px;
+  height: 760px;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
 }
@@ -14,15 +15,9 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: radial-gradient(
-    circle at 50% 50%,
-    rgba(255, 129, 58, 0.1) 0%,
-    rgba(255, 129, 58, 0.03) 38%,
-    transparent 62%
-  );
 }
 
-/* Orbit rings */
+/* Orbit rings — true circles, matching the unforeshortened node positions in Process.tsx */
 .orbital-ring {
   position: absolute;
   left: 50%;
@@ -52,12 +47,11 @@
   height: 64px;
   margin: -32px 0 0 -32px;
   border-radius: 50%;
-  background: var(--grad);
+  background: var(--accent-1);
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  box-shadow: 0 0 44px rgba(255, 129, 58, 0.35);
   animation: orbital-breathe 4.5s ease-in-out infinite;
 }
 .orbital-core::before,
@@ -66,12 +60,12 @@
   position: absolute;
   inset: -8px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 129, 58, 0.35);
+  border: 1px solid color-mix(in srgb, var(--accent-1) 35%, transparent);
   animation: orbital-ping 3.2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 .orbital-core::after {
   inset: -16px;
-  border-color: rgba(255, 129, 58, 0.2);
+  border-color: color-mix(in srgb, var(--accent-1) 20%, transparent);
   animation-delay: 1.6s;
 }
 .orbital-core__dot {
@@ -123,16 +117,30 @@
     opacity 0.5s ease;
 }
 
+/* Ambient ember glow bleeding out from behind the orb */
 .orbital-halo {
   position: absolute;
   inset: -26px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 129, 58, 0.22) 0%, transparent 70%);
   pointer-events: none;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent-1) 14%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0.55;
+  transition: opacity 0.35s ease;
+}
+.orbital-item:hover .orbital-halo {
+  opacity: 1;
+}
+.orbital-item.is-open .orbital-halo {
+  opacity: 1;
 }
 
-/* 3D “puck” node: fully opaque domed fill in the padding box, machined ember
-   rim in the border box, bevel carved with inset light (top) + shade (bottom). */
+/* Glass-dome node: depth comes from lighting, not extrusion — a lit sheen at the
+   top, shade falling to the bottom, an ember rim, and a contact shadow beneath.
+   Hover scales the orb; it never presses down. */
 .orbital-node {
   position: relative;
   width: 100%;
@@ -142,23 +150,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
   background:
-    radial-gradient(circle at 32% 26%, #2c2c2c 0%, #181818 55%, #0e0e0e 100%) padding-box,
-    linear-gradient(165deg, #ffa870 0%, #ff813a 25%, #8c4520 55%, #3d2214 80%, #ff9a5c 100%)
-      border-box;
+    radial-gradient(
+      circle at 50% 22%,
+      color-mix(in srgb, #ffffff 16%, transparent) 0%,
+      transparent 62%
+    ),
+    var(--card);
   color: var(--accent-1);
   box-shadow:
+    /* dome lighting */
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.55),
+    /* machined ember rim */
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-1) 28%, transparent),
+    /* contact shadow */
     0 12px 24px rgba(0, 0, 0, 0.55),
-    0 3px 6px rgba(0, 0, 0, 0.4),
-    inset 0 2px 2px rgba(255, 255, 255, 0.14),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.55);
+    0 3px 6px rgba(0, 0, 0, 0.4);
   transition:
     color 0.3s,
+    background 0.35s,
     box-shadow 0.35s,
     transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-/* Specular highlight on the dome */
+/* Specular glint on the dome */
 .orbital-node::before {
   content: '';
   position: absolute;
@@ -167,43 +182,73 @@
   width: 46%;
   height: 32%;
   border-radius: 50%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
   pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.55), transparent);
+  filter: blur(2px);
+  opacity: 0.75;
+  transition: opacity 0.35s ease;
+}
+/* Bounce light along the lower edge, completing the sphere read */
+.orbital-node::after {
+  content: '';
+  position: absolute;
+  inset: auto 18% 4px;
+  height: 26%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent-1) 45%, transparent),
+    transparent
+  );
+  filter: blur(3px);
+  opacity: 0.5;
 }
 .orbital-node svg {
   position: relative;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 6px rgba(255, 129, 58, 0.25));
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.6));
   transition:
     transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
     filter 0.35s;
 }
 .orbital-node:hover {
-  transform: translateY(-2px) scale(1.1);
+  transform: scale(1.1);
   box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.55),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-1) 45%, transparent),
     0 18px 32px rgba(0, 0, 0, 0.6),
-    0 4px 8px rgba(0, 0, 0, 0.4),
-    0 0 22px rgba(255, 129, 58, 0.22),
-    inset 0 2px 2px rgba(255, 255, 255, 0.18),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.55);
+    0 4px 8px rgba(0, 0, 0, 0.4);
+}
+.orbital-node:hover::before {
+  opacity: 1;
 }
 .orbital-node:hover svg {
-  transform: scale(1.1) translateY(-1px);
-  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 8px rgba(255, 129, 58, 0.45));
+  transform: scale(1.1);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.55));
 }
+/* Ember glass when open */
 .orbital-node.is-open {
   background:
-    radial-gradient(circle at 32% 26%, #ffb27f 0%, #ff813a 48%, #d95a10 100%) padding-box,
-    linear-gradient(165deg, #ffc79e 0%, #ff813a 40%, #a34a12 75%, #ffb27f 100%) border-box;
+    radial-gradient(
+      circle at 50% 20%,
+      color-mix(in srgb, #ffffff 34%, transparent) 0%,
+      transparent 65%
+    ),
+    var(--accent-1);
   color: #0a0a0a;
   transform: scale(1.28);
   box-shadow:
-    0 14px 30px rgba(255, 100, 20, 0.35),
-    0 4px 10px rgba(0, 0, 0, 0.4),
-    inset 0 2px 3px rgba(255, 255, 255, 0.5),
-    inset 0 -5px 10px rgba(150, 55, 5, 0.55);
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -3px 6px rgba(120, 40, 0, 0.45),
+    0 14px 30px rgba(0, 0, 0, 0.35),
+    0 4px 10px rgba(0, 0, 0, 0.4);
 }
 .orbital-node.is-open::before {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0));
+  opacity: 0.4;
+}
+.orbital-node.is-open::after {
+  opacity: 0;
 }
 .orbital-node.is-open svg {
   filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.35)) drop-shadow(0 2px 2px rgba(120, 40, 0, 0.45));
@@ -212,25 +257,53 @@
 /* Light theme: porcelain dome, deeper ember ink for contrast */
 :root[data-theme='light'] .orbital-node {
   background:
-    radial-gradient(circle at 32% 26%, #ffffff 0%, #f3efe9 55%, #ded7cb 100%) padding-box,
-    linear-gradient(165deg, #ffb27a 0%, #ff813a 35%, #c95f1e 65%, #ffc9a0 100%) border-box;
+    radial-gradient(circle at 50% 22%, rgba(255, 255, 255, 0.95) 0%, transparent 64%),
+    var(--card);
   color: #d95f10;
   box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 4px rgba(26, 20, 16, 0.14),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-1) 22%, transparent),
     0 10px 22px rgba(26, 20, 16, 0.18),
-    0 2px 5px rgba(26, 20, 16, 0.12),
-    inset 0 2px 2px rgba(255, 255, 255, 0.9),
-    inset 0 -4px 8px rgba(26, 20, 16, 0.14);
+    0 2px 5px rgba(26, 20, 16, 0.12);
+}
+:root[data-theme='light'] .orbital-node::before {
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.95), transparent);
+  opacity: 0.9;
+}
+:root[data-theme='light'] .orbital-node::after {
+  opacity: 0.35;
 }
 :root[data-theme='light'] .orbital-node svg {
   filter: drop-shadow(0 1px 1px rgba(26, 20, 16, 0.3));
 }
 :root[data-theme='light'] .orbital-node:hover {
   box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -2px 5px rgba(26, 20, 16, 0.16),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-1) 38%, transparent),
     0 16px 28px rgba(26, 20, 16, 0.22),
-    0 3px 6px rgba(26, 20, 16, 0.12),
-    0 0 20px rgba(255, 129, 58, 0.25),
-    inset 0 2px 2px rgba(255, 255, 255, 0.9),
-    inset 0 -4px 8px rgba(26, 20, 16, 0.14);
+    0 3px 6px rgba(26, 20, 16, 0.12);
+}
+/* The porcelain overrides above outrank `.orbital-node.is-open`, so the open
+   state has to be restated at light-theme specificity to keep its ember fill. */
+:root[data-theme='light'] .orbital-node.is-open {
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      color-mix(in srgb, #ffffff 40%, transparent) 0%,
+      transparent 65%
+    ),
+    var(--accent-1);
+  color: #0a0a0a;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -3px 6px rgba(120, 40, 0, 0.3),
+    0 12px 26px rgba(26, 20, 16, 0.2),
+    0 3px 8px rgba(26, 20, 16, 0.14);
+}
+:root[data-theme='light'] .orbital-node.is-open svg {
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.4));
 }
 
 .orbital-label {
@@ -281,7 +354,7 @@
   left: 50%;
   width: 1px;
   height: 30px;
-  background: linear-gradient(to bottom, transparent, var(--accent-1));
+  background: var(--accent-1);
 }
 .orbital-card__icon {
   width: 36px;
@@ -290,29 +363,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
-  background:
-    linear-gradient(180deg, #282828, #151515) padding-box,
-    linear-gradient(165deg, #ff9a5c 0%, #8c4520 60%, #ff813a 100%) border-box;
+  background: var(--card);
   color: var(--accent-1);
   flex-shrink: 0;
   box-shadow:
-    0 4px 8px rgba(0, 0, 0, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.12),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.45);
+    0 4px 8px rgba(0, 0, 0, 0.4);
 }
 .orbital-card__icon svg {
   filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.55));
 }
 :root[data-theme='light'] .orbital-card__icon {
-  background:
-    linear-gradient(180deg, #ffffff, #ece7df) padding-box,
-    linear-gradient(165deg, #ffb27a 0%, #c95f1e 60%, #ff9a5c 100%) border-box;
   color: #d95f10;
   box-shadow:
-    0 3px 6px rgba(26, 20, 16, 0.14),
-    inset 0 1px 1px rgba(255, 255, 255, 0.9),
-    inset 0 -2px 4px rgba(26, 20, 16, 0.12);
+    0 3px 6px rgba(26, 20, 16, 0.14);
 }
 :root[data-theme='light'] .orbital-card__icon svg {
   filter: drop-shadow(0 1px 1px rgba(26, 20, 16, 0.28));
@@ -332,7 +395,7 @@
 .orbital-card__bar > span {
   display: block;
   height: 100%;
-  background: var(--grad);
+  background: var(--accent-1);
   transition: width 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
@@ -355,7 +418,7 @@
 .orbital-next:hover {
   color: var(--fg);
   border-color: var(--accent-1);
-  background: rgba(255, 129, 58, 0.08);
+  background: color-mix(in srgb, var(--accent-1) 8%, transparent);
 }
 
 .orbital-hint {
@@ -369,8 +432,11 @@
 }
 
 @media (max-width: 640px) {
+  /* The mobile ring is small (radius 128), so an opened card hangs much further
+     below its node relative to the ring than it does on desktop. The stage has
+     to stay tall enough for the tallest card to clear the hint. */
   .orbital-stage {
-    height: 700px;
+    height: 780px;
   }
   .orbital-item {
     width: 46px;

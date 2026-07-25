@@ -129,142 +129,98 @@
   color: var(--fg-dim);
 }
 
-/* Team — offset / staggered grid */
-.abt-team {
+/* Founders — two pull-quote cards */
+.abt-founders {
   padding: 56px 0 24px;
 }
-.abt-team__grid {
+.abt-founders__grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  margin-top: 36px;
+  margin-top: 32px;
 }
-.abt-member {
-  padding: 28px 24px;
+.abt-founder {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 0;
+  padding: 32px 30px;
   border: 1px solid var(--line);
   border-radius: 20px;
   background: var(--card);
-  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  transition: border-color 0.25s, box-shadow 0.25s;
 }
-.abt-member:nth-child(3n + 2) {
-  transform: translateY(28px);
-}
-.abt-member:hover {
+.abt-founder:hover {
   border-color: color-mix(in srgb, var(--tone, var(--accent-1)) 35%, transparent);
   box-shadow: 0 12px 32px color-mix(in srgb, var(--tone, var(--accent-1)) 10%, transparent);
 }
-.abt-member:nth-child(3n + 2):hover {
-  transform: translateY(24px);
+.abt-founder__quote {
+  position: relative;
+  margin: 0;
+  flex: 1;
+  padding-top: 24px;
+  font-size: clamp(19px, 1.9vw, 24px);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
 }
-.abt-member__avatar,
-.abt-member__initials {
-  width: 68px;
-  height: 68px;
+.abt-founder__quote::before {
+  content: '“';
+  position: absolute;
+  top: -6px;
+  left: -4px;
+  font-size: 54px;
+  line-height: 1;
+  color: var(--tone, var(--accent-1));
+}
+.abt-founder__by {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.abt-founder__avatar,
+.abt-founder__initials {
+  flex: none;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
 }
-.abt-member__avatar {
+.abt-founder__avatar {
   object-fit: cover;
   border: 2px solid color-mix(in srgb, var(--tone, var(--accent-1)) 35%, transparent);
 }
-.abt-member__initials {
+.abt-founder__initials {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 15px;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(135deg, var(--tone, var(--accent-1)), var(--accent-3));
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--tone, var(--accent-1)) 35%, transparent);
+  background: var(--tone, var(--accent-1));
 }
-.abt-member__name {
-  margin-top: 18px;
-  font-size: 18px;
-  font-weight: 600;
-}
-.abt-member__role {
-  margin-top: 4px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--tone, var(--accent-1));
-}
-.abt-member__bio {
-  margin: 12px 0 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--fg-dim);
-}
-.abt-member__socials {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-}
-.abt-member__social {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  color: var(--fg-dim);
-  transition: color 0.2s, border-color 0.2s, background 0.2s;
-}
-.abt-member__social:hover {
-  color: var(--tone, var(--accent-1));
-  border-color: color-mix(in srgb, var(--tone, var(--accent-1)) 35%, transparent);
-  background: color-mix(in srgb, var(--tone, var(--accent-1)) 8%, transparent);
-}
-
-/* Milestones — horizontal band of oversized years */
-.abt-milestones {
-  padding: 72px 0 24px;
-}
-.abt-milestones__scroller {
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-  margin-top: 28px;
-  padding-bottom: 20px;
-}
-.abt-milestones__track {
-  display: flex;
-  min-width: max-content;
-  padding: 0 max(24px, calc((100vw - 1280px) / 2 + 32px));
-}
-.abt-milestone {
-  scroll-snap-align: start;
+.abt-founder__id {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  min-width: 260px;
-  padding: 24px 32px 0 0;
-  border-left: 1px solid var(--line);
-  padding-left: 24px;
+  gap: 3px;
 }
-.abt-milestone__year {
-  font-size: clamp(48px, 5vw, 72px);
-  font-weight: 500;
-  line-height: 1;
-  background: var(--grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.abt-founder__name {
+  font-size: 15px;
+  font-weight: 600;
 }
-.abt-milestone__what {
-  max-width: 230px;
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--fg-dim);
+.abt-founder__role {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--fg-faint);
 }
 
-/* Careers + locations */
+/* Careers */
 .abt-careers {
   padding: 64px 0 32px;
 }
-.abt-careers__grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: clamp(36px, 6vw, 96px);
+.abt-careers__jobs {
   border-top: 1px solid var(--line-strong);
   padding-top: 56px;
 }
@@ -324,57 +280,78 @@
   color: var(--accent-3);
 }
 
-.abt-locations__list {
+/* Closing band — latest writing */
+.abt-blog {
+  padding: 72px 0 120px;
+}
+.abt-blog__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 32px;
+}
+.abt-post {
   display: flex;
   flex-direction: column;
-  margin-top: 28px;
+  color: var(--fg);
 }
-.abt-location {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 20px 0;
-  border-top: 1px solid var(--line);
+.abt-post__media {
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
 }
-.abt-location__city {
-  font-size: 20px;
+.abt-post__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.abt-post:hover .abt-post__media img {
+  transform: scale(1.04);
+}
+.abt-post__placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--grad);
+  opacity: 0.22;
+}
+.abt-post__title {
+  margin: 18px 0 0;
+  font-size: 19px;
   font-weight: 500;
+  line-height: 1.3;
+  transition: color 0.25s;
 }
-.abt-location__detail {
+.abt-post:hover .abt-post__title {
+  color: var(--accent-1);
+}
+.abt-post__excerpt {
+  margin: 10px 0 0;
   font-size: 14px;
+  line-height: 1.6;
   color: var(--fg-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.abt-location__tz {
+.abt-post__date {
+  margin-top: 14px;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--fg-faint);
 }
-
-/* Closing band */
-.abt-cta {
-  padding: 80px 0 120px;
-}
-.abt-cta__inner {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 28px;
-  flex-wrap: wrap;
-  border-top: 1px solid var(--line-strong);
-  padding-top: 48px;
-}
-.abt-cta__title {
-  margin: 0;
-  font-size: clamp(40px, 6vw, 84px);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-.abt-cta__actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+.abt-blog__all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 36px;
+  font-size: 13px;
+  color: var(--accent-3);
 }
 
 /* Responsive */
@@ -388,34 +365,14 @@
   .abt-story__aside {
     position: static;
   }
-  .abt-team__grid {
+  .abt-blog__grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .abt-member:nth-child(3n + 2) {
-    transform: none;
-  }
-  .abt-member:nth-child(2n) {
-    transform: translateY(20px);
-  }
-  .abt-member:nth-child(3n + 2):hover,
-  .abt-member:nth-child(2n):hover {
-    transform: translateY(16px);
-  }
-  .abt-careers__grid {
-    grid-template-columns: 1fr;
   }
 }
 @media (max-width: 600px) {
-  .abt-team__grid {
+  .abt-founders__grid,
+  .abt-blog__grid {
     grid-template-columns: 1fr;
-  }
-  .abt-member:nth-child(2n),
-  .abt-member:nth-child(3n + 2) {
-    transform: none;
-  }
-  .abt-member:nth-child(2n):hover,
-  .abt-member:nth-child(3n + 2):hover {
-    transform: none;
   }
   .abt-value {
     grid-template-columns: 40px 1fr;

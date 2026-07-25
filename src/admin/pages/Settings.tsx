@@ -2,9 +2,9 @@ import { useRef, useState } from 'react';
 import { Button } from '@/admin/components/Button';
 import { AdminShell } from '@/admin/components/AdminShell';
 import { useConfirm } from '@/admin/components/confirm-context';
-import { Field, TextField, Toast } from '@/admin/components/Form';
+import { ColorField, Field, TextField, Toast } from '@/admin/components/Form';
 import { Combobox } from '@/components/ui/inputs';
-import { isValidEmail } from '@/admin/lib/validate';
+import { isValidEmail, isValidHex } from '@/admin/lib/validate';
 import {
   brandStore,
   exportAll,
@@ -64,6 +64,10 @@ export function Settings() {
     }
     if (!isValidEmail(draft.careersEmail)) {
       setToast('Careers email is not a valid address.');
+      return;
+    }
+    if (!isValidHex(draft.accent)) {
+      setToast('Brand accent is not a valid hex color.');
       return;
     }
     setSaving(true);
@@ -205,6 +209,14 @@ export function Settings() {
             label="Address"
             value={draft.address}
             onChange={(v) => updateDraft({ address: v })}
+          />
+        </div>
+        <div className="adm-row adm-row--2">
+          <ColorField
+            label="Brand accent"
+            hint="Applied site-wide — buttons, links, focus states, and the logo all derive from this color."
+            value={draft.accent}
+            onChange={(v) => updateDraft({ accent: v })}
           />
         </div>
       </div>

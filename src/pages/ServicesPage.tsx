@@ -46,13 +46,6 @@ interface Phase {
   hue: string;
 }
 
-interface Week {
-  range: string;
-  phase: string;
-  focus: string;
-  hue: string;
-}
-
 interface FAQ {
   q: string;
   a: string;
@@ -64,8 +57,7 @@ const PHASES: Phase[] = [
     title: 'Discover',
     weeks: 'Week 1',
     blurb: [
-      'We start with a working session, not a sales call. You walk us through the business, we map what exists, what’s broken, and what “done” looks like.',
-      'By the end of the week you have a project plan with real dates, and we both know exactly what success means in numbers.',
+      'A working session to map what exists, what’s broken, and what “done” looks like — ending with a project plan and real success metrics.',
     ],
     out: 'Project plan + success metrics',
     hue: '#ff813a',
@@ -75,8 +67,7 @@ const PHASES: Phase[] = [
     title: 'Design',
     weeks: 'Week 2 – 4',
     blurb: [
-      'Brand, layout, and flows take shape here. We design in the open — you see work-in-progress every week, not a big reveal at the end.',
-      'Everything lands in a clickable prototype you can put in front of real users before a single line of production code is written.',
+      'Brand, layout, and flows take shape in the open, landing in a clickable prototype you can test with real users before we write production code.',
     ],
     out: 'Clickable prototype',
     hue: '#e06820',
@@ -86,8 +77,7 @@ const PHASES: Phase[] = [
     title: 'Build',
     weeks: 'Week 5 – 7',
     blurb: [
-      'We code the real thing: fast, accessible, and easy for your team to update. Weekly demos on a staging link, daily updates in Slack.',
-      'No mystery sprints. If something slips, you hear it from us first, with a new date attached.',
+      'We code the real thing — fast, accessible, easy to update — with weekly demos on a staging link and daily updates in Slack.',
     ],
     out: 'Staging site + weekly demos',
     hue: '#cc6622',
@@ -97,20 +87,11 @@ const PHASES: Phase[] = [
     title: 'Launch + Grow',
     weeks: 'Week 8 +',
     blurb: [
-      'Go-live is a checklist, not a cliff: DNS, analytics, redirects, training for your team, and a clean handoff of everything we made.',
-      'Then we shift to growth — marketing, SEO, and iteration — or hand you the keys entirely. Your call.',
+      'A clean go-live checklist and handoff, then we shift to growth — or hand you the keys entirely. Your call.',
     ],
     out: 'Live site + growth plan',
     hue: '#ff9a5c',
   },
-];
-
-const WEEKS: Week[] = [
-  { range: 'Week 1', phase: 'Discover', focus: 'Workshop, project plan, success metrics', hue: '#ff813a' },
-  { range: 'Week 2 – 4', phase: 'Design', focus: 'Brand, layout, and a clickable prototype', hue: '#c06028' },
-  { range: 'Week 5 – 7', phase: 'Build', focus: 'Code the site with weekly demos', hue: '#e06820' },
-  { range: 'Week 8', phase: 'Launch', focus: 'Go live, train your team, hand off', hue: '#cc6622' },
-  { range: 'Month 2+', phase: 'Grow', focus: 'Marketing, SEO, and ongoing support', hue: '#ff9a5c' },
 ];
 
 const PROCESS_FAQS: FAQ[] = [
@@ -296,26 +277,6 @@ export function ServicesPage() {
         </div>
       </section>
 
-      <section className="prc-timeline">
-        <div className="container">
-          <div className="prc-timeline__head">
-            <span className="prc-timeline__label mono">Timeline — week by week</span>
-          </div>
-        </div>
-        <div className="prc-timeline__scroller" data-lenis-prevent>
-          <div className="prc-timeline__track">
-            {WEEKS.map((w) => (
-              <div key={w.range} className="prc-week" style={{ '--hue': w.hue } as React.CSSProperties}>
-                <span className="prc-week__dot" />
-                <span className="prc-week__range mono">{w.range}</span>
-                <span className="prc-week__phase display">{w.phase}</span>
-                <span className="prc-week__focus">{w.focus}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="prc-faq">
         <div className="container">
           <div className="prc-faq__label mono reveal">Common questions</div>
@@ -335,12 +296,12 @@ export function ServicesPage() {
       <section className="svx-cta">
         <div className="container svx-cta__inner reveal">
           <h2 className="svx-cta__title display">
-            Not sure where
+            Let&rsquo;s build
             <br />
-            to start?
+            it.
           </h2>
           <p className="svx-cta__sub">
-            Tell us what you&rsquo;re trying to do — we&rsquo;ll tell you what we&rsquo;d build, honestly.
+            Tell us what you&rsquo;re trying to do — we&rsquo;ll tell you what we&rsquo;d build.
           </p>
           <div className="svx-cta__actions">
             <NeonButton text="Get in touch" to="/contact" />

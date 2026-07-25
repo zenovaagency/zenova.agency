@@ -7,7 +7,7 @@ import type { Tweaks } from '@/types/tweaks';
  */
 export const TWEAK_DEFAULTS: Tweaks = /*EDITMODE-BEGIN*/ {
   palette: ['#ff813a', '#ff6b1a', '#ff9a5c'],
-  theme: 'dark',
+  theme: 'light',
   rotateMs: 2400,
   showMarquee: true,
   showTestimonials: true,

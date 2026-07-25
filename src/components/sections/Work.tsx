@@ -47,7 +47,6 @@ function EmberRow({
   const settleX = useTransform(sweep, [0, 0.85], [dir * -28, 0]);
   const mediaY = useTransform(drift, [0, 1], [26, -26]);
 
-  const [metricNum, metricLabel] = project.metric;
   const images = project.images ?? [];
   const mediaAr = clampRatio(useImageRatio(images[0]?.src), RATIO_BOUNDS.card);
 
@@ -78,11 +77,6 @@ function EmberRow({
             </h3>
 
             <p className="ember-row__summary">{project.summary}</p>
-
-            <div className="ember-row__stat">
-              <span className="ember-row__stat-num">{metricNum}</span>
-              <span className="mono ember-row__stat-label">{metricLabel}</span>
-            </div>
 
             <Link to={`/work/${project.slug}`} className="mono ember-row__cta" aria-label={`View ${project.client} case study`}>
               View case study <span aria-hidden>→</span>

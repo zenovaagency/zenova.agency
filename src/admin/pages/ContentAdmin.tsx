@@ -16,6 +16,7 @@ import {
   useBrand,
   useContent,
   type AboutContent,
+  type AboutFounder,
   type AboutMilestone,
   type AboutRole,
   type AboutValue,
@@ -82,7 +83,7 @@ function uid(prefix: string) {
 }
 
 function emptyAbout(): AboutContent {
-  return { values: [], roles: [], timeline: [] };
+  return { values: [], founders: [], roles: [], timeline: [] };
 }
 
 function emptyIntro(): SectionIntro {
@@ -296,65 +297,6 @@ export function ContentAdmin() {
             </div>
           </Field>
 
-          <Field
-            label="Stats"
-            hint="The four-up numbers strip below the buttons. Each has a value and a label."
-          >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {(draft.hero.stats ?? []).map((s, i) => (
-                <div
-                  key={s.id}
-                  style={{ display: 'grid', gridTemplateColumns: '1fr 2fr auto', gap: 8, alignItems: 'start' }}
-                >
-                  <input
-                    className="adm-input"
-                    value={s.num}
-                    placeholder="Value (e.g. 20+)"
-                    onChange={(e) =>
-                      updateHero({
-                        stats: (draft.hero.stats ?? []).map((x, idx) =>
-                          idx === i ? { ...x, num: e.target.value } : x,
-                        ),
-                      })
-                    }
-                  />
-                  <input
-                    className="adm-input"
-                    value={s.label}
-                    placeholder="Label (e.g. Projects shipped)"
-                    onChange={(e) =>
-                      updateHero({
-                        stats: (draft.hero.stats ?? []).map((x, idx) =>
-                          idx === i ? { ...x, label: e.target.value } : x,
-                        ),
-                      })
-                    }
-                  />
-                  <button
-                    className="adm-btn adm-btn--sm adm-btn--danger"
-                    onClick={() =>
-                      updateHero({
-                        stats: (draft.hero.stats ?? []).filter((_, idx) => idx !== i),
-                      })
-                    }
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button
-                className="adm-btn adm-btn--sm"
-                style={{ alignSelf: 'flex-start' }}
-                onClick={() =>
-                  updateHero({
-                    stats: [...(draft.hero.stats ?? []), { id: uid('s'), num: '', label: '' }],
-                  })
-                }
-              >
-                + Add stat
-              </button>
-            </div>
-          </Field>
         </div>
       )}
 
@@ -607,6 +549,7 @@ export function ContentAdmin() {
         <AboutEditor
           about={about}
           onValues={(values: AboutValue[]) => updateAbout({ values })}
+          onFounders={(founders: AboutFounder[]) => updateAbout({ founders })}
           onRoles={(roles: AboutRole[]) => updateAbout({ roles })}
           onTimeline={(timeline: AboutMilestone[]) => updateAbout({ timeline })}
         />
@@ -1027,14 +970,17 @@ function FooterEditor({
 function AboutEditor({
   about,
   onValues,
+  onFounders,
   onRoles,
   onTimeline,
 }: {
   about: AboutContent;
   onValues: (v: AboutValue[]) => void;
+  onFounders: (f: AboutFounder[]) => void;
   onRoles: (r: AboutRole[]) => void;
   onTimeline: (t: AboutMilestone[]) => void;
 }) {
+  const founders = about.founders ?? [];
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1105,6 +1051,89 @@ function AboutEditor({
                 onValues(about.values.map((x, idx) => (idx === i ? { ...x, blurb: val } : x)))
               }
             />
+          </div>
+        ))}
+      </div>
+
+      <div className="adm-card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="adm-label">Founder quotes (two cards)</div>
+          <button
+            className="adm-btn adm-btn--sm"
+            onClick={() =>
+              onFounders([
+                ...founders,
+                { id: uid('f'), quote: '', name: '', role: '', tone: '#ff813a' },
+              ])
+            }
+          >
+            + Add founder
+          </button>
+        </div>
+        {founders.map((f, i) => (
+          <div
+            key={f.id}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              padding: 12,
+              border: '1px solid var(--line)',
+              borderRadius: 12,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div className="adm-label">Founder {i + 1}</div>
+              <button
+                className="adm-btn adm-btn--sm adm-btn--danger"
+                onClick={() => onFounders(founders.filter((_, idx) => idx !== i))}
+              >
+                ✕
+              </button>
+            </div>
+            <TextArea
+              label="Quote"
+              value={f.quote}
+              rows={3}
+              onChange={(val) =>
+                onFounders(founders.map((x, idx) => (idx === i ? { ...x, quote: val } : x)))
+              }
+            />
+            <div className="adm-row adm-row--2">
+              <TextField
+                label="Name"
+                value={f.name}
+                onChange={(val) =>
+                  onFounders(founders.map((x, idx) => (idx === i ? { ...x, name: val } : x)))
+                }
+              />
+              <TextField
+                label="Role"
+                value={f.role}
+                onChange={(val) =>
+                  onFounders(founders.map((x, idx) => (idx === i ? { ...x, role: val } : x)))
+                }
+              />
+            </div>
+            <div className="adm-row adm-row--2">
+              <ImageField
+                label="Avatar image"
+                hint="Best size: 256×256 (square). Falls back to initials when empty."
+                value={f.avatar ?? ''}
+                onChange={(val) =>
+                  onFounders(
+                    founders.map((x, idx) => (idx === i ? { ...x, avatar: val || undefined } : x)),
+                  )
+                }
+              />
+              <ColorField
+                label="Tone"
+                value={f.tone}
+                onChange={(val) =>
+                  onFounders(founders.map((x, idx) => (idx === i ? { ...x, tone: val } : x)))
+                }
+              />
+            </div>
           </div>
         ))}
       </div>
