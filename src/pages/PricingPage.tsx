@@ -144,10 +144,10 @@ export function PricingPage() {
                 show: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
               }}
             >
-              <div className="pcx-panel__meta mono">
+              {/* <div className="pcx-panel__meta mono">
                 <span>{current.label} — rate card</span>
                 <span>{current.plans.length} tiers · fixed quote after scoping</span>
-              </div>
+              </div> */}
               <div className="pcx-grid">
                 {current.plans.map((plan) => (
                   <PricingCard key={plan.id} plan={plan} hue={current.hue} reduceMotion={reduceMotion} />
