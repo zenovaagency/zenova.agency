@@ -10,7 +10,6 @@ import { useProjects } from '@/admin/store';
 import { setDynamicSeo, clearDynamicSeo } from '@/seo/dynamic-seo';
 import { SITE } from '@/seo/seo-data';
 import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
-import { scrollToTop } from '@/lib/scroll';
 import './ProjectDetailPage.css';
 
 interface PlacedImage {
@@ -31,10 +30,6 @@ export function ProjectDetailPage() {
     setSyncedSlug(slug);
     setLbIndex(null);
   }
-
-  useEffect(() => {
-    scrollToTop();
-  }, [slug]);
 
   useEffect(() => {
     if (!project) return;

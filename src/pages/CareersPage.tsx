@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '@/components/icons/Icon';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { useJobs, useBrand } from '@/admin/store';
-import { scrollToTop } from '@/lib/scroll';
 import { formatPosted } from '@/lib/jobDate';
 import './CareersPage.css';
 
@@ -12,10 +11,6 @@ export function CareersPage() {
   const [JOBS] = useJobs();
   const [brand] = useBrand();
   const [filter, setFilter] = useState('All');
-  useEffect(() => {
-    scrollToTop();
-  }, []);
-
   // Newest-first by posted date.
   const sorted = useMemo(
     () => [...JOBS].sort((a, b) => b.postedAt.localeCompare(a.postedAt)),

@@ -96,9 +96,11 @@ body {
   overflow-x: hidden;
 }
 
-main > section:not(#top) {
-  content-visibility: auto;
-  contain-intrinsic-size: 1000px;
+/* Hold a full viewport regardless of how short the route's content or its
+   loading skeleton is, so the footer can never ride up above the fold during
+   a navigation. */
+#main-content {
+  min-height: 100svh;
 }
 
 a {

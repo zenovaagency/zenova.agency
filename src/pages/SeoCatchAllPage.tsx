@@ -6,9 +6,8 @@ import { setDynamicSeo, clearDynamicSeo } from '@/seo/dynamic-seo';
 import { SITE, canonicalUrl } from '@/seo/seo-data';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ArticlePageSkeleton } from '@/components/ui/PageSkeletons';
-import { Footer } from '@/components/layout/Footer';
+import { useShowFooter } from '@/components/layout/FooterVisibility';
 import { ApiError } from '@/lib/api';
-import { scrollToTop } from '@/lib/scroll';
 import './LegalPage.css';
 
 /** Slug shape accepted by the backend — anything else can't be a page. */
@@ -32,10 +31,6 @@ export function SeoCatchAllPage() {
   const [page, setPage] = useState<PublicSeoPage | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    scrollToTop();
-  }, [slug]);
 
   // No reset here: the public route tree is keyed by pathname (App.tsx), so
   // navigating to a different slug remounts this component with fresh state.
@@ -102,6 +97,12 @@ export function SeoCatchAllPage() {
     });
   }, [page]);
 
+  // The layout gates the footer to known paths; a resolved SEO page asks for
+  // one so it keeps the site's internal linking, while 404s stay bare. Asking
+  // the layout (rather than rendering our own) keeps the footer inside the
+  // page-transition wrapper so it fades in with the content.
+  useShowFooter(page !== null && !notFound && !error);
+
   if (!slug || notFound || error) return <NotFoundPage />;
   if (!page) return <ArticlePageSkeleton />;
 
@@ -118,9 +119,6 @@ export function SeoCatchAllPage() {
           />
         </div>
       </section>
-      {/* The global footer is gated to known paths (App.tsx); render it here so
-          resolved SEO pages keep the site's internal linking while 404s stay bare. */}
-      <Footer />
     </>
   );
 }

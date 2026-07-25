@@ -6,7 +6,6 @@ import { Icon } from '@/components/icons/Icon';
 import { useJobs, useBrand } from '@/admin/store';
 import { setDynamicSeo, clearDynamicSeo } from '@/seo/dynamic-seo';
 import { SITE } from '@/seo/seo-data';
-import { scrollToTop } from '@/lib/scroll';
 import { formatPosted } from '@/lib/jobDate';
 import './JobDetailPage.css';
 
@@ -15,10 +14,6 @@ export function JobDetailPage() {
   const [JOBS] = useJobs();
   const [brand] = useBrand();
   const job = JOBS.find((j) => j.slug === slug);
-
-  useEffect(() => {
-    scrollToTop();
-  }, [slug]);
 
   useEffect(() => {
     if (!job) return;

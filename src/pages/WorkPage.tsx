@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ProjectPreview } from '@/components/sections/ProjectPreview';
 import { Icon } from '@/components/icons/Icon';
@@ -6,7 +6,6 @@ import { NeonButton } from '@/components/ui/NeonButton';
 import { useProjects } from '@/admin/store';
 import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
 import type { ProjectDetail } from '@/data/projects';
-import { scrollToTop } from '@/lib/scroll';
 import './WorkPage.css';
 
 function LivePill({ project }: { project: ProjectDetail }) {
@@ -72,10 +71,6 @@ function WorkRow({
 export function WorkPage() {
   const [ALL] = useProjects();
   const [hovered, setHovered] = useState<string | null>(null);
-
-  useEffect(() => {
-    scrollToTop();
-  }, []);
 
   const featured = ALL[0];
   const rest = ALL.slice(1);

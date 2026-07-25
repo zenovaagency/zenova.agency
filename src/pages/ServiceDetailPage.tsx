@@ -8,17 +8,12 @@ import { Icon, type IconComponent } from '@/components/icons/Icon';
 import { useServices } from '@/admin/store';
 import { setDynamicSeo, clearDynamicSeo } from '@/seo/dynamic-seo';
 import { SITE } from '@/seo/seo-data';
-import { scrollToTop } from '@/lib/scroll';
 import './ServiceDetailPage.css';
 
 export function ServiceDetailPage() {
   const { slug = '' } = useParams();
   const [SERVICES] = useServices();
   const service = SERVICES.find((s) => s.slug === slug);
-
-  useEffect(() => {
-    scrollToTop();
-  }, [slug]);
 
   useEffect(() => {
     if (!service) return;

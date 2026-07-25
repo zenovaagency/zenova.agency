@@ -1,13 +1,7 @@
-import { useEffect } from 'react';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { NeonButton } from '@/components/ui/NeonButton';
-import { scrollToTop } from '@/lib/scroll';
 
 export function NotFoundPage() {
-  useEffect(() => {
-    scrollToTop();
-  }, []);
-
   return (
     <div
       className="notfound-static"

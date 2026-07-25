@@ -6,7 +6,7 @@ import { ServiceMedia } from '@/components/sections/ServiceMedia';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { useServices } from '@/admin/store';
-import { scrollToElement, scrollToTop } from '@/lib/scroll';
+import { scrollToElement } from '@/lib/scroll';
 import './ServicesPage.css';
 
 interface Pillar {
@@ -106,10 +106,6 @@ export function ServicesPage() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [active, setActive] = useState(0);
   const blockRefs = useRef<Array<HTMLElement | null>>([]);
-
-  useEffect(() => {
-    scrollToTop();
-  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

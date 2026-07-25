@@ -8,7 +8,6 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ArticlePageSkeleton } from '@/components/ui/PageSkeletons';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { ApiError } from '@/lib/api';
-import { scrollToTop } from '@/lib/scroll';
 import './LegalPage.css';
 import './BlogPostPage.css';
 
@@ -108,10 +107,6 @@ export function BlogPostPage() {
   const [copied, setCopied] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const copyTimer = useRef<number | undefined>(undefined);
-
-  useEffect(() => {
-    scrollToTop();
-  }, [slug]);
 
   // No reset here: the public route tree is keyed by pathname (App.tsx), so a
   // slug change remounts this component with fresh state, and the retry

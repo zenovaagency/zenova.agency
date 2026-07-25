@@ -1,11 +1,14 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
+import { FooterVisibilityContext } from '@/components/layout/FooterVisibility';
 import { Home } from '@/pages/Home';
 import { TWEAK_DEFAULTS } from '@/config/tweaks';
 import { useSmoothScroll } from '@/hooks/useSmoothScroll';
 import { useReveal } from '@/hooks/useReveal';
+import { useScrollReset } from '@/hooks/useScrollReset';
+import { useRoutePrefetch } from '@/hooks/useRoutePrefetch';
 import { useTweaks } from '@/hooks/useTweaks';
 import { applyPalette, deriveRamp } from '@/lib/palette';
 import { useBrand } from '@/admin/store';
@@ -152,53 +155,74 @@ function PublicLayout({
 }: PublicLayoutProps) {
   useSmoothScroll();
   useReveal();
-  const location = useLocation();
-  const isKnownPath =
-    /^\/(services|pricing|work|about|contact|careers|blog|privacy|terms)?(\/.*)?$/.test(location.pathname);
+  useScrollReset();
+  useRoutePrefetch();
   return (
     <>
       <Nav />
-      <main id="main-content">
-        <AnimatedRoutes
-          rotateMs={rotateMs}
-          showMarquee={showMarquee}
-          showTestimonials={showTestimonials}
-        />
-      </main>
-      {isKnownPath && <Footer />}
+      <RouteFrame
+        rotateMs={rotateMs}
+        showMarquee={showMarquee}
+        showTestimonials={showTestimonials}
+      />
     </>
   );
 }
 
-interface AnimatedRoutesProps {
+interface RouteFrameProps {
   rotateMs: number;
   showMarquee: boolean;
   showTestimonials: boolean;
 }
 
-function AnimatedRoutes({ rotateMs, showMarquee, showTestimonials }: AnimatedRoutesProps) {
+/**
+ * The part of the shell that swaps per route. <main> and <Footer/> both live
+ * inside the keyed .page-transition wrapper so they fade in together — with
+ * the footer outside it, it was the only opaque thing on screen for the first
+ * 400ms of every navigation, which read as "the footer loads first".
+ */
+function RouteFrame({ rotateMs, showMarquee, showTestimonials }: RouteFrameProps) {
   const location = useLocation();
+  const isKnownPath =
+    /^\/(services|pricing|work|about|contact|careers|blog|privacy|terms)?(\/.*)?$/.test(location.pathname);
+
+  // The catch-all reports whether it resolved to a real SEO page (footer) or a
+  // 404 (no footer). Storing the path it answered for — rather than a bare
+  // boolean — means a stale answer is simply not read after a navigation, with
+  // no reset effect and no frame where the previous route's footer shows.
+  const [footerFor, setFooterFor] = useState<string | null>(null);
+  const catchAllFooter = footerFor === location.pathname;
+  const showFooter = useCallback(
+    (visible: boolean) => setFooterFor(visible ? location.pathname : null),
+    [location.pathname],
+  );
+
   return (
-    <div key={location.pathname} className="page-transition">
-      <Routes location={location}>
-        <Route path="/" element={<Home rotateMs={rotateMs} showMarquee={showMarquee} showTestimonials={showTestimonials} />} />
-        <Route path="/services" element={<Suspense fallback={<ListPageSkeleton pillars={3} rows={6} />}><ServicesPage /></Suspense>} />
-        <Route path="/services/:slug" element={<Suspense fallback={<DetailPageSkeleton railWidth={340} specCols={4} />}><ServiceDetailPage /></Suspense>} />
-        <Route path="/pricing" element={<Suspense fallback={<GridPageSkeleton toolbar count={3} min={260} media={false} />}><PricingPage /></Suspense>} />
-        <Route path="/process" element={<Navigate to="/services" replace />} />
-        <Route path="/work" element={<Suspense fallback={<ListPageSkeleton feature rows={4} />}><WorkPage /></Suspense>} />
-        <Route path="/work/:slug" element={<Suspense fallback={<DetailPageSkeleton banner railWidth={260} specCols={3} />}><ProjectDetailPage /></Suspense>} />
-        <Route path="/careers" element={<Suspense fallback={<GridPageSkeleton toolbar count={6} min={320} media={false} />}><CareersPage /></Suspense>} />
-        <Route path="/careers/:slug" element={<Suspense fallback={<DetailPageSkeleton railWidth={320} specCols={4} />}><JobDetailPage /></Suspense>} />
-        <Route path="/about" element={<Suspense fallback={<GridPageSkeleton count={6} min={280} />}><AboutPage /></Suspense>} />
-        <Route path="/contact" element={<Suspense fallback={<FormPageSkeleton variant="split" fields={4} />}><ContactPage /></Suspense>} />
-        <Route path="/blog" element={<Suspense fallback={<GridPageSkeleton toolbar feature count={6} min={300} />}><BlogPage /></Suspense>} />
-        <Route path="/blog/:slug" element={<Suspense fallback={<ArticlePageSkeleton width={1140} side meta />}><BlogPostPage /></Suspense>} />
-        <Route path="/privacy" element={<Suspense fallback={<ArticlePageSkeleton />}><LegalPage doc="privacy" /></Suspense>} />
-        <Route path="/terms" element={<Suspense fallback={<ArticlePageSkeleton />}><LegalPage doc="terms" /></Suspense>} />
-        {/* Catch-all serves admin-authored SEO pages at /<slug>, or the 404 page. */}
-        <Route path="*" element={<Suspense fallback={<ArticlePageSkeleton />}><SeoCatchAllPage /></Suspense>} />
-      </Routes>
-    </div>
+    <FooterVisibilityContext.Provider value={showFooter}>
+      <div key={location.pathname} className="page-transition">
+        <main id="main-content">
+          <Routes location={location}>
+            <Route path="/" element={<Home rotateMs={rotateMs} showMarquee={showMarquee} showTestimonials={showTestimonials} />} />
+            <Route path="/services" element={<Suspense fallback={<ListPageSkeleton pillars={3} rows={6} />}><ServicesPage /></Suspense>} />
+            <Route path="/services/:slug" element={<Suspense fallback={<DetailPageSkeleton railWidth={340} specCols={4} />}><ServiceDetailPage /></Suspense>} />
+            <Route path="/pricing" element={<Suspense fallback={<GridPageSkeleton toolbar count={3} min={260} media={false} />}><PricingPage /></Suspense>} />
+            <Route path="/process" element={<Navigate to="/services" replace />} />
+            <Route path="/work" element={<Suspense fallback={<ListPageSkeleton feature rows={4} />}><WorkPage /></Suspense>} />
+            <Route path="/work/:slug" element={<Suspense fallback={<DetailPageSkeleton banner railWidth={260} specCols={3} />}><ProjectDetailPage /></Suspense>} />
+            <Route path="/careers" element={<Suspense fallback={<GridPageSkeleton toolbar count={6} min={320} media={false} />}><CareersPage /></Suspense>} />
+            <Route path="/careers/:slug" element={<Suspense fallback={<DetailPageSkeleton railWidth={320} specCols={4} />}><JobDetailPage /></Suspense>} />
+            <Route path="/about" element={<Suspense fallback={<GridPageSkeleton count={6} min={280} />}><AboutPage /></Suspense>} />
+            <Route path="/contact" element={<Suspense fallback={<FormPageSkeleton variant="split" fields={4} />}><ContactPage /></Suspense>} />
+            <Route path="/blog" element={<Suspense fallback={<GridPageSkeleton toolbar feature count={6} min={300} />}><BlogPage /></Suspense>} />
+            <Route path="/blog/:slug" element={<Suspense fallback={<ArticlePageSkeleton width={1140} side meta />}><BlogPostPage /></Suspense>} />
+            <Route path="/privacy" element={<Suspense fallback={<ArticlePageSkeleton />}><LegalPage doc="privacy" /></Suspense>} />
+            <Route path="/terms" element={<Suspense fallback={<ArticlePageSkeleton />}><LegalPage doc="terms" /></Suspense>} />
+            {/* Catch-all serves admin-authored SEO pages at /<slug>, or the 404 page. */}
+            <Route path="*" element={<Suspense fallback={<ArticlePageSkeleton />}><SeoCatchAllPage /></Suspense>} />
+          </Routes>
+        </main>
+        {(isKnownPath || catchAllFooter) && <Footer />}
+      </div>
+    </FooterVisibilityContext.Provider>
   );
 }

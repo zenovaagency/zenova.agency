@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchBlogList, type PublicBlogListItem } from '@/lib/publicContentApi';
 import { SkeletonListBody } from '@/components/ui/Skeleton';
-import { scrollToTop } from '@/lib/scroll';
 import { formatDate } from '@/lib/date';
 import './BlogPage.css';
 
@@ -95,10 +94,6 @@ export function BlogPage() {
   const items = result.key === reloadKey ? result.items : null;
   const total = result.key === reloadKey ? result.total : 0;
   const failure = result.key === reloadKey ? result.failure : null;
-
-  useEffect(() => {
-    scrollToTop();
-  }, []);
 
   useEffect(() => {
     let cancelled = false;

@@ -1,7 +1,6 @@
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { DEFAULT_CONTENT, useContent } from '@/admin/store';
-import { scrollToTop } from '@/lib/scroll';
 import './LegalPage.css';
 
 interface LegalPageProps {
@@ -10,10 +9,6 @@ interface LegalPageProps {
 
 export function LegalPage({ doc }: LegalPageProps) {
   const [content] = useContent();
-
-  useEffect(() => {
-    scrollToTop();
-  }, [doc]);
 
   const current = content.legal?.[doc];
   const fallback = DEFAULT_CONTENT.legal![doc];

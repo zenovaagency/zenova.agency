@@ -6,7 +6,6 @@ import { GhostButton } from '@/components/ui/GhostButton';
 import { PricingCard } from '@/components/pricing/PricingCard';
 import { useContent, useServices } from '@/admin/store';
 import { PRICING } from '@/data/pricing';
-import { scrollToTop } from '@/lib/scroll';
 import './PricingPage.css';
 
 /** Assurances that apply to every engagement — reinforces the flat-rate promise. */
@@ -54,10 +53,6 @@ export function PricingPage() {
   const [active, setActive] = useState(() => tabs[0]?.slug ?? '');
   const reduceMotion = useReducedMotion() ?? false;
   const tabsScrollRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    scrollToTop();
-  }, []);
 
   // When the tab row overflows, translate wheel input into horizontal scroll;
   // otherwise let the event through so the page keeps scrolling (Lenis).

@@ -1,10 +1,9 @@
-import { type FormEvent, useEffect, useMemo, useState } from 'react';
+import { type FormEvent, useMemo, useState } from 'react';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { Icon } from '@/components/icons/Icon';
 import { useBrand, useServices } from '@/admin/store';
 import { submitContact } from '@/lib/contact';
-import { scrollToTop } from '@/lib/scroll';
 import { Dropdown, type DropdownOption } from '@/components/ui/inputs';
 import '@/components/ui/inputs/inputs.css';
 import './ContactPage.css';
@@ -38,10 +37,6 @@ export function ContactPage() {
     ],
     [servicesFromStore],
   );
-  useEffect(() => {
-    scrollToTop();
-  }, []);
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (sending) return;

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Icon, type IconName, type IconComponent } from '@/components/icons/Icon';
 import { useContent } from '@/admin/store';
 import { fetchBlogList, type PublicBlogListItem } from '@/lib/publicContentApi';
-import { scrollToTop } from '@/lib/scroll';
 import { formatDate } from '@/lib/date';
 import './AboutPage.css';
 
@@ -24,10 +23,6 @@ export function AboutPage() {
   const ROLES = content.about?.roles ?? [];
   const TIMELINE = content.about?.timeline ?? [];
   const [posts, setPosts] = useState<PublicBlogListItem[]>([]);
-
-  useEffect(() => {
-    scrollToTop();
-  }, []);
 
   // Latest writing, shown as the page's closing note. The blog is a separate
   // API from the site bundle, so this fetches on its own and stays silent on
