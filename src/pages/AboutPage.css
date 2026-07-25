@@ -17,7 +17,7 @@
 
 /* Statement hero */
 .abt-statement {
-  padding: 184px 0 72px;
+  padding: var(--page-top) 0 72px;
 }
 .abt-statement__title {
   margin: 0;

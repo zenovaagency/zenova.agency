@@ -128,7 +128,7 @@ export function Work() {
   const projects = allProjects.slice(0, 4);
 
   return (
-    <section id="work" className="sec" style={{ padding: '120px 0' }}>
+    <section id="work" className="sec">
       <div className="container">
         <SectionHeader
           eyebrow="Our work"

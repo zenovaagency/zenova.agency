@@ -6,20 +6,9 @@ export function CTA() {
   const [content] = useContent();
   const cta = content.cta;
   return (
-    <section id="contact" className="sec" style={{ paddingBottom: 80 }}>
+    <section id="contact" className="sec sec--cta">
       <div className="container">
-        <div
-          className="cta-card reveal"
-          style={{
-            position: 'relative',
-            overflow: 'hidden',
-            borderRadius: 32,
-            padding: '80px 48px',
-            background: 'var(--card)',
-            border: '1px solid var(--line-strong)',
-            textAlign: 'center',
-          }}
-        >
+        <div className="cta-card reveal">
           <div style={{ position: 'relative' }}>
             <div className="mono" style={{ color: 'var(--fg-dim)', marginBottom: 20 }}>
               {cta.eyebrow}
@@ -29,21 +18,8 @@ export function CTA() {
               <br />
               <span className="gradient-text accent-italic">{cta.accentTitle}</span>
             </h2>
-            <p
-              className="cta-sub"
-              style={{
-                marginTop: 24,
-                fontSize: 18,
-                color: 'var(--fg-dim)',
-                maxWidth: 540,
-                marginLeft: 'auto',
-                marginRight: 'auto',
-                lineHeight: 1.55,
-              }}
-            >
-              {cta.sub}
-            </p>
-            <div style={{ marginTop: 40, display: 'flex', justifyContent: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <p className="cta-sub">{cta.sub}</p>
+            <div className="cta-actions">
               <NeonButton text={cta.primary} to={cta.primaryHref || '/contact'} />
               <GhostButton text={cta.secondary} to={cta.secondaryHref || '/services'} />
             </div>

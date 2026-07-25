@@ -312,12 +312,12 @@ a.ct-detail__value:hover {
     grid-template-columns: 1fr;
   }
   .ct-intro {
-    padding: 140px 24px 48px;
+    padding: var(--page-top) var(--gutter) 48px;
   }
   .ct-pane {
     border-left: none;
     border-top: 1px solid var(--line);
-    padding: 56px 24px 72px;
+    padding: 56px var(--gutter) 72px;
     justify-content: flex-start;
   }
   .ct-pane__tag {

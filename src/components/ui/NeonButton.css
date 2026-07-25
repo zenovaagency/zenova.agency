@@ -6,6 +6,11 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  /* The border and both glow layers size off THIS box, while the visible pill
+     is .neon-button-content. Centring here + letting the pill grow (below)
+     keeps the two silhouettes identical even when a parent stretches us. */
+  justify-content: center;
+  max-width: 100%;
   appearance: none;
   background: none;
   border: 1px solid color-mix(in srgb, var(--accent-1) 20%, transparent);
@@ -78,6 +83,11 @@
   border-radius: calc(var(--radius) - var(--border-width));
   display: flex;
   align-items: center;
+  /* Sole in-flow child: inert at intrinsic width, exact fill under stretch.
+     `flex: 1 1 auto` rather than `width: 100%`, which resolves against an
+     indefinite container during intrinsic sizing. */
+  flex: 1 1 auto;
+  justify-content: center;
   gap: 24px;
   padding: 14px 14px 14px 32px;
 
@@ -94,6 +104,7 @@
   color: #ffffff;
   font-weight: 600;
   letter-spacing: 0.2px;
+  white-space: nowrap;
   pointer-events: none;
   position: relative;
   z-index: 2;

@@ -22,7 +22,7 @@
 
 /* Header */
 .sd-header {
-  padding: 160px 0 48px;
+  padding: var(--page-top) 0 48px;
   border-bottom: 1px solid var(--line);
 }
 .sd-crumbs {
@@ -455,7 +455,7 @@
 /* Responsive */
 @media (max-width: 900px) {
   .sd-header {
-    padding: 140px 0 40px;
+    padding-bottom: 40px;
   }
   .sd-body {
     grid-template-columns: 1fr;

@@ -117,8 +117,8 @@ export function Services() {
   const total = SERVICES.length;
 
   return (
-    <section id="services" className="sec" style={{ position: 'relative', padding: '120px 0 140px' }}>
-      <div className="svc-header-inner" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
+    <section id="services" className="sec sec--services">
+      <div className="container">
         {/* Section heading */}
         <div className="reveal reveal-blur" style={{ marginBottom: 60 }}>
           <div

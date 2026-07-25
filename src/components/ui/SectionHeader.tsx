@@ -10,12 +10,8 @@ interface SectionHeaderProps {
 export function SectionHeader({ eyebrow, title, sub, align = 'left' }: SectionHeaderProps) {
   return (
     <div
-      className="reveal reveal-blur"
-      style={{
-        maxWidth: align === 'center' ? 760 : 880,
-        margin: align === 'center' ? '0 auto 64px' : '0 0 64px',
-        textAlign: align,
-      }}
+      className={`reveal reveal-blur section-header section-header--${align}`}
+      style={{ textAlign: align }}
     >
       <div
         className="mono"
@@ -37,18 +33,7 @@ export function SectionHeader({ eyebrow, title, sub, align = 'left' }: SectionHe
         {title}
       </h2>
       {sub && (
-        <p
-          className="section-header__sub"
-          style={{
-            marginTop: 20,
-            fontSize: 18,
-            lineHeight: 1.55,
-            color: 'var(--fg-dim)',
-            maxWidth: 620,
-            marginLeft: align === 'center' ? 'auto' : 0,
-            marginRight: align === 'center' ? 'auto' : 0,
-          }}
-        >
+        <p className="section-header__sub">
           {sub}
         </p>
       )}

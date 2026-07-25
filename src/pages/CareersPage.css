@@ -1,7 +1,7 @@
 /* ── Careers: editorial index ── */
 
 .car-hero {
-  padding: 176px 0 64px;
+  padding: var(--page-top) 0 64px;
 }
 .car-hero__kicker {
   display: inline-flex;

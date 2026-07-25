@@ -1,7 +1,7 @@
 /* ── Blog: listing ── */
 
 .blg-masthead {
-  padding: 176px 0 48px;
+  padding: var(--page-top) 0 48px;
   border-bottom: 1px solid var(--line);
 }
 .blg-masthead__kicker {

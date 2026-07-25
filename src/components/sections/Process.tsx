@@ -1,6 +1,7 @@
-import { useEffect, useState, type MouseEvent, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type MouseEvent, type ReactElement } from 'react';
 import { Icon } from '@/components/icons/Icon';
 import { SectionHeader } from '@/components/ui/SectionHeader';
+import { useElementWidth } from '@/hooks/useElementWidth';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { DEFAULT_CONTENT, useContent } from '@/admin/store';
 import './Process.css';
@@ -21,10 +22,16 @@ export function Process() {
 
   const [openId, setOpenId] = useState<string | null>(null);
   const [rotation, setRotation] = useState(0);
-  const isMobile = useMediaQuery('(max-width: 640px)');
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
-  const radius = isMobile ? 128 : 210;
+  // The orbit is sized from the space the stage actually has, not from a
+  // breakpoint: a hard mobile/desktop switch left the 210px radius in place
+  // from 641px up, where the ring plus its nowrap labels overflowed the
+  // stage's `overflow: hidden` and got clipped.
+  const stageRef = useRef<HTMLDivElement>(null);
+  const stageWidth = useElementWidth(stageRef);
+  // 104px reserve on each side for the node and its label.
+  const radius = stageWidth === 0 ? 210 : Math.round(Math.min(210, Math.max(104, stageWidth / 2 - 104)));
   const spinning = openId === null && !reducedMotion;
 
   useEffect(() => {
@@ -72,7 +79,7 @@ export function Process() {
         />
       </div>
 
-      <div className="orbital-stage reveal reveal-d1" onClick={() => setOpenId(null)}>
+      <div ref={stageRef} className="orbital-stage reveal reveal-d1" onClick={() => setOpenId(null)}>
         <div className="orbital-ambient" />
         <div
           className="orbital-ring orbital-ring--outer"

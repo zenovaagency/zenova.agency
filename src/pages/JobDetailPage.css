@@ -22,7 +22,7 @@
 
 /* Header */
 .jd-header {
-  padding: 140px 24px 40px;
+  padding: var(--page-top-tight) var(--gutter) 40px;
   border-bottom: 1px solid var(--line);
 }
 .jd-crumbs {

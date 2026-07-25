@@ -54,7 +54,7 @@ export function Nav() {
         zIndex: 50,
         display: 'flex',
         justifyContent: 'center',
-        padding: scrolled ? '12px 16px' : '20px 16px',
+        padding: scrolled ? '12px var(--gutter)' : '20px var(--gutter)',
         transition: 'padding .3s ease',
       }}
     >
@@ -62,7 +62,9 @@ export function Nav() {
         className="nav-shell-enter"
         style={{
           width: '100%',
-          maxWidth: scrolled ? 920 : 1200,
+          // 1216 = .container's content box at >=1344px (1280 - 2 * 32 gutter),
+          // so the nav shell edges land on the section content edges.
+          maxWidth: scrolled ? 920 : 1216,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',

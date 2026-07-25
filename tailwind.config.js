@@ -10,6 +10,19 @@ export default {
   ],
   theme: {
     extend: {
+      // Canonical layout breakpoints, mirrored from global.css: 1024/768/640/480.
+      // Tailwind's defaults already are sm:640 md:768 lg:1024 xl:1280, so only
+      // `xs` is new — redefining theme.screens wholesale would silently retarget
+      // the existing `md:` usages in the testimonials components.
+      screens: { xs: "480px" },
+      maxWidth: { container: "1280px" },
+      // The fluid spacing scale, so Tailwind utilities and hand-written CSS
+      // draw from the same tokens.
+      spacing: {
+        gutter: "var(--gutter)",
+        "section-y": "var(--section-y)",
+        "page-top": "var(--page-top)",
+      },
       colors: {
         background: "var(--bg)",
         foreground: "var(--fg)",

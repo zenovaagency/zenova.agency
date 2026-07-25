@@ -2,7 +2,7 @@
 
 /* Hero — pure typography, no meta grid, no buttons */
 .svx-hero {
-  padding: 176px 0 64px;
+  padding: var(--page-top) 0 64px;
 }
 .svx-hero__kicker {
   display: inline-flex;

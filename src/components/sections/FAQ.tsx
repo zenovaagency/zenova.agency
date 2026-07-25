@@ -26,11 +26,9 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
           width: '100%',
           background: 'transparent',
           border: 'none',
-          padding: '28px 32px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 24,
           cursor: 'pointer',
           textAlign: 'left',
           color: 'var(--fg)',
@@ -77,14 +75,7 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
       >
         <p
           className="faq-answer"
-          style={{
-            padding: '0 32px 28px',
-            margin: 0,
-            fontSize: 16,
-            lineHeight: 1.6,
-            color: 'var(--fg-dim)',
-            maxWidth: 760,
-          }}
+          style={{ margin: 0, fontSize: 16, lineHeight: 1.6, color: 'var(--fg-dim)', maxWidth: 760 }}
         >
           {item.a}
         </p>

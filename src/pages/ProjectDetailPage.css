@@ -28,7 +28,7 @@
 
 /* Hero */
 .pd-hero {
-  padding: 160px 0 0;
+  padding: var(--page-top) 0 0;
 }
 .pd-crumbs {
   display: inline-flex;
@@ -384,9 +384,6 @@
 
 /* Responsive */
 @media (max-width: 900px) {
-  .pd-hero {
-    padding: 140px 0 0;
-  }
   .pd-article {
     grid-template-columns: 1fr;
   }

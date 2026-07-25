@@ -12,19 +12,7 @@ export function Hero({ rotateMs }: HeroProps) {
   const [content] = useContent();
   const SERVICES = content.hero.rotatingWords;
   return (
-    <section
-      id="top"
-      className="hero-section"
-      style={{
-        position: 'relative',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '120px 24px 80px',
-        overflow: 'hidden',
-      }}
-    >
+    <section id="top" className="hero-section">
       {/* <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: -1 }}>
         <div
           style={{
@@ -81,30 +69,14 @@ export function Hero({ rotateMs }: HeroProps) {
 
         <p
           className="hero-sub"
-          style={{
-            marginTop: 36,
-            fontSize: 'clamp(16px, 1.4vw, 20px)',
-            color: 'var(--fg-dim)',
-            maxWidth: 640,
-            marginLeft: 'auto',
-            marginRight: 'auto',
-            lineHeight: 1.55,
-            animation: 'fade-up 1.4s cubic-bezier(.2,.7,.2,1) both .7s',
-          }}
+          style={{ animation: 'fade-up 1.4s cubic-bezier(.2,.7,.2,1) both .7s' }}
         >
           {content.hero.sub}
         </p>
 
         <div
           className="hero-cta-row"
-          style={{
-            marginTop: 44,
-            display: 'flex',
-            gap: 12,
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            animation: 'fade-up 1.4s cubic-bezier(.2,.7,.2,1) both .9s',
-          }}
+          style={{ animation: 'fade-up 1.4s cubic-bezier(.2,.7,.2,1) both .9s' }}
         >
           <NeonButton
             text={content.hero.primaryCta}

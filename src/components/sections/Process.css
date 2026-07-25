@@ -6,9 +6,17 @@
 
 .orbital-stage {
   position: relative;
-  height: 760px;
+  /* One height for every width. Deliberately not derived from the radius: an
+     opened card hangs DOWN from the top node, so a smaller ring pushes it
+     lower and needs more room, not less. 780px is the old mobile value — the
+     binding case — and it leaves the desktop orbit comfortable too. */
+  height: 780px;
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
+  /* This section sits outside .container, so it carries its own gutter.
+     Safe with the absolutely positioned ring/core/nodes: `left: 50%` resolves
+     against the padding box, so the orbit re-centres inside the gutters. */
+  padding-inline: var(--gutter);
 }
 
 .orbital-ambient {
@@ -431,13 +439,18 @@
   pointer-events: none;
 }
 
-@media (max-width: 640px) {
-  /* The mobile ring is small (radius 128), so an opened card hangs much further
-     below its node relative to the ring than it does on desktop. The stage has
-     to stay tall enough for the tallest card to clear the hint. */
-  .orbital-stage {
-    height: 780px;
+/* Below tablet the ring is tight enough that nowrap labels on the left/right
+   nodes would overhang the stage and be clipped. */
+@media (max-width: 768px) {
+  .orbital-label {
+    white-space: normal;
+    max-width: 108px;
+    text-align: center;
+    line-height: 1.35;
   }
+}
+
+@media (max-width: 640px) {
   .orbital-item {
     width: 46px;
     height: 46px;

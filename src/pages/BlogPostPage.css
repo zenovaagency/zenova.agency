@@ -1,7 +1,7 @@
 /* ── Blog: post detail ── */
 
 .bpp {
-  padding: 140px 0 96px;
+  padding: var(--page-top-tight) 0 96px;
 }
 .bpp__inner {
   max-width: 1140px;

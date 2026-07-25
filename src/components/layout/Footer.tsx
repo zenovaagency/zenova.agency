@@ -38,14 +38,7 @@ export function Footer() {
   };
 
   return (
-    <footer
-      style={{
-        borderTop: '1px solid var(--line)',
-        padding: '72px 0 32px',
-        position: 'relative',
-        background: 'var(--bg)',
-      }}
-    >
+    <footer className="site-footer">
       <div
         style={{
           position: 'absolute',
@@ -59,7 +52,7 @@ export function Footer() {
         }}
       />
       <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-        <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: `minmax(200px, 1fr) repeat(${footer.columns.length}, auto)`, gap: 140, justifyContent: 'end' }}>
+        <div className="footer-grid">
           <div>
             <LogoBadge size={52} word />
             <p style={{ color: 'var(--fg-dim)', fontSize: 14, lineHeight: 1.55, marginTop: 22, maxWidth: 320 }}>
@@ -137,19 +130,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div
-          className="footer-bottom"
-          style={{
-            marginTop: 64,
-            paddingTop: 24,
-            borderTop: '1px solid var(--line)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: 12,
-          }}
-        >
+        <div className="footer-bottom">
           <div style={{ color: 'var(--fg-faint)' }}>
             {footer.copyright}
           </div>
