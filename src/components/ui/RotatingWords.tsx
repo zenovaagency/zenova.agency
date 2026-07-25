@@ -7,10 +7,6 @@ interface RotatingWordsProps {
 
 type Phase = 'in' | 'out';
 
-function longest(arr: string[]): string {
-  return arr.reduce((a, b) => (a.length > b.length ? a : b), '');
-}
-
 export function RotatingWords({ words, intervalMs = 2400 }: RotatingWordsProps) {
   const [idx, setIdx] = useState(0);
   const [phase, setPhase] = useState<Phase>('in');
@@ -33,16 +29,14 @@ export function RotatingWords({ words, intervalMs = 2400 }: RotatingWordsProps) 
 
   return (
     <span className="rotating-words">
-      {/* invisible sizer reserves the width of the longest word so layout doesn't jump */}
-      <span aria-hidden className="rotating-words__sizer">
-        {longest(words)}
-      </span>
-      <span
-        key={idx + phase}
-        className="rotating-words__word gradient-text"
-        style={{ animation: anim }}
-      >
-        {words[idx]}
+      {/* invisible sizers reserve the rendered width of the widest word so layout doesn't jump */}
+      {words.map((w, i) => (
+        <span key={`sizer-${i}`} aria-hidden className="rotating-words__sizer">
+          {w}
+        </span>
+      ))}
+      <span key={idx + phase} className="rotating-words__word" style={{ animation: anim }}>
+        <span className="rotating-words__fill gradient-text">{words[idx]}</span>
       </span>
     </span>
   );

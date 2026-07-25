@@ -150,10 +150,10 @@ export function Footer() {
             gap: 12,
           }}
         >
-          <div className="mono" style={{ color: 'var(--fg-faint)' }}>
+          <div style={{ color: 'var(--fg-faint)' }}>
             {footer.copyright}
           </div>
-          <div className="mono" style={{ color: 'var(--fg-faint)' }}>
+          <div style={{ color: 'var(--fg-faint)' }}>
             {footer.strapline}
           </div>
         </div>

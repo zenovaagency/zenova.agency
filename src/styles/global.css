@@ -237,7 +237,7 @@ button {
 @keyframes word-in {
   from {
     opacity: 0;
-    transform: translateY(60px);
+    transform: translateY(0.5em);
     filter: blur(12px);
   }
   to {
@@ -254,7 +254,7 @@ button {
   }
   to {
     opacity: 0;
-    transform: translateY(-60px);
+    transform: translateY(-0.5em);
     filter: blur(12px);
   }
 }
@@ -481,7 +481,7 @@ section.sec {
 .zlogo-mark {
   height: 1.0em;
   width: auto;
-  aspect-ratio: 899 / 921;
+  aspect-ratio: 744 / 1029;
   display: block;
   margin-right: 0.06em;
   transform: translateY(-0.04em);
@@ -496,15 +496,21 @@ section.sec {
   display: inline-block;
   height: 1em;
   width: auto;
-  aspect-ratio: 899 / 921;
+  aspect-ratio: 744 / 1029;
 }
-/* Footer lockup — the navbar badge mark plus the "enova" wordmark. The badge
-   viewBox carries ~26% empty margin either side of the glyph, so the tile is
-   pulled in on both sides to keep the lockup flush left and the word tight
-   against the Z. */
+.zlogo-badge-mark {
+  display: block;
+  width: auto;
+  aspect-ratio: 744 / 1029;
+  margin-left: 5px;
+}
+/* Footer lockup — the navbar badge mark plus the "enova" wordmark. The mark is
+   drawn tight to the glyph (it used to sit in a padded viewBox that needed
+   pulling in from both sides), so the lockup is already flush left and only the
+   gap to the word needs setting. With .zlogo-word's 3px padding-left this keeps
+   the previous ~5.8px optical gap. */
 .zlogo--badge .logo-badge {
-  margin-left: -0.39em;
-  margin-right: -0.31em;
+  margin-right: 0.08em;
 }
 
 /* Navbar badge logo — rounded tile + mark, both theme-driven. Pops in on mount. */
@@ -582,32 +588,47 @@ section.sec {
   .zlogo--animate .zlogo-letter {
     animation: none;
   }
+  .rotating-words__word {
+    animation: none !important;
+  }
 }
 
 .rotating-words {
-  position: relative;
-  display: inline-block;
+  display: inline-grid;
+  grid-template-areas: 'w';
+  place-items: center;
   font-family: var(--font-accent);
   font-style: italic;
   font-weight: 400;
   letter-spacing: -0.01em;
   font-size: 1.06em;
-  line-height: 1;
-  padding: 0.08em 0.04em;
+  line-height: 1.2;
+}
+/* every child shares the single grid cell, so the box is as wide as the widest
+   rendered word and tall enough for ascenders + descenders */
+.rotating-words > * {
+  grid-area: w;
 }
 .rotating-words__sizer {
   visibility: hidden;
   white-space: nowrap;
-  display: inline-block;
 }
+/* flex (not inline flow) so the fill's negative margins resolve predictably and
+   its padding can't inflate the reserved line box */
 .rotating-words__word {
-  position: absolute;
-  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  padding: inherit;
+}
+/* the gradient fill lives on its own element: `background-clip: text` needs a
+   background box that comfortably contains the glyphs (italic overhang and
+   descenders), and it must not share an element with the animated `filter` */
+.rotating-words__fill {
+  display: inline-block;
+  padding: 0.16em 0.1em;
+  margin: -0.16em -0.1em;
+  white-space: nowrap;
 }
 
 .hero-headline {
