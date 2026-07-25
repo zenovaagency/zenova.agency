@@ -53,9 +53,14 @@ export function headTagsHtml(meta: SeoMeta): string {
 }
 
 /**
- * A crawlable, semantic snapshot injected into #root. React replaces it on
- * mount (createRoot renders fresh), so it exists only for non-JS crawlers,
- * social scrapers, and first paint — no hydration mismatch.
+ * A crawlable, semantic snapshot injected into #root, for non-JS crawlers and
+ * social scrapers. React replaces it on mount (createRoot renders fresh), so
+ * there is no hydration mismatch.
+ *
+ * The <noscript> wrapper is load-bearing — do not remove it. Without it the
+ * browser paints this block as soon as the stylesheet resolves and only clears
+ * it once the JS bundle executes, so real visitors see a bare system-font
+ * banner flash before the site appears.
  */
 export function prerenderBodyHtml(meta: SeoMeta): string {
   const links = NAV.map(
@@ -64,14 +69,14 @@ export function prerenderBodyHtml(meta: SeoMeta): string {
 
   const intro = meta.intro ? `<p style="opacity:.75;line-height:1.6;font-size:1.05rem">${escapeHtml(meta.intro)}</p>` : '';
 
-  return `<div id="seo-prerender" style="max-width:760px;margin:0 auto;padding:88px 24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  return `<noscript><div id="seo-prerender" style="max-width:760px;margin:0 auto;padding:88px 24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
       <a href="/" style="font-weight:700;letter-spacing:-.02em;color:inherit;text-decoration:none">Zenova</a>
       <h1 style="font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.12;margin:28px 0 16px">${escapeHtml(meta.h1)}</h1>
       ${intro}
       <nav aria-label="Primary" style="margin-top:36px;display:flex;flex-wrap:wrap;gap:20px;font-size:.95rem">
         ${links}
       </nav>
-    </div>`;
+    </div></noscript>`;
 }
 
 /**
