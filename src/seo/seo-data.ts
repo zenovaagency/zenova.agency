@@ -50,7 +50,6 @@ export const SITE = {
     'https://www.linkedin.com/company/zenova',
     'https://twitter.com/zenova',
     'https://github.com/zenova',
-    'https://dribbble.com/zenova',
     'https://facebook.com/zenova',
   ],
 } as const;
