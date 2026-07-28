@@ -6,10 +6,11 @@
   "description": "Zenova — one agency for everything modern.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && npm run build:client && npm run build:ssr && npm run prerender",
+    "build": "tsc --noEmit && npm run build:client && npm run build:ssr && npm run prerender && npm run verify",
     "build:client": "vite build",
     "build:ssr": "vite build --ssr src/entry-server.tsx",
     "prerender": "node scripts/prerender.mjs",
+    "verify": "node scripts/verify-build.mjs",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit"
