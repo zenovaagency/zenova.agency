@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { Icon } from '@/components/icons/Icon';
-import { LogoBadge } from '@/components/layout/Logo';
 import { useBrand, useServices } from '@/admin/store';
 import { submitContact } from '@/lib/contact';
 import { Dropdown, type DropdownOption } from '@/components/ui/inputs';
@@ -86,9 +85,6 @@ export function ContactPage() {
         justifyContent: 'space-between',
         padding: '20px var(--gutter)',
       }}>
-        <Link to="/" style={{ display: 'inline-flex' }}>
-          <LogoBadge size={46} />
-        </Link>
         <Link to="/"
           style={{
             display: 'inline-flex',
