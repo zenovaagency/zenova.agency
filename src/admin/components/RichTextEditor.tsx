@@ -331,7 +331,7 @@ export function RichTextEditor({
           <span style={{ fontWeight: 800 }}>B</span>
         </TB>
         <TB label="Italic" active={active.italic} onClick={() => exec('italic')}>
-          <span style={{ fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>I</span>
+          <span style={{ fontStyle: 'italic', fontFamily: 'Satoshi, system-ui, sans-serif' }}>I</span>
         </TB>
         <TB label="Underline" active={active.underline} onClick={() => exec('underline')}>
           <span style={{ textDecoration: 'underline' }}>U</span>

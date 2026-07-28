@@ -417,13 +417,18 @@
   background: transparent;
   border: 1px solid var(--line-strong);
   color: var(--fg-dim);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: color 0.25s, border-color 0.25s, background 0.25s;
 }
 .orbital-next:hover {
+  color: var(--fg);
+  border-color: var(--accent-1);
+  background: color-mix(in srgb, var(--accent-1) 8%, transparent);
+}
+.orbital-card .orbital-next:hover {
   color: var(--fg);
   border-color: var(--accent-1);
   background: color-mix(in srgb, var(--accent-1) 8%, transparent);

@@ -21,7 +21,7 @@
   --grad-soft: linear-gradient(135deg, rgba(255, 129, 58, 0.18), rgba(255, 154, 92, 0.18));
   --font-display: 'Satoshi', system-ui, sans-serif;
   --font-body: 'Satoshi', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-mono: 'Satoshi', system-ui, sans-serif;
   --font-accent: 'Instrument Serif', Georgia, serif;
   --scroll-thumb: rgba(255, 255, 255, 0.08);
   --scroll-thumb-hover: rgba(255, 255, 255, 0.16);

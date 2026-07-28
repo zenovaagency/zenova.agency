@@ -69,7 +69,7 @@ export function prerenderBodyHtml(meta: SeoMeta): string {
 
   const intro = meta.intro ? `<p style="opacity:.75;line-height:1.6;font-size:1.05rem">${escapeHtml(meta.intro)}</p>` : '';
 
-  return `<noscript><div id="seo-prerender" style="max-width:760px;margin:0 auto;padding:88px 24px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  return `<noscript><div id="seo-prerender" style="max-width:760px;margin:0 auto;padding:88px 24px;font-family:'Satoshi',system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
       <a href="/" style="font-weight:700;letter-spacing:-.02em;color:inherit;text-decoration:none">Zenova</a>
       <h1 style="font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.12;margin:28px 0 16px">${escapeHtml(meta.h1)}</h1>
       ${intro}
