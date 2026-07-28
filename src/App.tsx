@@ -153,13 +153,14 @@ function PublicLayout({
   showMarquee,
   showTestimonials,
 }: PublicLayoutProps) {
+  const loc = useLocation();
   useSmoothScroll();
   useReveal();
   useScrollReset();
   useRoutePrefetch();
   return (
     <>
-      <Nav />
+      {loc.pathname !== '/contact' && <Nav />}
       <RouteFrame
         rotateMs={rotateMs}
         showMarquee={showMarquee}
@@ -221,7 +222,7 @@ function RouteFrame({ rotateMs, showMarquee, showTestimonials }: RouteFrameProps
             <Route path="*" element={<Suspense fallback={<ArticlePageSkeleton />}><SeoCatchAllPage /></Suspense>} />
           </Routes>
         </main>
-        {(isKnownPath || catchAllFooter) && <Footer />}
+        {(isKnownPath || catchAllFooter) && location.pathname !== '/contact' && <Footer />}
       </div>
     </FooterVisibilityContext.Provider>
   );
