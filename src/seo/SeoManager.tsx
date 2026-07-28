@@ -1,7 +1,11 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SITE, canonicalUrl, jsonLdObjects, resolveSeo } from './seo-data';
-import { getDynamicSeo, subscribeDynamicSeo } from './dynamic-seo';
+import {
+  getDynamicSeo,
+  getDynamicSeoServerSnapshot,
+  subscribeDynamicSeo,
+} from './dynamic-seo';
 
 /**
  * Keeps document <head> in sync with the current route during client-side
@@ -16,7 +20,11 @@ import { getDynamicSeo, subscribeDynamicSeo } from './dynamic-seo';
  */
 export function SeoManager() {
   const { pathname } = useLocation();
-  const dyn = useSyncExternalStore(subscribeDynamicSeo, () => getDynamicSeo(pathname));
+  const dyn = useSyncExternalStore(
+    subscribeDynamicSeo,
+    () => getDynamicSeo(pathname),
+    getDynamicSeoServerSnapshot,
+  );
 
   useEffect(() => {
     const meta = dyn?.meta ?? resolveSeo(pathname);

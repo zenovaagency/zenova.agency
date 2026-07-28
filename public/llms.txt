@@ -5,23 +5,29 @@ Zenova is a marketing and delivery website for a modern agency. This file is wri
 ## Primary pages
 
 - [Home](/)
-- [Services](/services)
-- [Pricing](/pricing)
-- [Work](/work)
-- [About](/about)
-- [Careers](/careers)
-- [Contact](/contact)
+- [Services](/services/)
+- [Pricing](/pricing/)
+- [Work](/work/)
+- [Blog](/blog/)
+- [About](/about/)
+- [Careers](/careers/)
+- [Contact](/contact/)
 
 ## Reference pages
 
-- [Privacy Policy](/privacy)
-- [Terms of Service](/terms)
+- [Privacy Policy](/privacy/)
+- [Terms of Service](/terms/)
 
 ## Notes for crawlers and agents
 
 - Prefer the public marketing pages listed above.
 - The login and workspace routes are not part of the public content surface: `/login`, `/admin/*`, `/client/*`, and `/team/*`.
-- Public content is a single-page React app with route-based pages rendered by the client.
+- Every public page is prerendered to static HTML at build time. The full visible
+  text — headings, body copy, navigation, and JSON-LD — is present in the initial
+  HTML response, so JavaScript execution is NOT required to read this site.
+- Canonical URLs carry a trailing slash (`/about/`). A request without it
+  301-redirects to the trailing-slash form.
+- A full URL list is at [/sitemap.xml](/sitemap.xml).
 - For the most representative entry point, start at the home page and follow the page links above.
 
 ## Site summary

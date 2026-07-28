@@ -40,8 +40,18 @@ export const SITE = {
   // NOTE: replace with a dedicated 1200×630 or square logo file when available.
   // The mark is used here because the referenced zenova-logo.png does not exist in the repo.
   logo: 'https://zenova.agency/assets/zenova-mark.png',
-  /** Absolute URL to the 1200×630 social share card. */
+  /**
+   * Absolute URL to the social share card. Dimensions below must match the real
+   * file (public/uploads/og-card.png, verified 1600×840 — a 1.905 ratio, the
+   * same shape as 1200×630, which is what every major scraper crops to).
+   * If you replace the card, update these numbers or Slack/LinkedIn will lay
+   * out the preview against the wrong box.
+   */
   ogImage: 'https://zenova.agency/uploads/og-card.png',
+  ogImageWidth: 1600,
+  ogImageHeight: 840,
+  ogImageType: 'image/png',
+  ogImageAlt: 'Zenova — one agency for design, development, marketing, and startup support.',
   locale: 'en_US',
   email: 'hello@zenova.agency',
   /** Declared brand profiles (rendered in the site footer). Confirm/extend. */

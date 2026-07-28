@@ -11,7 +11,7 @@
  * exposes ``status`` and ``error`` for callers that care.
  */
 
-import { useEffect, useReducer, useRef } from 'react';
+import { useSyncExternalStore } from 'react';
 import { ApiError, api } from '@/lib/api';
 import {
   clearTokens,
@@ -544,6 +544,13 @@ interface StoreOptions<T> {
   cacheKey: string;
 }
 
+/** Immutable view handed to useSyncExternalStore. Identity changes only on emit. */
+export interface StoreSnapshot<T> {
+  value: T;
+  status: Status;
+  error: string | null;
+}
+
 class Store<T> {
   private value: T;
   private listeners = new Set<Listener>();
@@ -552,13 +559,54 @@ class Store<T> {
   private readonly defaults: T;
   private readonly resourcePath: string;
   private readonly cacheKey: string;
+  /** Cached so getSnapshot() is referentially stable between emits. */
+  private snapshot: StoreSnapshot<T>;
+  /**
+   * Deliberately the SAME OBJECT as the initial snapshot, not an equal copy.
+   * useSyncExternalStore compares the two with Object.is: an equal-but-distinct
+   * object still reads as "changed", so React schedules an update the instant
+   * hydration starts. That update lands while the lazy route chunks are still
+   * hydrating their Suspense boundaries, which React reports as error #421 and
+   * recovers from by throwing away the server HTML for those boundaries — the
+   * prerendered markup would be discarded on every single page load.
+   */
+  private readonly serverSnapshot: StoreSnapshot<T>;
+  /** localStorage value, held back until after hydration. See applyCache(). */
+  private pendingCache: T | null;
 
   constructor(opts: StoreOptions<T>) {
     this.defaults = opts.defaults;
     this.resourcePath = opts.resourcePath;
     this.cacheKey = opts.cacheKey;
-    this.value = this.loadCache() ?? opts.defaults;
+    // Start on the defaults — the exact value the prerenderer rendered with,
+    // since loadCache() returns null without `window`. Anything else would make
+    // the first client render disagree with the shipped HTML.
+    this.value = opts.defaults;
+    this.pendingCache = this.loadCache();
+    this.snapshot = { value: this.value, status: this._status, error: this._error };
+    this.serverSnapshot = this.snapshot;
   }
+
+  /**
+   * Promote the cached value to the live one. Kept out of the constructor so
+   * hydration can match the prerendered HTML first; call it once the tree is
+   * hydrated (App does, inside startTransition) so the resulting re-render
+   * cannot interrupt a Suspense boundary. hydrateSite() then supersedes this
+   * with fresh API data a moment later.
+   */
+  applyCache(): void {
+    const cached = this.pendingCache;
+    this.pendingCache = null;
+    if (cached === null) return;
+    this.value = cached;
+    this.emit();
+  }
+
+  // Bound so they keep a stable identity across renders — useSyncExternalStore
+  // resubscribes whenever `subscribe` changes identity.
+  readonly subscribeBound = (listener: Listener): (() => void) => this.subscribe(listener);
+  readonly getSnapshot = (): StoreSnapshot<T> => this.snapshot;
+  readonly getServerSnapshot = (): StoreSnapshot<T> => this.serverSnapshot;
 
   private loadCache(): T | null {
     if (typeof window === 'undefined') return null;
@@ -668,6 +716,8 @@ class Store<T> {
   }
 
   private emit() {
+    // Rebuild first: subscribers read getSnapshot() synchronously on notify.
+    this.snapshot = { value: this.value, status: this._status, error: this._error };
     this.listeners.forEach((l) => l());
   }
 }
@@ -712,6 +762,24 @@ interface SiteBundle {
   brand: BrandSettings;
 }
 
+const SITE_STORES = [
+  servicesStore,
+  projectsStore,
+  jobsStore,
+  teamStore,
+  contentStore,
+  brandStore,
+] as const;
+
+/**
+ * Promote every store's localStorage cache to its live value. Must run after
+ * hydration — see Store.applyCache() — and callers should wrap it in
+ * startTransition so the re-render cannot tear a hydrating Suspense boundary.
+ */
+export function applyCachedSite(): void {
+  for (const store of SITE_STORES) store.applyCache();
+}
+
 let hydrationPromise: Promise<void> | null = null;
 
 /** Public site bootstrap. Idempotent — safe to call multiple times. */
@@ -752,13 +820,16 @@ export function hydrateSite(force = false): Promise<void> {
 }
 
 function useStore<T>(store: Store<T>) {
-  const [, force] = useReducer((x: number) => x + 1, 0);
-  const ref = useRef(store);
-  useEffect(() => ref.current.subscribe(force), []);
+  const snap = useSyncExternalStore(
+    store.subscribeBound,
+    store.getSnapshot,
+    // Hydration snapshot — see Store.serverSnapshot.
+    store.getServerSnapshot,
+  );
   return [
-    store.get(),
+    snap.value,
     (v: T | ((prev: T) => T)) => store.set(v),
-    { status: store.status, error: store.error },
+    { status: snap.status, error: snap.error },
   ] as const;
 }
 

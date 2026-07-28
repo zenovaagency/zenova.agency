@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '@/lib/sanitize';
 import { DEFAULT_CONTENT, useContent } from '@/admin/store';
 import './LegalPage.css';
 
@@ -20,7 +20,7 @@ export function LegalPage({ doc }: LegalPageProps) {
   const rawBody = current?.body?.trim() ? current.body : fallback.body;
   const bodyHtml = useMemo(() => {
     if (!rawBody) return '';
-    return DOMPurify.sanitize(rawBody, { FORBID_ATTR: ['style'] });
+    return sanitizeHtml(rawBody, { FORBID_ATTR: ['style'] });
   }, [rawBody]);
 
   return (

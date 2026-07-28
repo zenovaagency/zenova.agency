@@ -5,8 +5,8 @@
  * Pages publish an entry once their data loads (`setDynamicSeo`) and clear it
  * on unmount; <SeoManager> subscribes and prefers a dynamic entry over
  * `resolveSeo()` for the current path. Build-time prerendering handles the
- * same routes separately (vite.config.ts fetches them from the API), so this
- * module only serves client-side navigation and post-hydration correctness.
+ * same routes separately (scripts/prerender.mjs fetches them from the API), so
+ * this module only serves client-side navigation and post-hydration correctness.
  */
 
 import { normalizePath, type SeoMeta } from './seo-data';
@@ -45,6 +45,21 @@ export function clearDynamicSeo(path: string): void {
 
 export function getDynamicSeo(path: string): DynamicSeoEntry | undefined {
   return entries.get(normalizePath(path));
+}
+
+/**
+ * Snapshot for server rendering and for the client's hydration pass.
+ *
+ * The registry is necessarily empty during prerendering — pages publish entries
+ * from effects, which never run on the server — and scripts/prerender.mjs
+ * writes those routes' head tags straight into the HTML instead. `undefined` is
+ * therefore the honest server value, and replaying it during hydration keeps
+ * the first client render identical to the prerendered markup.
+ *
+ * Declared at module scope so its identity is stable across renders.
+ */
+export function getDynamicSeoServerSnapshot(): DynamicSeoEntry | undefined {
+  return undefined;
 }
 
 /** Subscribe to changes; returns the unsubscribe function. */

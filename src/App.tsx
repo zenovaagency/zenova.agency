@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
+import { lazy, startTransition, Suspense, useCallback, useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Nav } from '@/components/layout/Nav';
 import { Footer } from '@/components/layout/Footer';
@@ -11,9 +11,10 @@ import { useScrollReset } from '@/hooks/useScrollReset';
 import { useRoutePrefetch } from '@/hooks/useRoutePrefetch';
 import { useTweaks } from '@/hooks/useTweaks';
 import { applyPalette, deriveRamp } from '@/lib/palette';
-import { useBrand } from '@/admin/store';
+import { applyCachedSite, useBrand } from '@/admin/store';
 import { ConfirmProvider } from '@/admin/components/ConfirmProvider';
 import { SeoManager } from '@/seo/SeoManager';
+import { normalizePath } from '@/seo/seo-data';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 // Static on purpose: these render before a route's own CSS chunk arrives, so they
 // must ship in the entry bundle. Never lazy() them. See Skeleton.css.
@@ -51,7 +52,14 @@ const AdminRoutesLazy = lazy(() => import('@/admin/AdminRoutes'));
 const ClientRoutesLazy = lazy(() => import('@/client/ClientRoutes'));
 const TeamRoutesLazy = lazy(() => import('@/team/TeamRoutes'));
 
-export function App() {
+/**
+ * Everything inside the router. Split out from <App> so the two entry points can
+ * supply different routers around the same tree:
+ *   - src/main.tsx      → <BrowserRouter> (browser)
+ *   - src/entry-server.tsx → <StaticRouter> (build-time prerender, no history API)
+ * Keep all app-level state and effects here so both entries get identical markup.
+ */
+export function AppShell() {
   const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const [brand] = useBrand();
 
@@ -64,7 +72,18 @@ export function App() {
   }, [brand.accent]);
 
   useEffect(() => {
-    import('@/admin/store').then(m => m.hydrateSite()).catch(() => {});
+    // Effects run after hydration, so this is the first safe moment to swap in
+    // values that differ from the prerendered HTML. startTransition keeps the
+    // resulting re-render non-urgent so it cannot interrupt a Suspense boundary
+    // that is still hydrating (React error #421).
+    startTransition(() => {
+      applyCachedSite();
+    });
+    // Same reasoning: hydrateSite() synchronously flips every store to
+    // 'loading', and that burst can land mid-hydration too.
+    import('@/admin/store')
+      .then(m => startTransition(() => { void m.hydrateSite(); }))
+      .catch(() => {});
   }, []);
 
   // Light-only public site: force the light theme on mount. Set the attribute
@@ -75,8 +94,7 @@ export function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <>
       <SeoManager />
       <SkipLink />
       <ConfirmProvider>
@@ -137,7 +155,16 @@ export function App() {
         </Suspense>
       )}
       </ConfirmProvider>
-    </BrowserRouter>
+    </>
+  );
+}
+
+export function App() {
+  return (
+    <ErrorBoundary>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <AppShell />
+      </BrowserRouter>
     </ErrorBoundary>
   );
 }
@@ -160,7 +187,7 @@ function PublicLayout({
   useRoutePrefetch();
   return (
     <>
-      {loc.pathname !== '/contact' && <Nav />}
+      {normalizePath(loc.pathname) !== '/contact' && <Nav />}
       <RouteFrame
         rotateMs={rotateMs}
         showMarquee={showMarquee}
@@ -222,7 +249,7 @@ function RouteFrame({ rotateMs, showMarquee, showTestimonials }: RouteFrameProps
             <Route path="*" element={<Suspense fallback={<ArticlePageSkeleton />}><SeoCatchAllPage /></Suspense>} />
           </Routes>
         </main>
-        {(isKnownPath || catchAllFooter) && location.pathname !== '/contact' && <Footer />}
+        {(isKnownPath || catchAllFooter) && normalizePath(location.pathname) !== '/contact' && <Footer />}
       </div>
     </FooterVisibilityContext.Provider>
   );

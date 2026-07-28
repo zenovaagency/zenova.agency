@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import DOMPurify from 'dompurify';
+import { sanitizeHtml } from '@/lib/sanitize';
 import { fetchSeoPage, type PublicSeoPage } from '@/lib/publicContentApi';
 import { setDynamicSeo, clearDynamicSeo } from '@/seo/dynamic-seo';
 import { SITE, canonicalUrl } from '@/seo/seo-data';
@@ -92,7 +92,7 @@ export function SeoCatchAllPage() {
     if (!page) return '';
     // Strip inline styles so legacy saved content cannot hardcode colors that
     // clash with the active theme. Safe structural tags are preserved.
-    return DOMPurify.sanitize(page.content_html, {
+    return sanitizeHtml(page.content_html, {
       FORBID_ATTR: ['style'],
     });
   }, [page]);

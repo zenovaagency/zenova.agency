@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LogoBadge } from './Logo';
 import { Icon } from '@/components/icons/Icon';
+import { normalizePath } from '@/seo/seo-data';
 
 const NAV_LINKS = [
   { label: 'Services', to: '/services' },
@@ -24,7 +25,11 @@ export function Nav() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
+    // The initial sync is wrapped because it is the one call that can fire
+    // while the lazy route below is still hydrating (a reload restores scroll
+    // position, so scrollY > 24 immediately). An urgent update there makes
+    // React abandon the prerendered markup for that boundary — error #421.
+    startTransition(onScroll);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -84,7 +89,12 @@ export function Nav() {
         </Link>
         <div className="nav-links" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
           {NAV_LINKS.map((l) => {
-            const active = location.pathname === l.to;
+            // normalizePath, not a raw ===: GitHub Pages serves the canonical
+            // URL with a trailing slash (/about/), so an exact compare against
+            // '/about' never matched and the active pill silently disappeared
+            // on every real page load. It also kept the prerendered HTML from
+            // matching hydration, which discarded the server markup.
+            const active = normalizePath(location.pathname) === l.to;
             return (
               <Link
                 key={l.label}

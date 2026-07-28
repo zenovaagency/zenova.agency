@@ -42,10 +42,19 @@ export function headTagsHtml(meta: SeoMeta): string {
     `<meta property="og:title" content="${t}" />`,
     `<meta property="og:description" content="${d}" />`,
     `<meta property="og:image" content="${img}" />`,
+    // LinkedIn and Slack size the card from these without downloading the image
+    // first; omitting them is the usual cause of a "card renders as a tiny
+    // thumbnail on first share" report.
+    `<meta property="og:image:secure_url" content="${img}" />`,
+    `<meta property="og:image:type" content="${SITE.ogImageType}" />`,
+    `<meta property="og:image:width" content="${SITE.ogImageWidth}" />`,
+    `<meta property="og:image:height" content="${SITE.ogImageHeight}" />`,
+    `<meta property="og:image:alt" content="${escapeAttr(SITE.ogImageAlt)}" />`,
     `<meta name="twitter:card" content="summary_large_image" />`,
     `<meta name="twitter:title" content="${t}" />`,
     `<meta name="twitter:description" content="${d}" />`,
     `<meta name="twitter:image" content="${img}" />`,
+    `<meta name="twitter:image:alt" content="${escapeAttr(SITE.ogImageAlt)}" />`,
     ...jsonLdObjects(meta).map(jsonLdScript),
   ];
 
@@ -53,16 +62,15 @@ export function headTagsHtml(meta: SeoMeta): string {
 }
 
 /**
- * A crawlable, semantic snapshot injected into #root, for non-JS crawlers and
- * social scrapers. React replaces it on mount (createRoot renders fresh), so
- * there is no hydration mismatch.
+ * Minimal no-JS fallback, used only when SSR could not produce markup for a
+ * route. The real prerender path passes the server-rendered app HTML instead —
+ * see scripts/prerender.mjs.
  *
- * The <noscript> wrapper is load-bearing — do not remove it. Without it the
- * browser paints this block as soon as the stylesheet resolves and only clears
- * it once the JS bundle executes, so real visitors see a bare system-font
- * banner flash before the site appears.
+ * The <noscript> wrapper is load-bearing here: without it the browser paints
+ * this block as soon as the stylesheet resolves and clears it only once the JS
+ * bundle executes, so visitors see a bare system-font banner flash.
  */
-export function prerenderBodyHtml(meta: SeoMeta): string {
+export function fallbackBodyHtml(meta: SeoMeta): string {
   const links = NAV.map(
     (l) => `<a href="${l.path}/" style="color:#ff813a;text-decoration:none">${escapeHtml(l.label)}</a>`,
   ).join('\n        ');
@@ -80,11 +88,24 @@ export function prerenderBodyHtml(meta: SeoMeta): string {
 }
 
 /**
- * Rewrite a built index.html into a route-specific HTML document: strips any
- * existing SEO tags, injects this route's head + JSON-LD, and seeds #root with
- * the crawlable snapshot. Asset/script tags from the Vite build are preserved.
+ * Scroll-reveal elements start at opacity:0 and are revealed by an
+ * IntersectionObserver (hooks/useReveal.ts). With JS disabled that observer
+ * never runs, so without this the prerendered text would be present in the DOM
+ * but invisible on screen. Crawlers read the DOM either way; this is for real
+ * no-JS visitors and for anything that screenshots the page.
  */
-export function applySeoToTemplate(template: string, meta: SeoMeta): string {
+const NOSCRIPT_REVEAL_CSS =
+  `<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>`;
+
+/**
+ * Rewrite a built index.html into a route-specific HTML document: strips any
+ * existing SEO tags, injects this route's head + JSON-LD, and fills #root with
+ * server-rendered markup. Asset/script tags from the Vite build are preserved.
+ *
+ * `bodyHtml` is the output of entry-server.tsx's render(). When it is omitted
+ * the route degrades to the no-JS fallback above.
+ */
+export function applySeoToTemplate(template: string, meta: SeoMeta, bodyHtml?: string): string {
   let html = template;
 
   // Remove SEO tags that may exist in the source template so we don't duplicate.
@@ -97,13 +118,21 @@ export function applySeoToTemplate(template: string, meta: SeoMeta): string {
     .replace(/<meta\s+name="twitter:[^"]*"[^>]*>/gi, '')
     .replace(/<script\s+type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/gi, '');
 
-  // Inject the route's head block right before </head>.
-  html = html.replace(/<\/head>/i, `${headTagsHtml(meta)}\n  </head>`);
+  // Function replacements throughout: a string replacement would interpret
+  // `$&`, `$\``, `$'` and `$1` inside the injected markup, and both the JSON-LD
+  // and the rendered page body can legitimately contain a `$` (prices, code
+  // samples). That corruption is silent, so never pass these as strings.
+  html = html.replace(
+    /<\/head>/i,
+    () => `${headTagsHtml(meta)}\n    ${NOSCRIPT_REVEAL_CSS}\n  </head>`,
+  );
 
-  // Seed #root with the crawlable snapshot.
+  // Fill #root with the server-rendered app. data-prerendered tells main.tsx to
+  // hydrateRoot() instead of createRoot() — see the comment there.
+  const body = bodyHtml ?? fallbackBodyHtml(meta);
   html = html.replace(
     /<div id="root">\s*<\/div>/i,
-    `<div id="root">${prerenderBodyHtml(meta)}</div>`,
+    () => `<div id="root" data-prerendered>${body}</div>`,
   );
 
   return html;
