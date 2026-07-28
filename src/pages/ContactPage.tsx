@@ -1,7 +1,9 @@
 import { type FormEvent, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { Icon } from '@/components/icons/Icon';
+import { LogoBadge } from '@/components/layout/Logo';
 import { useBrand, useServices } from '@/admin/store';
 import { submitContact } from '@/lib/contact';
 import { Dropdown, type DropdownOption } from '@/components/ui/inputs';
@@ -72,7 +74,46 @@ export function ContactPage() {
   ];
 
   return (
-    <section className="ct-split">
+    <>
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '20px var(--gutter)',
+      }}>
+        <Link to="/" style={{ display: 'inline-flex' }}>
+          <LogoBadge size={46} />
+        </Link>
+        <Link to="/"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '10px 18px',
+            borderRadius: 999,
+            fontSize: 14,
+            fontWeight: 500,
+            color: 'var(--fg)',
+            textDecoration: 'none',
+            border: '1px solid var(--line)',
+            background: 'var(--nav-bg)',
+            backdropFilter: 'blur(20px) saturate(140%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+            transition: 'all .25s',
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--card-hover)'; e.currentTarget.style.borderColor = 'var(--line-strong)' }}
+          onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--nav-bg)'; e.currentTarget.style.borderColor = 'var(--line)' }}
+        >
+          <Icon.Arrow size={14} style={{ transform: 'rotate(180deg)' }} />
+          Back to home
+        </Link>
+      </div>
+      <section className="ct-split">
       <div className="ct-intro">
         <div className="ct-kicker mono reveal">
           <span className="ct-kicker__tick" />
@@ -246,5 +287,6 @@ export function ContactPage() {
         )}
       </div>
     </section>
+    </>
   );
 }
