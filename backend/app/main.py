@@ -18,6 +18,7 @@ from app.errors import install_exception_handlers
 from app.limiter import limiter
 from app.logging import configure_logging, logger
 from app.middleware import RequestIDMiddleware
+from app.rebuild import affects_published_urls, cancel_pending_rebuild, schedule_rebuild
 from app.routers import (
     auth,
     blog,
@@ -47,10 +48,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         version=__version__,
         cors_origins=settings.cors_origins,
         uploads_enabled=settings.uploads_enabled,
+        rebuild_hook_enabled=settings.rebuild_hook_enabled,
     )
     try:
         yield
     finally:
+        await cancel_pending_rebuild()
         await dispose_engine()
         logger.info("shutdown")
 
@@ -71,6 +74,25 @@ def create_app() -> FastAPI:
 
     app.add_middleware(RequestIDMiddleware)
     app.add_middleware(SlowAPIMiddleware)
+
+    @app.middleware("http")
+    async def _rebuild_on_content_change(request, call_next):  # type: ignore[no-untyped-def]
+        """Queue a frontend rebuild after any successful content mutation.
+
+        Here rather than in the five content routers because the routers have
+        ~20 mutating endpoints between them, and the one that gets forgotten is
+        the one whose content silently never goes live. See app/rebuild.py.
+
+        Only on 2xx: a rejected or unauthorised write changed nothing, and
+        rebuilding for it would hand an unauthenticated caller a way to burn
+        build minutes.
+        """
+        response = await call_next(request)
+        if 200 <= response.status_code < 300 and affects_published_urls(
+            request.url.path, request.method
+        ):
+            await schedule_rebuild()
+        return response
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

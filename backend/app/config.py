@@ -51,6 +51,17 @@ class Settings(BaseSettings):
     r2_public_base: str = ""
     r2_max_upload_mb: int = 10
 
+    # --- Frontend rebuild hook ---------------------------------------------
+    # The web app's dynamic routes set `dynamicParams = false`, so the set of
+    # servable slugs is fixed at build time and new content needs a rebuild to
+    # go live. POSTing this URL starts one. Empty disables the whole mechanism,
+    # which is the right default for local development and CI.
+    # Create it under Vercel -> Project -> Settings -> Git -> Deploy Hooks.
+    vercel_deploy_hook_url: str = ""
+    # How long to absorb further changes before firing, so that saving a post
+    # five times in a row is one build and not five. See app/rebuild.py.
+    rebuild_debounce_seconds: int = 120
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_csv(cls, v: object) -> object:
@@ -68,6 +79,10 @@ class Settings(BaseSettings):
     @property
     def is_production(self) -> bool:
         return self.app_env == "production"
+
+    @property
+    def rebuild_hook_enabled(self) -> bool:
+        return bool(self.vercel_deploy_hook_url)
 
     @property
     def uploads_enabled(self) -> bool:

@@ -142,6 +142,33 @@ async function main() {
     if (locs.some((u) => u.includes(`/${slug}/`))) fail(`sitemap.xml lists excluded slug /${slug}/`);
   }
 
+  // No duplicates. Nothing should produce one — the URLs come from disjoint
+  // collections — but they arrive from three independent runtime sources, and a
+  // URL listed twice splits the crawl signal for one page across two entries.
+  const duplicated = locs.filter((u, i) => locs.indexOf(u) !== i);
+  for (const dup of new Set(duplicated)) fail(`sitemap.xml lists ${dup} more than once`);
+
+  // Every <loc> in the one canonical shape: https, production host (or whatever
+  // BASE is being verified), trailing slash, no query or fragment. A crawler
+  // that follows a non-canonical variant indexes a redirect or a duplicate.
+  for (const loc of locs) {
+    if (!/^https:\/\/[^/?#]+(?:\/[a-z0-9][a-z0-9\-_]*)*\/$/.test(loc)) {
+      fail(`sitemap.xml lists a non-canonical URL: ${loc}`);
+    }
+  }
+
+  // <lastmod>, where present, must be a real date and must not be "just now" —
+  // the sitemap regenerates on a 5-minute ISR window, and a lastmod that tracks
+  // regeneration rather than content teaches Google to ignore lastmod entirely.
+  const lastmods = [...sitemap.matchAll(/<lastmod>([^<]+)<\/lastmod>/g)].map((m) => m[1]);
+  for (const stamp of lastmods) {
+    const when = new Date(stamp);
+    if (Number.isNaN(when.getTime())) fail(`sitemap.xml has an unparseable <lastmod>: ${stamp}`);
+    else if (Date.now() - when.getTime() < 60_000) {
+      fail(`sitemap.xml <lastmod> ${stamp} is under a minute old — is it the regeneration time?`);
+    }
+  }
+
   const titles = new Map();
   const descriptions = new Map();
   const blogUrls = locs.filter((u) => /\/blog\/[^/]+\/$/.test(u));

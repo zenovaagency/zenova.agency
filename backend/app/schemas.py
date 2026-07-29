@@ -769,6 +769,10 @@ class PublicBlogListItem(_Base):
     author_name: str | None = None
     tags: list[str]
     published_at: datetime | None = None
+    # Carried on the *list* item, not just the detail, because sitemap.xml needs
+    # it for <lastmod> and reads the listing. published_at is the date a post
+    # first went out; it stops being the truth the first time anyone edits one.
+    updated_at: datetime
 
 
 class PublicBlogList(_Base):
@@ -783,7 +787,7 @@ class PublicBlogPost(PublicBlogListItem):
     meta_title: str | None = None
     meta_description: str | None = None
     og_image_url: str | None = None
-    updated_at: datetime
+    # updated_at is inherited — it moved to the list item so sitemap.xml can read it.
 
 
 # ---------------------------------------------------------------------------

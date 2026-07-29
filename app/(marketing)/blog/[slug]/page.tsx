@@ -7,17 +7,24 @@ import { seoMetaToMetadata } from '@/seo/next-metadata';
 import { MetaJsonLd } from '../../../_lib/route-seo';
 
 /**
- * Known posts are rendered at build time; anything else renders on demand and
- * is then cached. dynamicParams stays at its default (true) on purpose — a post
- * published after the last deploy has to be reachable. Under the old static
- * host that URL returned a genuine HTTP 404 and relied on a client-side
- * redirect shim to recover, so newly published articles were invisible to
- * crawlers until someone triggered a rebuild.
+ * Every published post is rendered at build time, and the slug list below is the
+ * complete set this route will serve — see `dynamicParams` for why.
  */
 export async function generateStaticParams() {
   const posts = await getAllBlogPosts();
   return posts.map((p) => ({ slug: p.slug }));
 }
+
+/**
+ * An unknown slug 404s statically instead of rendering on demand. That is what
+ * makes this route's 404 a real page instead of an empty document — see the
+ * "Why every dynamic route sets dynamicParams = false" note in app/not-found.tsx.
+ *
+ * The cost is that a post published after the last deploy is not reachable until
+ * a rebuild. The backend triggers one automatically on any content change; see
+ * backend/app/rebuild.py.
+ */
+export const dynamicParams = false;
 
 export async function generateMetadata({
   params,

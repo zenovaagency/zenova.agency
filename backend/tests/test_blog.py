@@ -232,6 +232,10 @@ async def test_public_blog_lists_only_published(client: AsyncClient, db: AsyncSe
     assert slugs.index("pub-b") < slugs.index("pub-a")
     # Listing payload stays light — no body HTML.
     assert "content_html" not in r.json()["items"][0]
+    # ...but it does carry updated_at: sitemap.xml reads the listing and needs a
+    # real modification date for <lastmod>. published_at alone goes stale the
+    # first time a published post is edited.
+    assert r.json()["items"][0]["updated_at"]
 
 
 async def test_public_blog_pagination_and_tag_filter(

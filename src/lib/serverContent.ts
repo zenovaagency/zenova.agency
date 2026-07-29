@@ -21,6 +21,7 @@ import type {
   PublicBlogList,
   PublicBlogPost,
   PublicSeoPage,
+  PublicSeoPageListItem,
 } from '@/lib/publicContentApi';
 
 const API_BASE =
@@ -68,8 +69,9 @@ export function getBlogPost(slug: string): Promise<PublicBlogPost | null> {
   return getJson<PublicBlogPost>(`/public/blog/${encodeURIComponent(slug)}`);
 }
 
-export function getSeoPages(): Promise<PublicSeoPage[] | null> {
-  return getJson<PublicSeoPage[]>('/public/pages');
+/** Slug + title + updated_at for every published page. No body HTML — see the type. */
+export function getSeoPages(): Promise<PublicSeoPageListItem[] | null> {
+  return getJson<PublicSeoPageListItem[]>('/public/pages');
 }
 
 export function getSeoPage(slug: string): Promise<PublicSeoPage | null> {

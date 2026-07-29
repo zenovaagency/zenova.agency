@@ -10,6 +10,9 @@ export async function generateStaticParams() {
   return (await resolveServices()).map((s) => ({ slug: s.slug }));
 }
 
+/** Unknown slugs 404 statically — see the note in app/not-found.tsx. */
+export const dynamicParams = false;
+
 export async function generateMetadata({
   params,
 }: {

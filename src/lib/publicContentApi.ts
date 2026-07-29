@@ -16,6 +16,13 @@ export interface PublicBlogListItem {
   cover_image_url: string | null;
   author_name: string | null;
   published_at: string | null;
+  /**
+   * Optional because the API deploys independently of this app. The field is
+   * what sitemap.xml wants for <lastmod> — `published_at` is the date a post
+   * first went out, which stops being the truth the first time anyone edits it —
+   * so it is read when present and fallen back on when not, rather than assumed.
+   */
+  updated_at?: string;
 }
 
 export interface PublicBlogList {
@@ -40,6 +47,20 @@ export interface PublicSeoPage {
   meta_title: string | null;
   meta_description: string | null;
   og_image_url: string | null;
+  updated_at: string;
+}
+
+/**
+ * What `GET /public/pages` returns — the *list* shape, which omits the body HTML
+ * and the OG image. Distinct from PublicSeoPage on purpose: serverContent's
+ * getSeoPages() was typed as returning the full page, which it never has, and a
+ * caller trusting that type would read `content_html: undefined` as an empty page.
+ */
+export interface PublicSeoPageListItem {
+  slug: string;
+  title: string;
+  meta_title: string | null;
+  meta_description: string | null;
   updated_at: string;
 }
 

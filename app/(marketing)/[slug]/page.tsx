@@ -19,6 +19,14 @@ export async function generateStaticParams() {
     .map((p) => ({ slug: p.slug }));
 }
 
+/**
+ * Unknown slugs 404 statically — see the note in app/not-found.tsx.
+ *
+ * This route is the one where it matters most: it matches EVERY unclaimed
+ * top-level URL, so it is what answers a plain typo like /abuot.
+ */
+export const dynamicParams = false;
+
 async function resolvePage(slug: string) {
   // The exclusion is enforced here, not only in the sitemap: without it a
   // direct visit would still render an excluded page, and the crawler that

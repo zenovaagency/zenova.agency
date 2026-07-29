@@ -33,8 +33,23 @@ export interface SeoMeta {
   intro: string;
   /** false => emit noindex,follow and exclude from the sitemap. */
   index: boolean;
-  changefreq?: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  priority?: number;
+  /**
+   * ISO date (YYYY-MM-DD) on which this page's copy last materially changed.
+   * Feeds <lastmod> in sitemap.xml. Bump it when you rewrite the page; leave it
+   * off if you do not know.
+   *
+   * Only hand-maintained routes carry this. Detail pages take their date from
+   * the record they render (a job's postedAt, a post's updated_at), which is a
+   * real timestamp and needs no upkeep. There is no equivalent for the fixed
+   * marketing pages: their copy lives across app/(marketing), src/views and
+   * src/data/site-content.ts, and git dates them all to the Next migration
+   * commit — so the honest options were a curated date or none, and a curated
+   * one at least moves when the page does.
+   *
+   * Never substitute the build date. `changefreq` and `priority` used to live
+   * here; both are ignored by Google, and the sitemap no longer emits them.
+   */
+  contentUpdated?: string;
   /** Breadcrumb trail ending with the current page. Omitted on the homepage. */
   breadcrumb?: Array<{ name: string; path: string }>;
 }
@@ -167,8 +182,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'Zenova unifies design, development, marketing, and startup support into one seamless partnership — guiding ambitious modern businesses from strategy to launch and beyond.',
     index: true,
-    changefreq: 'weekly',
-    priority: 1.0,
+    contentUpdated: '2026-07-29',
   },
   {
     path: '/services',
@@ -179,8 +193,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'From first sketch to launch and growth: design, development, marketing, and the operational muscle to scale. Explore what Zenova can build for you.',
     index: true,
-    changefreq: 'monthly',
-    priority: 0.9,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Services', path: '/services' },
@@ -195,8 +208,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'Project-based rates with no hidden fees. Pick a service to see starter, growth, and custom options — and exactly what’s included at each tier.',
     index: true,
-    changefreq: 'monthly',
-    priority: 0.8,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Pricing', path: '/pricing' },
@@ -211,8 +223,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'A few examples of what we’ve built and grown — from a developer-platform rebrand that doubled signups to a launch that hit 10,000 users in 90 days.',
     index: true,
-    changefreq: 'monthly',
-    priority: 0.9,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Work', path: '/work' },
@@ -227,8 +238,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'We bring design, development, marketing, and startup support together so ambitious teams get one partner from strategy to launch and beyond.',
     index: true,
-    changefreq: 'monthly',
-    priority: 0.7,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'About', path: '/about' },
@@ -243,8 +253,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'Book a quick 30-minute call — no pitch, just your project. Tell us your goals, your audience, and what success looks like.',
     index: true,
-    changefreq: 'yearly',
-    priority: 0.8,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Contact', path: '/contact' },
@@ -259,8 +268,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'We hire senior people who own their work end to end. See our open roles in design, engineering, and growth.',
     index: true,
-    changefreq: 'weekly',
-    priority: 0.7,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Careers', path: '/careers' },
@@ -275,8 +283,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'Practical writing on design, development, marketing, and building modern businesses — lessons from real client work, not theory.',
     index: true,
-    changefreq: 'weekly',
-    priority: 0.8,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Blog', path: '/blog' },
@@ -291,8 +298,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'How Zenova collects, uses, and protects your personal information when you visit our website or engage our design, development, and marketing services.',
     index: true,
-    changefreq: 'yearly',
-    priority: 0.3,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Privacy Policy', path: '/privacy' },
@@ -307,8 +313,7 @@ export const MAIN_ROUTES: SeoMeta[] = [
     intro:
       'The terms that govern your use of the Zenova website and our design, development, marketing, and startup services.',
     index: true,
-    changefreq: 'yearly',
-    priority: 0.3,
+    contentUpdated: '2026-07-29',
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Terms & Conditions', path: '/terms' },
@@ -336,8 +341,6 @@ export function serviceRouteMeta(s: { slug: string; title: string; short: string
     h1: s.title,
     intro: s.short,
     index: true,
-    changefreq: 'monthly',
-    priority: 0.7,
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Services', path: '/services' },
@@ -359,8 +362,6 @@ export function projectRouteMeta(p: {
     h1: p.title,
     intro: p.summary,
     index: true,
-    changefreq: 'yearly',
-    priority: 0.6,
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Work', path: '/work' },
@@ -398,8 +399,6 @@ export function jobRouteMeta(j: { slug: string; title: string; summary: string }
     h1: j.title,
     intro: `We’re hiring a ${j.title}. Read the role, what you’ll own, and how to apply to join Zenova.`,
     index: true,
-    changefreq: 'weekly',
-    priority: 0.5,
     breadcrumb: [
       { name: 'Home', path: '/' },
       { name: 'Careers', path: '/careers' },
@@ -408,7 +407,7 @@ export function jobRouteMeta(j: { slug: string; title: string; summary: string }
   };
 }
 
-/** Every prerenderable / sitemap-eligible route, in priority order. */
+/** Every prerenderable / sitemap-eligible route, hubs before detail pages. */
 export const ALL_ROUTES: SeoMeta[] = [
   ...MAIN_ROUTES,
   ...SERVICE_ROUTES,

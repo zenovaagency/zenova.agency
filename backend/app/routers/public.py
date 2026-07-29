@@ -115,6 +115,7 @@ def _blog_list_item(row: BlogPost) -> PublicBlogListItem:
         author_name=row.author_name,
         tags=row.tags,
         published_at=row.published_at,
+        updated_at=row.updated_at,
     )
 
 

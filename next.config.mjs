@@ -30,15 +30,23 @@ const nextConfig = {
    *
    * `permanent: true` -> 308, which preserves the method and, unlike 302, tells
    * search engines to transfer ranking signals to the target.
+   *
+   * Destinations carry the trailing slash because `trailingSlash: true` above
+   * makes the slashed form the canonical one. Without it every redirect landed
+   * on a URL that then had to be normalised again, so /process/ took two hops
+   * (-> /services -> /services/) and a bare /process took three. Google follows
+   * chains but asks you not to build them: each hop costs crawl budget and
+   * leaks a little of the ranking signal the 308 exists to pass along. One hop
+   * now, from either form.
    */
   async redirects() {
     return [
-      { source: '/process', destination: '/services', permanent: true },
+      { source: '/process', destination: '/services/', permanent: true },
       // Every historical entry point to the dashboards funnels to one login.
-      { source: '/signin', destination: '/login', permanent: true },
-      { source: '/admin/login', destination: '/login', permanent: true },
-      { source: '/team/login', destination: '/login', permanent: true },
-      { source: '/client/login', destination: '/login', permanent: true },
+      { source: '/signin', destination: '/login/', permanent: true },
+      { source: '/admin/login', destination: '/login/', permanent: true },
+      { source: '/team/login', destination: '/login/', permanent: true },
+      { source: '/client/login', destination: '/login/', permanent: true },
     ];
   },
 

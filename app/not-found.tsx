@@ -18,6 +18,41 @@
  *
  * MarketingChrome gives it the same nav and footer as every other public page,
  * so the 404 is a route back into the site rather than a dead end.
+ *
+ * ---------------------------------------------------------------------------
+ * Why every dynamic route sets `dynamicParams = false`
+ * ---------------------------------------------------------------------------
+ *
+ * Moving this file to the root fixed 404s for URLs that match no route at all
+ * (/a/b/c). It did NOT fix the more common case: a URL that matches a dynamic
+ * segment and resolves to no record (/abuot, /blog/deleted-post). Those call
+ * notFound() at REQUEST time, and Next streams the response — the boundary
+ * content is serialised into the RSC flight payload and never emitted as HTML.
+ * Measured on a production build: a correct 404 status, 73 KB of body, and zero
+ * visible text, no <h1>, no <nav>, no <main>.
+ *
+ * Four things were tried and did not change it:
+ *   - a not-found.tsx inside the (marketing) group, so the boundary renders as
+ *     a child of the layout rather than above it;
+ *   - making that layout synchronous, in case its `await getSiteBundle()` was
+ *     the suspension that flushed an empty shell;
+ *   - calling notFound() with no preceding await at all;
+ *   - Next 15.5.22, reproduced in a standalone app. It behaves identically —
+ *     so this is not a 14.x bug waiting on an upgrade.
+ *
+ * `dynamicParams = false` is the only thing that works: an unknown slug is no
+ * longer rendered on demand, so Next answers with the *prerendered* 404 above,
+ * which is real HTML.
+ *
+ * The cost is that generateStaticParams pins the servable slug set at build
+ * time — content published in the admin afterwards would 404. That is bought
+ * back on the backend: any change to publishable content fires a deploy hook
+ * and the rebuild republishes the slug list (backend/app/rebuild.py). Publishing
+ * is therefore a rebuild behind instead of instant, which is the standard
+ * trade for statically-rendered CMS content.
+ *
+ * If a future Next release emits real HTML for a request-time notFound(), all
+ * five `dynamicParams = false` lines can go, and with them the rebuild hook.
  */
 import { NotFoundPage } from '@/views/NotFoundPage';
 import { MarketingChrome } from './_components/MarketingChrome';

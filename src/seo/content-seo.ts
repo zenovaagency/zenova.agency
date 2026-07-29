@@ -42,8 +42,6 @@ export function blogPostSeo(post: PublicBlogPost): ContentSeo {
       h1: post.title,
       intro: post.excerpt,
       index: true,
-      changefreq: 'monthly',
-      priority: 0.6,
       breadcrumb: [
         { name: 'Home', path: '/' },
         { name: 'Blog', path: '/blog' },
@@ -92,8 +90,6 @@ export function seoPageSeo(page: PublicSeoPage): ContentSeo {
       h1: page.title,
       intro: '',
       index: true,
-      changefreq: 'monthly',
-      priority: 0.7,
       breadcrumb: [
         { name: 'Home', path: '/' },
         { name: page.title, path },
