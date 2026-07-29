@@ -1,5 +1,6 @@
+'use client';
 import { useLayoutEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from '@/lib/router';
 import { scrollToTop } from '@/lib/scroll';
 
 /**

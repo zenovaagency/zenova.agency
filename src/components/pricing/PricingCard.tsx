@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+'use client';
+import { Link } from '@/lib/router';
 import { motion } from 'framer-motion';
 import { Icon } from '@/components/icons/Icon';
 import type { PricingPlan } from '@/data/pricing';

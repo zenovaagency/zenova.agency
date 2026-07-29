@@ -1,10 +1,15 @@
 /**
  * Typed fetch client for the Zenova FastAPI backend.
  *
- * - Reads VITE_API_URL — falls back to https://api.zenova.agency/api/v1.
+ * - Reads NEXT_PUBLIC_API_URL — falls back to https://api.zenova.agency/api/v1.
  * - Attaches the admin bearer token from auth storage when present.
  * - Normalises error responses ({ error: { code, message } }) into ApiError.
  * - Auto-refreshes the access token once on 401 if a refresh token exists.
+ *
+ * Runs on the server (route-level data fetching) as well as in the browser.
+ * The token helpers it calls are all localStorage-guarded and return null under
+ * Node, so a server-side call simply goes out unauthenticated — which is
+ * correct, since only /public/* endpoints are fetched during rendering.
  */
 
 import {
@@ -14,10 +19,14 @@ import {
   setTokens,
 } from './auth';
 
-// VITE_API_URL overrides the deployed backend (e.g. http://localhost:8000/api/v1
-// during local development against a local API).
+// NEXT_PUBLIC_API_URL overrides the deployed backend (e.g.
+// http://localhost:8000/api/v1 during local development against a local API).
+// Referenced as a full literal, never destructured: Next inlines
+// `process.env.NEXT_PUBLIC_*` by textual substitution at build time, and a
+// destructured read is invisible to that pass and comes back undefined in the
+// browser bundle.
 const BASE_URL = (() => {
-  const env = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/+$/, '');
+  const env = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '');
   return env || 'https://api.zenova.agency/api/v1';
 })();
 export class ApiError extends Error {

@@ -1,3 +1,4 @@
+'use client';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { RotatingWords } from '@/components/ui/RotatingWords';

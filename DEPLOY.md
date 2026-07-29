@@ -1,109 +1,100 @@
-# Deploying to GitHub Pages
+# Deploying
 
-The site auto-deploys to GitHub Pages from `main` via `.github/workflows/deploy.yml`.
+The site is a Next.js App Router app, deployed on Vercel. The FastAPI backend is
+separate and unchanged, at `https://api.zenova.agency/api/v1`.
 
 ## One-time setup
 
-1. Open the repo on GitHub → **Settings** → **Pages**.
-2. Under **Build and deployment → Source**, choose **GitHub Actions**.
-3. Push to `main` (or run the workflow manually from the **Actions** tab).
+1. Import the repo in Vercel. It detects Next.js; no build settings to change.
+2. Set the environment variable `NEXT_PUBLIC_API_URL` to
+   `https://api.zenova.agency/api/v1` for Production, Preview and Development.
+3. Add `zenova.agency` (and `www`) under **Settings → Domains**, then point DNS
+   at Vercel.
 
-That's it. The site lives at `https://<owner>.github.io/<repo>/`.
+Vercel builds every push and promotes `main` to production.
+`.github/workflows/ci.yml` runs lint, types, a build, and the crawlability
+checks — it does not deploy.
 
-## How the base path is resolved
+> **Do not switch the DNS until a preview deployment passes `npm run verify`.**
+> The previous GitHub Pages deployment can stay live until then.
 
-`vite.config.ts` auto-detects the base from the CI environment:
+## Two URL details that must not change
 
-| Environment | Base |
+Both of these will cost real search traffic if they move.
+
+- **Trailing slashes.** Every indexed URL has one, because `canonicalUrl()` in
+  `src/seo/seo-data.ts` emits them. `next.config.mjs` sets `trailingSlash: true`
+  to match. Turning that off would 308 every indexed URL on the day the host
+  changes.
+- **`/favicon.ico`.** Google harvests one favicon per hostname from the site
+  root. This URL has already moved three times and reset the crawl each time.
+  It is served from `public/favicon.ico` and referenced absolutely in
+  `app/layout.tsx`. Leave it alone.
+
+## Rendering model
+
+Every public route is rendered on the server. `curl` returns the finished page —
+headings, body copy, navigation, JSON-LD — with no JavaScript required.
+
+| Route | Rendering |
 |---|---|
-| Project site on GitHub Pages (e.g. `owner/repo`) | `/<repo>/` |
-| User/org site (`owner/owner.github.io`) | `/` |
-| Custom domain | Set env `CUSTOM_DOMAIN: "true"` (deploy.yml already does) | 
-| Local `npm run build` | `/` |
+| `/`, `/services`, `/pricing`, `/work`, `/about`, `/careers`, `/contact`, `/privacy`, `/terms` | Static, revalidated with the CMS bundle |
+| `/services/[slug]`, `/work/[slug]`, `/careers/[slug]` | Generated from the CMS at build; unknown slugs 404 |
+| `/blog`, `/blog/[slug]`, `/[slug]` | Generated from the CMS; posts published later render on demand |
+| `/admin/*`, `/client/*`, `/team/*` | Client-only react-router islands, `noindex` |
 
-The resolved base is logged as `[vite] base=…` during build.
+CMS content reaches the HTML through `getSiteBundle()`
+(`src/lib/serverContent.ts`), which the layouts fetch and hand to
+`seedSite()` in the admin store. `CONTENT_REVALIDATE` is 300s, so an admin edit
+is live to crawlers within five minutes with no deploy.
 
-> This project deploys to the custom domain `zenova.agency`, so `deploy.yml`
-> sets `CUSTOM_DOMAIN: "true"` and the base is `/`. There is deliberately no
-> `public/CNAME`; the domain is configured in **Settings → Pages**. If that
-> setting is ever cleared, the domain and every root-absolute asset break
-> together.
+**If the API is down the build still succeeds.** Every fetcher resolves to
+`null` and the site falls back to the defaults in `src/data/`. That is
+deliberate — a cold backend must not take the marketing site down — and it means
+a shrinking sitemap shows up as a `[content]` warning in the log rather than a
+failure.
 
-## Build pipeline
+> `src/lib/siteBundle.ts` owns the one rule for applying those defaults, and
+> both the routes and the store go through it. When they disagreed, a route
+> advertised a slug whose page rendered nothing: HTTP 200, no `<h1>`, ~400
+> characters of chrome. Do not reimplement that rule anywhere else.
 
-`npm run build` is three sequential steps — all three must succeed:
+## Verifying a deployment
 
+```bash
+npm run build && npm start &
+npm run verify                              # defaults to http://localhost:3000
+npm run verify -- https://zenova.agency     # or any deployed URL
 ```
-tsc --noEmit          type check
-vite build            client bundle  -> dist/         (SPA shell + assets)
-vite build --ssr …    server bundle  -> dist-ssr/     (Node build of entry-server.tsx)
-node scripts/prerender.mjs           -> dist/**/index.html + sitemap.xml
-```
 
-The third step server-renders every route with `react-dom/server` and writes the
-resulting HTML into `dist/<route>/index.html`, so GitHub Pages serves complete,
-crawlable markup with no JavaScript required. `src/main.tsx` then calls
-`hydrateRoot()` on that markup instead of `createRoot()`.
+`scripts/verify-site.mjs` walks every URL in `sitemap.xml` and asserts: exactly
+one `<h1>` and one `<main>`, a non-empty title and description, unique titles and
+descriptions across routes, a correct canonical, parseable JSON-LD, no loading
+skeletons in the served HTML, that `/blog` actually links to the posts the
+sitemap claims, that unknown URLs return 404, that the redirects carry a
+`Location` header, and that the portals are `noindex`.
 
-`scripts/prerender.mjs` **fails the build** if a route cannot render or if the
-homepage comes out empty — shipping an empty `<div id="root">` is the exact
-regression this pipeline exists to prevent. The workflow re-checks the same
-invariants in its *Verify build output* step.
-
-The prerenderer also fetches blog posts and admin-authored SEO pages from
-`VITE_API_URL` so they get static HTML and sitemap entries. That single step is
-allowed to fail softly: if the API is down the build still succeeds with the
-static routes only, and prints a `[prerender] WARNING` you can find in the log.
-
-> Running `node scripts/prerender.mjs` twice without re-running `vite build`
-> in between fails on purpose. `dist/index.html` is both the template and the
-> homepage output, so a second pass would feed already-prerendered HTML back in
-> and every route would ship the homepage body. Re-run `npm run build:client`
-> first.
-
-## SPA deep links (`/work/foo`, `/services/web`, etc.)
-
-GitHub Pages doesn't natively support SPA routes. We use a two-file trick:
-
-- `public/404.html` catches the 404, encodes the deep path into a query
-  string, and redirects to the project root.
-- `index.html` has a tiny script that decodes the query back into a real path
-  before React Router boots.
-
-The base path is auto-detected at runtime: on `*.github.io` hosts the first
-path segment is treated as the repo prefix (keep=1); on custom domains there
-is no prefix (keep=0). If the auto-detection gives the wrong result, set the
-`base-segments` meta tag in both `index.html` and `404.html`:
-
-```html
-<meta name="base-segments" content="0" />
-<!-- 0 = custom domain / user site, 1 = project site (default) -->
-```
+Anything that depends on the CMS is conditional on the sitemap claiming that
+content exists, so a cold backend degrades to "not asserted" rather than a red
+build.
 
 ## Troubleshooting
 
-**"Failed to load module script … application/octet-stream"**
-Pages is serving raw source. Set **Source → GitHub Actions** as above and
-re-run the workflow.
+**`curl https://zenova.agency` returns a nearly empty page**
+Check the `[content]` warnings in the deployment log. If `/public/site` failed,
+pages render from `src/data/` defaults — that is still complete HTML, just not
+the CMS copy.
 
-**Assets 404 at `/assets/index-XXX.js`**
-The base path didn't make it into the build. Look at the workflow run log
-for `[vite] base=…`. It should print `/<repo>/` for a project site and `/`
-for a custom domain. If a project site prints `/`, check that
-`CUSTOM_DOMAIN` isn't set to `"true"` in `deploy.yml`.
+**A detail page returns 200 with no `<h1>`**
+The route and the page disagree about which slugs exist. Both must resolve
+through `resolveSiteBundle()`. `npm run verify` catches this.
 
-**Deep links 404 on refresh**
-The Pages site is missing `404.html`. Verify `dist/404.html` exists after
-the build — it ships from `public/404.html`. Also check that the
-`base-segments` auto-detection is correct for your deployment.
+**A blog post shows as a generic website card when shared**
+`og:type` should be `article` and the page should carry `BlogPosting` JSON-LD,
+both from `blogPostSeo()` in `src/seo/content-seo.ts`. If they are missing, the
+route is not calling it.
 
-**`curl https://zenova.agency` returns an empty `<div id="root"></div>`**
-The prerender step didn't run or didn't take effect. Check the Actions log for
-the `[prerender] N routes …` line. If it is missing, the build failed before
-step 3; if it is present but the HTML is still empty, `dist/index.html` was
-overwritten after prerendering.
-
-**A page renders the homepage body under its own URL**
-The shell was reused as a prerender template — see the note in *Build
-pipeline*. Run a clean `npm run build`. CI guards this by diffing
-`dist/about/index.html` against `dist/index.html`.
+**An admin page appears in the sitemap**
+Add its slug to `EXCLUDED_CONTENT_SLUGS` in `src/seo/seo-data.ts` — and
+unpublish it in the dashboard, which is the actual fix. The list is a backstop
+so the frontend can refuse to publish whatever the API hands it.

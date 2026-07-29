@@ -41,7 +41,6 @@ function emptyService(): ServiceDetail {
   };
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- option constants + factory colocated with the admin page
 export { ICON_OPTIONS, VISUAL_OPTIONS, emptyService };
 
 export function ServicesAdmin() {

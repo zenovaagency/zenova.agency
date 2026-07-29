@@ -1,3 +1,4 @@
+'use client';
 import { TestimonialsColumn } from "@/components/ui/testimonials-columns-1";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { DEFAULT_CONTENT, useContent } from "@/admin/store";

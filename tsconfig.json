@@ -12,7 +12,10 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "jsx": "react-jsx",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "incremental": true,
+    "jsx": "preserve",
 
     "strict": true,
     "noUnusedLocals": true,
@@ -20,9 +23,12 @@
     "noFallthroughCasesInSwitch": true,
     "exactOptionalPropertyTypes": false,
 
+    "plugins": [{ "name": "next" }],
+
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "vite.config.ts"]
+  "include": ["src", "app", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "dist", "dist-ssr", "_legacy"]
 }

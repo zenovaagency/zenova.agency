@@ -1,6 +1,7 @@
+'use client';
 import { cn } from '@/lib/utils';
 import { Icon } from '@/components/icons/Icon';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 
 export type ApplyButtonSize = 'sm' | 'md' | 'lg';
 

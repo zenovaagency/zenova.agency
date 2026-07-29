@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+'use client';
+import { Link } from '@/lib/router';
 import { LogoBadge } from './Logo';
 import { Icon } from '@/components/icons/Icon';
 import { ParticleWordmark } from '@/components/ui/ParticleWordmark';

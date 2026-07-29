@@ -137,9 +137,28 @@ export const NAV: Array<{ label: string; path: string }> = [
 /** Auth/portal path prefixes that must never be indexed. */
 export const NOINDEX_PREFIXES = ['/admin', '/client', '/team', '/login', '/signin'];
 
+/**
+ * CMS page slugs that must never be rendered, linked, or listed in the sitemap.
+ *
+ * `test-seo` is an admin scratch page that reached production and was published
+ * in sitemap.xml as a real indexable URL. The right fix is to unpublish it in
+ * the dashboard — excluding a page is a content decision, and this list makes it
+ * a code deploy. This exists so the site can refuse regardless: a frontend that
+ * will publish any row the API hands it into its own sitemap has no way to say
+ * no, and a stray draft costs crawl budget on every crawl.
+ *
+ * Longer term the backend should carry an `is_indexable` flag on /public/pages
+ * and this list should shrink to empty.
+ */
+export const EXCLUDED_CONTENT_SLUGS: ReadonlySet<string> = new Set(['test-seo']);
+
+export function isExcludedContentSlug(slug: string): boolean {
+  return EXCLUDED_CONTENT_SLUGS.has(slug.replace(/^\/+|\/+$/g, ''));
+}
+
 // --- Main marketing routes -------------------------------------------------
 
-const MAIN_ROUTES: SeoMeta[] = [
+export const MAIN_ROUTES: SeoMeta[] = [
   {
     path: '/',
     title: 'Zenova — One agency for design, development & marketing',
@@ -297,31 +316,61 @@ const MAIN_ROUTES: SeoMeta[] = [
   },
 ];
 
-// --- Service detail pages (sync with src/data/services.ts) -----------------
+// --- Detail-page metadata --------------------------------------------------
+//
+// These three builders are exported because the *routes* need them too. The
+// slugs a detail route serves come from the CMS at request time, not from
+// src/data — an admin can add a sixth service, and it has to get a title, a
+// description and a breadcrumb like the other five. The route calls the same
+// builder that fills ALL_ROUTES below, so a CMS-authored page and a repo-
+// authored one are described identically and neither can drift from the other.
+//
+// They take structural subsets rather than the full ServiceDetail/ProjectDetail
+// /JobDetail types so a caller holding a partial CMS record can still use them.
 
-const SERVICES = SERVICE_DATA.map((s) => ({
-  slug: s.slug,
-  title: s.title,
-  short: s.short,
-}));
+export function serviceRouteMeta(s: { slug: string; title: string; short: string }): SeoMeta {
+  return {
+    path: `/services/${s.slug}`,
+    title: `${s.title} Services | Zenova`,
+    description: s.short,
+    h1: s.title,
+    intro: s.short,
+    index: true,
+    changefreq: 'monthly',
+    priority: 0.7,
+    breadcrumb: [
+      { name: 'Home', path: '/' },
+      { name: 'Services', path: '/services' },
+      { name: s.title, path: `/services/${s.slug}` },
+    ],
+  };
+}
 
-const SERVICE_ROUTES: SeoMeta[] = SERVICES.map((s) => ({
-  path: `/services/${s.slug}`,
-  title: `${s.title} Services | Zenova`,
-  description: s.short,
-  h1: s.title,
-  intro: s.short,
-  index: true,
-  changefreq: 'monthly',
-  priority: 0.7,
-  breadcrumb: [
-    { name: 'Home', path: '/' },
-    { name: 'Services', path: '/services' },
-    { name: s.title, path: `/services/${s.slug}` },
-  ],
-}));
+export function projectRouteMeta(p: {
+  slug: string;
+  client: string;
+  title: string;
+  summary: string;
+}): SeoMeta {
+  return {
+    path: `/work/${p.slug}`,
+    title: `${p.client} — Case Study | Zenova`,
+    description: p.summary,
+    h1: p.title,
+    intro: p.summary,
+    index: true,
+    changefreq: 'yearly',
+    priority: 0.6,
+    breadcrumb: [
+      { name: 'Home', path: '/' },
+      { name: 'Work', path: '/work' },
+      { name: p.client, path: `/work/${p.slug}` },
+    ],
+  };
+}
 
-// --- Work case studies (sync with src/data/projects.ts) --------------------
+const SERVICES = SERVICE_DATA.map((s) => ({ slug: s.slug, title: s.title, short: s.short }));
+const SERVICE_ROUTES: SeoMeta[] = SERVICES.map(serviceRouteMeta);
 
 const PROJECTS = PROJECT_DATA.map((p) => ({
   slug: p.slug,
@@ -329,44 +378,35 @@ const PROJECTS = PROJECT_DATA.map((p) => ({
   title: p.title,
   summary: p.summary,
 }));
-
-const PROJECT_ROUTES: SeoMeta[] = PROJECTS.map((p) => ({
-  path: `/work/${p.slug}`,
-  title: `${p.client} — Case Study | Zenova`,
-  description: p.summary,
-  h1: p.title,
-  intro: p.summary,
-  index: true,
-  changefreq: 'yearly',
-  priority: 0.6,
-  breadcrumb: [
-    { name: 'Home', path: '/' },
-    { name: 'Work', path: '/work' },
-    { name: p.client, path: `/work/${p.slug}` },
-  ],
-}));
+const PROJECT_ROUTES: SeoMeta[] = PROJECTS.map(projectRouteMeta);
 
 // --- Open roles (sync with src/data/jobs.ts) -------------------------------
 
 const JOBS = JOB_DATA.map((j) => ({ slug: j.slug, title: j.title, summary: j.summary }));
 
-const JOB_ROUTES: SeoMeta[] = JOBS.map((j) => ({
-  path: `/careers/${j.slug}`,
-  title: `${j.title} — Careers | Zenova`,
-  // The role's own summary, not a template: it is real copy, it is unique per
-  // role, and it is what a candidate actually sees in search results.
-  description: j.summary || `${j.title} at Zenova — a remote role. See the responsibilities, requirements, and how to apply.`,
-  h1: j.title,
-  intro: `We’re hiring a ${j.title}. Read the role, what you’ll own, and how to apply to join Zenova.`,
-  index: true,
-  changefreq: 'weekly',
-  priority: 0.5,
-  breadcrumb: [
-    { name: 'Home', path: '/' },
-    { name: 'Careers', path: '/careers' },
-    { name: j.title, path: `/careers/${j.slug}` },
-  ],
-}));
+const JOB_ROUTES: SeoMeta[] = JOBS.map((j) => jobRouteMeta(j));
+
+export function jobRouteMeta(j: { slug: string; title: string; summary: string }): SeoMeta {
+  return {
+    path: `/careers/${j.slug}`,
+    title: `${j.title} — Careers | Zenova`,
+    // The role's own summary, not a template: it is real copy, it is unique per
+    // role, and it is what a candidate actually sees in search results.
+    description:
+      j.summary ||
+      `${j.title} at Zenova — a remote role. See the responsibilities, requirements, and how to apply.`,
+    h1: j.title,
+    intro: `We’re hiring a ${j.title}. Read the role, what you’ll own, and how to apply to join Zenova.`,
+    index: true,
+    changefreq: 'weekly',
+    priority: 0.5,
+    breadcrumb: [
+      { name: 'Home', path: '/' },
+      { name: 'Careers', path: '/careers' },
+      { name: j.title, path: `/careers/${j.slug}` },
+    ],
+  };
+}
 
 /** Every prerenderable / sitemap-eligible route, in priority order. */
 export const ALL_ROUTES: SeoMeta[] = [

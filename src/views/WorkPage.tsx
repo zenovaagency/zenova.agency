@@ -1,0 +1,169 @@
+'use client';
+import { useState } from 'react';
+import { Link } from '@/lib/router';
+import { ProjectPreview } from '@/components/sections/ProjectPreview';
+import { Icon } from '@/components/icons/Icon';
+import { NeonButton } from '@/components/ui/NeonButton';
+import { useProjects } from '@/admin/store';
+import { useImageRatio, clampRatio, RATIO_BOUNDS } from '@/hooks/useImageRatio';
+import type { ProjectDetail } from '@/data/projects';
+import './WorkPage.css';
+
+function LivePill({ project }: { project: ProjectDetail }) {
+  if (!project.liveUrl?.trim()) return null;
+  return (
+    <a
+      href={project.liveUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="work-card__live wrk-live"
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+      title={`Open live site: ${project.liveUrl}`}
+      aria-label={`Open live site for ${project.client} in a new tab`}
+    >
+      <span className="work-card__live-dot" aria-hidden="true" />
+      Live <Icon.ArrowUpRight size={11} />
+    </a>
+  );
+}
+
+function WorkRow({
+  project: p,
+  index: i,
+  hovered,
+  setHovered,
+}: {
+  project: ProjectDetail;
+  index: number;
+  hovered: string | null;
+  setHovered: (slug: string | null) => void;
+}) {
+  const ar = clampRatio(useImageRatio(p.images?.[0]?.src), RATIO_BOUNDS.card);
+  return (
+    <Link
+      to={`/work/${p.slug}`}
+      className={`wrk-row reveal${i % 2 === 1 ? ' wrk-row--flip' : ''}`}
+      style={{ '--tone': p.tone } as React.CSSProperties}
+      onMouseEnter={() => setHovered(p.slug)}
+      onMouseLeave={() => setHovered(null)}
+    >
+      <div
+        className="wrk-row__visual wrk-visual"
+        style={ar ? ({ '--img-ar': ar } as React.CSSProperties) : undefined}
+      >
+        <ProjectPreview images={p.images} visualIdx={p.visualIdx} tone={p.tone} animate={hovered === p.slug} />
+        <span className="wrk-visual__chip mono">{p.year}</span>
+        <LivePill project={p} />
+      </div>
+      <div className="wrk-row__body">
+        <div className="wrk-row__client mono">
+          <span className="wrk-dot" />
+          {p.client}
+        </div>
+        <h3 className="wrk-row__title display">{p.title}</h3>
+        <p className="wrk-row__summary">{p.summary}</p>
+      </div>
+    </Link>
+  );
+}
+
+export function WorkPage() {
+  const [ALL] = useProjects();
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  const featured = ALL[0];
+  const rest = ALL.slice(1);
+  const featuredAr = clampRatio(useImageRatio(featured?.images?.[0]?.src), RATIO_BOUNDS.banner);
+
+  return (
+    <div className="wrk">
+      <header className="wrk-masthead">
+        <div className="container">
+          <div className="wrk-masthead__kicker mono reveal">
+            <span className="wrk-masthead__tick" />
+            Selected work
+          </div>
+          <h1 className="wrk-masthead__title display reveal reveal-blur reveal-d1">
+            Proof,
+            <br />
+            <em>not promises.</em>
+          </h1>
+        </div>
+      </header>
+
+      {featured && (
+        <section className="wrk-featured">
+          <div className="container">
+            <Link
+              to={`/work/${featured.slug}`}
+              className="wrk-featured__card reveal"
+              style={{ '--tone': featured.tone } as React.CSSProperties}
+              onMouseEnter={() => setHovered(featured.slug)}
+              onMouseLeave={() => setHovered(null)}
+            >
+              <div
+                className="wrk-featured__visual wrk-visual"
+                style={featuredAr ? ({ '--img-ar': featuredAr } as React.CSSProperties) : undefined}
+              >
+                <ProjectPreview
+                  images={featured.images}
+                  visualIdx={featured.visualIdx}
+                  tone={featured.tone}
+                  animate={hovered === featured.slug}
+                />
+                <span className="wrk-visual__chip mono">{featured.year}</span>
+                <LivePill project={featured} />
+              </div>
+              <div className="wrk-featured__body">
+                <div className="wrk-featured__client mono">
+                  <span className="wrk-dot" />
+                  {featured.client}
+                </div>
+                <h2 className="wrk-featured__title display">{featured.title}</h2>
+                <p className="wrk-featured__summary">{featured.summary}</p>
+                <div className="wrk-featured__foot">
+                  <span className="wrk-featured__arrow">
+                    <Icon.ArrowUpRight size={20} />
+                  </span>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {rest.length > 0 && (
+        <section className="wrk-rows">
+          <div className="container">
+            {rest.map((p, i) => (
+              <WorkRow key={p.slug} project={p} index={i} hovered={hovered} setHovered={setHovered} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {ALL.length === 0 && (
+        <section className="wrk-rows">
+          <div className="container">
+            <div className="wrk-empty">
+              No projects yet. Get in touch and we&rsquo;ll send more examples.
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="wrk-cta">
+        <div className="container wrk-cta__inner reveal">
+          <h2 className="wrk-cta__title display">
+            Your project
+            <br />
+            could be next.
+          </h2>
+          <NeonButton text="Start a project" to="/contact" />
+        </div>
+      </section>
+    </div>
+  );
+}

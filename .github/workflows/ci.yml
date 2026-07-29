@@ -1,0 +1,74 @@
+name: CI
+
+# Deployment itself is handled by Vercel's own Git integration, which builds
+# every push and promotes main to production. This workflow is the gate that
+# runs the checks Vercel does not: lint, types, and — most importantly — the
+# crawlability assertions in scripts/verify-site.mjs against a real server.
+#
+# It replaces the old Pages deploy workflow. That one's "Verify build output"
+# step checked that dist/index.html existed and did not reference raw .tsx, both
+# of which were true of the build that shipped an empty <div id="root"> to every
+# crawler. The real guarantee comes from `npm run verify`.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: https://api.zenova.agency/api/v1
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # Started in the background rather than as a service container: `next
+      # start` needs the build output from the previous step, so it cannot be
+      # provisioned before the job runs.
+      - name: Start server
+        run: |
+          npm start &
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:3000/robots.txt > /dev/null; then
+              echo "server up after ${i}s"; exit 0
+            fi
+            sleep 1
+          done
+          echo "server did not start within 60s" >&2
+          exit 1
+
+      # Asserts one <h1> and one <main> per page, unique titles and
+      # descriptions, correct canonicals, parseable JSON-LD, no loading
+      # skeletons in served HTML, that /blog actually links to the posts in
+      # sitemap.xml, that unknown URLs 404, and that the portals are noindex.
+      #
+      # Everything that depends on api.zenova.agency is conditional on the
+      # sitemap claiming that content exists, so a cold backend degrades to
+      # "not asserted" rather than a red build.
+      - name: Verify crawlability
+        run: npm run verify -- http://localhost:3000

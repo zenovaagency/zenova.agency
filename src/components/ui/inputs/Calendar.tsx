@@ -1,3 +1,4 @@
+'use client';
 import { useState } from 'react';
 
 const WEEKDAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -179,5 +180,4 @@ export function Calendar({ value, onChange, min, max, showFooter = true, onClear
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- date helpers colocated with the Calendar input
 export { formatISO, parseISO };

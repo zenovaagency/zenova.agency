@@ -1,11 +1,18 @@
 import js from '@eslint/js';
 import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
 
+// eslint-plugin-react-refresh is deliberately gone. It exists for Vite's React
+// Fast Refresh, and its only-export-components rule is actively wrong under the
+// Next App Router, where a route file exporting `metadata`,
+// `generateMetadata` or `generateStaticParams` next to its default component is
+// the required pattern, not a mistake. Next ships its own Fast Refresh.
+
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules'] },
+  // `.next` holds Next's generated route types, which are build output, not
+  // source — linting them produced ~600 errors from code nobody wrote.
+  { ignores: ['.next', 'out', 'node_modules', '_legacy'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ['**/*.{ts,tsx}'],
@@ -15,14 +22,9 @@ export default tseslint.config(
     },
     plugins: {
       'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
       '@typescript-eslint/no-unused-vars': [
         'warn',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },

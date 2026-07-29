@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useRef } from 'react';
 
 /** Shared scroll-snap column used by TimePicker and DateTimePicker. */

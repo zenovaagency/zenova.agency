@@ -1,5 +1,6 @@
+'use client';
 import { useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 import './NeonButton.css';
 
 export type NeonButtonSize = 'xs' | 'sm' | 'md' | 'lg';

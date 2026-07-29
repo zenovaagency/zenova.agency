@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import type { CSSProperties, ReactElement } from 'react';
 
 type IconProps = { size?: number };

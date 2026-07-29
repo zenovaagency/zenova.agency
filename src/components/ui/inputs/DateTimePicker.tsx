@@ -1,3 +1,4 @@
+'use client';
 import { forwardRef, useState } from 'react';
 import { Calendar, parseISO } from './Calendar';
 import { Popover } from './Popover';

@@ -1,4 +1,10 @@
-import { Navigate, useLocation } from 'react-router-dom';
+'use client';
+// Next's router, not react-router's. This component sits *outside* the portal
+// islands' <BrowserRouter> and every destination it navigates to is in a
+// different island (/login, /admin, /team, /client). A basename-scoped
+// react-router <Navigate to="/login"> would resolve against that basename and
+// send an unauthenticated admin to /admin/login instead of /login.
+import { Navigate, useLocation } from '@/lib/router';
 import { useSession, hasRole, type Role } from '@/lib/session';
 
 interface AuthGateProps {

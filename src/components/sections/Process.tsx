@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useRef, useState, type MouseEvent, type ReactElement } from 'react';
 import { Icon } from '@/components/icons/Icon';
 import { SectionHeader } from '@/components/ui/SectionHeader';

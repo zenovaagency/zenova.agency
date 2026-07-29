@@ -1,8 +1,21 @@
+'use client';
 import { startTransition, useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from '@/lib/router';
 import { LogoBadge } from './Logo';
 import { Icon } from '@/components/icons/Icon';
 import { normalizePath } from '@/seo/seo-data';
+
+/**
+ * `inert` on the closed mobile sheet, as a spread so it can be omitted entirely
+ * when the menu is open.
+ *
+ * The value is an empty string, not `true`: React 18's DOM has no special
+ * handling for `inert` and forwards the attribute verbatim, and an empty string
+ * is the correct "present" form of a boolean attribute. Next's bundled React
+ * types declare it as a boolean, which is what the cast works around.
+ */
+const INERT_WHEN_CLOSED = (menuOpen: boolean) =>
+  menuOpen ? {} : ({ inert: '' } as unknown as { inert?: boolean });
 
 const NAV_LINKS = [
   { label: 'Services', to: '/services' },
@@ -202,7 +215,7 @@ export function Nav() {
         className={`mobile-menu ${menuOpen ? 'is-open' : ''}`}
         id="mobile-menu"
         aria-hidden={!menuOpen}
-        {...(menuOpen ? {} : { inert: '' })}
+        {...INERT_WHEN_CLOSED(menuOpen)}
       >
         <div className="mobile-menu__inner">
           <nav

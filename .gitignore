@@ -1,7 +1,13 @@
 node_modules/
-dist/
-dist-ssr/
 *.local
+
+# Next.js
+.next/
+out/
+.vercel/
+# next-env.d.ts is deliberately NOT ignored: tsconfig.json references it, and
+# committing it is the Next convention (create-next-app does the same). Next
+# regenerates it on build, so it never drifts.
 
 # Editor
 .vscode/*
@@ -23,12 +29,6 @@ pnpm-debug.log*
 # Build caches
 .tsbuildinfo
 *.tsbuildinfo
-.vite/
-
-# Never commit emitted Vite config artifacts. tsc -b used to emit these
-# from vite.config.ts and they would shadow the .ts at build time.
-vite.config.js
-vite.config.d.ts
 
 # Archived pre-refactor sources — kept locally, not for commit
 _legacy/

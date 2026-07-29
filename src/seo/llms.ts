@@ -13,14 +13,17 @@
  * same modules the site renders from, so the description an assistant reads is
  * by construction the description a visitor reads.
  *
- * Build-time only — imported by entry-server.tsx and written out by
- * scripts/prerender.mjs. Never part of the browser bundle.
+ * Server-only — served by the app/llms.txt and app/llms-full.txt route
+ * handlers. Never part of the browser bundle.
  */
 import { SERVICES } from '@/data/services';
 import { PROJECTS } from '@/data/projects';
 import { JOBS } from '@/data/jobs';
 import { PRICING } from '@/data/pricing';
-import { DEFAULT_CONTENT } from '@/admin/store';
+// From the data module, not '@/admin/store': this file is imported by the
+// /llms.txt route handlers, which run on the server where the client-only store
+// (useSyncExternalStore) cannot be loaded.
+import { DEFAULT_CONTENT } from '@/data/site-content';
 import { SITE, canonicalUrl } from './seo-data';
 
 /** Collapse whitespace so generated Markdown never inherits source line breaks. */
@@ -46,10 +49,9 @@ function technologies(): string[] {
 }
 
 const CRAWLER_NOTE = line(`
-  Every public page on this site is server-rendered to static HTML at build
-  time. Headings, body copy, navigation, and JSON-LD are all present in the
-  initial HTML response, so JavaScript execution is not required to read any
-  page here.
+  Every public page on this site is rendered on the server. Headings, body copy,
+  navigation, and JSON-LD are all present in the initial HTML response, so
+  JavaScript execution is not required to read any page here.
 `);
 
 const CANONICAL_NOTE = line(`
@@ -317,7 +319,7 @@ Non-public application surfaces, disallowed in robots.txt and excluded from the 
 
 - ${CANONICAL_NOTE}
 - Structured data: every page carries schema.org JSON-LD including Organization, WebSite, WebPage, and BreadcrumbList. Service pages add Service, case studies add CreativeWork, role pages add JobPosting, and the home and pricing pages add FAQPage.
-- Blog posts and admin-authored landing pages are prerendered at build time from the content API, so their text is in the static HTML too.
+- Blog posts and admin-authored landing pages are fetched from the content API and rendered on the server, so their full text is in the initial HTML too.
 - No content on this site is paywalled, gated behind a login, or rendered only after user interaction.
 `;
 }

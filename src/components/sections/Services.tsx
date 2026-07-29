@@ -1,5 +1,6 @@
+'use client';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 import { ServiceVisual } from './ServiceVisual';
 import { ServiceMedia } from './ServiceMedia';
 import { Icon } from '@/components/icons/Icon';

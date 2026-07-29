@@ -9,7 +9,6 @@ function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- factory helper colocated with the admin page
 export function emptyJob(): JobDetail {
   return {
     slug: 'new-role-' + Math.random().toString(36).slice(2, 6),

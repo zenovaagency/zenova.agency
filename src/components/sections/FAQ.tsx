@@ -1,3 +1,4 @@
+'use client';
 import { useId, useState } from 'react';
 import { Icon } from '@/components/icons/Icon';
 import { GhostButton } from '@/components/ui/GhostButton';

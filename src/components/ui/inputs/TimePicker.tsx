@@ -1,3 +1,4 @@
+'use client';
 import { forwardRef, useState } from 'react';
 import { Popover } from './Popover';
 import { TimePickerPanel } from './TimePickerPanel';
@@ -205,5 +206,4 @@ export function TimePicker({
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- time helpers colocated with the TimePicker input
 export { formatInternal as formatTime24, parseTime };

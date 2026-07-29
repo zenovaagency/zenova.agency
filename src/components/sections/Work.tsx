@@ -1,5 +1,6 @@
+'use client';
 import { useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from '@/lib/router';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { GhostButton } from '@/components/ui/GhostButton';

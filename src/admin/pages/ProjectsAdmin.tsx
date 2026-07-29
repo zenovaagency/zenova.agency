@@ -64,7 +64,6 @@ function LiveUrlCell({ url, slug }: { url: string; slug: string }) {
   );
 }
 
-// eslint-disable-next-line react-refresh/only-export-components -- factory helper colocated with the admin page
 export function emptyProject(): ProjectDetail {
   return {
     slug: 'new-project-' + Math.random().toString(36).slice(2, 6),
