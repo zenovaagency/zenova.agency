@@ -63,17 +63,20 @@ export const metadata: Metadata = {
   title: 'Zenova — One agency for everything modern',
   description: SITE.description,
   applicationName: SITE.name,
-  manifest: '/assets/favicon/manifest.json',
+  manifest: '/site.webmanifest',
   icons: {
     // Google Search harvests ONE favicon per hostname and resolves it from the
-    // site root. KEEP THIS URL STABLE: changing it resets Google's crawl (days
-    // to weeks). The .ico already embeds 16/32/48/64/128/256, and the manifest
-    // covers Android, so no per-size icon links are needed.
+    // site root. KEEP /favicon.ico STABLE: changing it resets Google's crawl
+    // (days to weeks). The .ico embeds multiple sizes, the SVG gives vector
+    // browsers a crisp icon, and the explicit 16/32 PNG links cover legacy
+    // browser tabs and bookmarks.
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/assets/favicon/favicon.svg', type: 'image/svg+xml' },
     ],
-    apple: [{ url: '/assets/favicon/apple-icon-180x180.png', sizes: '180x180' }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],
   },
   appleWebApp: { capable: true, title: SITE.name },
   other: {
