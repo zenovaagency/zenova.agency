@@ -203,7 +203,8 @@ export function BlogPostPage({ post, related = [] }: BlogPostPageProps) {
 
         {post.cover_image_url && (
           <figure className="bpp-cover reveal reveal-d2">
-            <img src={post.cover_image_url} alt="" decoding="async" />
+            {/* The article cover — the LCP element on a post page. */}
+            <img src={post.cover_image_url} alt="" fetchPriority="high" decoding="async" />
           </figure>
         )}
 

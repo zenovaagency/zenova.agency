@@ -64,6 +64,7 @@ export function ServiceMedia({
       src={image}
       alt={alt}
       loading={loading}
+      decoding="async"
       onLoad={notify}
       className={className}
       style={{

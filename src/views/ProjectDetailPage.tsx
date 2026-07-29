@@ -200,7 +200,7 @@ export function ProjectDetailPage() {
                     onClick={() => setLbIndex(fullIndex)}
                     aria-label={`Open image ${fullIndex + 1} of ${images.length}`}
                   >
-                    <img src={img.src} alt={img.alt ?? ''} loading="lazy" />
+                    <img src={img.src} alt={img.alt ?? ''} loading="lazy" decoding="async" />
                     <span className="pd-figure__index mono" aria-hidden="true">
                       {fullIndex + 1} / {images.length}
                     </span>
