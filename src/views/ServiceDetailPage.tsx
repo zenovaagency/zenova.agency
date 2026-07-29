@@ -76,7 +76,7 @@ export function ServiceDetailPage() {
 
           {(service.short || service.hero) && (
             <div className="sd-rail__note">
-              <div className="sd-label mono">Overview</div>
+              <h2 className="sd-label mono">Overview</h2>
               <p>{service.short || service.hero}</p>
             </div>
           )}
@@ -94,7 +94,7 @@ export function ServiceDetailPage() {
 
           {service.stack.length > 0 && (
             <div className="sd-rail__stack">
-              <div className="sd-label mono">Stack</div>
+              <h2 className="sd-label mono">Stack</h2>
               <div className="sd-rail__chips">
                 {service.stack.map((t) => (
                   <span key={t} className="sd-chip mono">
@@ -119,7 +119,7 @@ export function ServiceDetailPage() {
 
           {service.deliverables.length > 0 && (
             <section className="sd-section reveal">
-              <div className="sd-label mono">What you get</div>
+              <h2 className="sd-label mono">What you get</h2>
               <div className="sd-deliverables">
                 {service.deliverables.map((d, i) => (
                   <div key={d.title} className="sd-deliverable">
@@ -134,7 +134,7 @@ export function ServiceDetailPage() {
 
           {service.phases.length > 0 && (
             <section className="sd-section reveal">
-              <div className="sd-label mono">How it runs</div>
+              <h2 className="sd-label mono">How it runs</h2>
               <div className="sd-phases">
                 {service.phases.map((p) => (
                   <div key={p.n} className="sd-phase">
@@ -154,7 +154,7 @@ export function ServiceDetailPage() {
 
           {service.packages.length > 0 && (
             <section className="sd-section reveal">
-              <div className="sd-label mono">Packages</div>
+              <h2 className="sd-label mono">Packages</h2>
               <div className="sd-packages">
                 {service.packages.map((pkg) => (
                   <div key={pkg.name} className={`sd-package${pkg.featured ? ' is-featured' : ''}`}>
@@ -181,7 +181,7 @@ export function ServiceDetailPage() {
 
           {service.faqs.length > 0 && (
             <section className="sd-section reveal">
-              <div className="sd-label mono">Questions</div>
+              <h2 className="sd-label mono">Questions</h2>
               <div className="sd-faqs">
                 {service.faqs.map((f) => (
                   <div key={f.q} className="sd-faq">
@@ -198,7 +198,7 @@ export function ServiceDetailPage() {
       {related.length > 0 && (
         <section className="sd-related">
           <div className="container">
-            <div className="sd-label mono reveal">Pairs well with</div>
+            <h2 className="sd-label mono reveal">Pairs well with</h2>
             <div className="sd-related__list reveal reveal-d1">
               {related.map((r) => {
                 const RIcon = Icon[r.icon] as IconComponent;
