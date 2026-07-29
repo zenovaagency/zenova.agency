@@ -5,8 +5,76 @@ import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { PricingCard } from '@/components/pricing/PricingCard';
 import { useContent, useServices } from '@/admin/store';
-import { PRICING } from '@/data/pricing';
+import { PRICING, type PricingService } from '@/data/pricing';
+import { JsonLd } from '@/seo/JsonLd';
+import { SITE, canonicalUrl } from '@/seo/seo-data';
 import './PricingPage.css';
+
+/**
+ * Turn a free-form rate-card price into schema.org price fields.
+ *
+ * The cards carry marketing strings ('$8k', 'from $24k', 'Custom') because
+ * that is what reads well on the page; structured data needs numbers. The
+ * three cases map to genuinely different claims, and conflating them would
+ * publish a price we do not actually offer:
+ *   '$8k'       -> a fixed price
+ *   'from $24k' -> a minimum, expressed as a PriceSpecification
+ *   'Custom'    -> no price at all, so emit none
+ */
+function priceFields(raw: string): Record<string, unknown> {
+  const text = raw.trim().toLowerCase();
+  const match = text.match(/\$?\s*([\d,.]+)\s*(k|m)?/);
+  if (!match) return {};
+
+  const digits = Number(match[1].replace(/,/g, ''));
+  if (!Number.isFinite(digits)) return {};
+
+  const scale = match[2] === 'k' ? 1_000 : match[2] === 'm' ? 1_000_000 : 1;
+  const amount = digits * scale;
+  const isFrom = /\bfrom\b|\bstarting\b|^\s*\+/.test(text);
+
+  return isFrom
+    ? {
+        priceSpecification: {
+          '@type': 'PriceSpecification',
+          minPrice: amount,
+          priceCurrency: 'USD',
+        },
+      }
+    : { price: amount, priceCurrency: 'USD' };
+}
+
+/** The full rate card as one nested OfferCatalog. */
+function pricingCatalog(pricing: PricingService[]): Record<string, unknown> {
+  const url = canonicalUrl('/pricing');
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'OfferCatalog',
+    '@id': `${url}#pricing`,
+    name: `${SITE.name} pricing`,
+    url,
+    provider: { '@id': `${SITE.url}/#organization` },
+    itemListElement: pricing.map((svc) => ({
+      '@type': 'OfferCatalog',
+      name: svc.label,
+      itemListElement: svc.plans.map((plan) => ({
+        '@type': 'Offer',
+        name: plan.name,
+        description: plan.info,
+        category: svc.label,
+        availability: 'https://schema.org/InStock',
+        url,
+        ...priceFields(plan.price),
+        itemOffered: {
+          '@type': 'Service',
+          name: `${svc.label} — ${plan.name}`,
+          serviceType: svc.label,
+          provider: { '@id': `${SITE.url}/#organization` },
+        },
+      })),
+    })),
+  };
+}
 
 /** Assurances that apply to every engagement — reinforces the flat-rate promise. */
 const TRUST: Array<{ icon: keyof typeof Icon; title: string; body: string }> = [
@@ -76,6 +144,21 @@ export function PricingPage() {
 
   return (
     <div className="pcx">
+      <JsonLd
+        data={[
+          pricingCatalog(pricing),
+          {
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            '@id': `${canonicalUrl('/pricing')}#faq`,
+            mainEntity: PRICING_FAQ.map((item) => ({
+              '@type': 'Question',
+              name: item.q,
+              acceptedAnswer: { '@type': 'Answer', text: item.a },
+            })),
+          },
+        ]}
+      />
       <header className="pcx-hero">
         <div className="container">
           <div className="pcx-hero__kicker mono reveal">

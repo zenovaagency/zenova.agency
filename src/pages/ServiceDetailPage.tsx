@@ -52,7 +52,7 @@ export function ServiceDetailPage() {
     <div className="sd" style={{ '--hue': service.hue } as React.CSSProperties}>
       <header className="sd-header">
         <div className="container">
-          <nav className="sd-crumbs mono">
+          <nav className="sd-crumbs mono" aria-label="Breadcrumb">
             <Link to="/">Home</Link>
             <span>/</span>
             <Link to="/services">Services</Link>

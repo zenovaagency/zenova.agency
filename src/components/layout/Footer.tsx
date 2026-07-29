@@ -110,10 +110,28 @@ export function Footer() {
           </div>
           {footer.columns.map((c) => (
             <div key={c.id}>
-              <div className="mono" style={{ color: 'var(--fg-faint)', marginBottom: 18 }}>
+              {/*
+                <h2> + <nav> rather than two <div>s: each footer column is a
+                named group of site links, which is exactly what a labelled
+                navigation landmark is for. `margin` and `fontWeight` are
+                pinned so the heading renders identically to the div it
+                replaced — the visual weight comes from .mono.
+              */}
+              <h2
+                className="mono"
+                id={`footer-col-${c.id}`}
+                style={{
+                  color: 'var(--fg-faint)',
+                  margin: '0 0 18px',
+                  fontWeight: 'inherit',
+                }}
+              >
                 {c.title}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              </h2>
+              <nav
+                aria-labelledby={`footer-col-${c.id}`}
+                style={{ display: 'flex', flexDirection: 'column', gap: 10 }}
+              >
                 {columnLinks(c).map((l) => (
                   <Link
                     key={l.id}
@@ -125,7 +143,7 @@ export function Footer() {
                     {l.label}
                   </Link>
                 ))}
-              </div>
+              </nav>
             </div>
           ))}
         </div>

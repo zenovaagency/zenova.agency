@@ -50,7 +50,13 @@ export function Nav() {
   }, [menuOpen]);
 
   return (
-    <nav
+    // <header>, not <nav>: this element is the site banner — it holds the logo
+    // and the CTA as well as the links, and a page may only have one banner
+    // landmark. The link groups inside get their own labelled <nav> elements
+    // so a screen-reader user can tell the desktop row and the mobile sheet
+    // apart in the landmark list. Styles are unchanged; every rule here is
+    // class- or inline-based, never element-based.
+    <header
       style={{
         position: 'fixed',
         top: 0,
@@ -84,10 +90,19 @@ export function Nav() {
           transition: 'all .35s cubic-bezier(.2,.7,.2,1)',
         }}
       >
-        <Link to="/" style={{ display: 'inline-flex' }} onClick={() => setMenuOpen(false)}>
+        <Link
+          to="/"
+          aria-label="Zenova — home"
+          style={{ display: 'inline-flex' }}
+          onClick={() => setMenuOpen(false)}
+        >
           <LogoBadge size={46} />
         </Link>
-        <div className="nav-links" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+        <nav
+          className="nav-links"
+          aria-label="Primary"
+          style={{ display: 'flex', gap: 4, alignItems: 'center' }}
+        >
           {NAV_LINKS.map((l) => {
             // normalizePath, not a raw ===: GitHub Pages serves the canonical
             // URL with a trailing slash (/about/), so an exact compare against
@@ -100,6 +115,10 @@ export function Nav() {
                 key={l.label}
                 to={l.to}
                 className="nav-link"
+                // The active state is communicated visually by the pill, which
+                // is aria-hidden; without this it reaches assistive tech as an
+                // ordinary link like any other.
+                aria-current={active ? 'page' : undefined}
                 style={{
                   position: 'relative',
                   padding: '8px 14px',
@@ -116,7 +135,7 @@ export function Nav() {
               </Link>
             );
           })}
-        </div>
+        </nav>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <div className="nav-desktop-only" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <Link
@@ -145,8 +164,10 @@ export function Nav() {
 
           <button
             className="nav-hamburger"
+            type="button"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
             onClick={() => setMenuOpen((o) => !o)}
             style={{
               width: 42,
@@ -171,21 +192,36 @@ export function Nav() {
         </div>
       </div>
 
-      <div className={`mobile-menu ${menuOpen ? 'is-open' : ''}`}>
+      {/*
+        aria-hidden while closed: the sheet stays mounted so it can animate,
+        but a closed menu must not be reachable by screen reader or by Tab —
+        otherwise focus disappears into an off-screen panel. `inert` does the
+        same for keyboard focus and is ignored by browsers that lack it.
+      */}
+      <div
+        className={`mobile-menu ${menuOpen ? 'is-open' : ''}`}
+        id="mobile-menu"
+        aria-hidden={!menuOpen}
+        {...(menuOpen ? {} : { inert: '' })}
+      >
         <div className="mobile-menu__inner">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <nav
+            aria-label="Mobile"
+            style={{ display: 'flex', flexDirection: 'column', gap: 4 }}
+          >
             {NAV_LINKS.map((l) => (
               <Link
                 key={l.label}
                 to={l.to}
                 onClick={() => setMenuOpen(false)}
                 className="mobile-menu__link"
+                aria-current={normalizePath(location.pathname) === l.to ? 'page' : undefined}
               >
                 {l.label}
                 <Icon.Arrow size={16} />
               </Link>
             ))}
-          </div>
+          </nav>
           <div
             style={{
               marginTop: 14,
@@ -225,6 +261,6 @@ export function Nav() {
         onClick={() => setMenuOpen(false)}
         aria-hidden="true"
       />
-    </nav>
+    </header>
   );
 }

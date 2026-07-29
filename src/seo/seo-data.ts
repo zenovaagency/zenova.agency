@@ -2,15 +2,23 @@
  * Central SEO metadata — the single source of truth for per-route <head>
  * tags, JSON-LD, the XML sitemap, and build-time prerendered HTML.
  *
- * This module is intentionally DEPENDENCY-FREE (no `@/` imports, no runtime
- * libraries, no DOM/Node APIs) so it can be imported by BOTH:
- *   - the app bundle (runtime <SeoManager>, client-side navigation), and
- *   - vite.config.ts (build-time prerender + sitemap plugin).
+ * Detail-page routes are DERIVED from the content modules rather than listed
+ * here. They used to be hand-maintained copies with a "keep these in sync"
+ * comment, and they had silently fallen out of sync: this table still listed
+ * /services/ops, /content, /chatbot and /automation, which no longer exist
+ * (every one was a redirect, published in the sitemap as a real URL), while
+ * the live /services/ai page was absent from the sitemap entirely. Deriving
+ * them makes that class of bug unrepresentable.
  *
- * Keep the detail-page maps below in sync with
- *   src/data/services.ts, src/data/projects.ts, src/data/jobs.ts
- * A short unit-style check in scripts guards against drift if you add one.
+ * Import cost is nil: admin/store.ts already imports all three modules and is
+ * itself imported from App.tsx, so they are in the entry chunk either way.
+ *
+ * No DOM or Node APIs — this module is imported by the browser bundle
+ * (<SeoManager>) as well as by the build-time prerenderer.
  */
+import { SERVICES as SERVICE_DATA } from '@/data/services';
+import { PROJECTS as PROJECT_DATA } from '@/data/projects';
+import { JOBS as JOB_DATA } from '@/data/jobs';
 
 export interface SeoMeta {
   /** Canonical path, no trailing slash (except the home path '/'). */
@@ -54,6 +62,7 @@ export const SITE = {
   ogImageAlt: 'Zenova — one agency for design, development, marketing, and startup support.',
   locale: 'en_US',
   email: 'hello@zenova.agency',
+  careersEmail: 'careers@zenova.agency',
   /** Declared brand profiles (rendered in the site footer). Confirm/extend. */
   sameAs: [
     'https://www.instagram.com/zenova.agency',
@@ -62,6 +71,56 @@ export const SITE = {
     'https://github.com/zenova',
     'https://facebook.com/zenova',
   ],
+  /**
+   * Entity facts for AI answer engines (GEO). These are the properties a model
+   * reads to decide *what Zenova is* and *when to name it* — keep them factual
+   * and consistent with the visible page copy, never keyword-stuffed.
+   */
+  // Must describe what the site actually sells — see the five entries in
+  // src/data/services.ts. Listing expertise the agency does not offer is the
+  // fastest way to get an AI assistant to recommend Zenova for the wrong job.
+  knowsAbout: [
+    'Web development',
+    'Web application development',
+    'Mobile app development',
+    'Brand and product design',
+    'Search engine optimization',
+    'Digital marketing',
+    'Email marketing',
+    'Paid advertising',
+    'Startup product launch',
+    'MVP development',
+    'AI agent development',
+    'AI chatbot development',
+    'Business process automation',
+  ],
+  /** schema.org priceRange is a coarse signal; keep it symbolic, not a number. */
+  priceRange: '$$',
+  areaServed: 'Worldwide',
+} as const;
+
+/**
+ * Physical address + phone for LocalBusiness/ProfessionalService schema.
+ *
+ * DELIBERATELY DISABLED. The values carried in the admin brand defaults
+ * ('123 Atlantic Ave, Brooklyn, NY 11201', '+1 (555) 123-4567') are template
+ * placeholders, and publishing placeholder NAP data in structured markup is
+ * actively harmful: Google cross-checks name/address/phone against its own
+ * business records, and a mismatch suppresses the very local rich results the
+ * markup is meant to earn. A 555 number is a recognised fiction.
+ *
+ * To enable: replace the fields with the real, verified business address and
+ * phone, then flip `verified` to true. Nothing else needs to change — the
+ * ProfessionalService node picks the properties up automatically.
+ */
+export const BUSINESS_NAP = {
+  verified: false,
+  streetAddress: '',
+  addressLocality: '',
+  addressRegion: '',
+  postalCode: '',
+  addressCountry: '',
+  telephone: '',
 } as const;
 
 /** Primary navigation — reused by the prerendered crawlable fallback. */
@@ -240,16 +299,11 @@ const MAIN_ROUTES: SeoMeta[] = [
 
 // --- Service detail pages (sync with src/data/services.ts) -----------------
 
-const SERVICES: Array<{ slug: string; title: string; short: string }> = [
-  { slug: 'web', title: 'Web Development', short: 'Fast, modern websites and web apps that grow with your business.' },
-  { slug: 'marketing', title: 'Marketing', short: 'Get more customers with SEO, ads, and email that actually work.' },
-  { slug: 'startup', title: 'Startup Support', short: 'From idea to launch — design, build, and a path to first customers.' },
-  { slug: 'ops', title: 'Operations', short: 'Smarter tools and processes so your team can do more with less.' },
-  { slug: 'content', title: 'Content', short: 'Blog posts, landing copy, and emails that sound human and rank well.' },
-  { slug: 'app', title: 'App Development', short: 'Native and cross-platform apps that your users will love.' },
-  { slug: 'chatbot', title: 'Chatbot', short: 'AI-powered assistants that handle support, leads, and more.' },
-  { slug: 'automation', title: 'Automation', short: 'Eliminate repetitive work with smart workflows and integrations.' },
-];
+const SERVICES = SERVICE_DATA.map((s) => ({
+  slug: s.slug,
+  title: s.title,
+  short: s.short,
+}));
 
 const SERVICE_ROUTES: SeoMeta[] = SERVICES.map((s) => ({
   path: `/services/${s.slug}`,
@@ -269,14 +323,12 @@ const SERVICE_ROUTES: SeoMeta[] = SERVICES.map((s) => ({
 
 // --- Work case studies (sync with src/data/projects.ts) --------------------
 
-const PROJECTS: Array<{ slug: string; client: string; title: string; summary: string }> = [
-  { slug: 'northwind-labs', client: 'Northwind Labs', title: 'A new site and brand for a developer platform.', summary: 'A complete rebrand, a faster site, and content that brought in 2x the signups.' },
-  { slug: 'aperture-health', client: 'Aperture Health', title: 'A patient portal that actually gets used.', summary: 'We replaced three vendors with one product and saved 38 minutes per appointment.' },
-  { slug: 'stellar-capital', client: 'Stellar Capital', title: 'From pitch deck to funded startup in 11 weeks.', summary: 'We helped Stellar build their MVP, pitch investors, and close a $4.2M seed round.' },
-  { slug: 'cobalt-studio', client: 'Cobalt Studio', title: 'A content engine that ships 4 articles a week.', summary: 'We helped Cobalt grow traffic 3x and their newsletter 5x — without paid ads.' },
-  { slug: 'mosaic', client: 'Mosaic', title: 'Growth from zero to 10,000 users in 90 days.', summary: 'We helped Mosaic launch a growth program that cut their cost per user by 42%.' },
-  { slug: 'verge', client: 'Verge', title: 'New billing system. Zero invoices dropped.', summary: 'We rebuilt a tangled billing system and saved their finance team two days every month.' },
-];
+const PROJECTS = PROJECT_DATA.map((p) => ({
+  slug: p.slug,
+  client: p.client,
+  title: p.title,
+  summary: p.summary,
+}));
 
 const PROJECT_ROUTES: SeoMeta[] = PROJECTS.map((p) => ({
   path: `/work/${p.slug}`,
@@ -296,16 +348,14 @@ const PROJECT_ROUTES: SeoMeta[] = PROJECTS.map((p) => ({
 
 // --- Open roles (sync with src/data/jobs.ts) -------------------------------
 
-const JOBS: Array<{ slug: string; title: string }> = [
-  { slug: 'senior-product-designer', title: 'Senior Product Designer' },
-  { slug: 'senior-engineer', title: 'Senior Engineer' },
-  { slug: 'growth-strategist', title: 'Growth Strategist' },
-];
+const JOBS = JOB_DATA.map((j) => ({ slug: j.slug, title: j.title, summary: j.summary }));
 
 const JOB_ROUTES: SeoMeta[] = JOBS.map((j) => ({
   path: `/careers/${j.slug}`,
   title: `${j.title} — Careers | Zenova`,
-  description: `${j.title} at Zenova — a remote, full-time role. See the responsibilities, requirements, and how to apply.`,
+  // The role's own summary, not a template: it is real copy, it is unique per
+  // role, and it is what a candidate actually sees in search results.
+  description: j.summary || `${j.title} at Zenova — a remote role. See the responsibilities, requirements, and how to apply.`,
   h1: j.title,
   intro: `We’re hiring a ${j.title}. Read the role, what you’ll own, and how to apply to join Zenova.`,
   index: true,
@@ -370,42 +420,158 @@ export function resolveSeo(pathname: string): SeoMeta {
   };
 }
 
+// --- JSON-LD ---------------------------------------------------------------
+
+const ORG_ID = `${SITE.url}/#organization`;
+const SITE_ID = `${SITE.url}/#website`;
+
+/**
+ * The schema.org type that best describes each route. Google treats a
+ * correctly-subtyped WebPage as a stronger signal than a bare one, and answer
+ * engines use it to decide which page answers "contact", "about", "pricing".
+ */
+function pageTypeFor(path: string): string {
+  if (path === '/about') return 'AboutPage';
+  if (path === '/contact') return 'ContactPage';
+  if (path === '/privacy' || path === '/terms') return 'WebPage';
+  if (path === '/blog') return 'CollectionPage';
+  if (path === '/services' || path === '/work' || path === '/careers') return 'CollectionPage';
+  if (path === '/pricing') return 'CollectionPage';
+  // Detail routes describe a single item.
+  if (/^\/(services|work|careers|blog)\//.test(path)) return 'ItemPage';
+  return 'WebPage';
+}
+
+/**
+ * The organisation node — the anchor of the whole graph. Every other node
+ * points at it by @id rather than repeating the fields, which is what lets a
+ * crawler merge all pages into one entity.
+ *
+ * The NAP block is appended only when BUSINESS_NAP.verified is true; see the
+ * comment there for why publishing placeholder address data is worse than
+ * publishing none.
+ */
+function organizationNode(): Record<string, unknown> {
+  const node: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': BUSINESS_NAP.verified ? ['Organization', 'ProfessionalService'] : 'Organization',
+    '@id': ORG_ID,
+    name: SITE.name,
+    legalName: SITE.legalName,
+    url: `${SITE.url}/`,
+    logo: {
+      '@type': 'ImageObject',
+      '@id': `${SITE.url}/#logo`,
+      url: SITE.logo,
+      caption: SITE.name,
+    },
+    image: SITE.ogImage,
+    description: SITE.description,
+    email: SITE.email,
+    sameAs: SITE.sameAs,
+    knowsAbout: SITE.knowsAbout,
+    areaServed: { '@type': 'Place', name: SITE.areaServed },
+    priceRange: SITE.priceRange,
+    contactPoint: [
+      {
+        '@type': 'ContactPoint',
+        contactType: 'sales',
+        email: SITE.email,
+        url: canonicalUrl('/contact'),
+        availableLanguage: ['English'],
+        areaServed: SITE.areaServed,
+      },
+      {
+        '@type': 'ContactPoint',
+        contactType: 'human resources',
+        email: SITE.careersEmail,
+        url: canonicalUrl('/careers'),
+        availableLanguage: ['English'],
+        areaServed: SITE.areaServed,
+      },
+    ],
+    // The service menu, as one machine-readable list. This is the single most
+    // useful node for "which agency does X" style AI queries.
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: `${SITE.name} services`,
+      itemListElement: SERVICES.map((s) => ({
+        '@type': 'Offer',
+        itemOffered: {
+          '@type': 'Service',
+          '@id': `${canonicalUrl(`/services/${s.slug}`)}#service`,
+          name: s.title,
+          description: s.short,
+          url: canonicalUrl(`/services/${s.slug}`),
+        },
+      })),
+    },
+  };
+
+  if (BUSINESS_NAP.verified) {
+    node.address = {
+      '@type': 'PostalAddress',
+      streetAddress: BUSINESS_NAP.streetAddress,
+      addressLocality: BUSINESS_NAP.addressLocality,
+      addressRegion: BUSINESS_NAP.addressRegion,
+      postalCode: BUSINESS_NAP.postalCode,
+      addressCountry: BUSINESS_NAP.addressCountry,
+    };
+    node.telephone = BUSINESS_NAP.telephone;
+  }
+
+  return node;
+}
+
 /** JSON-LD graph for a route (empty for noindex pages). */
 export function jsonLdObjects(meta: SeoMeta): Array<Record<string, unknown>> {
   if (!meta.index) return [];
 
-  const organization: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    '@id': `${SITE.url}/#organization`,
-    name: SITE.name,
-    legalName: SITE.legalName,
-    url: `${SITE.url}/`,
-    logo: SITE.logo,
-    description: SITE.description,
-    email: SITE.email,
-    sameAs: SITE.sameAs,
-  };
+  const url = canonicalUrl(meta.path);
+  const hasCrumbs = Boolean(meta.breadcrumb && meta.breadcrumb.length);
 
-  const out: Array<Record<string, unknown>> = [organization];
-
-  if (meta.path === '/') {
-    out.push({
+  const out: Array<Record<string, unknown>> = [
+    organizationNode(),
+    // Emitted on every page, not just the homepage, so each page's graph
+    // resolves its own isPartOf reference without a second fetch.
+    {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      '@id': `${SITE.url}/#website`,
+      '@id': SITE_ID,
       name: SITE.name,
       url: `${SITE.url}/`,
-      publisher: { '@id': `${SITE.url}/#organization` },
-      inLanguage: 'en',
-    });
-  }
+      description: SITE.description,
+      publisher: { '@id': ORG_ID },
+      inLanguage: 'en-US',
+    },
+  ];
 
-  if (meta.breadcrumb && meta.breadcrumb.length) {
+  const webPage: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': pageTypeFor(meta.path),
+    '@id': `${url}#webpage`,
+    url,
+    name: meta.title,
+    description: meta.description,
+    isPartOf: { '@id': SITE_ID },
+    about: { '@id': ORG_ID },
+    inLanguage: 'en-US',
+    primaryImageOfPage: {
+      '@type': 'ImageObject',
+      url: SITE.ogImage,
+      width: SITE.ogImageWidth,
+      height: SITE.ogImageHeight,
+    },
+  };
+  if (hasCrumbs) webPage.breadcrumb = { '@id': `${url}#breadcrumb` };
+  out.push(webPage);
+
+  if (hasCrumbs) {
     out.push({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
-      itemListElement: meta.breadcrumb.map((c, i) => ({
+      '@id': `${url}#breadcrumb`,
+      itemListElement: meta.breadcrumb!.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
         name: c.name,
@@ -414,17 +580,103 @@ export function jsonLdObjects(meta: SeoMeta): Array<Record<string, unknown>> {
     });
   }
 
+  // --- Listing pages: expose the collection as a real ItemList -------------
+
+  if (meta.path === '/services') {
+    out.push(
+      itemList(url, 'Zenova services', SERVICES.map((s) => ({
+        name: s.title,
+        description: s.short,
+        url: canonicalUrl(`/services/${s.slug}`),
+      }))),
+    );
+  }
+
+  if (meta.path === '/work') {
+    out.push(
+      itemList(url, 'Zenova case studies', PROJECTS.map((p) => ({
+        name: `${p.client} — ${p.title}`,
+        description: p.summary,
+        url: canonicalUrl(`/work/${p.slug}`),
+      }))),
+    );
+  }
+
+  if (meta.path === '/careers') {
+    out.push(
+      itemList(url, 'Open roles at Zenova', JOBS.map((j) => ({
+        name: j.title,
+        description: `${j.title} at ${SITE.name}`,
+        url: canonicalUrl(`/careers/${j.slug}`),
+      }))),
+    );
+  }
+
+  // --- Detail pages -------------------------------------------------------
+
   if (meta.path.startsWith('/services/')) {
+    const slug = meta.path.slice('/services/'.length);
+    const svc = SERVICES.find((s) => s.slug === slug);
     out.push({
       '@context': 'https://schema.org',
       '@type': 'Service',
-      name: meta.h1,
+      '@id': `${url}#service`,
+      name: svc?.title ?? meta.h1,
       description: meta.description,
-      url: canonicalUrl(meta.path),
-      provider: { '@id': `${SITE.url}/#organization` },
-      areaServed: 'Worldwide',
+      url,
+      serviceType: svc?.title ?? meta.h1,
+      provider: { '@id': ORG_ID },
+      brand: { '@id': ORG_ID },
+      areaServed: { '@type': 'Place', name: SITE.areaServed },
+      audience: {
+        '@type': 'BusinessAudience',
+        name: 'Startups, scale-ups, and established businesses',
+      },
+      mainEntityOfPage: { '@id': `${url}#webpage` },
+    });
+  }
+
+  if (meta.path.startsWith('/work/')) {
+    const slug = meta.path.slice('/work/'.length);
+    const proj = PROJECTS.find((p) => p.slug === slug);
+    out.push({
+      '@context': 'https://schema.org',
+      '@type': 'CreativeWork',
+      '@id': `${url}#casestudy`,
+      name: proj?.title ?? meta.h1,
+      headline: proj?.title ?? meta.h1,
+      description: meta.description,
+      url,
+      genre: 'Case study',
+      creator: { '@id': ORG_ID },
+      publisher: { '@id': ORG_ID },
+      ...(proj ? { about: { '@type': 'Organization', name: proj.client } } : {}),
+      mainEntityOfPage: { '@id': `${url}#webpage` },
     });
   }
 
   return out;
+}
+
+/** Shared shape for the three listing-page collections. */
+function itemList(
+  pageUrl: string,
+  name: string,
+  items: Array<{ name: string; description: string; url: string }>,
+): Record<string, unknown> {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    '@id': `${pageUrl}#itemlist`,
+    name,
+    numberOfItems: items.length,
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: it.name,
+      description: it.description,
+      url: it.url,
+    })),
+  };
 }

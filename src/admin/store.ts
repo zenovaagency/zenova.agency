@@ -520,8 +520,13 @@ const DEFAULT_BRAND: BrandSettings = {
   tagline: 'Design, build, and grow — one team.',
   contactEmail: 'hello@zenova.agency',
   careersEmail: 'careers@zenova.agency',
-  phone: '+1 (555) 123-4567',
-  address: '123 Atlantic Ave, Brooklyn, NY 11201',
+  // Intentionally empty, not seeded with a sample. These fed the public
+  // contact page directly, so the fictional 555 number and filler street
+  // address were being published as this agency's real details. Fill them in
+  // under Admin → Brand settings; the contact page hides an empty row and
+  // shows it again as soon as a real value is saved.
+  phone: '',
+  address: '',
   accent: '#ff813a',
   locations: [
     { id: 'l1', city: 'Brooklyn, NY', tz: 'EST', detail: 'Headquarters' },

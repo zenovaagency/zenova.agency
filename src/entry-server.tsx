@@ -29,12 +29,18 @@ import { JSDOM } from 'jsdom';
 import { AppShell } from './App';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
 import { setSanitizer } from './lib/sanitize';
+import { setDocumentFactory } from './lib/dom';
 
 // Give DOMPurify a DOM before any component renders. jsdom is a devDependency
 // and this module never reaches the browser bundle, so the client is unaffected.
 // Same library + same config on both sides ⇒ identical markup ⇒ clean hydration.
 const purify = createDOMPurify(new JSDOM('').window as unknown as Window & typeof globalThis);
 setSanitizer((html, config) => purify.sanitize(html, config ?? {}));
+
+// Same treatment for DOMParser, which BlogPostPage uses to add stable ids to
+// article headings. Without this the blog posts render their body only in the
+// browser — which is exactly the gap the SSR payload was added to close.
+setDocumentFactory((html) => new JSDOM(html).window.document as unknown as Document);
 
 /** Abort a stuck render rather than hanging the build forever. */
 const RENDER_TIMEOUT_MS = 20_000;
@@ -110,3 +116,10 @@ export function render(path: string): Promise<string> {
  */
 export { applySeoToTemplate, prerenderRoutes, sitemapXml } from './seo/seo-html';
 export { SITE, canonicalUrl } from './seo/seo-data';
+export { llmsTxt, llmsFullTxt } from './seo/llms';
+/**
+ * Lets scripts/prerender.mjs hand API-fetched content to the render pass, so
+ * blog posts and admin-authored pages server-render their real body instead of
+ * a loading skeleton. See src/lib/ssrData.ts.
+ */
+export { setSsrPayload } from './lib/ssrData';

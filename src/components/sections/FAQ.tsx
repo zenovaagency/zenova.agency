@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Icon } from '@/components/icons/Icon';
 import { GhostButton } from '@/components/ui/GhostButton';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { DEFAULT_CONTENT, useContent } from '@/admin/store';
+import { JsonLd } from '@/seo/JsonLd';
 
 interface QA {
   q: string;
@@ -10,6 +11,12 @@ interface QA {
 }
 
 function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onToggle: () => void }) {
+  // useId keeps the button/panel wiring stable across the server render and
+  // hydration; a counter or Math.random would mismatch and blow the boundary.
+  const uid = useId();
+  const panelId = `faq-panel-${uid}`;
+  const buttonId = `faq-btn-${uid}`;
+
   return (
     <div
       style={{
@@ -20,7 +27,10 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
     >
       <button
         onClick={onToggle}
+        id={buttonId}
+        type="button"
         aria-expanded={isOpen}
+        aria-controls={panelId}
         className="faq-btn"
         style={{
           width: '100%',
@@ -65,7 +75,18 @@ function FAQItem({ item, isOpen, onToggle }: { item: QA; isOpen: boolean; onTogg
           <Icon.Plus size={16} />
         </span>
       </button>
+      {/*
+        The answer stays in the DOM in both states rather than being unmounted
+        or `hidden`: it is the text that makes this page answer a question for
+        a crawler that never clicks anything. `role="region"` + aria-labelledby
+        gives assistive tech a named landmark to jump to, and the matching
+        aria-controls above completes the standard disclosure pattern.
+      */}
       <div
+        id={panelId}
+        role="region"
+        aria-labelledby={buttonId}
+        className="faq-panel"
         style={{
           maxHeight: isOpen ? 320 : 0,
           opacity: isOpen ? 1 : 0,
@@ -97,7 +118,26 @@ export function FAQ() {
     <section
       id="faq"
       className="sec"
+      aria-label="Frequently asked questions"
     >
+      {/*
+        FAQPage markup is the highest-value structured data on this site for AI
+        answer engines: it hands ChatGPT, Perplexity, Gemini and Copilot a
+        question→answer pair they can quote directly, without inferring
+        anything from the accordion markup. Built from the same `FAQS` array
+        the accordion renders, so an admin edit updates both at once.
+      */}
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: FAQS.map((item) => ({
+            '@type': 'Question',
+            name: item.q,
+            acceptedAnswer: { '@type': 'Answer', text: item.a },
+          })),
+        }}
+      />
       <div className="container">
         <SectionHeader
           align="center"

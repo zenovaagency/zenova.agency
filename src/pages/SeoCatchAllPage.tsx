@@ -8,6 +8,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ArticlePageSkeleton } from '@/components/ui/PageSkeletons';
 import { useShowFooter } from '@/components/layout/FooterVisibility';
 import { ApiError } from '@/lib/api';
+import { getSsrSeoPage } from '@/lib/ssrData';
 import './LegalPage.css';
 
 /** Slug shape accepted by the backend — anything else can't be a page. */
@@ -28,7 +29,10 @@ export function SeoCatchAllPage() {
     return SLUG_RE.test(candidate) ? candidate : null;
   }, [pathname]);
 
-  const [page, setPage] = useState<PublicSeoPage | null>(null);
+  // Seeded from the prerendered payload when this is the route that was built
+  // (see lib/ssrData.ts); null for a client-side navigation, which falls
+  // through to the fetch below exactly as before.
+  const [page, setPage] = useState<PublicSeoPage | null>(() => getSsrSeoPage(slug));
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +40,8 @@ export function SeoCatchAllPage() {
   // navigating to a different slug remounts this component with fresh state.
   useEffect(() => {
     if (!slug) return;
+    // Already delivered in the HTML — see the note in BlogPostPage.
+    if (getSsrSeoPage(slug)) return;
     let cancelled = false;
     fetchSeoPage(slug)
       .then((data) => {

@@ -93,9 +93,17 @@ export function fallbackBodyHtml(meta: SeoMeta): string {
  * never runs, so without this the prerendered text would be present in the DOM
  * but invisible on screen. Crawlers read the DOM either way; this is for real
  * no-JS visitors and for anything that screenshots the page.
+ *
+ * `.faq-panel` is the same class of problem: the accordion collapses to
+ * max-height:0 and only React's onClick reopens it, so with JS off every
+ * answer is in the HTML but unreadable. Expanding all of them is the correct
+ * no-JS presentation — a plain list of questions and answers.
  */
 const NOSCRIPT_REVEAL_CSS =
-  `<noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>`;
+  `<noscript><style>` +
+  `.reveal{opacity:1!important;transform:none!important}` +
+  `.faq-panel{max-height:none!important;opacity:1!important}` +
+  `</style></noscript>`;
 
 /**
  * Rewrite a built index.html into a route-specific HTML document: strips any

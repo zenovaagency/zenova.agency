@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import DOMPurify from 'dompurify';
 import { fetchBlogList, fetchBlogPost, type PublicBlogListItem, type PublicBlogPost } from '@/lib/publicContentApi';
+import { sanitizeHtml } from '@/lib/sanitize';
+import { parseHtmlDocument } from '@/lib/dom';
 import { setDynamicSeo, clearDynamicSeo } from '@/seo/dynamic-seo';
 import { SITE, canonicalUrl } from '@/seo/seo-data';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { ArticlePageSkeleton } from '@/components/ui/PageSkeletons';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { ApiError } from '@/lib/api';
+import { getSsrBlogPost } from '@/lib/ssrData';
 import './LegalPage.css';
 import './BlogPostPage.css';
 
@@ -42,8 +44,11 @@ function headingId(text: string): string {
  * be deep-linked (`/blog/post#heading`).
  */
 function prepareBody(rawHtml: string): string {
-  const clean = DOMPurify.sanitize(rawHtml, { FORBID_ATTR: ['style'] });
-  const doc = new DOMParser().parseFromString(clean, 'text/html');
+  // Both helpers are isomorphic (lib/sanitize.ts, lib/dom.ts). Calling
+  // DOMPurify and DOMParser directly here worked in the browser but threw
+  // during the prerender, so the post body never reached the static HTML.
+  const clean = sanitizeHtml(rawHtml, { FORBID_ATTR: ['style'] });
+  const doc = parseHtmlDocument(clean);
   const seen = new Map<string, number>();
   doc.body.querySelectorAll('h2, h3').forEach((h) => {
     const text = h.textContent?.trim() ?? '';
@@ -97,7 +102,10 @@ function RelatedCard({ post }: { post: PublicBlogListItem }) {
 
 export function BlogPostPage() {
   const { slug = '' } = useParams();
-  const [post, setPost] = useState<PublicBlogPost | null>(null);
+  // Seeded from the prerendered payload when this is the route that was built
+  // (see lib/ssrData.ts). Null for a client-side navigation, which falls
+  // through to the fetch below exactly as before.
+  const [post, setPost] = useState<PublicBlogPost | null>(() => getSsrBlogPost(slug));
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -112,6 +120,11 @@ export function BlogPostPage() {
   // slug change remounts this component with fresh state, and the retry
   // handler clears `error` before bumping reloadKey.
   useEffect(() => {
+    // Already delivered in the HTML — refetching would replace identical
+    // content and cost a request on the critical path of every article view.
+    // `reloadKey` still forces a real fetch when the user hits retry.
+    if (reloadKey === 0 && getSsrBlogPost(slug)) return;
+
     let cancelled = false;
     fetchBlogPost(slug)
       .then((data) => {

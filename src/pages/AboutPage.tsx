@@ -4,6 +4,8 @@ import { Icon, type IconName, type IconComponent } from '@/components/icons/Icon
 import { useContent } from '@/admin/store';
 import { fetchBlogList, type PublicBlogListItem } from '@/lib/publicContentApi';
 import { formatDate } from '@/lib/date';
+import { JsonLd } from '@/seo/JsonLd';
+import { SITE, canonicalUrl } from '@/seo/seo-data';
 import './AboutPage.css';
 
 /** Initials fallback for a founder with no avatar set. */
@@ -85,11 +87,38 @@ export function AboutPage() {
 
       {FOUNDERS.length > 0 && (
         <section className="abt-founders">
+          {/*
+            Person nodes for the founders, each linked back to the org by
+            @id. This is the EEAT signal for an about page: it tells a search
+            engine (and an answer engine asked "who runs Zenova?") that named,
+            titled humans stand behind the work, rather than an anonymous
+            brand. `founder` on the Organization side closes the loop.
+          */}
+          <JsonLd
+            data={[
+              ...FOUNDERS.map((f) => ({
+                '@context': 'https://schema.org',
+                '@type': 'Person',
+                '@id': `${canonicalUrl('/about')}#${f.id}`,
+                name: f.name,
+                jobTitle: f.role,
+                worksFor: { '@id': `${SITE.url}/#organization` },
+                ...(f.avatar ? { image: f.avatar } : {}),
+              })),
+              {
+                '@context': 'https://schema.org',
+                '@id': `${SITE.url}/#organization`,
+                founder: FOUNDERS.map((f) => ({
+                  '@id': `${canonicalUrl('/about')}#${f.id}`,
+                })),
+              },
+            ]}
+          />
           <div className="container">
-            <div className="abt-kicker mono reveal">
+            <h2 className="abt-kicker mono reveal">
               <span className="abt-kicker__tick" />
               The founders
-            </div>
+            </h2>
             <div className="abt-founders__grid reveal reveal-d1">
               {FOUNDERS.map((f) => (
                 <figure
@@ -119,10 +148,10 @@ export function AboutPage() {
       {VALUES.length > 0 && (
         <section className="abt-values">
           <div className="container">
-            <div className="abt-kicker mono reveal">
+            <h2 className="abt-kicker mono reveal">
               <span className="abt-kicker__tick" />
               Why we're different
-            </div>
+            </h2>
             <div className="abt-values__list reveal reveal-d1">
               {VALUES.map((v, i) => {
                 const IconC = (Icon[v.icon as IconName] ?? Icon.Layers) as IconComponent;
@@ -186,10 +215,10 @@ export function AboutPage() {
       {posts.length > 0 && (
         <section className="abt-blog">
           <div className="container">
-            <div className="abt-kicker mono reveal">
+            <h2 className="abt-kicker mono reveal">
               <span className="abt-kicker__tick" />
               From the blog
-            </div>
+            </h2>
             <div className="abt-blog__grid reveal reveal-d1">
               {posts.map((p) => {
                 const date = formatDate(p.published_at);

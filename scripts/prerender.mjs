@@ -21,8 +21,11 @@ import { fileURLToPath } from 'node:url';
 import {
   SITE,
   applySeoToTemplate,
+  llmsFullTxt,
+  llmsTxt,
   prerenderRoutes,
   render,
+  setSsrPayload,
   sitemapXml,
 } from '../dist-ssr/entry-server.js';
 
@@ -93,6 +96,11 @@ async function fetchDynamicRoutes() {
 
   try {
     const routes = [];
+    // Full records keyed by slug. Handed to the render pass via setSsrPayload
+    // and inlined per-route into the HTML, so these pages server-render their
+    // real body instead of the loading skeleton. See src/lib/ssrData.ts.
+    const blogPosts = {};
+    const seoPages = {};
 
     for (let offset = 0; offset < BLOG_MAX; offset += BLOG_PAGE_SIZE) {
       const page = await getJson(`/public/blog?limit=${BLOG_PAGE_SIZE}&offset=${offset}`);
@@ -112,6 +120,16 @@ async function fetchDynamicRoutes() {
             { name: p.title, path: `/blog/${p.slug}` },
           ],
         });
+
+        // The list endpoint omits content_html, so the body needs the detail
+        // call. One failure must not lose the whole build: the route still
+        // prerenders (head + chrome), just without its article text, which is
+        // exactly the old behaviour for that one page.
+        try {
+          blogPosts[p.slug] = await getJson(`/public/blog/${encodeURIComponent(p.slug)}`);
+        } catch (err) {
+          console.warn(`[prerender] WARNING blog detail ${p.slug}: ${err?.message ?? err}`);
+        }
       }
       if (offset + page.items.length >= page.total || page.items.length === 0) break;
     }
@@ -131,16 +149,55 @@ async function fetchDynamicRoutes() {
           { name: p.title, path: `/${p.slug}` },
         ],
       });
+
+      try {
+        seoPages[p.slug] = await getJson(`/public/pages/${encodeURIComponent(p.slug)}`);
+      } catch (err) {
+        console.warn(`[prerender] WARNING page detail ${p.slug}: ${err?.message ?? err}`);
+      }
     }
 
-    return routes;
+    return { routes, payload: { blogPosts, seoPages } };
   } catch (err) {
     console.warn(
       `[prerender] WARNING dynamic route fetch failed (${err?.message ?? err}) — ` +
         'prerendering static routes only; the next deploy picks up API content',
     );
-    return [];
+    return { routes: [], payload: { blogPosts: {}, seoPages: {} } };
   }
+}
+
+/**
+ * Serialise the payload for this one route into an inline script, so the
+ * browser's first render matches the server's. Only the record this route
+ * actually needs is inlined — shipping the whole corpus on every page would
+ * bloat each document with articles it never renders.
+ */
+function ssrPayloadScript(routePath, payload) {
+  let subset = null;
+
+  if (routePath.startsWith('/blog/')) {
+    const slug = routePath.slice('/blog/'.length);
+    if (payload.blogPosts?.[slug]) subset = { blogPosts: { [slug]: payload.blogPosts[slug] } };
+  } else {
+    const slug = routePath.replace(/^\//, '');
+    if (payload.seoPages?.[slug]) subset = { seoPages: { [slug]: payload.seoPages[slug] } };
+  }
+
+  if (!subset) return '';
+
+  // `</script>` inside post content would close this tag early, and U+2028/9
+  // are valid inside a JSON string but are line breaks to the JS parser.
+  // String.fromCharCode rather than a literal for those two: they are
+  // invisible in source, so a stray one would be impossible to spot in review.
+  const json = JSON.stringify(subset)
+    .replace(/</g, '\\u003c')
+    .split(String.fromCharCode(0x2028))
+    .join('\\u2028')
+    .split(String.fromCharCode(0x2029))
+    .join('\\u2029');
+
+  return `<script>window.__ZENOVA_SSR__=${json}</script>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -219,7 +276,10 @@ async function main() {
   const baseMatch = template.match(/<script type="module"[^>]+src="([^"]*\/)assets\//);
   const base = baseMatch ? baseMatch[1] : '/';
 
-  const dynamic = await fetchDynamicRoutes();
+  const { routes: dynamic, payload } = await fetchDynamicRoutes();
+  // Must precede the first render(): the page components read this synchronously
+  // when seeding their initial state.
+  setSsrPayload(payload);
   const routes = [...prerenderRoutes(), ...dynamic];
 
   let rendered = 0;
@@ -242,6 +302,11 @@ async function main() {
     // Function replacement — see the note in applySeoToTemplate.
     if (preloads) html = html.replace(/<\/head>/i, () => `${preloads}\n  </head>`);
 
+    // Before </body>, so it runs ahead of the deferred module script and the
+    // payload is present when the app hydrates.
+    const ssrScript = ssrPayloadScript(meta.path, payload);
+    if (ssrScript) html = html.replace(/<\/body>/i, () => `  ${ssrScript}\n  </body>`);
+
     const outPath =
       meta.path === '/'
         ? TEMPLATE_PATH
@@ -256,6 +321,11 @@ async function main() {
   }
 
   fs.writeFileSync(path.join(DIST, 'sitemap.xml'), sitemapXml(dynamic));
+
+  // Generated here rather than kept in public/ so they cannot drift from the
+  // real service, project, pricing and route data — see src/seo/llms.ts.
+  fs.writeFileSync(path.join(DIST, 'llms.txt'), llmsTxt());
+  fs.writeFileSync(path.join(DIST, 'llms-full.txt'), llmsFullTxt());
 
   // build.manifest is a build-time input to this script, not something the site
   // should serve. Drop it so dist/ contains only publishable files.

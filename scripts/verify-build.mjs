@@ -38,7 +38,15 @@ const read = (rel) => fs.readFileSync(path.join(DIST, rel), 'utf8');
 const exists = (rel) => fs.existsSync(path.join(DIST, rel));
 
 // --- files that must ship ---------------------------------------------------
-for (const f of ['index.html', '404.html', '.nojekyll', 'sitemap.xml', 'robots.txt', 'llms.txt']) {
+for (const f of [
+  'index.html',
+  '404.html',
+  '.nojekyll',
+  'sitemap.xml',
+  'robots.txt',
+  'llms.txt',
+  'llms-full.txt',
+]) {
   if (!exists(f)) fail(`dist/${f} is missing`);
 }
 if (failures.length) report();
@@ -65,6 +73,13 @@ if (/src\/main\.tsx/.test(home)) {
 // --- every indexable route ships its own document ---------------------------
 const routes = prerenderRoutes();
 routeCount = routes.length;
+
+// Populated per route, then checked for collisions after the loop. Duplicate
+// titles/descriptions are the single most common technical-SEO regression when
+// a new route is added by copy-pasting an existing entry in seo-data.ts.
+const titles = new Map();
+const descriptions = new Map();
+
 for (const meta of routes) {
   const rel = meta.path === '/' ? 'index.html' : `${meta.path.replace(/^\//, '')}/index.html`;
   if (!exists(rel)) {
@@ -83,6 +98,38 @@ for (const meta of routes) {
   // they all carry the homepage body with only the <head> swapped.
   if (meta.path !== '/' && bodyOf(html) === bodyOf(home)) {
     fail(`dist/${rel} has the same body as the homepage`);
+  }
+
+  // Exactly one <h1>. Zero means the page did not render its heading; more than
+  // one dilutes the primary topic signal and fails Lighthouse's SEO audit.
+  const h1s = (html.match(/<h1[\s>]/gi) ?? []).length;
+  if (h1s !== 1) fail(`dist/${rel} has ${h1s} <h1> elements (expected exactly 1)`);
+
+  const title = (html.match(/<title>([\s\S]*?)<\/title>/i) ?? [])[1]?.trim();
+  const desc = (html.match(/<meta name="description" content="([^"]*)"/i) ?? [])[1]?.trim();
+  if (!title) fail(`dist/${rel} has no <title>`);
+  if (!desc) fail(`dist/${rel} has no meta description`);
+  if (title) record(titles, title, meta.path);
+  if (desc) record(descriptions, desc, meta.path);
+
+  // Every ld+json block must be parseable. A malformed block is invisible in
+  // the rendered page and silently discards ALL structured data on it, so this
+  // is the only place it can be caught before deploy.
+  for (const [i, block] of jsonLdBlocks(html).entries()) {
+    try {
+      JSON.parse(block);
+    } catch (err) {
+      fail(`dist/${rel} JSON-LD block #${i + 1} is not valid JSON: ${err.message}`);
+    }
+  }
+}
+
+for (const [title, paths] of titles) {
+  if (paths.length > 1) fail(`duplicate <title> "${title}" on: ${paths.join(', ')}`);
+}
+for (const [desc, paths] of descriptions) {
+  if (paths.length > 1) {
+    fail(`duplicate meta description on: ${paths.join(', ')} ("${desc.slice(0, 60)}…")`);
   }
 }
 
@@ -107,6 +154,19 @@ report();
 function bodyOf(html) {
   const i = html.indexOf('<div id="root"');
   return i === -1 ? '' : html.slice(i).replace(/\s+/g, ' ').trim();
+}
+
+/** Append `value` to the array stored at `key`, creating it on first use. */
+function record(map, key, value) {
+  const list = map.get(key);
+  if (list) list.push(value);
+  else map.set(key, [value]);
+}
+
+/** The raw text of every <script type="application/ld+json"> in a document. */
+function jsonLdBlocks(html) {
+  const re = /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi;
+  return [...html.matchAll(re)].map((m) => m[1]);
 }
 
 function report() {

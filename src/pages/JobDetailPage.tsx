@@ -5,9 +5,41 @@ import { GhostButton } from '@/components/ui/GhostButton';
 import { Icon } from '@/components/icons/Icon';
 import { useJobs, useBrand } from '@/admin/store';
 import { setDynamicSeo, clearDynamicSeo } from '@/seo/dynamic-seo';
-import { SITE } from '@/seo/seo-data';
+import { SITE, canonicalUrl } from '@/seo/seo-data';
+import { JsonLd } from '@/seo/JsonLd';
 import { formatPosted } from '@/lib/jobDate';
+import type { JobDetail } from '@/data/jobs';
 import './JobDetailPage.css';
+
+/** schema.org employmentType uses fixed codes, not the display label. */
+function employmentTypeCode(type: string): string {
+  const t = type.trim().toLowerCase();
+  if (t.startsWith('part')) return 'PART_TIME';
+  if (t.startsWith('contract')) return 'CONTRACTOR';
+  if (t.startsWith('intern')) return 'INTERN';
+  if (t.startsWith('temp')) return 'TEMPORARY';
+  return 'FULL_TIME';
+}
+
+function isRemote(location: string): boolean {
+  return /remote|anywhere|distributed/i.test(location);
+}
+
+/**
+ * JobPosting.description must be HTML, and Google explicitly wants the *full*
+ * posting rather than the one-line summary — so this rebuilds the same three
+ * blocks the page renders visually.
+ */
+function jobDescriptionHtml(job: JobDetail): string {
+  const list = (title: string, items: string[]) =>
+    items.length ? `<h3>${title}</h3><ul>${items.map((i) => `<li>${i}</li>`).join('')}</ul>` : '';
+
+  return [
+    job.description.map((p) => `<p>${p}</p>`).join(''),
+    list('Responsibilities', job.responsibilities),
+    list('Requirements', job.requirements),
+  ].join('');
+}
 
 export function JobDetailPage() {
   const { slug = '' } = useParams();
@@ -58,9 +90,46 @@ export function JobDetailPage() {
 
   return (
     <div className="jd" style={{ '--tone': job.tone } as React.CSSProperties}>
+      {/*
+        JobPosting is the one schema type on this site with a first-class
+        distribution channel: Google Jobs reads it directly and surfaces the
+        role in the jobs carousel. All values come from the job record, so a
+        posting edited in the dashboard stays accurate here.
+      */}
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'JobPosting',
+          '@id': `${canonicalUrl(`/careers/${job.slug}`)}#jobposting`,
+          title: job.title,
+          description: jobDescriptionHtml(job),
+          datePosted: job.postedAt,
+          employmentType: employmentTypeCode(job.type),
+          industry: job.department,
+          hiringOrganization: { '@id': `${SITE.url}/#organization` },
+          directApply: !job.applyUrl.trim(),
+          url: canonicalUrl(`/careers/${job.slug}`),
+          // Google requires a jobLocation OR the TELECOMMUTE pairing below;
+          // every role here is remote, so the remote form is the correct one.
+          ...(isRemote(job.location)
+            ? {
+                jobLocationType: 'TELECOMMUTE',
+                applicantLocationRequirements: {
+                  '@type': 'Country',
+                  name: 'Worldwide',
+                },
+              }
+            : {
+                jobLocation: {
+                  '@type': 'Place',
+                  address: { '@type': 'PostalAddress', addressLocality: job.location },
+                },
+              }),
+        }}
+      />
       <header className="jd-header">
         <div className="container">
-          <nav className="jd-crumbs mono">
+          <nav className="jd-crumbs mono" aria-label="Breadcrumb">
             <Link to="/">Home</Link>
             <span>/</span>
             <Link to="/careers">Careers</Link>

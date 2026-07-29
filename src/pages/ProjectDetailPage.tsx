@@ -93,7 +93,7 @@ export function ProjectDetailPage() {
     <div className="pd" style={{ '--tone': project.tone } as React.CSSProperties}>
       <header className="pd-hero">
         <div className="container">
-          <nav className="pd-crumbs mono">
+          <nav className="pd-crumbs mono" aria-label="Breadcrumb">
             <Link to="/">Home</Link>
             <span>/</span>
             <Link to="/work">Work</Link>

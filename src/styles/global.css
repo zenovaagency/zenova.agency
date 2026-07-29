@@ -2035,3 +2035,38 @@ section.sec {
 }
 
 
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Keyboard focus indicators (WCAG 2.4.7 / 2.4.11)
+
+   Scoped to :focus-visible, never :focus, so this is invisible to mouse and
+   touch users — the design is unchanged for them. It only paints when the
+   browser decides the user is navigating by keyboard.
+
+   This is a real fix, not a hardening pass: .ghost-button and .neon-button
+   both set `outline: none` in their base rule, which left the site's two
+   primary CTAs with NO focus indicator at all. The rules below are more
+   specific than those base rules, so they win without editing the components.
+   ──────────────────────────────────────────────────────────────────────────── */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent-1, #ff813a);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* The CTAs are pill-shaped; a 4px-radius ring around them reads as a mistake. */
+.ghost-button:focus-visible,
+.neon-button:focus-visible {
+  outline: 2px solid var(--accent-1, #ff813a);
+  outline-offset: 3px;
+  border-radius: var(--radius, 99px);
+}
+
+/* The contact inputs already signal focus by recolouring their bottom border,
+   but a 1px colour change alone is a weak indicator. Thickening that same
+   border keeps the intended look and makes the state unmistakable. */
+.ct-field__input:focus-visible {
+  outline: none;
+  border-bottom-color: var(--accent-1);
+  box-shadow: inset 0 -1px 0 0 var(--accent-1);
+}

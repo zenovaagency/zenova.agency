@@ -16,6 +16,21 @@ interface ContactDetail {
   href?: string;
 }
 
+/**
+ * The seed values shipped in DEFAULT_BRAND (admin/store.ts) are template
+ * placeholders, not this agency's details. Matching on the pattern rather than
+ * the exact strings so a lightly-edited placeholder ('+1 555 123 4568') is
+ * still caught:
+ *   - 555-01xx and the 555-1234567 form are the reserved fictional US ranges
+ *   - '123 Main/Atlantic/…' is the canonical filler street address
+ */
+function isPlaceholderContact(value: string): boolean {
+  const v = value.toLowerCase().trim();
+  if (/\b555[\s.-]*\d{4}\b|\b555[\s.-]*\d{3}[\s.-]*\d{4}\b/.test(v)) return true;
+  if (/^123\s+(main|atlantic|elm|oak|any)\b/.test(v)) return true;
+  return /\b(your address here|placeholder|example\.com|lorem)\b/.test(v);
+}
+
 export function ContactPage() {
   const [brand] = useBrand();
   const [submitted, setSubmitted] = useState(false);
@@ -62,15 +77,27 @@ export function ContactPage() {
   };
 
   const email = brand?.contactEmail ?? 'hello@zenova.agency';
-  const phone = brand?.phone ?? '+1 (555) 123-4567';
-  const address = brand?.address ?? '123 Atlantic Ave, Brooklyn, NY 11201';
+  const phone = brand?.phone ?? '';
+  const address = brand?.address ?? '';
   const locations = brand?.locations ?? [];
 
-  const details: ContactDetail[] = [
+  const allDetails: ContactDetail[] = [
     { icon: 'Mail', label: 'Email', value: email, href: `mailto:${email}` },
     { icon: 'Phone', label: 'Phone', value: phone, href: `tel:${phone.replace(/\s/g, '')}` },
     { icon: 'MapPin', label: 'Address', value: address },
   ];
+
+  // A row is shown only if it carries a real value. The template defaults
+  // ('+1 (555) 123-4567', '123 Atlantic Ave, Brooklyn, NY 11201') were being
+  // published as this agency's actual phone and office — 555-01xx is the
+  // reserved fictional range, so anyone who dialled it reached nothing.
+  // Publishing no number is strictly better than publishing a fake one.
+  // Setting real values in Admin → Brand settings brings the rows back with no
+  // code change; the same values then unlock LocalBusiness structured data via
+  // BUSINESS_NAP in src/seo/seo-data.ts.
+  const details = allDetails.filter(
+    (d) => d.value.trim() !== '' && !isPlaceholderContact(d.value),
+  );
 
   return (
     <>

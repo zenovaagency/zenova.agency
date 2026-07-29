@@ -8,6 +8,12 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--fg-faint);
+  /* Several kickers are <h2> — they label sections that previously had no
+     heading at all, which left the page jumping h1 -> h3. These two lines
+     neutralise the UA heading defaults so the element renders exactly as the
+     <div> version did; do not remove them without re-checking those sections. */
+  margin: 0;
+  font-weight: inherit;
 }
 .abt-kicker__tick {
   width: 24px;
