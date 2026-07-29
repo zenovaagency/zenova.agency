@@ -9,6 +9,8 @@
     "build": "next build",
     "start": "next start",
     "verify": "node scripts/verify-site.mjs",
+    "verify:ai": "node scripts/verify-ai-access.mjs",
+    "indexnow": "node scripts/indexnow.mjs",
     "lint": "eslint . --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
     "typecheck": "tsc --noEmit"
   },

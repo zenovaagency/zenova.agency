@@ -215,6 +215,7 @@ export function PricingPage() {
             <motion.div
               key={current.slug}
               role="tabpanel"
+              aria-labelledby="pcx-panel-title"
               style={{ '--hue': current.hue } as React.CSSProperties}
               initial="hidden"
               animate="show"
@@ -232,6 +233,15 @@ export function PricingPage() {
                 <span>{current.label} — rate card</span>
                 <span>{current.plans.length} tiers · fixed quote after scoping</span>
               </div> */}
+              {/* The rate cards below are <h3>s, and with the meta panel above
+                  commented out this section had no heading of its own — so the
+                  page jumped h1 -> h3 and the tiers read as children of nothing.
+                  Hidden rather than shown because the visible tab already names
+                  the service; this restores the outline without changing the
+                  design, and gives the tabpanel the accessible name it lacked. */}
+              <h2 id="pcx-panel-title" className="visually-hidden">
+                {current.label} — rate card
+              </h2>
               <div className="pcx-grid">
                 {current.plans.map((plan) => (
                   <PricingCard key={plan.id} plan={plan} hue={current.hue} reduceMotion={reduceMotion} />
@@ -244,6 +254,11 @@ export function PricingPage() {
 
       <section className="pcx-trust">
         <div className="container">
+          {/* Named for the outline only — the icons and copy below speak for
+              themselves visually, but an unlabelled section is invisible to a
+              screen reader's landmark list and to anything reconstructing the
+              document structure. */}
+          <h2 className="visually-hidden">What every engagement includes</h2>
           <div className="pcx-trust__grid">
             {TRUST.map((t) => {
               const Ico = Icon[t.icon];

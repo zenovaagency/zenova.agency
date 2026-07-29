@@ -122,7 +122,13 @@ export function AboutPage({ posts = [] }: AboutPageProps) {
                   <blockquote className="abt-founder__quote display">{f.quote}</blockquote>
                   <figcaption className="abt-founder__by">
                     {f.avatar ? (
-                      <img className="abt-founder__avatar" src={f.avatar} alt={f.name} loading="lazy" />
+                      <img
+                        className="abt-founder__avatar"
+                        src={f.avatar}
+                        alt={f.name}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     ) : (
                       <span className="abt-founder__initials display">{initialsOf(f.name)}</span>
                     )}
@@ -219,7 +225,7 @@ export function AboutPage({ posts = [] }: AboutPageProps) {
                   <Link key={p.slug} to={`/blog/${p.slug}`} className="abt-post">
                     <div className="abt-post__media">
                       {p.cover_image_url ? (
-                        <img src={p.cover_image_url} alt="" loading="lazy" />
+                        <img src={p.cover_image_url} alt="" loading="lazy" decoding="async" />
                       ) : (
                         <span className="abt-post__placeholder" aria-hidden="true" />
                       )}

@@ -53,6 +53,11 @@ function FeaturedCard({ post }: { post: PublicBlogListItem }) {
           <img
             src={post.cover_image_url}
             alt=""
+            // The featured post sits at the top of /blog, so this is the LCP
+            // element. It is already eager (no `loading` attr), but eager only
+            // means "do not defer" — it still queues behind earlier requests.
+            // fetchPriority promotes it in the browser's own queue.
+            fetchPriority="high"
             decoding="async"
             className="blg-feat__img"
           />

@@ -95,7 +95,12 @@ function EmberRow({
               style={mediaAr ? ({ '--img-ar': mediaAr } as React.CSSProperties) : undefined}
             >
               {images.length > 0 ? (
-                <img src={images[0].src} alt={images[0].alt ?? project.client} loading="lazy" />
+                <img
+                  src={images[0].src}
+                  alt={images[0].alt ?? project.client}
+                  loading="lazy"
+                  decoding="async"
+                />
               ) : (
                 <div
                   className="ember-row__media-fallback"

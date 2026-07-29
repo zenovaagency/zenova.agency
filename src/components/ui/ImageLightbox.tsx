@@ -151,6 +151,11 @@ export function ImageLightbox({ images, index, onIndex }: ImageLightboxProps) {
               key={current.src}
               src={current.src}
               alt={current.alt ?? ''}
+              // The user opened the lightbox to look at this specific image —
+              // it is the only thing on screen, so it outranks anything else
+              // still in flight behind the overlay.
+              fetchPriority="high"
+              decoding="async"
               className="lb__img"
             />
           )}
@@ -181,7 +186,7 @@ export function ImageLightbox({ images, index, onIndex }: ImageLightboxProps) {
               aria-label={`Go to image ${i + 1}`}
               aria-current={i === safeIndex}
             >
-              <img src={img.src} alt="" loading="lazy" />
+              <img src={img.src} alt="" loading="lazy" decoding="async" />
             </button>
           ))}
         </div>
