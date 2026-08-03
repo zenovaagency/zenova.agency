@@ -116,6 +116,8 @@ class Store<T> {
     // flicker on every page load.
     if (this.seeded) return;
     this.value = cached;
+    this._status = 'ready';
+    this._error = null;
     this.emit();
   }
 
@@ -363,35 +365,52 @@ export function isSiteSeeded(): boolean {
 
 let hydrationPromise: Promise<void> | null = null;
 
-/** Public site bootstrap. Idempotent — safe to call multiple times. */
-export function hydrateSite(force = false): Promise<void> {
+/**
+ * Public site bootstrap. Idempotent — safe to call multiple times.
+ *
+ * @param force   Ignore an in-flight request and start a new one.
+ * @param silent  When true, stores are not flipped to 'loading' and failures do
+ *                not flip them to 'error'. Use for background refreshes when the
+ *                dashboard is already showing cached/seeded data.
+ */
+export function hydrateSite(force = false, silent = false): Promise<void> {
   if (!force && hydrationPromise) return hydrationPromise;
-  servicesStore.markLoading();
-  projectsStore.markLoading();
-  jobsStore.markLoading();
-  teamStore.markLoading();
-  contentStore.markLoading();
-  brandStore.markLoading();
+  if (!silent) {
+    servicesStore.markLoading();
+    projectsStore.markLoading();
+    jobsStore.markLoading();
+    teamStore.markLoading();
+    contentStore.markLoading();
+    brandStore.markLoading();
+  }
 
   hydrationPromise = (async () => {
     try {
-      const bundle = await api<SiteBundle>('/public/site');
-      servicesStore.hydrateFrom(bundle.services);
-      projectsStore.hydrateFrom(bundle.projects);
-      // Guard: older backends may not include jobs in the bundle yet — keep
-      // the cached/default value in that case rather than wiping it.
-      if (bundle.jobs) jobsStore.hydrateFrom(bundle.jobs);
-      teamStore.hydrateFrom(bundle.team);
-      contentStore.hydrateFrom(bundle.content);
-      brandStore.hydrateFrom(bundle.brand);
+      const raw = await api<Partial<SiteBundle>>('/public/site');
+      // Seed through resolveSiteBundle — the same defaulting the server-rendered
+      // marketing path applies (SiteStoreProvider -> seedSite). This is the
+      // browser-only fetch path, and assigning the raw payload here skipped that
+      // merge: a partial response (an older backend, a section not yet migrated,
+      // `content` missing `faqs`) would land an undefined field that the admin
+      // Overview then reads `.length` off and crashes on — a blank dashboard.
+      // Merging means a missing section falls back to the repo default instead.
+      const site = resolveSiteBundle(raw);
+      servicesStore.hydrateFrom(site.services);
+      projectsStore.hydrateFrom(site.projects);
+      jobsStore.hydrateFrom(site.jobs);
+      teamStore.hydrateFrom(site.team);
+      contentStore.hydrateFrom(site.content);
+      brandStore.hydrateFrom(site.brand);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load site data.';
-      servicesStore.markError(message);
-      projectsStore.markError(message);
-      jobsStore.markError(message);
-      teamStore.markError(message);
-      contentStore.markError(message);
-      brandStore.markError(message);
+      if (!silent) {
+        const message = err instanceof Error ? err.message : 'Failed to load site data.';
+        servicesStore.markError(message);
+        projectsStore.markError(message);
+        jobsStore.markError(message);
+        teamStore.markError(message);
+        contentStore.markError(message);
+        brandStore.markError(message);
+      }
       // Don't rethrow — the UI falls back to cached/default data.
     } finally {
       hydrationPromise = null;

@@ -163,11 +163,12 @@ export function Overview() {
                     </div>
                   </div>
                   {live ? (
-                    <a
-                      href={live}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      onClick={(e) => e.stopPropagation()}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(live, '_blank', 'noreferrer noopener');
+                      }}
                       title={`Open live site: ${live}`}
                       style={{
                         display: 'inline-flex',
@@ -181,6 +182,7 @@ export function Overview() {
                         fontSize: 11,
                         textDecoration: 'none',
                         fontFamily: 'var(--font-mono)',
+                        cursor: 'pointer',
                       }}
                     >
                       <span
@@ -194,7 +196,7 @@ export function Overview() {
                         }}
                       />
                       Live ↗
-                    </a>
+                    </button>
                   ) : (
                     <span />
                   )}
