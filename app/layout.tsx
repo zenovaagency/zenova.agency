@@ -115,8 +115,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <link rel="preload" href={SATOSHI_HREF} as="style" />
         <link rel="preload" href={GOOGLE_FONTS_HREF} as="style" />
-        <link rel="stylesheet" href={SATOSHI_HREF} media="print" data-font-async="" />
-        <link rel="stylesheet" href={GOOGLE_FONTS_HREF} media="print" data-font-async="" />
+        {/* ASYNC_FONT_SCRIPT below flips media print->all before React hydrates,
+            so the hydrating DOM legitimately differs from the server markup here.
+            suppressHydrationWarning tells React that difference is intentional —
+            without it every page logs a `media` hydration mismatch and recovers
+            by throwing away the server HTML and client-rendering the whole root. */}
+        <link rel="stylesheet" href={SATOSHI_HREF} media="print" data-font-async="" suppressHydrationWarning />
+        <link rel="stylesheet" href={GOOGLE_FONTS_HREF} media="print" data-font-async="" suppressHydrationWarning />
         <noscript>
           <link rel="stylesheet" href={SATOSHI_HREF} />
           <link rel="stylesheet" href={GOOGLE_FONTS_HREF} />

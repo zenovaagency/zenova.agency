@@ -11,7 +11,8 @@ export default function ClientRoutes() {
   return (
     <Suspense fallback={<ClientLoader />}>
       <Routes>
-        <Route index element={<Suspense fallback={<ClientLoader />}><ClientOverview /></Suspense>} />
+        {/* Full path, no basename — see PortalIsland. */}
+        <Route path="/client" element={<Suspense fallback={<ClientLoader />}><ClientOverview /></Suspense>} />
       </Routes>
     </Suspense>
   );

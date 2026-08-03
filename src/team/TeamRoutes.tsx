@@ -11,7 +11,8 @@ export default function TeamRoutes() {
   return (
     <Suspense fallback={<TeamLoader />}>
       <Routes>
-        <Route index element={<Suspense fallback={<TeamLoader />}><TeamOverview /></Suspense>} />
+        {/* Full path, no basename — see PortalIsland. */}
+        <Route path="/team" element={<Suspense fallback={<TeamLoader />}><TeamOverview /></Suspense>} />
       </Routes>
     </Suspense>
   );
