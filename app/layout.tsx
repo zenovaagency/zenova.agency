@@ -81,7 +81,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: SITE.name },
   other: {
     'mobile-web-app-capable': 'yes',
-    'msapplication-TileColor': '#faf8f5',
+    'msapplication-TileColor': '#ffffff',
     'msapplication-TileImage': '/assets/favicon/ms-icon-144x144.png',
     'msapplication-config': '/assets/favicon/browserconfig.xml',
   },
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#faf8f5',
+  themeColor: '#ffffff',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -131,7 +131,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             paint before the app stylesheet loads is not a dark flash. */}
         <style
           dangerouslySetInnerHTML={{
-            __html: 'html,body{margin:0;padding:0;background:#faf8f5}',
+            __html: 'html,body{margin:0;padding:0;background:#ffffff}',
           }}
         />
         <noscript>
