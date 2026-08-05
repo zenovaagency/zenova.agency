@@ -56,6 +56,29 @@ document.querySelectorAll('link[data-font-async]').forEach(function (l) {
   else { l.addEventListener('load', function () { l.media = 'all'; }); }
 });`;
 
+/**
+ * Google Tag Manager — container GTM-KVGH2S5P.
+ *
+ * Loaded only on the production deploy (VERCEL_ENV === 'production'); localhost
+ * and Vercel preview builds leave both the head loader and the noscript iframe
+ * out, so no dev/test traffic ever reaches the container. VERCEL_ENV is read
+ * server-side in this Server Component, so the decision is baked into the served
+ * HTML — nothing about GTM ships to clients when it is off.
+ *
+ * If per-environment containers are ever needed, swap GTM_ID for
+ * `process.env.NEXT_PUBLIC_GTM_ID ?? 'GTM-KVGH2S5P'`.
+ */
+const GTM_ID = 'GTM-KVGH2S5P';
+const GTM_ENABLED = process.env.VERCEL_ENV === 'production';
+
+// Google's standard loader, verbatim except for the interpolated id: it stamps
+// the gtm.js start event onto dataLayer and injects the async library.
+const GTM_HEAD_SCRIPT = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${GTM_ID}');`;
+
 export const metadata: Metadata = {
   // Makes every relative `alternates.canonical` in a route's generateMetadata
   // resolve against the production origin instead of the deploy preview URL.
@@ -100,6 +123,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     // override it at runtime for users with a stored dark preference.
     <html lang="en" data-theme="light">
       <head>
+        {/* GTM loader, as high in <head> as Google recommends. Production-only;
+            see the GTM_ENABLED note above. No suppressHydrationWarning needed —
+            unlike ASYNC_FONT_SCRIPT this element is identical server and client
+            and mutates nothing React manages. */}
+        {GTM_ENABLED && (
+          <script dangerouslySetInnerHTML={{ __html: GTM_HEAD_SCRIPT }} />
+        )}
+
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         <link rel="dns-prefetch" href="https://api.fontshare.com" />
@@ -139,7 +170,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </noscript>
         <script dangerouslySetInnerHTML={{ __html: ASYNC_FONT_SCRIPT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {/* GTM <noscript> fallback — first thing in <body>, per Google. */}
+        {GTM_ENABLED && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+              height="0"
+              width="0"
+              style={{ display: 'none', visibility: 'hidden' }}
+              title="Google Tag Manager"
+            />
+          </noscript>
+        )}
+        {children}
+      </body>
     </html>
   );
 }
