@@ -132,7 +132,8 @@
     color-mix(in srgb, var(--hue, var(--accent-1)) 3%, transparent)
   );
 }
-.sd-rail__visual img {
+.sd-rail__visual img,
+.sd-rail__visual video {
   position: absolute;
   inset: 0;
   width: 100%;

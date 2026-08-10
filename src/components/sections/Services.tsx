@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
 import { Link } from '@/lib/router';
-import { ServiceVisual } from './ServiceVisual';
 import { ServiceMedia } from './ServiceMedia';
 import { Icon } from '@/components/icons/Icon';
 import { useServices } from '@/admin/store';
@@ -22,11 +21,16 @@ function ServiceVisualFull({ s, active }: { s: ServiceDetail; active: boolean })
         overflow: 'hidden',
       }}
     >
-      {s.image || s.video ? (
-        <ServiceMedia image={s.image} video={s.video} alt="" loading="lazy" objectFit="cover" />
-      ) : (
-        <ServiceVisual kind={s.visual} hue={s.hue} active={active} />
-      )}
+      <ServiceMedia
+        image={s.image}
+        video={s.video}
+        visual={s.visual}
+        hue={s.hue}
+        active={active}
+        alt=""
+        loading="lazy"
+        objectFit="cover"
+      />
     </div>
   );
 }

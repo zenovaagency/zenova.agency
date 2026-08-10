@@ -127,7 +127,10 @@ export function MediaField({
           className="adm-input"
           value={image}
           placeholder="Image URL (poster / fallback)"
-          onChange={(e) => onImageChange(e.target.value || undefined)}
+          // Emit '' (not undefined) when cleared: undefined is dropped by
+          // JSON.stringify, so the PATCH omits the field and the backend's
+          // exclude_unset merge keeps the old value — the removal never saves.
+          onChange={(e) => onImageChange(e.target.value)}
           style={{ flex: '1 1 200px', minWidth: 0 }}
         />
         <div className="adm-image-picker" ref={pickerRef}>
@@ -258,7 +261,9 @@ export function MediaField({
               className="adm-input"
               value={video}
               placeholder="Video URL (optional, plays on hover)"
-              onChange={(e) => onVideoChange(e.target.value || undefined)}
+              // '' (not undefined) so a cleared URL actually persists — see the
+              // image input above.
+              onChange={(e) => onVideoChange(e.target.value)}
               style={{ flex: '1 1 200px', minWidth: 0 }}
             />
             <button
@@ -283,7 +288,7 @@ export function MediaField({
             <button
               type="button"
               className="adm-btn adm-btn--sm adm-btn--ghost"
-              onClick={() => { onVideoChange(undefined); setShowVideo(false); }}
+              onClick={() => { onVideoChange(''); setShowVideo(false); }}
               style={{ color: '#ff6b6b' }}
             >
               Remove video

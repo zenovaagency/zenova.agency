@@ -3,7 +3,6 @@
 import { Link, Navigate, useParams } from '@/lib/router';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
-import { ServiceVisual } from '@/components/sections/ServiceVisual';
 import { ServiceMedia } from '@/components/sections/ServiceMedia';
 import { Icon, type IconComponent } from '@/components/icons/Icon';
 import { useServices } from '@/admin/store';
@@ -67,11 +66,16 @@ export function ServiceDetailPage() {
       <div className="container sd-body">
         <aside className="sd-rail reveal">
           <div className="sd-rail__visual">
-            {service.image || service.video ? (
-              <ServiceMedia image={service.image} video={service.video} alt={service.title} loading="lazy" objectFit="cover" />
-            ) : (
-              <ServiceVisual kind={service.visual} hue={service.hue} active />
-            )}
+            <ServiceMedia
+              image={service.image}
+              video={service.video}
+              visual={service.visual}
+              hue={service.hue}
+              active
+              alt={service.title}
+              loading="lazy"
+              objectFit="cover"
+            />
           </div>
 
           {(service.short || service.hero) && (

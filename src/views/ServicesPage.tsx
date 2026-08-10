@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@/lib/router';
 import { Icon } from '@/components/icons/Icon';
-import { ServiceVisual } from '@/components/sections/ServiceVisual';
 import { ServiceMedia } from '@/components/sections/ServiceMedia';
 import { NeonButton } from '@/components/ui/NeonButton';
 import { GhostButton } from '@/components/ui/GhostButton';
@@ -193,11 +192,16 @@ export function ServicesPage() {
                 <Icon.ArrowUpRight size={22} />
               </span>
               <span className="svx-row__preview" aria-hidden="true">
-                {s.image || s.video ? (
-                  <ServiceMedia image={s.image} video={s.video} alt="" loading="lazy" objectFit="cover" />
-                ) : (
-                  <ServiceVisual kind={s.visual} hue={s.hue} active={hovered === s.slug} />
-                )}
+                <ServiceMedia
+                  image={s.image}
+                  video={s.video}
+                  visual={s.visual}
+                  hue={s.hue}
+                  active={hovered === s.slug}
+                  alt=""
+                  loading="lazy"
+                  objectFit="cover"
+                />
               </span>
             </Link>
           ))}
