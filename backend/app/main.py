@@ -34,6 +34,7 @@ from app.routers import (
     team,
     uploads,
     users,
+    webhooks,
 )
 
 
@@ -93,6 +94,7 @@ def create_app() -> FastAPI:
         ):
             await schedule_rebuild()
         return response
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
@@ -152,6 +154,7 @@ def create_app() -> FastAPI:
     app.include_router(contact.router, prefix=prefix)
     app.include_router(blog.router, prefix=prefix)
     app.include_router(seo_pages.router, prefix=prefix)
+    app.include_router(webhooks.router, prefix=prefix)
 
     return app
 

@@ -51,6 +51,12 @@ class Settings(BaseSettings):
     r2_public_base: str = ""
     r2_max_upload_mb: int = 10
 
+    # --- Resend email webhooks -----------------------------------------------
+    # Signing secret used to verify incoming Resend webhook requests (Svix
+    # signatures). Leave empty to skip verification (useful for local testing
+    # only — always set this in production).
+    resend_webhook_secret: str = ""
+
     # --- Frontend rebuild hook ---------------------------------------------
     # The web app's dynamic routes set `dynamicParams = false`, so the set of
     # servable slugs is fixed at build time and new content needs a rebuild to
