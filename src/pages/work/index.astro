@@ -110,7 +110,7 @@ const counts: [string, string][] = [
               {counts.map(([value, label]) => (
                 <li class="flex items-baseline gap-3">
                   <span
-                    class="text-[2.25rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-ink"
+                    class="text-[clamp(1.75rem,6vw,2.25rem)] font-medium leading-none tracking-[-0.03em] tabular-nums text-ink"
                     data-count
                   >
                     {value}
@@ -158,7 +158,7 @@ const counts: [string, string][] = [
             overlapping cards or an empty frame.
           */}
           <div class="zoom relative mt-14 lg:mt-20" data-zoom>
-            <ul class="zoom-stack grid gap-6">
+            <ul class="zoom-stack grid gap-6 px-[var(--gutter)] lg:px-0">
               {projects.map((p, i) => {
                 const service = byService.get(p.service)!;
                 // A demo has no client, so "Demo" stands where the name would.
@@ -199,7 +199,10 @@ const counts: [string, string][] = [
                           </ul>
                         </div>
 
-                        <div class="text-brand lg:col-span-5 lg:col-start-8" aria-hidden="true">
+                        <div
+                          class="order-first mx-auto max-w-[18rem] text-brand lg:order-none lg:col-span-5 lg:col-start-8 lg:max-w-none"
+                          aria-hidden="true"
+                        >
                           <Motif kind={p.motif ?? service.motif} />
                         </div>
                       </div>
@@ -335,6 +338,11 @@ const counts: [string, string][] = [
     display: flex;
     align-items: center;
     overflow: hidden;
+    /* .container-z only pads inline, so the block axis is the card's own job.
+       On phones the content outgrows the min-height and would otherwise sit
+       flush against the panel edges. */
+    padding-block: clamp(3.5rem, 10vw, 6.5rem);
+    min-height: 78vh; /* fallback for pre-svh browsers */
     min-height: 78svh;
     border-radius: var(--radius-lg);
   }
@@ -362,6 +370,7 @@ const counts: [string, string][] = [
      from JS, never from here, which is why the fallback above is intact. */
   @media (min-width: 1024px) {
     .zoom.is-zoom {
+      height: 100vh; /* fallback for pre-svh browsers */
       height: 100svh;
       overflow: hidden;
     }
