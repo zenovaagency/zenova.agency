@@ -1,0 +1,123 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import TextLink from '../ui/TextLink.astro';
+import { PROCESS } from '../../data/site';
+---
+
+<section id="process" class="section-y relative bg-white">
+  <div class="container-z">
+    <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+      <!-- Sticky rather than hard-pinned: the reader keeps native scrolling,
+           and there is nothing to trap focus inside. -->
+      <div class="lg:col-span-4 lg:sticky lg:top-32 lg:self-start">
+        <Eyebrow>{PROCESS.eyebrow}</Eyebrow>
+        <h2 class="h1 mt-6 text-ink" data-split>
+          {PROCESS.title}<br /><em class="accent-serif">{PROCESS.titleAccent}</em>
+        </h2>
+        <p class="mt-6 max-w-xs text-ink-muted" data-reveal>{PROCESS.sub}</p>
+        <div data-reveal>
+          <TextLink href="/about" class="mt-5">How the studio works</TextLink>
+        </div>
+      </div>
+
+      <div class="relative lg:col-span-7 lg:col-start-6">
+        <!-- Track and the scrubbed progress line that fills it. -->
+        <div class="absolute bottom-2 left-[19px] top-2 w-px bg-line" aria-hidden="true"></div>
+        <div
+          id="process-line"
+          class="absolute left-[19px] top-2 w-px origin-top bg-gradient-to-b from-brand via-sky to-blush"
+          style="height: calc(100% - 16px); transform: scaleY(0)"
+          aria-hidden="true"
+        >
+        </div>
+
+        <ol class="space-y-4">
+          {
+            PROCESS.steps.map((step) => (
+              <li class="relative pl-14" data-step data-reveal>
+                <span
+                  class="step-dot absolute left-[11px] top-[26px] grid h-[18px] w-[18px] place-items-center rounded-full border border-line-strong bg-white transition-colors duration-[250ms]"
+                  aria-hidden="true"
+                >
+                  <span class="step-fill h-2 w-2 rounded-full bg-line-strong transition-colors duration-[250ms]" />
+                </span>
+
+                <div class="card-tint p-6 sm:p-8">
+                  <div class="flex flex-wrap items-baseline justify-between gap-3">
+                    <h3 class="h3 text-ink">
+                      <span class="mono mr-3 align-middle text-ink-faint tabular-nums">
+                        {step.n}
+                      </span>
+                      {step.title}
+                    </h3>
+                    <span class="mono rounded-full bg-[#eef4ff] px-3 py-1.5 text-brand-text">
+                      {step.timeline}
+                    </span>
+                  </div>
+
+                  <p class="mt-4 max-w-lg text-ink-muted">{step.blurb}</p>
+
+                  <ul class="mt-6 grid grid-cols-2 gap-x-6 gap-y-2.5">
+                    {step.deliverables.map((d) => (
+                      <li class="flex items-center gap-2.5 text-[0.9375rem] text-ink">
+                        <span class="h-1 w-1 shrink-0 rounded-full bg-brand" aria-hidden="true" />
+                        {d}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  [data-step].is-active .step-dot {
+    border-color: var(--color-brand);
+  }
+  [data-step].is-active .step-fill {
+    background: var(--color-brand);
+  }
+</style>
+
+<script>
+  import { motion } from '../../lib/scroll';
+
+  motion().then(({ gsap, ScrollTrigger, reduced }) => {
+    const steps = gsap.utils.toArray<HTMLElement>('[data-step]');
+    const line = document.getElementById('process-line');
+
+    // Reduced motion: show the finished state rather than an empty track.
+    if (reduced) {
+      if (line) line.style.transform = 'scaleY(1)';
+      steps.forEach((s) => s.classList.add('is-active'));
+      return;
+    }
+
+    if (line) {
+      gsap.to(line, {
+        scaleY: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: line.parentElement,
+          start: 'top 62%',
+          end: 'bottom 72%',
+          scrub: 0.5,
+        },
+      });
+    }
+
+    steps.forEach((step) => {
+      ScrollTrigger.create({
+        trigger: step,
+        start: 'top 62%',
+        end: 'bottom 40%',
+        onToggle: ({ isActive }) => step.classList.toggle('is-active', isActive),
+      });
+    });
+  });
+</script>

@@ -1,0 +1,26 @@
+---
+interface Props { label: string; class?: string }
+const { label, class: className = '' } = Astro.props;
+---
+<span
+  class:list={[
+    'mono inline-flex items-center gap-2.5 rounded-full border border-white/60 bg-white/65 px-4 py-2 text-ink backdrop-blur-md',
+    className,
+  ]}
+>
+  <span class="relative flex h-2 w-2" aria-hidden="true">
+    <span class="pill-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-70"></span>
+    <span class="relative inline-flex h-2 w-2 rounded-full bg-brand"></span>
+  </span>
+  {label}
+</span>
+
+<style>
+  .pill-ping { animation: pill-ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite; }
+  @keyframes pill-ping {
+    0%   { transform: scale(1);   opacity: 0.7; }
+    70%  { transform: scale(2.4); opacity: 0; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .pill-ping { animation: none; } }
+</style>

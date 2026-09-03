@@ -1,0 +1,30 @@
+---
+interface Props {
+  data: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { data }: Props = Astro.props;
+
+/*
+ * Emits one or more application/ld+json blocks. Pass slot="head" to land it
+ * inside Base's head.
+ *
+ * Angle brackets are escaped rather than trusted: a closing script tag
+ * appearing anywhere inside a string value would otherwise end the block
+ * early and spill the rest of the JSON into the document as markup.
+ *
+ * The escape is written as a character class rather than a literal, because a
+ * closing script tag in this file's source is enough to confuse the props-type
+ * extraction in `astro check`.
+ */
+const CLOSE = String.fromCharCode(60) + '/script>';
+
+const html = (Array.isArray(data) ? data : [data])
+  .map(
+    (item) =>
+      `<script type="application/ld+json">${JSON.stringify(item).replace(/</g, '\\u003c')}${CLOSE}`,
+  )
+  .join('');
+---
+
+<Fragment set:html={html} />

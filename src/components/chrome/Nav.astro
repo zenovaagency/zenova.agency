@@ -1,0 +1,185 @@
+---
+import Logo from './Logo.astro';
+import { NAV, HERO } from '../../data/site';
+import { isActive, isSection } from '../../lib/nav';
+
+const here = Astro.url.pathname;
+---
+
+<header
+  id="nav"
+  class="fixed inset-x-0 top-0 z-50 transition-[background-color,border-color,backdrop-filter,box-shadow] duration-[250ms] ease-[var(--ease-out-expo)] border-b border-transparent"
+>
+  <nav class="container-z flex h-[72px] items-center justify-between gap-6" aria-label="Main">
+    <a href="/" class="shrink-0 rounded-[4px]" aria-label="Zenova home">
+      <Logo size={21} />
+    </a>
+
+    <ul class="hidden items-center gap-9 lg:flex">
+      {
+        NAV.map((item) => (
+          <li>
+            <a
+              href={item.href}
+              aria-current={isActive(item.href, here) ? 'page' : undefined}
+              class:list={[
+                'nav-link relative text-[0.9375rem] text-ink-muted transition-colors duration-[180ms] hover:text-ink aria-[current=page]:text-ink',
+                isSection(item.href, here) && 'is-section',
+              ]}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="flex items-center gap-2">
+      <a
+        href={HERO.primaryHref}
+        class="hidden rounded-[10px] bg-ink px-5 py-[11px] text-[0.9375rem] font-medium leading-none text-white transition-[transform,background-color] duration-[180ms] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:bg-brand-text sm:inline-flex"
+      >
+        {HERO.primaryCta}
+      </a>
+
+      <button
+        id="nav-toggle"
+        type="button"
+        class="grid h-11 w-11 place-items-center rounded-[10px] border border-line-strong bg-white/70 backdrop-blur-sm lg:hidden"
+        aria-expanded="false"
+        aria-controls="nav-drawer"
+        aria-label="Open menu"
+      >
+        <span class="relative block h-[10px] w-[18px]">
+          <span class="bar absolute left-0 top-0 h-[1.5px] w-full rounded bg-ink transition-transform duration-[250ms] ease-[var(--ease-out-expo)]"></span>
+          <span class="bar absolute bottom-0 left-0 h-[1.5px] w-full rounded bg-ink transition-transform duration-[250ms] ease-[var(--ease-out-expo)]"></span>
+        </span>
+      </button>
+    </div>
+  </nav>
+
+  <div
+    id="nav-drawer"
+    hidden
+    class="border-t border-line bg-white/95 backdrop-blur-xl lg:hidden"
+  >
+    <ul class="container-z flex flex-col py-3">
+      {
+        NAV.map((item) => (
+          <li class="border-b border-line last:border-0">
+            <a
+              href={item.href}
+              aria-current={isActive(item.href, here) ? 'page' : undefined}
+              class="flex items-center justify-between py-4 text-lg text-ink"
+              data-nav-close
+            >
+              {item.label}
+              {isSection(item.href, here) && (
+                <span class="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
+              )}
+            </a>
+          </li>
+        ))
+      }
+      <li class="pb-4 pt-5">
+        <a
+          href={HERO.primaryHref}
+          class="flex items-center justify-center rounded-[10px] bg-ink px-5 py-4 font-medium text-white"
+          data-nav-close
+        >
+          {HERO.primaryCta}
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<style>
+  /* Underline grows from the left rather than fading in, so the hover reads
+     as a deliberate mark and not a colour wash. */
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    height: 1px;
+    width: 100%;
+    background: var(--color-brand);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 250ms var(--ease-out-expo);
+  }
+  .nav-link:hover::after,
+  .nav-link.is-section::after {
+    transform: scaleX(1);
+  }
+
+  /* The current section keeps its underline permanently, so the mark reads as
+     state rather than as a hover that got stuck. `.is-section` rather than
+     [aria-current] because a detail page marks its section here without
+     claiming to *be* that section's index — see isSection in lib/nav.ts. */
+  .nav-link.is-section::after {
+    background: linear-gradient(90deg, var(--color-brand), var(--color-blush));
+  }
+
+  #nav.is-scrolled {
+    background: color-mix(in srgb, #ffffff 82%, transparent);
+    backdrop-filter: blur(14px) saturate(1.4);
+    border-bottom-color: var(--color-line);
+    box-shadow: 0 1px 2px rgb(11 53 88 / 0.04);
+  }
+
+  #nav-toggle[aria-expanded='true'] .bar:first-child {
+    transform: translateY(4.25px) rotate(45deg);
+  }
+  #nav-toggle[aria-expanded='true'] .bar:last-child {
+    transform: translateY(-4.25px) rotate(-45deg);
+  }
+</style>
+
+<script>
+  import { lockScroll } from '../../lib/scroll';
+
+  const nav = document.getElementById('nav')!;
+  const toggle = document.getElementById('nav-toggle')!;
+  const drawer = document.getElementById('nav-drawer')!;
+
+  // Scroll state is read passively and written from rAF, so scrolling never
+  // triggers a synchronous style recalculation.
+  let ticking = false;
+  const sync = () => {
+    nav.classList.toggle('is-scrolled', window.scrollY > 40);
+    ticking = false;
+  };
+  addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(sync);
+      }
+    },
+    { passive: true },
+  );
+  sync();
+
+  const setOpen = (open: boolean) => {
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    drawer.hidden = !open;
+    lockScroll(open);
+  };
+
+  toggle.addEventListener('click', () =>
+    setOpen(toggle.getAttribute('aria-expanded') !== 'true'),
+  );
+  drawer.querySelectorAll('[data-nav-close]').forEach((el) =>
+    el.addEventListener('click', () => setOpen(false)),
+  );
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
+</script>

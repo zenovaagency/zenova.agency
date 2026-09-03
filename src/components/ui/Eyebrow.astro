@@ -1,0 +1,22 @@
+---
+/**
+ * `tone` exists because --color-ink-muted is 5.2:1 on paper but only ~4.0:1
+ * once a gradient wash sits behind it, which fails AA at this size. Anything
+ * sitting on a wash rather than on paper passes tone="soft".
+ */
+interface Props {
+  class?: string;
+  tone?: 'muted' | 'soft';
+}
+const { class: className = '', tone = 'muted' } = Astro.props;
+---
+<p
+  class:list={[
+    'mono flex items-center gap-2.5',
+    tone === 'soft' ? 'text-ink-soft' : 'text-ink-muted',
+    className,
+  ]}
+>
+  <span class="inline-block h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true"></span>
+  <slot />
+</p>

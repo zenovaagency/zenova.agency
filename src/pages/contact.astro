@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/chrome/Nav.astro';
+import Footer from '../components/chrome/Footer.astro';
+import Eyebrow from '../components/ui/Eyebrow.astro';
+import ContactForm from '../islands/ContactForm';
+import { SITE, VALUES, PROCESS } from '../data/site';
+---
+
+<Base
+  title="Contact — Zenova"
+  description="Book a quick 30-minute call. No pitch, just your project."
+>
+  <Nav />
+
+  <main id="main">
+    <section class="relative overflow-hidden pb-[var(--section-y)] pt-36">
+      <div class="contact-wash absolute inset-x-0 top-0 -z-10 h-[420px]" aria-hidden="true">
+      </div>
+
+      <div class="container-z">
+        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-5">
+            <Eyebrow>Contact</Eyebrow>
+            <h1 class="h1 mt-6 text-ink" data-split>
+              Let&rsquo;s build something <em class="accent-serif">modern.</em>
+            </h1>
+            <p class="mt-6 max-w-md text-[1.0625rem] text-ink-muted" data-reveal>
+              A quick 30-minute call. No pitch, just your project.
+            </p>
+
+            <a
+              href={`mailto:${SITE.email}`}
+              class="mt-8 inline-block text-lg text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
+              data-reveal
+            >
+              {SITE.email}
+            </a>
+
+            <div class="mt-12 space-y-6" data-reveal>
+              <p class="mono text-ink-faint">What happens next</p>
+              <ol class="space-y-4">
+                {
+                  PROCESS.steps.slice(0, 2).map((s) => (
+                    <li class="flex gap-4">
+                      <span class="mono mt-1 text-ink-faint tabular-nums">{s.n}</span>
+                      <span class="text-ink-muted">
+                        <span class="text-ink">{s.title}</span> — {s.blurb}
+                      </span>
+                    </li>
+                  ))
+                }
+              </ol>
+            </div>
+
+            <ul class="mt-12 space-y-5 border-t border-line pt-8" data-reveal>
+              {
+                VALUES.map((v) => (
+                  <li>
+                    <p class="font-medium text-ink">{v.title}</p>
+                    <p class="mt-1 text-[0.9375rem] text-ink-muted">{v.blurb}</p>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+
+          <div class="lg:col-span-6 lg:col-start-7" data-reveal>
+            <ContactForm to={SITE.email} client:visible />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  .contact-wash {
+    background:
+      radial-gradient(48% 70% at 82% 0%, #bfe0ff 0%, rgb(191 224 255 / 0) 66%),
+      radial-gradient(34% 56% at 98% 40%, #ffe0ec 0%, rgb(255 224 236 / 0) 70%),
+      linear-gradient(180deg, #eef4ff 0%, rgb(246 249 255 / 0) 100%);
+  }
+</style>

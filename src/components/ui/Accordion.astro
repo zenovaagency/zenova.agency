@@ -1,0 +1,73 @@
+---
+/**
+ * Native <details>. Keyboard support, screen-reader semantics and open state
+ * all come for free, and it works with JS disabled.
+ *
+ * Extracted so the home FAQ and the pricing FAQ share one recipe rather than
+ * two copies of the same thirty lines of CSS.
+ */
+interface Props {
+  items: { q: string; a: string }[];
+  class?: string;
+  /** Passes through data-reveal and friends to the wrapper. */
+  [key: string]: unknown;
+}
+const { items, class: className = '', ...rest } = Astro.props;
+---
+
+<div class:list={['faq-list', className]} {...rest}>
+  {
+    items.map((f) => (
+      <details class="faq group border-b border-line">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-left text-[1.0625rem] font-medium text-ink transition-colors hover:text-brand-text">
+          {f.q}
+          <span
+            class="relative grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line-strong transition-colors group-open:border-brand"
+            aria-hidden="true"
+          >
+            <span class="absolute h-px w-3 bg-ink transition-colors group-open:bg-brand" />
+            <span class="tick absolute h-3 w-px bg-ink transition-[transform,background-color] duration-[250ms] ease-[var(--ease-out-expo)] group-open:bg-brand" />
+          </span>
+        </summary>
+        <div class="faq-body">
+          <p class="max-w-2xl pb-6 pr-10 text-ink-muted">{f.a}</p>
+        </div>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faq-list {
+    /* Lets `auto` participate in the height transition below. */
+    interpolate-size: allow-keywords;
+  }
+
+  .faq summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq[open] .tick {
+    transform: rotate(90deg);
+  }
+
+  /* Progressive: browsers that support ::details-content animate open and
+     close. Everywhere else the panel simply toggles, which is fine. */
+  .faq::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 320ms var(--ease-out-expo),
+      content-visibility 320ms allow-discrete;
+  }
+
+  .faq[open]::details-content {
+    block-size: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq::details-content {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,94 @@
+---
+/**
+ * Previous / next strip.
+ *
+ * Routes hanging off a nav bar read as disconnected islands. This chains them
+ * in reading order so the site has a spine — and it gives someone who reached
+ * the bottom of a page somewhere to go that is not the back button.
+ *
+ * Works at both levels of the IA. Section index pages take the default CHAIN;
+ * detail pages pass their siblings, so /services/web steps to /services/app
+ * rather than falling out of the chain and rendering nothing.
+ */
+import { CHAIN, step, type ChainItem } from '../../lib/nav';
+
+interface Props {
+  /** Defaults to the top-level chain. Detail pages pass their siblings. */
+  items?: ChainItem[];
+  /**
+   * The parent section, for detail pages. Fills the left cell when there is
+   * no earlier sibling — without it a section with a single child renders an
+   * empty strip, which reads as a broken component rather than as the end of
+   * a sequence. /work and /careers will each have exactly one entry for a
+   * while, so this is the normal case, not the edge case.
+   */
+  up?: ChainItem;
+}
+
+const { items = CHAIN, up } = Astro.props;
+const { prev, next } = step(items, Astro.url.pathname);
+
+const back = prev ?? up ?? null;
+const backLabel = prev ? 'Previous' : 'Back to';
+
+// The ends of the chain have only one neighbour. Collapse to a single column
+// there rather than padding the row out with an empty cell, which reads as a
+// missing link instead of as the end of the sequence.
+const both = Boolean(back && next);
+---
+
+{
+  (back || next) && (
+    <nav class="container-z" aria-label="Page">
+      <div
+        class:list={[
+          'grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line',
+          both && 'sm:grid-cols-2',
+        ]}
+      >
+        {back && (
+          <a href={back.href} class="page-step group bg-white sm:text-left">
+            <span class="mono text-ink-faint">{backLabel}</span>
+            <span class="mt-2 flex items-center gap-3 text-[1.375rem] font-medium tracking-[-0.015em] text-ink">
+              <span
+                class="text-ink-faint transition-transform duration-[180ms] ease-[var(--ease-out-expo)] group-hover:-translate-x-1"
+                aria-hidden="true"
+              >
+                &larr;
+              </span>
+              {back.label}
+            </span>
+          </a>
+        )}
+
+        {next && (
+          <a href={next.href} class="page-step group bg-white sm:items-end sm:text-right">
+            <span class="mono text-ink-faint">Next</span>
+            <span class="mt-2 flex items-center gap-3 text-[1.375rem] font-medium tracking-[-0.015em] text-ink">
+              {next.label}
+              <span
+                class="text-ink-faint transition-transform duration-[180ms] ease-[var(--ease-out-expo)] group-hover:translate-x-1"
+                aria-hidden="true"
+              >
+                &rarr;
+              </span>
+            </span>
+          </a>
+        )}
+      </div>
+    </nav>
+  )
+}
+
+<style>
+  .page-step {
+    display: flex;
+    flex-direction: column;
+    padding: 28px var(--gutter);
+    transition: background-color 180ms var(--ease-out-expo);
+  }
+
+  .page-step:hover {
+    background: #f4f8ff;
+  }
+</style>

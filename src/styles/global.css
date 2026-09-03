@@ -1,0 +1,315 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------ *
+ * Design tokens.
+ *
+ * The blue ramp is Zenova's existing brand blue, carried over from the
+ * previous site unchanged. Sky and blush are new, and exist only to
+ * build gradients — see the accessibility rules below.
+ * ------------------------------------------------------------------ */
+@theme {
+  /* Ink — brand navy. Never pure black. */
+  --color-ink: #0b3558;
+  --color-ink-muted: #5a6b7d;
+  /* Secondary text that sits on a gradient rather than on paper.
+     #5A6B7D is only ~3.1:1 over the hero's palest ground; this is 4.8:1. */
+  --color-ink-soft: #33506e;
+  /* Tertiary labels. #9AA8BE was only 2.3:1 on paper and failed AA; the
+     hierarchy against --color-ink-muted is carried by the .mono treatment
+     (12px, uppercase, tracked) rather than by luminance. This is 4.9:1. */
+  --color-ink-faint: #5c6e8a;
+
+  /* Paper — blue-tinted white. */
+  --color-paper: #f6f9ff;
+  --color-surface: #ffffff;
+  --color-line: #e4e7eb;
+  --color-line-strong: #c9d1d9;
+
+  /* Blue.
+     --color-brand is DECORATIVE ONLY: white on it is ~4.45:1 and fails AA
+     at 16px. Anything carrying text or acting as a button surface uses
+     --color-brand-text (5.5:1). This is an audited constraint inherited
+     from the previous site; do not relax it. */
+  --color-brand: #006bff;
+  --color-brand-text: #0060e6;
+  --color-brand-lift: #2480ff;
+
+  /* Sky + blush — gradient stops only. Blush is never text on light. */
+  --color-sky: #6fb6ff;
+  --color-sky-soft: #bfe0ff;
+  --color-blush: #ffaecb;
+  --color-blush-soft: #ffe0ec;
+
+  --font-display: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-btn: 10px;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  /* The Z-mark tracks this, deliberately not the accent colour. */
+  --logo-mark: #0b3558;
+
+  --gutter: clamp(16px, 4vw, 32px);
+  --section-y: clamp(64px, calc(8.3vw + 14px), 120px);
+  --container: 1280px;
+
+  /* Steel-tinted shadows, never black. */
+  --shadow-sm: 0 1px 2px rgb(11 53 88 / 0.04), 0 2px 8px rgb(11 53 88 / 0.03);
+  --shadow-md: 0 2px 4px rgb(11 53 88 / 0.04), 0 12px 32px rgb(11 53 88 / 0.06);
+  --shadow-lg: 0 4px 8px rgb(11 53 88 / 0.05), 0 24px 64px rgb(11 53 88 / 0.08);
+}
+
+/* Radius halves on small screens, matching the previous site's behaviour. */
+@media (max-width: 767px) {
+  :root {
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+  }
+}
+
+@layer base {
+  * {
+    min-width: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: auto; /* Lenis owns scrolling; see lib/scroll.ts */
+  }
+
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    font-feature-settings: 'ss01', 'cv01';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-sky-soft);
+    color: var(--color-ink);
+  }
+
+  /* One focus treatment everywhere. Never removed, only restyled. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  img, svg, video, canvas {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* Every interactive target clears 44x44 on touch. */
+  @media (pointer: coarse) {
+    a[href], button, [role='button'], input, select, textarea {
+      min-height: 44px;
+    }
+
+    /* min-height is inert on an inline box, so the link lists in the footer
+       and the mobile drawer need a flex box before they can be asked to
+       clear the target size. */
+    li > a[href],
+    nav a[href] {
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+}
+
+@layer components {
+  .container-z {
+    width: 100%;
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .section-y {
+    padding-block: var(--section-y);
+  }
+
+  /* Display type: weight 500, never 700. Inherited brand rule. */
+  .display {
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    /* Capped so the hero sub and both CTAs stay above the fold on a 900px
+       viewport, which is where most laptops land. */
+    font-size: clamp(2.625rem, 6.1vw, 5.25rem);
+  }
+
+  .h1 {
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .h2 {
+    font-weight: 500;
+    letter-spacing: -0.018em;
+    line-height: 1.14;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+  }
+
+  .h3 {
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+    font-size: 1.5rem;
+  }
+
+  /* Eyebrow / overline. Named .mono for continuity with the previous
+     site, but it is Geist — never an actual monospace face. */
+  .mono {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .accent-serif {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  /* Gradient text. Only ever used on display-size type, where the
+     effective contrast of the darkest stop still clears AA. */
+  .grad-text {
+    background: linear-gradient(
+      100deg,
+      var(--color-brand-text) 0%,
+      var(--color-brand) 38%,
+      var(--color-sky) 74%,
+      var(--color-blush) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .rule {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-line-strong) 18%,
+      var(--color-line-strong) 82%,
+      transparent
+    );
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Grain. A single fixed overlay at 3% keeps every gradient on the page
+ * from reading as flat CSS. Pointer-events none, never focusable.
+ * ------------------------------------------------------------------ */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------------ *
+ * Reveal. Elements start hidden only when JS is present to reveal them,
+ * so a failed script never leaves the page blank.
+ * ------------------------------------------------------------------ */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(24px) scale(0.98);
+  will-change: transform, opacity;
+}
+
+html.js [data-reveal-line] > span {
+  display: block;
+  transform: translateY(110%);
+  will-change: transform;
+}
+
+[data-reveal-line] {
+  overflow: hidden;
+  display: block;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* ------------------------------------------------------------------ *
+ * Reduced motion. One branch: everything lands in its final state.
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal],
+  html.js [data-reveal-line] > span {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* SplitType line masking. The padding/margin pair keeps descenders from
+   being clipped by the overflow that creates the mask. */
+.split-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.split-inner {
+  display: block;
+  will-change: transform;
+}
+
+/* Before the split runs, the headline is plain visible text. */
+[data-split]:not([data-split-ready]) {
+  opacity: 1;
+}

@@ -1,0 +1,178 @@
+---
+/**
+ * One open role.
+ *
+ * Emits nothing today: every entry in JOBS is `draft: true`, so
+ * getStaticPaths returns an empty array. That is the point — a live
+ * JobPosting for a role that is not open is both a structured-data problem
+ * and a waste of a candidate's afternoon.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Button from '../../components/ui/Button.astro';
+import { CAREERS, SITE, type PageIntro } from '../../data/site';
+import { openRoles, type Job } from '../../data/jobs';
+import { breadcrumb, jobPosting } from '../../lib/schema';
+
+export function getStaticPaths() {
+  const live = openRoles();
+  return live.map((job) => ({
+    params: { slug: job.slug },
+    props: {
+      job,
+      siblings: live.map((j) => ({ label: j.title, href: `/careers/${j.slug}` })),
+    },
+  }));
+}
+
+interface Props {
+  job: Job;
+  siblings: { label: string; href: string }[];
+}
+
+const { job, siblings } = Astro.props;
+const path = `/careers/${job.slug}`;
+const mailto = `mailto:${SITE.careersEmail}?subject=${encodeURIComponent(`${job.title} — application`)}`;
+
+const intro: PageIntro = {
+  eyebrow: `${job.team} · ${job.type}`,
+  headline: `${job.title},`,
+  accent: job.location.toLowerCase().includes('remote') ? 'from anywhere.' : `in ${job.location}.`,
+  sub: job.summary,
+  wash: 3, // unused: `angle` takes precedence on detail pages
+  title: `${job.title} — Careers at Zenova | Zenova`,
+  description: job.summary,
+};
+
+// Three lists on one page, each with the same markup. Rendering them from a
+// table keeps the sections from drifting apart as they get edited.
+const lists = [
+  { heading: 'What you will do', items: job.responsibilities },
+  { heading: 'What we are looking for', items: job.requirements },
+  { heading: 'Nice to have', items: job.niceToHave },
+].filter((block) => block.items.length > 0);
+---
+
+<Base title={intro.title} description={intro.description}>
+  <JsonLd
+    slot="head"
+    data={[
+      jobPosting(job),
+      breadcrumb([
+        { name: 'Careers', path: '/careers' },
+        { name: job.title, path },
+      ]),
+    ]}
+  />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero
+      intro={intro}
+      trail={[
+        { label: 'Careers', href: '/careers' },
+        { label: job.title, href: path },
+      ]}
+    />
+
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="role-title">
+      <div class="container-z">
+        <div class="grid items-start gap-10 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-7" data-reveal>
+            <h2 id="role-title" class="h2 text-ink">About the role</h2>
+            <p class="mt-6 text-[1.0625rem] leading-relaxed text-ink-muted">{job.intro}</p>
+
+            {
+              lists.map((block) => (
+                <div class="mt-12">
+                  <h3 class="mono text-ink-faint">{block.heading}</h3>
+                  <ul class="mt-5 grid gap-3">
+                    {block.items.map((item) => (
+                      <li class="flex items-start gap-3 text-ink">
+                        <span
+                          class="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
+                          aria-hidden="true"
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+          </div>
+
+          <aside class="lg:col-span-4 lg:col-start-9" data-reveal>
+            <div class="card-tint p-7">
+              <dl class="grid gap-5">
+                <div>
+                  <dt class="mono text-ink-faint">Team</dt>
+                  <dd class="mt-1.5 text-ink">{job.team}</dd>
+                </div>
+                <div>
+                  <dt class="mono text-ink-faint">Type</dt>
+                  <dd class="mt-1.5 text-ink">{job.type}</dd>
+                </div>
+                <div>
+                  <dt class="mono text-ink-faint">Location</dt>
+                  <dd class="mt-1.5 text-ink">{job.location}</dd>
+                </div>
+              </dl>
+
+              <div class="mt-8 border-t border-line pt-7">
+                <Button href={mailto} class="w-full">Apply for this role</Button>
+                <p class="mono mt-4 text-center text-ink-faint">{SITE.careersEmail}</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="border-t border-line bg-white py-[var(--section-y)]"
+      aria-labelledby="hiring-title"
+    >
+      <div class="container-z">
+        <h2 id="hiring-title" class="h2 max-w-xl text-ink" data-split>
+          {CAREERS.hiringTitle}
+        </h2>
+
+        <ol
+          class="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {
+            CAREERS.hiring.map((s) => (
+              <li class="bg-white p-7" data-reveal>
+                <span class="mono text-ink-faint tabular-nums">{s.n}</span>
+                <p class="mt-6 text-[1.1875rem] font-medium tracking-[-0.01em] text-ink">
+                  {s.title}
+                </p>
+                <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">{s.blurb}</p>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div class="mt-10 flex flex-wrap items-center gap-3" data-reveal>
+          <Button href={mailto}>Apply for this role</Button>
+          <Button href="/careers" variant="ghost">All open roles</Button>
+        </div>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav items={siblings} up={{ label: 'Careers', href: '/careers' }} />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>

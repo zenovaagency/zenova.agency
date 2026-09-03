@@ -1,0 +1,522 @@
+---
+/**
+ * Work — the projects index.
+ *
+ * The signature move is a zoom carousel: the project cards are stacked in a
+ * pinned frame, and scrolling drives each one from card-size up to full-bleed
+ * and then dissolves it as the next begins its own rise. Scroll position is
+ * the only transport — no arrows, no dots, no autoplay.
+ *
+ * That device is not a variant of anything else here, which is the point. The
+ * home page already owns the sticky .card-bleed stack (home/Services), the
+ * pinned horizontal rail (home/Deliverables), the scrubbed progress line
+ * (home/Process) and the velocity marquee; this page reusing one of them would
+ * have read as a rerun rather than a redesign.
+ *
+ * It is also the only honest option. These are demo entries with no client and
+ * no metrics — see the header of data/projects.ts — so there is no proof to lay
+ * out, and a portfolio grid with nothing in the cards is exactly what looked
+ * generic before. Scale and choreography carry the page instead.
+ *
+ * PageHero is deliberately not used on this one route. The band below reuses
+ * its wash-2 recipe verbatim, so the page still reads as family, but sets the
+ * headline at .display size with counts under it. Those counts are the only
+ * numbers on the page and every one is counted out of PROJECTS rather than
+ * claimed, which is what keeps them on the right side of the rule above.
+ *
+ * The empty state is still live code and takes over the moment PROJECTS has
+ * nothing publishable in it.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Motif from '../../components/ui/Motif.astro';
+import Button from '../../components/ui/Button.astro';
+import Eyebrow from '../../components/ui/Eyebrow.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import { PAGES, SERVICES, WORK_COPY } from '../../data/site';
+import { published } from '../../data/projects';
+import { breadcrumb } from '../../lib/schema';
+
+const page = PAGES.work;
+const projects = published();
+const byService = new Map(SERVICES.map((s) => [s.slug, s]));
+
+// Disappears on its own when the demos are replaced with real projects.
+const hasDemos = projects.some((p) => p.demo);
+
+// Three numbers the page can stand behind, because all three are counted out
+// of the data rather than asserted. A demo project carries no outcomes by
+// design, so these describe the portfolio and never its results.
+const disciplines = new Set(projects.map((p) => p.service)).size;
+const technologies = new Set(projects.flatMap((p) => p.stack)).size;
+const pad = (n: number) => String(n).padStart(2, '0');
+
+const counts: [string, string][] = [
+  [pad(projects.length), 'Projects'],
+  [pad(disciplines), 'Disciplines'],
+  [pad(technologies), 'Technologies'],
+];
+---
+
+<Base title={page.title} description={page.description}>
+  <JsonLd slot="head" data={breadcrumb([{ name: 'Work', path: '/work' }])} />
+
+  <Nav />
+
+  <main id="main">
+    <!--
+      Bespoke opener rather than the shared PageHero. Same wash-2 recipe,
+      copied down into the scoped style below because Astro scopes component
+      CSS and the class cannot be imported — the same deliberate duplication
+      .svc-art already lives with across four files.
+
+      Contrast: wash-2's lobes were positioned for h1-sized text in the left
+      ~58% of the band. .display is larger, so the headline is capped in width
+      to stay clear of the brand lobe low-right, and everything sitting on the
+      wash uses ink-soft (4.8:1), never ink-muted (~4.0:1 over a gradient).
+    -->
+    <section class="relative overflow-hidden pb-16 pt-36 sm:pt-40">
+      <div class="page-wash wash-2 absolute inset-x-0 top-0 -z-10 h-[620px]" aria-hidden="true">
+      </div>
+
+      <div class="container-z">
+        <div data-reveal>
+          <Eyebrow tone="soft">{page.eyebrow}</Eyebrow>
+        </div>
+
+        <h1 class="display mt-7 max-w-[16ch] text-ink" data-split data-split-delay="0.1">
+          {page.headline}<br /><em class="accent-serif">{page.accent}</em>
+        </h1>
+
+        <p
+          class="mt-7 max-w-[38rem] text-[1.0625rem] text-ink-soft sm:text-[1.1875rem]"
+          data-reveal
+          data-reveal-delay="0.35"
+        >
+          {page.sub}
+        </p>
+
+        {
+          projects.length > 0 && (
+            <ul
+              class="mt-14 flex flex-wrap items-baseline gap-x-12 gap-y-7"
+              data-reveal
+              data-reveal-delay="0.5"
+            >
+              {counts.map(([value, label]) => (
+                <li class="flex items-baseline gap-3">
+                  <span
+                    class="text-[2.25rem] font-medium leading-none tracking-[-0.03em] tabular-nums text-ink"
+                    data-count
+                  >
+                    {value}
+                  </span>
+                  <span class="mono text-ink-soft">{label}</span>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </section>
+
+    {
+      projects.length > 0 ? (
+        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="index-title">
+          <div class="container-z">
+            <div class="grid gap-x-8 gap-y-7 lg:grid-cols-12 lg:items-end">
+              <h2 id="index-title" class="h2 text-ink lg:col-span-7" data-split>
+                {WORK_COPY.indexTitle}
+                <br />
+                <em class="accent-serif">{WORK_COPY.indexAccent}</em>
+              </h2>
+
+              {/* Kept in the heading band rather than anywhere inside the
+                  carousel: this is the disclosure that makes the demos safe to
+                  publish, so it has to render at every width and stay in the
+                  accessibility tree whatever the scroll position is. */}
+              {hasDemos && (
+                <p
+                  class="text-[0.9375rem] leading-relaxed text-ink-muted lg:col-span-4 lg:col-start-9"
+                  data-reveal
+                >
+                  {WORK_COPY.demoNote}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/*
+            The carousel frame. Without `is-zoom` — which only the script adds,
+            and only on desktop — this is an ordinary vertical list of tall
+            panels. That is what mobile, reduced motion and a failed script all
+            get, so the fallback is a readable page rather than a pile of
+            overlapping cards or an empty frame.
+          */}
+          <div class="zoom relative mt-14 lg:mt-20" data-zoom>
+            <ul class="zoom-stack grid gap-6">
+              {projects.map((p, i) => {
+                const service = byService.get(p.service)!;
+                // A demo has no client, so "Demo" stands where the name would.
+                // This label is the reason these entries can ship.
+                const eyebrow = [p.demo ? 'Demo' : p.client, service.title, p.year]
+                  .filter(Boolean)
+                  .join(' · ');
+
+                return (
+                  <li
+                    class="zoom-card svc-art"
+                    style={`--angle:${p.angle ?? service.angle}`}
+                    data-card={i}
+                  >
+                    <div class="container-z w-full">
+                      <div class="grid gap-y-10 lg:grid-cols-12 lg:items-center lg:gap-x-8">
+                        <div class="lg:col-span-6">
+                          <div class="mono flex items-center gap-3 text-ink-faint">
+                            <span class="tabular-nums">{pad(i + 1)}</span>
+                            <span class="h-px w-8 bg-line-strong" />
+                            <span>{eyebrow}</span>
+                          </div>
+
+                          <h3 class="zoom-title mt-6 text-ink">
+                            <a href={`/work/${p.slug}`} class="after:absolute after:inset-0">
+                              {p.title}
+                            </a>
+                          </h3>
+
+                          <p class="mt-6 max-w-[46ch] text-[1.0625rem] leading-relaxed text-ink-soft">
+                            {p.summary}
+                          </p>
+
+                          <ul class="mono mt-8 flex flex-wrap gap-x-5 gap-y-2 text-ink-faint">
+                            {p.stack.map((tech) => (
+                              <li>{tech}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div class="text-brand lg:col-span-5 lg:col-start-8" aria-hidden="true">
+                          <Motif kind={p.motif ?? service.motif} />
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* Decoration, and hidden until the carousel is actually running:
+                everything it reports is already on the card behind it. */}
+            <div class="zoom-hud absolute inset-x-0 bottom-8 z-10" aria-hidden="true">
+              <div class="container-z flex items-center gap-4">
+                <span class="mono tabular-nums text-ink" data-zoom-num>
+                  {pad(1)}
+                </span>
+                <span class="mono tabular-nums text-ink-faint">/ {pad(projects.length)}</span>
+                <span class="relative ml-1 h-px flex-1 bg-line">
+                  <span class="zoom-fill absolute inset-0 bg-brand" />
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="empty-title">
+          <div class="container-z">
+            <div class="max-w-2xl" data-reveal>
+              <h2 id="empty-title" class="h1 text-ink">
+                {WORK_COPY.emptyTitle}
+                <br />
+                <em class="accent-serif">{WORK_COPY.emptyAccent}</em>
+              </h2>
+              <p class="mt-6 text-[1.0625rem] text-ink-muted">{WORK_COPY.emptyBody}</p>
+
+              <div class="mt-9 flex flex-wrap items-center gap-3">
+                <Button href={WORK_COPY.emptyPrimaryHref}>{WORK_COPY.emptyPrimary}</Button>
+                <Button href={WORK_COPY.emptySecondaryHref} variant="ghost">
+                  {WORK_COPY.emptySecondary}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <!--
+      Shown in both states. With no case studies it is the only substance on
+      the page; with them it is still the natural next question, since every
+      project belongs to one of these four.
+    -->
+    <section class="border-t border-line bg-white py-[var(--section-y)]" aria-labelledby="what-title">
+      <div class="container-z">
+        <h2 id="what-title" class="h2 max-w-xl text-ink" data-split>
+          What we build.
+        </h2>
+
+        <ul
+          class="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {
+            SERVICES.map((s) => (
+              <li class="relative bg-white p-7" data-reveal>
+                <div class="mono flex items-center gap-3 text-ink-faint">
+                  <span class="tabular-nums">{s.n}</span>
+                  <span class="h-px w-6 bg-line-strong" />
+                </div>
+                <p class="mt-5 text-[1.1875rem] font-medium tracking-[-0.01em] text-ink">
+                  <a href={`/services/${s.slug}`} class="after:absolute after:inset-0">
+                    {s.title}
+                  </a>
+                </p>
+                <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">{s.short}</p>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="mt-10" data-reveal>
+          <TextLink href="/services">Every service in detail</TextLink>
+        </div>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  /* Card artwork. Duplicated verbatim from services/index.astro,
+     services/[slug].astro and work/[slug].astro — Astro scopes component CSS,
+     so this is the existing house pattern rather than a missing shared class. */
+  .svc-art {
+    background: linear-gradient(
+      var(--angle),
+      rgb(191 224 255 / 0.5) 0%,
+      rgb(244 248 255 / 0.9) 55%,
+      rgb(255 224 236 / 0.55) 100%
+    );
+  }
+
+  /* Copied from PageHero's wash-2, unchanged, for the same reason. Brand
+     collects low and right, well under the headline. */
+  .page-wash::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--color-paper) 0%, rgb(246 249 255 / 0) 46%);
+  }
+
+  .wash-2 {
+    background:
+      radial-gradient(40% 46% at 90% 92%, rgb(0 107 255 / 0.5), transparent 66%),
+      radial-gradient(42% 52% at 68% 30%, rgb(111 182 255 / 0.45), transparent 72%),
+      radial-gradient(30% 40% at 99% 20%, rgb(255 174 203 / 0.45), transparent 70%),
+      linear-gradient(180deg, #f0f6ff 0%, rgb(246 249 255 / 0) 100%);
+  }
+
+  /* --- The cards ----------------------------------------------------- */
+
+  /* The default is the fallback, not the feature: a plain vertical list of
+     tall panels, which is what renders below 1024px, under reduced motion and
+     with no JS at all. The stacked layout below is opt-in. */
+  .zoom-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    min-height: 78svh;
+    border-radius: var(--radius-lg);
+  }
+
+  .zoom-title {
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.02;
+    font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+  }
+
+  .zoom-hud {
+    display: none;
+  }
+
+  .zoom-fill {
+    transform-origin: left center;
+  }
+
+  /* --- The carousel -------------------------------------------------- */
+
+  /* `is-zoom` is added by the script inside its matchMedia block and removed
+     in the cleanup, so this state cannot be reached without a working GSAP.
+     Everything the tween touches — transform, opacity, border-radius — is set
+     from JS, never from here, which is why the fallback above is intact. */
+  @media (min-width: 1024px) {
+    .zoom.is-zoom {
+      height: 100svh;
+      overflow: hidden;
+    }
+
+    .zoom.is-zoom .zoom-stack {
+      position: absolute;
+      inset: 0;
+      display: block;
+    }
+
+    /* No will-change here on purpose. GSAP promotes what it is actually
+       tweening, and a standing hint on every card would cost one full-viewport
+       compositor layer per project — fine at four, not at forty. */
+    .zoom.is-zoom .zoom-card {
+      position: absolute;
+      inset: 0;
+      min-height: 0;
+    }
+
+    .zoom.is-zoom .zoom-hud {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  import { motion, scrollTo } from '../../lib/scroll';
+  import { DESKTOP } from '../../lib/motion';
+
+  motion().then(({ gsap, reduced }) => {
+    // Under reduced motion the page keeps the plain vertical list — the same
+    // thing a reader with JS disabled gets. Nothing below runs.
+    if (reduced) return;
+
+    const frame = document.querySelector<HTMLElement>('[data-zoom]');
+    if (!frame) return;
+
+    // Pinning is desktop-only (see DESKTOP in lib/motion). Touch scrolling is
+    // native — Lenis runs with syncTouch:false — so a scrubbed pin would
+    // stutter against the platform. matchMedia scopes every tween and trigger
+    // created in here and reverts them when the query stops matching.
+    gsap.matchMedia().add(DESKTOP, () => {
+      const cards = gsap.utils.toArray<HTMLElement>('.zoom-card', frame);
+      if (!cards.length) return;
+
+      const label = frame.querySelector<HTMLElement>('[data-zoom-num]');
+      const fill = frame.querySelector<HTMLElement>('.zoom-fill');
+      const last = cards.length - 1;
+
+      frame.classList.add('is-zoom');
+
+      // Each card owns an arc of 1, and the next one starts at 0.78 — so the
+      // arcs overlap by 0.22 and the incoming card is already rising before
+      // the outgoing one has gone. Without the overlap there is a beat of bare
+      // ground between every pair.
+      const STEP = 0.78;
+      const total = last * STEP + 1;
+
+      let shown = -1;
+      const mark = (i: number) => {
+        if (i === shown) return;
+        shown = i;
+        if (label) label.textContent = String(i + 1).padStart(2, '0');
+        // Only the card being looked at can be clicked. The others are at or
+        // near zero opacity and would otherwise swallow the pointer. Focus is
+        // deliberately left alone: `inert` here would strand a keyboard reader
+        // on whichever project the scroll position happened to be showing.
+        cards.forEach((card, k) => {
+          card.style.pointerEvents = k === i ? 'auto' : 'none';
+        });
+      };
+
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: frame,
+          start: 'top top',
+          end: () => `+=${Math.round(total * window.innerHeight * 0.9)}`,
+          pin: true,
+          scrub: 0.5,
+          invalidateOnRefresh: true,
+          anticipatePin: 1,
+          onUpdate: (self) => {
+            // A card peaks at full screen 0.72 into its own arc, so rounding
+            // around that point switches the counter midway between peaks
+            // rather than the instant the next card starts to appear.
+            const i = Math.round((self.progress * total - 0.72) / STEP);
+            mark(Math.min(last, Math.max(0, i)));
+          },
+        },
+      });
+
+      cards.forEach((card, i) => {
+        const at = i * STEP;
+
+        // Radius is tweened rather than left to CSS because a transform scales
+        // it too: 40px at scale 0.58 renders as ~23px, which reads as a card,
+        // and 0 at full screen is flush to the edges.
+        gsap.set(card, {
+          scale: 0.58,
+          opacity: i === 0 ? 1 : 0,
+          borderRadius: 40,
+          zIndex: i,
+        });
+
+        // The first card is already on screen when the pin engages, so it has
+        // no fade-in to play.
+        if (i > 0) tl.to(card, { opacity: 1, duration: 0.1 }, at);
+
+        tl.to(card, { scale: 1, borderRadius: 0, duration: 0.62 }, at + 0.1);
+
+        // The last card holds at full screen instead of dissolving. Fading it
+        // would end the pin on an empty frame, and scrub smoothing gives no
+        // way to land the unpin on the exact frame it disappears; holding lets
+        // the section leave by scrolling away, which reads as the same exit.
+        if (i < last) {
+          tl.to(card, { scale: 1.18, opacity: 0, duration: 0.28 }, at + 0.72);
+        }
+      });
+
+      // Pads the timeline out to the full arc. Without this its duration would
+      // stop where the last card finishes growing, and that card would get no
+      // hold at all before the pin released.
+      tl.to({}, { duration: total }, 0);
+
+      if (fill) tl.fromTo(fill, { scaleX: 0 }, { scaleX: 1, duration: total }, 0);
+
+      mark(0);
+
+      // Keyboard parity. The cards are stacked, so tabbing reaches a project
+      // that may be nowhere near the current scroll position; jumping to the
+      // middle of that card's arc brings it on screen, because the timeline is
+      // scrubbed and scroll position is the only thing driving it.
+      const st = tl.scrollTrigger!;
+      const teardown: Array<() => void> = [];
+
+      cards.forEach((card, i) => {
+        const onFocus = () => {
+          // Already the visible card — which is also the click case, where a
+          // jump right before navigating would be pure noise.
+          if (i === shown) return;
+          scrollTo(st.start + ((i * STEP + 0.4) / total) * (st.end - st.start), 0);
+        };
+
+        card.addEventListener('focusin', onFocus);
+        teardown.push(() => card.removeEventListener('focusin', onFocus));
+      });
+
+      return () => {
+        teardown.forEach((off) => off());
+        cards.forEach((card) => {
+          card.style.pointerEvents = '';
+        });
+        frame.classList.remove('is-zoom');
+      };
+    });
+  });
+</script>

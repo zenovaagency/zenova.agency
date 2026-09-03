@@ -1,0 +1,29 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import Accordion from '../ui/Accordion.astro';
+import { FAQS, SITE } from '../../data/site';
+---
+
+<section id="faq" class="section-y relative">
+  <div class="container-z">
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+      <div class="lg:col-span-4">
+        <Eyebrow>FAQ</Eyebrow>
+        <h2 class="h2 mt-6 text-ink" data-split>
+          Common <em class="accent-serif">questions.</em>
+        </h2>
+        <p class="mt-5 text-ink-muted" data-reveal>
+          If you do not see your question here, just ask.
+        </p>
+        <a
+          href={`mailto:${SITE.email}`}
+          class="mt-5 inline-block text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
+        >
+          {SITE.email}
+        </a>
+      </div>
+
+      <Accordion items={FAQS} class="lg:col-span-7 lg:col-start-6" data-reveal />
+    </div>
+  </div>
+</section>

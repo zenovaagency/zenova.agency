@@ -1,0 +1,128 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import Motif from '../ui/Motif.astro';
+import TextLink from '../ui/TextLink.astro';
+import { SERVICES } from '../../data/site';
+---
+
+<section id="services" class="section-y relative">
+  <div class="container-z">
+    <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-7">
+        <Eyebrow>What we do</Eyebrow>
+        <h2 class="h1 mt-6 text-ink" data-split>
+          Four things, done<br /><em class="accent-serif">properly</em>.
+        </h2>
+      </div>
+      <div class="lg:col-span-4 lg:col-start-9" data-reveal>
+        <p class="text-ink-muted">
+          One team across all four. The people who design it are the people who
+          build it and the people who grow it.
+        </p>
+        <TextLink href="/services" class="mt-5">Every service in detail</TextLink>
+      </div>
+    </div>
+
+    <!--
+      Sticky stacking. Pure CSS above lg, so it degrades to a plain vertical
+      list on touch with no pinning and no JS. Each card gets its own gradient
+      angle so the four never read as one repeated asset.
+    -->
+    <div class="mt-16 space-y-6 lg:mt-24 lg:space-y-0">
+      {
+        SERVICES.map((s, i) => (
+          <article
+            class="lg:sticky"
+            style={`top: calc(96px + ${i * 16}px); z-index: ${i + 1}`}
+            data-reveal
+          >
+            <div
+              class="card-bleed grid gap-8 p-7 sm:p-10 lg:grid-cols-12 lg:gap-10 lg:p-14"
+              style={`--angle:${s.angle}`}
+            >
+              <span class="card-scrim" aria-hidden="true"></span>
+              <div class="lg:col-span-6 xl:col-span-5">
+                <div class="mono flex items-center gap-3 text-white">
+                  <span>{s.n}</span>
+                  <span class="h-px w-8 bg-white/55" />
+                  <span>Service</span>
+                </div>
+
+                <h3 class="mt-5 text-[2rem] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
+                  {s.title}
+                </h3>
+                <p class="mt-4 max-w-md text-[1.0625rem] text-white">{s.hero}</p>
+
+                <ul class="mt-7 flex flex-wrap gap-2">
+                  {s.bullets.map((b) => (
+                    <li class="rounded-full border border-white/45 px-3.5 py-1.5 text-[0.8125rem] text-white">
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+
+                <div class="mt-9 flex items-end gap-4">
+                  <span class="text-[2.75rem] font-medium leading-none tracking-[-0.03em] tabular-nums">
+                    {s.stat.value}
+                  </span>
+                  <span class="mb-1 max-w-[9rem] text-[0.8125rem] leading-tight text-white">
+                    {s.stat.label}
+                  </span>
+                </div>
+              </div>
+
+              <div class="lg:col-span-6 xl:col-span-7">
+                <div class="rounded-[20px] border border-white/20 bg-white/10 p-6 backdrop-blur-[2px] sm:p-8">
+                  <Motif kind={s.motif} class="text-white" />
+                </div>
+                <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+                  {s.stack.map((tech) => (
+                    <li class="mono text-white">{tech}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { motion } from '../../lib/scroll';
+  import { DESKTOP } from '../../lib/motion';
+
+  // The CSS above already stacks the cards. This only adds the depth cue:
+  // an outgoing card sinks and dims slightly as the next one covers it.
+  // Desktop only, and skipped entirely under reduced motion.
+  motion().then(({ gsap, reduced }) => {
+    if (reduced) return;
+
+    // gsap.matchMedia scopes every tween and trigger created inside it, and
+    // reverts them automatically when the query stops matching.
+    gsap.matchMedia().add(DESKTOP, () => {
+        const cards = gsap.utils.toArray<HTMLElement>('#services article');
+
+      cards.forEach((card, i) => {
+        if (i === cards.length - 1) return;
+        const inner = card.firstElementChild as HTMLElement;
+        const scrim = inner.querySelector('.card-scrim');
+
+        // Scale the card, veil it with the scrim. Never tween its opacity:
+        // a translucent card reveals the ones stacked behind it.
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: cards[i + 1],
+              start: 'top bottom',
+              end: 'top center',
+              scrub: true,
+            },
+          })
+          .to(inner, { scale: 0.94, ease: 'none' }, 0)
+          .to(scrim, { opacity: 0.6, ease: 'none' }, 0);
+      });
+    });
+  });
+</script>

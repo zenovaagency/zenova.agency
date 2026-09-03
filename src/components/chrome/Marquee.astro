@@ -1,0 +1,79 @@
+---
+import { MARQUEE } from '../../data/site';
+// Duplicated once so the track can wrap seamlessly at the halfway point.
+const items = [...MARQUEE, ...MARQUEE];
+---
+
+<section
+  class="relative overflow-hidden border-y border-line bg-white py-6"
+  aria-label="What we do"
+>
+  <div
+    id="marquee-track"
+    class="flex w-max items-center gap-10 will-change-transform sm:gap-14"
+  >
+    {
+      items.map((label, i) => (
+        <div class="flex items-center gap-10 sm:gap-14" aria-hidden={i >= MARQUEE.length}>
+          <span class="whitespace-nowrap text-[1.35rem] font-medium tracking-[-0.02em] text-ink sm:text-[1.6rem]">
+            {label}
+          </span>
+          <span
+            class="h-[6px] w-[6px] shrink-0 rotate-45 bg-gradient-to-br from-brand to-blush"
+            aria-hidden="true"
+          />
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- Soft edges so words enter and leave rather than being cut off. -->
+  <div
+    class="pointer-events-none absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white to-transparent sm:w-28"
+    aria-hidden="true"
+  >
+  </div>
+  <div
+    class="pointer-events-none absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white to-transparent sm:w-28"
+    aria-hidden="true"
+  >
+  </div>
+</section>
+
+<script>
+  import { getVelocity } from '../../lib/scroll';
+  import { reducedMotion } from '../../lib/motion';
+
+  const track = document.getElementById('marquee-track');
+
+  // Reduced motion keeps the words, drops the movement entirely.
+  if (track && !reducedMotion()) {
+    const BASE = 0.5;
+    let x = 0;
+    let half = track.scrollWidth / 2;
+    let paused = false;
+
+    const remeasure = () => {
+      half = track.scrollWidth / 2;
+    };
+    addEventListener('resize', remeasure);
+    document.fonts?.ready.then(remeasure).catch(() => {});
+
+    // Speed and direction follow the scroll: the row drifts on its own, runs
+    // faster as the page moves, and reverses when the reader scrolls back up.
+    const frame = () => {
+      if (!paused) {
+        const v = getVelocity();
+        const dir = v < -0.05 ? -1 : 1;
+        x -= (BASE + Math.min(Math.abs(v) * 0.09, 4.5)) * dir;
+        if (x <= -half) x += half;
+        if (x > 0) x -= half;
+        track.style.transform = `translate3d(${x}px,0,0)`;
+      }
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+
+    new IntersectionObserver(([e]) => (paused = !e.isIntersecting)).observe(track);
+  }
+</script>

@@ -1,0 +1,180 @@
+---
+/**
+ * Abstract gradient compositions for the deliverables rail.
+ *
+ * Six distinct geometric arrangements rather than six icons. They are the
+ * page's largest use of the blue -> sky -> blush ramp, and they carry the
+ * "visual over text" weight of the section.
+ *
+ * Gradient ids must be unique per instance or the first one on the page wins
+ * for every later use, so each render gets a suffix.
+ */
+interface Props {
+  art: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  class?: string;
+}
+const { art, class: className = '' } = Astro.props;
+const uid = `af${art}-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<svg
+  viewBox="0 0 400 300"
+  fill="none"
+  aria-hidden="true"
+  class:list={['h-full w-full', className]}
+>
+  <defs>
+    <linearGradient id={`${uid}-a`} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#006bff" />
+      <stop offset="62%" stop-color="#6fb6ff" />
+      <stop offset="100%" stop-color="#ffaecb" />
+    </linearGradient>
+    <linearGradient id={`${uid}-b`} x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bfe0ff" />
+      <stop offset="100%" stop-color="#006bff" />
+    </linearGradient>
+    <radialGradient id={`${uid}-r`} cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="55%" stop-color="#6fb6ff" />
+      <stop offset="100%" stop-color="#006bff" />
+    </radialGradient>
+  </defs>
+
+  {/* 1 — concentric arcs sweeping out of the lower left */}
+  {
+    art === 1 && (
+      <g stroke={`url(#${uid}-a)`} fill="none" stroke-linecap="round">
+        <path d="M20 280A120 120 0 0 1 140 160" stroke-width="14" opacity=".9" />
+        <path d="M20 280A170 170 0 0 1 190 110" stroke-width="12" opacity=".7" />
+        <path d="M20 280A220 220 0 0 1 240 60" stroke-width="10" opacity=".5" />
+        <path d="M20 280A270 270 0 0 1 290 10" stroke-width="8" opacity=".32" />
+        <circle cx="316" cy="66" r="26" fill={`url(#${uid}-r)`} stroke="none" opacity=".9" />
+      </g>
+    )
+  }
+
+  {/* 2 — dot field with a gradient falloff */}
+  {
+    art === 2 && (
+      <g fill={`url(#${uid}-a)`}>
+        {Array.from({ length: 7 }).flatMap((_, r) =>
+          Array.from({ length: 10 }).map((__, c) => (
+            <circle
+              cx={44 + c * 34}
+              cy={44 + r * 36}
+              r={3 + ((r + c) % 4) * 2.1}
+              opacity={0.22 + ((r * 10 + c) / 70) * 0.78}
+            />
+          )),
+        )}
+      </g>
+    )
+  }
+
+  {/* 3 — offset stacked layers */}
+  {
+    art === 3 && (
+      <g>
+        <rect x="40" y="150" width="230" height="110" rx="18" fill={`url(#${uid}-b)`} opacity=".28" />
+        <rect x="66" y="112" width="230" height="110" rx="18" fill={`url(#${uid}-b)`} opacity=".5" />
+        <rect x="92" y="74" width="230" height="110" rx="18" fill={`url(#${uid}-a)`} opacity=".82" />
+        <rect x="118" y="36" width="230" height="110" rx="18" fill={`url(#${uid}-a)`} />
+        <path d="M146 74h84M146 96h140" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity=".62" />
+      </g>
+    )
+  }
+
+  {/* 4 — orb and orbits */}
+  {
+    art === 4 && (
+      <g>
+        <ellipse cx="200" cy="150" rx="168" ry="66" stroke={`url(#${uid}-a)`} stroke-width="3" opacity=".45" />
+        <ellipse cx="200" cy="150" rx="168" ry="66" stroke={`url(#${uid}-a)`} stroke-width="3" opacity=".35" transform="rotate(58 200 150)" />
+        <ellipse cx="200" cy="150" rx="168" ry="66" stroke={`url(#${uid}-a)`} stroke-width="3" opacity=".28" transform="rotate(-58 200 150)" />
+        <circle cx="200" cy="150" r="58" fill={`url(#${uid}-r)`} />
+        <circle cx="352" cy="128" r="11" fill="#ffaecb" />
+        <circle cx="58" cy="182" r="8" fill="#006bff" />
+      </g>
+    )
+  }
+
+  {/* 5 — stacked bands, loosely a conversation waveform */}
+  {
+    art === 5 && (
+      <g stroke={`url(#${uid}-a)`} fill="none" stroke-width="9" stroke-linecap="round">
+        <path d="M36 96c48-52 88 52 132 0s84-52 132 0 60 26 60 26" opacity=".35" />
+        <path d="M36 150c48-52 88 52 132 0s84-52 132 0 60 26 60 26" opacity=".65" />
+        <path d="M36 204c48-52 88 52 132 0s84-52 132 0 60 26 60 26" opacity=".95" />
+      </g>
+    )
+  }
+
+  {/* 6 — branching nodes */}
+  {
+    art === 6 && (
+      <g>
+        <path
+          d="M62 150h64c22 0 22-76 44-76h84M126 150c22 0 22 76 44 76h84"
+          stroke={`url(#${uid}-a)`}
+          stroke-width="6"
+          fill="none"
+          stroke-linecap="round"
+        />
+        <rect x="18" y="126" width="48" height="48" rx="14" fill={`url(#${uid}-b)`} />
+        <rect x="248" y="50" width="120" height="48" rx="16" fill={`url(#${uid}-a)`} opacity=".9" />
+        <rect x="248" y="202" width="120" height="48" rx="16" fill={`url(#${uid}-a)`} opacity=".55" />
+        <circle cx="254" cy="74" r="7" fill="#ffffff" opacity=".85" />
+        <circle cx="254" cy="226" r="7" fill="#ffffff" opacity=".85" />
+      </g>
+    )
+  }
+
+  {/* 7 — rising columns. Added so the marketing deliverables stop reusing
+      art 2 and 4: eight cards on one page cannot share six drawings without
+      the repetition being the first thing a reader notices. */}
+  {
+    art === 7 && (
+      <g>
+        <path d="M24 268h352" stroke="#c9d1d9" stroke-width="2" stroke-linecap="round" />
+        {[60, 92, 118, 158, 196, 238].map((h, i) => (
+          <rect
+            x={34 + i * 60}
+            y={266 - h}
+            width="40"
+            height={h}
+            rx="12"
+            fill={`url(#${uid}-a)`}
+            opacity={0.34 + i * 0.132}
+          />
+        ))}
+        <circle cx="354" cy="28" r="12" fill="#ffaecb" />
+      </g>
+    )
+  }
+
+  {/* 8 — completion ring with report rows */}
+  {
+    art === 8 && (
+      <g>
+        <circle cx="126" cy="150" r="76" stroke="#dcebff" stroke-width="28" fill="none" />
+        <circle
+          cx="126"
+          cy="150"
+          r="76"
+          stroke={`url(#${uid}-a)`}
+          stroke-width="28"
+          fill="none"
+          stroke-linecap="round"
+          stroke-dasharray="292 478"
+          transform="rotate(-90 126 150)"
+        />
+        <circle cx="126" cy="150" r="34" fill={`url(#${uid}-r)`} opacity=".22" />
+        <g fill={`url(#${uid}-b)`}>
+          <rect x="248" y="96" width="128" height="18" rx="9" opacity=".95" />
+          <rect x="248" y="140" width="96" height="18" rx="9" opacity=".68" />
+          <rect x="248" y="184" width="62" height="18" rx="9" opacity=".42" />
+        </g>
+      </g>
+    )
+  }
+</svg>

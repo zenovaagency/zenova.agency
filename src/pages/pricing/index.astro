@@ -1,0 +1,247 @@
+---
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Accordion from '../../components/ui/Accordion.astro';
+import Button from '../../components/ui/Button.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import { PAGES, PRICING, PRICING_COPY, PRICING_FAQ, SERVICES, TRUST } from '../../data/site';
+import { breadcrumb, faqPage, pricingCatalog } from '../../lib/schema';
+
+const page = PAGES.pricing;
+
+// Each rate card is tinted with its service's gradient angle, so the four
+// sections are told apart the same way they are everywhere else on the site.
+const angles = new Map(SERVICES.map((s) => [s.slug, s.angle]));
+const numbers = new Map(SERVICES.map((s) => [s.slug, s.n]));
+---
+
+<Base title={page.title} description={page.description}>
+  <JsonLd
+    slot="head"
+    data={[
+      pricingCatalog(PRICING),
+      faqPage('/pricing', PRICING_FAQ),
+      breadcrumb([{ name: 'Pricing', path: '/pricing' }]),
+    ]}
+  />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero intro={page} />
+
+    <!--
+      The previous site put these behind React tab state. Here all four rate
+      cards render as stacked sections: it costs no JS, every plan is in the
+      HTML for search and for anyone linking to a specific tier, and
+      /services can deep-link straight to a service's card.
+    -->
+    {
+      PRICING.map((svc, i) => (
+        <section
+          class:list={[
+            'border-t border-line py-[var(--section-y)]',
+            i % 2 === 1 && 'bg-white',
+          ]}
+          aria-labelledby={`rate-${svc.slug}`}
+        >
+          <div class="container-z">
+            <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-reveal>
+              <div>
+                <div class="mono flex items-center gap-3 text-ink-faint">
+                  <span class="tabular-nums">{numbers.get(svc.slug)}</span>
+                  <span class="h-px w-8 bg-line-strong" />
+                  <span>Rate card</span>
+                </div>
+                <h2 id={`rate-${svc.slug}`} class="h2 mt-5 text-ink">
+                  {svc.label}
+                </h2>
+              </div>
+              <div class="flex flex-wrap items-center gap-x-7 gap-y-2">
+                <TextLink href={`/services/${svc.slug}`}>What is included</TextLink>
+                <TextLink href={`/pricing/${svc.slug}`}>Open this rate card</TextLink>
+              </div>
+            </div>
+
+            <ul class="mt-12 grid items-stretch gap-6 lg:grid-cols-3">
+              {svc.plans.map((plan) => (
+                <li class="flex">
+                  <article
+                    class:list={[
+                      'flex w-full flex-col p-7 sm:p-8',
+                      plan.highlighted ? 'card-bleed' : 'card-tint',
+                    ]}
+                    style={plan.highlighted ? `--angle:${angles.get(svc.slug)}` : undefined}
+                  >
+                    <div class="flex items-center justify-between gap-4">
+                      <h3
+                        class:list={[
+                          'text-[1.375rem] font-medium tracking-[-0.015em]',
+                          plan.highlighted ? 'text-white' : 'text-ink',
+                        ]}
+                      >
+                        {plan.name}
+                      </h3>
+                      {plan.highlighted && (
+                        <span class="mono rounded-full bg-white px-3 py-1.5 text-brand-text">
+                          Most popular
+                        </span>
+                      )}
+                    </div>
+
+                    <p
+                      class:list={[
+                        'mt-6 text-[clamp(2.25rem,4vw,2.875rem)] font-medium leading-none tracking-[-0.03em] tabular-nums',
+                        plan.highlighted ? 'text-white' : 'text-ink',
+                      ]}
+                    >
+                      {plan.price}
+                    </p>
+                    <p
+                      class:list={[
+                        'mono mt-3.5',
+                        plan.highlighted ? 'text-white' : 'text-ink-faint',
+                      ]}
+                    >
+                      One-time · {plan.timeline}
+                    </p>
+
+                    <p
+                      class:list={[
+                        'mt-6 text-[0.9375rem] leading-relaxed',
+                        plan.highlighted ? 'text-white' : 'text-ink-muted',
+                      ]}
+                    >
+                      {plan.info}
+                    </p>
+
+                    <ul
+                      class:list={[
+                        'mt-7 space-y-3.5 border-t pt-7',
+                        plan.highlighted ? 'border-white/40' : 'border-line',
+                      ]}
+                    >
+                      {plan.features.map((f) => (
+                        <li
+                          class:list={[
+                            'flex items-start gap-3 text-[0.9375rem]',
+                            plan.highlighted ? 'text-white' : 'text-ink',
+                          ]}
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                            class:list={[
+                              'mt-[5px] shrink-0',
+                              plan.highlighted ? 'text-white' : 'text-brand',
+                            ]}
+                          >
+                            <path
+                              d="m4.5 12.5 5 5 10-11"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                            />
+                          </svg>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div class="mt-auto pt-9">
+                      <Button
+                        href="/contact"
+                        variant={plan.highlighted ? 'light' : 'ghost'}
+                        class="w-full"
+                      >
+                        {plan.cta}
+                      </Button>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="trust-title">
+      <div class="container-z">
+        <h2 id="trust-title" class="h2 max-w-xl text-ink" data-split>
+          {PRICING_COPY.trustTitle}
+        </h2>
+
+        <ul class="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          {
+            TRUST.map((t, i) => (
+              <li class="bg-white p-7" data-reveal>
+                <span
+                  class="block h-1 w-10 rounded-full bg-gradient-to-r from-brand to-blush"
+                  style={`opacity:${1 - i * 0.16}`}
+                  aria-hidden="true"
+                />
+                <p class="mt-6 text-[1.1875rem] font-medium tracking-[-0.01em] text-ink">
+                  {t.title}
+                </p>
+                <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">{t.body}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="border-t border-line bg-white py-[var(--section-y)]">
+      <div class="container-z">
+        <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-4">
+            <h2 class="h2 text-ink" data-split>
+              {PRICING_COPY.faqTitle}<br /><em class="accent-serif">{PRICING_COPY.faqAccent}</em>
+            </h2>
+            <p class="mt-5 text-ink-muted" data-reveal>{PRICING_COPY.faqSub}</p>
+          </div>
+
+          <Accordion items={PRICING_FAQ} class="lg:col-span-7 lg:col-start-6" data-reveal />
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-line py-[var(--section-y)]">
+      <div class="container-z">
+        <div class="max-w-2xl" data-reveal>
+          <p class="mono text-ink-faint">{PRICING_COPY.noteLabel}</p>
+          <p class="h1 mt-6 text-ink">
+            {PRICING_COPY.noteTitle}<br />
+            <em class="accent-serif">{PRICING_COPY.noteAccent}</em>
+          </p>
+          <p class="mt-6 text-[1.0625rem] text-ink-muted">{PRICING_COPY.noteSub}</p>
+
+          <div class="mt-9 flex flex-wrap items-center gap-3">
+            <Button href={PRICING_COPY.notePrimaryHref}>{PRICING_COPY.notePrimary}</Button>
+            <Button href={PRICING_COPY.noteSecondaryHref} variant="ghost">
+              {PRICING_COPY.noteSecondary}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>

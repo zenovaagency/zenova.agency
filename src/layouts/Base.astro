@@ -1,0 +1,107 @@
+---
+import '@fontsource-variable/geist/wght.css';
+import '@fontsource/instrument-serif/400-italic.css';
+import '../styles/global.css';
+import '../styles/cards.css';
+import JsonLd from '../components/chrome/JsonLd.astro';
+import { SITE } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title = SITE.title, description = SITE.description } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
+
+// Organization only. No LocalBusiness: the brand has no verified postal
+// address or phone, and the previous site deliberately suppressed that schema
+// rather than publish placeholder contact details.
+//
+// Rendered through <JsonLd>, which uses `<Fragment set:html>`. set:html is a
+// directive on an element and never a tag of its own — an earlier
+// `<set:html value={...} />` here compiled to a literal `<set :html="...">`
+// element, so this schema shipped as inert markup and no crawler ever saw it.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE.name,
+  legalName: SITE.legalName,
+  url: SITE.url,
+  logo: `${SITE.url}/assets/zenova-mark.png`,
+  description: SITE.description,
+  slogan: SITE.tagline,
+  email: SITE.email,
+  sameAs: SITE.socials.map((s) => s.url),
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#f6f9ff" />
+    <meta name="color-scheme" content="light" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:image" content={`${SITE.url}/og-card.png`} />
+    <meta property="og:image:width" content="1600" />
+    <meta property="og:image:height" content="840" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <JsonLd data={jsonLd} />
+
+    <!-- Per-page structured data. Organization above is site-wide; anything
+         specific to one route (a rate card, an FAQ, a breadcrumb) is injected
+         here rather than special-cased in the layout. -->
+    <slot name="head" />
+
+    <!-- Marks that JS is live, so the reveal system can hide elements it is
+         able to bring back. Without this a failed script leaves a blank page. -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body class="antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[10000] focus:rounded-[10px] focus:bg-white focus:px-5 focus:py-3 focus:text-ink focus:shadow-lg"
+    >
+      Skip to content
+    </a>
+
+    <slot />
+
+    <div class="grain" aria-hidden="true"></div>
+
+    <script>
+      import { motion } from '../lib/scroll';
+      import { initReveals } from '../lib/reveal';
+
+      // Boot after first paint so GSAP never blocks the initial render.
+      const boot = async () => {
+        await motion();
+        await initReveals();
+      };
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => boot(), { timeout: 900 });
+      } else {
+        setTimeout(boot, 1);
+      }
+    </script>
+  </body>
+</html>

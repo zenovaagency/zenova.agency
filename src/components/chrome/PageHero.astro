@@ -1,0 +1,183 @@
+---
+/**
+ * The opening band on every route except the home page.
+ *
+ * Deliberately not the WebGL hero. That canvas is the one interactive moment
+ * on the site, and running it on a dozen routes turns a moment into wallpaper
+ * — so this is static CSS, ships no JS, and keeps the shader exclusive to `/`.
+ *
+ * Two ways to tint it, and the split is what keeps ~20 routes from needing
+ * ~20 recipes:
+ *
+ *   wash  1–5   one numbered recipe per section index page. Four identical
+ *               gradients is the point at which a system stops reading as
+ *               designed and starts reading as a template, so the saturated
+ *               lobe sits somewhere different in each.
+ *   angle       detail pages. One shared recipe rotated by the service's own
+ *               --angle, which is already how the four services are told
+ *               apart in .svc-art and in .card-bleed. `angle` wins when both
+ *               are present.
+ */
+import Eyebrow from '../ui/Eyebrow.astro';
+import type { PageIntro } from '../../data/site';
+
+export interface Crumb {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  intro: PageIntro;
+  /** A CSS angle, e.g. "135deg". Switches the band to the rotated recipe. */
+  angle?: string;
+  /** Everything below Home. Home is prepended here, as it is in schema.ts. */
+  trail?: Crumb[];
+}
+
+const { intro, angle, trail } = Astro.props;
+
+// Home is never passed in by a caller, matching breadcrumb() in lib/schema.ts.
+const crumbs: Crumb[] = trail ? [{ label: 'Home', href: '/' }, ...trail] : [];
+---
+
+<section class="relative overflow-hidden pb-14 pt-36 sm:pt-40">
+  <div
+    class:list={['page-wash absolute inset-x-0 top-0 -z-10 h-[540px]', angle ? 'wash-angle' : `wash-${intro.wash}`]}
+    style={angle ? `--angle:${angle}` : undefined}
+    aria-hidden="true"
+  >
+  </div>
+
+  <div class="container-z">
+    {
+      crumbs.length > 0 && (
+        <nav aria-label="Breadcrumb" class="mb-7" data-reveal>
+          <ol class="mono flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            {crumbs.map((crumb, i) =>
+              i === crumbs.length - 1 ? (
+                <li class="text-ink-muted" aria-current="page">
+                  {crumb.label}
+                </li>
+              ) : (
+                <li class="flex items-center gap-2.5">
+                  <a
+                    href={crumb.href}
+                    class="text-ink-soft underline decoration-line-strong decoration-1 underline-offset-4 transition-colors hover:text-ink hover:decoration-brand"
+                  >
+                    {crumb.label}
+                  </a>
+                  <span class="text-ink-faint" aria-hidden="true">
+                    /
+                  </span>
+                </li>
+              ),
+            )}
+          </ol>
+        </nav>
+      )
+    }
+
+    <div class="max-w-[46rem]">
+      <div data-reveal>
+        <Eyebrow tone="soft">{intro.eyebrow}</Eyebrow>
+      </div>
+
+      <h1 class="h1 mt-6 text-ink" data-split data-split-delay="0.1">
+        {intro.headline}<br /><em class="accent-serif">{intro.accent}</em>
+      </h1>
+
+      <p
+        class="mt-6 max-w-[36rem] text-[1.0625rem] text-ink-soft sm:text-[1.1875rem]"
+        data-reveal
+        data-reveal-delay="0.35"
+      >
+        {intro.sub}
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+    Contrast rule for every recipe, and the reason the saturated stops sit
+    where they do: the headline and sub occupy roughly the left 58% of the
+    band, down to about 400px. --color-brand behind ink is 2.7:1 and full
+    --color-sky is 3.9:1 against --color-ink-soft, so both are kept out of
+    that zone. Only the -soft tints, which clear 6:1, are allowed near text.
+  */
+  .page-wash::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--color-paper) 0%, rgb(246 249 255 / 0) 46%);
+  }
+
+  /* 1 — services. Pale pool upper left, sky mid right, blush terminal. */
+  .wash-1 {
+    background:
+      radial-gradient(38% 54% at 78% 16%, rgb(111 182 255 / 0.62), transparent 70%),
+      radial-gradient(34% 50% at 99% 64%, rgb(255 174 203 / 0.7), transparent 72%),
+      radial-gradient(56% 52% at 14% 6%, rgb(191 224 255 / 0.5), transparent 76%),
+      linear-gradient(180deg, #eef4ff 0%, rgb(246 249 255 / 0) 100%);
+  }
+
+  /* 2 — work. Brand collects low and right, well under the headline. */
+  .wash-2 {
+    background:
+      radial-gradient(40% 46% at 90% 92%, rgb(0 107 255 / 0.5), transparent 66%),
+      radial-gradient(42% 52% at 68% 30%, rgb(111 182 255 / 0.45), transparent 72%),
+      radial-gradient(30% 40% at 99% 20%, rgb(255 174 203 / 0.45), transparent 70%),
+      linear-gradient(180deg, #f0f6ff 0%, rgb(246 249 255 / 0) 100%);
+  }
+
+  /* 3 — careers. A tall band hugging the right edge instead of a round lobe,
+     so this header has a different silhouette from the others and not just a
+     different position. Stops sit high in the band: anything below roughly
+     54% is being faded out by ::after and reads as no colour at all.
+     (Inherited from the deleted /process page, which is where it was drawn.) */
+  .wash-3 {
+    background:
+      radial-gradient(22% 82% at 97% 36%, rgb(111 182 255 / 0.7), transparent 74%),
+      radial-gradient(26% 44% at 86% 88%, rgb(255 174 203 / 0.62), transparent 74%),
+      radial-gradient(34% 32% at 72% 2%, rgb(191 224 255 / 0.72), transparent 74%),
+      linear-gradient(180deg, #eef4ff 0%, rgb(246 249 255 / 0) 100%);
+  }
+
+  /* 4 — pricing. One soft lobe, and nothing else. The page below it is
+     twelve cards; the header has no business competing with them. */
+  .wash-4 {
+    background:
+      radial-gradient(44% 58% at 86% 22%, rgb(111 182 255 / 0.5), transparent 74%),
+      radial-gradient(26% 36% at 99% 78%, rgb(255 174 203 / 0.42), transparent 72%),
+      linear-gradient(180deg, #eff5ff 0%, rgb(246 249 255 / 0) 100%);
+  }
+
+  /* 5 — about, and its two sub-pages. Two low-slung lobes meeting at the
+     centre-right, the only recipe weighted toward the bottom of the band —
+     these pages open on prose, not on cards, and a heavy top edge crowds it. */
+  .wash-5 {
+    background:
+      radial-gradient(30% 48% at 72% 82%, rgb(191 224 255 / 0.78), transparent 72%),
+      radial-gradient(34% 44% at 96% 46%, rgb(111 182 255 / 0.46), transparent 74%),
+      radial-gradient(24% 34% at 84% 4%, rgb(255 174 203 / 0.5), transparent 72%),
+      linear-gradient(180deg, #eef4ff 0%, rgb(246 249 255 / 0) 100%);
+  }
+
+  /* Detail pages. Rotated per instance by the service's own --angle, so the
+     four service headers and the four pricing headers differ from each other
+     without minting eight more recipes.
+
+     Linear rather than radial on purpose: it has no lobe to keep out of the
+     text zone, and it uses only the -soft tints, so the contrast rule above
+     holds at every angle by construction rather than by measurement. */
+  .wash-angle {
+    --angle: 135deg;
+    background:
+      linear-gradient(
+        var(--angle),
+        rgb(191 224 255 / 0.62) 0%,
+        rgb(246 249 255 / 0.9) 56%,
+        rgb(255 224 236 / 0.66) 100%
+      );
+  }
+</style>

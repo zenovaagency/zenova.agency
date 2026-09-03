@@ -1,0 +1,264 @@
+---
+/**
+ * One project.
+ *
+ * Built from the entries in data/projects.ts that are not drafts. Today that
+ * is four demo projects: labelled as demos in the eyebrow and in the meta
+ * grid, with no client and no metrics. See that file for the checklist that
+ * turns an entry into a real, published case study.
+ *
+ * `outcomes` renders only when it has entries, which is what lets a thin demo
+ * and a full case study share this template. An empty metrics grid reads as a
+ * result being hidden, which is worse than not claiming one.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Motif from '../../components/ui/Motif.astro';
+import Button from '../../components/ui/Button.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import { SERVICES, type PageIntro, type Service } from '../../data/site';
+import { published, type Project } from '../../data/projects';
+import { breadcrumb } from '../../lib/schema';
+
+export function getStaticPaths() {
+  const live = published();
+  return live.map((project) => ({
+    params: { slug: project.slug },
+    props: {
+      project,
+      // Siblings come from the same filtered array the routes did, so a draft
+      // can never appear as a "next project" link.
+      siblings: live.map((p) => ({ label: p.title, href: `/work/${p.slug}` })),
+    },
+  }));
+}
+
+interface Props {
+  project: Project;
+  siblings: { label: string; href: string }[];
+}
+
+const { project, siblings } = Astro.props as Props;
+const service = SERVICES.find((s) => s.slug === project.service) as Service;
+const path = `/work/${project.slug}`;
+
+// A demo has no client, so "Demo" stands where the name would.
+const eyebrow = [project.demo ? 'Demo' : project.client, service.title, project.year]
+  .filter(Boolean)
+  .join(' · ');
+
+const intro: PageIntro = {
+  eyebrow,
+  headline: `${project.title},`,
+  // Deliberately not "in full." — these write-ups are short by design, and a
+  // demo has nothing withheld to be shown in full.
+  accent: 'up close.',
+  sub: project.intro,
+  wash: 2, // unused: `angle` takes precedence on detail pages
+  title: `${project.title} — ${service.title} | Zenova`,
+  description: project.summary,
+};
+---
+
+<Base title={intro.title} description={intro.description}>
+  <JsonLd
+    slot="head"
+    data={breadcrumb([
+      { name: 'Work', path: '/work' },
+      { name: project.title, path },
+    ])}
+  />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero
+      intro={intro}
+      angle={project.angle ?? service.angle}
+      trail={[
+        { label: 'Work', href: '/work' },
+        { label: project.title, href: path },
+      ]}
+    />
+
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="brief-title">
+      <div class="container-z">
+        <h2 id="brief-title" class="sr-only">Project summary</h2>
+
+        <div class="grid items-start gap-10 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-5" data-reveal>
+            <div class="card-tint overflow-hidden">
+              {
+                project.image ? (
+                  <img
+                    src={project.image.src}
+                    alt={project.image.alt}
+                    class="aspect-[16/10] w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <div
+                    class="svc-art flex aspect-[16/10] items-center justify-center p-8 text-brand"
+                    style={`--angle:${project.angle ?? service.angle}`}
+                    aria-hidden="true"
+                  >
+                    <Motif kind={project.motif ?? service.motif} />
+                  </div>
+                )
+              }
+              {
+                project.stack.length > 0 && (
+                  <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
+                    {project.stack.map((tech) => (
+                      <li class="mono text-ink-faint">{tech}</li>
+                    ))}
+                  </ul>
+                )
+              }
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 lg:col-start-7" data-reveal>
+            <dl class="grid gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-2">
+              {/* Keeps the 2-up grid intact whether or not there is a client
+                  to name — a demo says what it is in the same slot. */}
+              <div class="bg-paper px-5 py-5">
+                <dt class="mono text-ink-faint">{project.client ? 'Client' : 'Type'}</dt>
+                <dd class="mt-2 text-[1.0625rem] text-ink">
+                  {project.client ?? (project.demo ? 'Demo project' : 'Self-initiated')}
+                </dd>
+              </div>
+              <div class="bg-paper px-5 py-5">
+                <dt class="mono text-ink-faint">Year</dt>
+                <dd class="mt-2 text-[1.0625rem] text-ink tabular-nums">{project.year}</dd>
+              </div>
+              <div class="bg-paper px-5 py-5 sm:col-span-2">
+                <dt class="mono text-ink-faint">Service</dt>
+                <dd class="mt-2 text-[1.0625rem] text-ink">
+                  <a
+                    href={`/services/${service.slug}`}
+                    class="underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
+                  >
+                    {service.title}
+                  </a>
+                </dd>
+              </div>
+            </dl>
+
+            {
+              project.scope.length > 0 && (
+                <>
+                  <h3 class="mono mt-10 text-ink-faint">What we did</h3>
+                  <ul class="mt-5 grid gap-3 sm:grid-cols-2">
+                    {project.scope.map((item) => (
+                      <li class="flex items-start gap-3 text-ink">
+                        <span
+                          class="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
+                          aria-hidden="true"
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Renders only when there are numbers the client has agreed to publish. -->
+    {
+      project.outcomes.length > 0 && (
+        <section
+          class="border-t border-line bg-white py-[var(--section-y)]"
+          aria-labelledby="outcome-title"
+        >
+          <div class="container-z">
+            <h2 id="outcome-title" class="h2 max-w-xl text-ink" data-split>
+              What changed.
+            </h2>
+
+            <dl class="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+              {project.outcomes.map((o) => (
+                <div class="bg-white p-7" data-reveal>
+                  <dt class="mono text-ink-faint">{o.label}</dt>
+                  <dd class="mt-4 text-[clamp(1.75rem,3vw,2.25rem)] font-medium leading-none tracking-[-0.03em] text-ink tabular-nums">
+                    {o.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+      )
+    }
+
+    {
+      project.sections.length > 0 && (
+        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="story-title">
+          <div class="container-z">
+            <h2 id="story-title" class="sr-only">
+              The story
+            </h2>
+
+            <div class="grid gap-14">
+              {project.sections.map((block, i) => (
+                <div class="grid gap-6 lg:grid-cols-12 lg:gap-16" data-reveal>
+                  <div class="lg:col-span-4">
+                    <div class="mono flex items-center gap-3 text-ink-faint">
+                      <span class="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                      <span class="h-px w-8 bg-line-strong" />
+                    </div>
+                    <h3 class="h3 mt-5 text-ink">{block.heading}</h3>
+                  </div>
+                  <p class="text-[1.0625rem] leading-relaxed text-ink-muted lg:col-span-7 lg:col-start-6">
+                    {block.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="border-t border-line py-[var(--section-y)]">
+      <div class="container-z">
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-4" data-reveal>
+          <Button href="/contact">Start a project</Button>
+          <Button href="/work" variant="ghost">All work</Button>
+          <TextLink href={`/services/${service.slug}`} class="ml-1">
+            About {service.title.toLowerCase()}
+          </TextLink>
+        </div>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav items={siblings} up={{ label: 'Work', href: '/work' }} />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  .svc-art {
+    background: linear-gradient(
+      var(--angle),
+      rgb(191 224 255 / 0.5) 0%,
+      rgb(244 248 255 / 0.9) 55%,
+      rgb(255 224 236 / 0.55) 100%
+    );
+  }
+</style>

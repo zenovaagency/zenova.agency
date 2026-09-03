@@ -1,0 +1,304 @@
+---
+/**
+ * One service, in full.
+ *
+ * This is where the /services chapters moved to, and where the old /work page
+ * ended up: a service's deliverables describe what that service ships, so
+ * they belong beside its scope rather than on a separate page that grouped
+ * them under the same four headings anyway.
+ *
+ * Reading order is the order a buyer asks in — what it is, what you get,
+ * what it costs, who owns it at the end.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Motif from '../../components/ui/Motif.astro';
+import Artifact from '../../components/ui/Artifact.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import Button from '../../components/ui/Button.astro';
+import {
+  DELIVERABLES,
+  OWNERSHIP,
+  PRICING,
+  SERVICES,
+  type PageIntro,
+  type Service,
+} from '../../data/site';
+import { projectsFor } from '../../data/projects';
+import { breadcrumb } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return SERVICES.map((service) => ({
+    params: { slug: service.slug },
+    props: { service },
+  }));
+}
+
+interface Props {
+  service: Service;
+}
+
+const { service } = Astro.props;
+const path = `/services/${service.slug}`;
+
+// "Web Development" -> "Web" / "Development." so the hero keeps the two-line
+// headline shape every other page on the site uses.
+const words = service.title.split(' ');
+const intro: PageIntro = {
+  eyebrow: `Service ${service.n}`,
+  headline: words.slice(0, -1).join(' '),
+  accent: `${words[words.length - 1]}.`,
+  sub: service.hero,
+  wash: 1, // unused: `angle` takes precedence on detail pages
+  title: `${service.title} — Scope, Timeline and Pricing | Zenova`,
+  description: service.hero,
+};
+
+const deliverables = DELIVERABLES.filter((d) => d.service === service.slug);
+const rates = PRICING.find((p) => p.slug === service.slug);
+const projects = projectsFor(service.slug);
+
+const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slug}` }));
+---
+
+<Base title={intro.title} description={intro.description}>
+  <JsonLd
+    slot="head"
+    data={breadcrumb([
+      { name: 'Services', path: '/services' },
+      { name: service.title, path },
+    ])}
+  />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero
+      intro={intro}
+      angle={service.angle}
+      trail={[
+        { label: 'Services', href: '/services' },
+        { label: service.title, href: path },
+      ]}
+    />
+
+    <!-- What it is. The chapter that used to live on the /services index. -->
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="scope-title">
+      <div class="container-z">
+        <div class="grid items-start gap-10 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-6" data-reveal>
+            <h2 id="scope-title" class="h2 text-ink">What is included</h2>
+
+            <ul class="mt-8 grid gap-3 sm:grid-cols-2">
+              {
+                service.bullets.map((b) => (
+                  <li class="flex items-start gap-3 text-ink">
+                    <span
+                      class="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
+                      aria-hidden="true"
+                    />
+                    {b}
+                  </li>
+                ))
+              }
+            </ul>
+
+            <dl
+              class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-4"
+            >
+              {
+                service.meta.map(([value, label]) => (
+                  <div class="bg-paper px-4 py-5">
+                    <dt class="mono text-ink-faint">{label}</dt>
+                    <dd class="mt-2 text-[1.375rem] font-medium tracking-[-0.02em] text-ink tabular-nums">
+                      {value}
+                    </dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+
+          <div class="lg:col-span-5 lg:col-start-8" data-reveal>
+            <div class="card-tint overflow-hidden">
+              <div class="svc-art p-8 text-brand" style={`--angle:${service.angle}`}>
+                <Motif kind={service.motif} />
+              </div>
+              <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
+                {service.stack.map((tech) => <li class="mono text-ink-faint">{tech}</li>)}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!--
+      What you get. Moved here from /work, which grouped these by service
+      anyway; the card markup is unchanged from that page.
+    -->
+    {
+      deliverables.length > 0 && (
+        <section
+          class="border-t border-line bg-white py-[var(--section-y)]"
+          aria-labelledby="ship-title"
+        >
+          <div class="container-z">
+            <div data-reveal>
+              <div class="mono flex items-center gap-3 text-ink-faint">
+                <span class="tabular-nums">{service.n}</span>
+                <span class="h-px w-8 bg-line-strong" />
+                <span>What you get</span>
+              </div>
+              <h2 id="ship-title" class="h2 mt-5 max-w-xl text-ink">
+                Not a deck. <em class="accent-serif">Working things.</em>
+              </h2>
+            </div>
+
+            <ul class="mt-12 grid gap-6 md:grid-cols-2">
+              {deliverables.map((d) => (
+                <li>
+                  <article class="card-tint flex h-full flex-col overflow-hidden">
+                    <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-[#f4f8ff] to-[#eaf2ff] p-8">
+                      <Artifact art={d.art} />
+                    </div>
+                    <div class="flex flex-1 flex-col border-t border-line/70 p-7">
+                      <h3 class="text-[1.375rem] font-medium tracking-[-0.015em] text-ink">
+                        {d.title}
+                      </h3>
+                      <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">
+                        {d.blurb}
+                      </p>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+
+            <div class="mt-14 grid gap-8 lg:grid-cols-12 lg:items-center" data-reveal>
+              <h2 class="h2 max-w-lg text-ink lg:col-span-6">
+                {OWNERSHIP.title} <em class="accent-serif">{OWNERSHIP.accent}</em>.
+              </h2>
+              <p class="text-ink-muted lg:col-span-5 lg:col-start-8">{OWNERSHIP.body}</p>
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <!--
+      What it costs. A summary only — the full cards are one click away, and
+      repeating twelve feature lists here would bury everything above them.
+    -->
+    {
+      rates && (
+        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="rates-title">
+          <div class="container-z">
+            <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-reveal>
+              <h2 id="rates-title" class="h2 text-ink">What it costs</h2>
+              <TextLink href={`/pricing/${service.slug}`}>See the full rate card</TextLink>
+            </div>
+
+            <ul class="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-3">
+              {rates.plans.map((plan) => (
+                <li class="bg-white p-7" data-reveal>
+                  <p class="text-[1.1875rem] font-medium tracking-[-0.01em] text-ink">
+                    {plan.name}
+                  </p>
+                  <p class="mt-5 text-[clamp(1.75rem,3vw,2.25rem)] font-medium leading-none tracking-[-0.03em] text-ink tabular-nums">
+                    {plan.price}
+                  </p>
+                  <p class="mono mt-3 text-ink-faint">One-time · {plan.timeline}</p>
+                  <p class="mt-5 text-[0.9375rem] leading-relaxed text-ink-muted">{plan.info}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Renders only once a real project is published. See data/projects.ts. -->
+    {
+      projects.length > 0 && (
+        <section
+          class="border-t border-line bg-white py-[var(--section-y)]"
+          aria-labelledby="proj-title"
+        >
+          <div class="container-z">
+            <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-reveal>
+              <h2 id="proj-title" class="h2 text-ink">Selected work</h2>
+              <TextLink href="/work">All projects</TextLink>
+            </div>
+
+            <ul class="mt-12 grid gap-6 md:grid-cols-2">
+              {projects.map((p) => (
+                <li>
+                  <article class="card-tint flex h-full flex-col overflow-hidden">
+                    {/* The service's own line-art, not an Artifact drawing:
+                        all eight of those are spoken for by the deliverables
+                        above, and repeating one here would read as a bug. */}
+                    <div
+                      class="svc-art flex aspect-[16/10] items-center justify-center p-8 text-brand"
+                      style={`--angle:${p.angle ?? service.angle}`}
+                      aria-hidden="true"
+                    >
+                      <Motif kind={p.motif ?? service.motif} />
+                    </div>
+                    <div class="flex flex-1 flex-col border-t border-line/70 p-7">
+                      <p class="mono text-ink-faint">
+                        {p.client} · {p.year}
+                      </p>
+                      <h3 class="mt-3 text-[1.375rem] font-medium tracking-[-0.015em] text-ink">
+                        <a href={`/work/${p.slug}`} class="after:absolute after:inset-0">
+                          {p.title}
+                        </a>
+                      </h3>
+                      <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">
+                        {p.summary}
+                      </p>
+                    </div>
+                  </article>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="border-t border-line py-[var(--section-y)]">
+      <div class="container-z">
+        <div class="flex flex-wrap items-center gap-3" data-reveal>
+          <Button href="/contact">Start a {service.title.toLowerCase()} project</Button>
+          <Button href="/services" variant="ghost">All services</Button>
+        </div>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav items={siblings} up={{ label: 'Services', href: '/services' }} />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>
+
+<style>
+  /* Same tint as the index card art, keyed to this service's own --angle. */
+  .svc-art {
+    background: linear-gradient(
+      var(--angle),
+      rgb(191 224 255 / 0.5) 0%,
+      rgb(244 248 255 / 0.9) 55%,
+      rgb(255 224 236 / 0.55) 100%
+    );
+  }
+</style>

@@ -1,0 +1,94 @@
+---
+/**
+ * About > Story.
+ *
+ * The three ABOUT.story blocks at full length. Passes an `angle` rather than
+ * its own wash number: it shares the about family's wash-5 recipe with
+ * /about and /about/values, and the rotation is what tells the three apart.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Button from '../../components/ui/Button.astro';
+import { ABOUT, PAGES } from '../../data/site';
+import { breadcrumb } from '../../lib/schema';
+
+const page = PAGES.story;
+const siblings = [
+  { label: 'Our story', href: '/about/story' },
+  { label: 'Our values', href: '/about/values' },
+];
+---
+
+<Base title={page.title} description={page.description}>
+  <JsonLd
+    slot="head"
+    data={breadcrumb([
+      { name: 'About', path: '/about' },
+      { name: 'Our story', path: '/about/story' },
+    ])}
+  />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero
+      intro={page}
+      angle="135deg"
+      trail={[
+        { label: 'About', href: '/about' },
+        { label: 'Our story', href: '/about/story' },
+      ]}
+    />
+
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="story-title">
+      <div class="container-z">
+        <h2 id="story-title" class="sr-only">The story</h2>
+
+        <p class="max-w-3xl text-[1.1875rem] leading-relaxed text-ink" data-reveal>
+          {ABOUT.lede}
+        </p>
+
+        <div class="mt-16 grid gap-14">
+          {
+            ABOUT.story.map((block) => (
+              <article class="grid gap-6 lg:grid-cols-12 lg:gap-16" data-reveal>
+                <div class="lg:col-span-4">
+                  <div class="mono flex items-center gap-3 text-ink-faint">
+                    <span class="tabular-nums">{block.n}</span>
+                    <span class="h-px w-8 bg-line-strong" />
+                  </div>
+                  <h3 class="h3 mt-5 text-ink">{block.heading}</h3>
+                </div>
+                <p class="text-[1.0625rem] leading-relaxed text-ink-muted lg:col-span-7 lg:col-start-6">
+                  {block.body}
+                </p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-line py-[var(--section-y)]">
+      <div class="container-z">
+        <div class="flex flex-wrap items-center gap-3" data-reveal>
+          <Button href="/contact">Start a project</Button>
+          <Button href="/about/values" variant="ghost">What we hold to</Button>
+        </div>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav items={siblings} up={{ label: 'About', href: '/about' }} />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>

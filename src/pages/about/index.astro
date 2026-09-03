@@ -1,0 +1,137 @@
+---
+/**
+ * About.
+ *
+ * An orientation page: who the studio is, what it holds to, and a way into
+ * the two longer pages. Deliberately does not reprint the story blocks or the
+ * values bodies — /about/story and /about/values exist to carry those, and an
+ * index that contains its own children gives nobody a reason to open one.
+ *
+ * No team section. The previous site's four team members were fictional and
+ * were purged; see the header of data/site.ts.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import { ABOUT, OWNERSHIP, PAGES, SERVICES, VALUES } from '../../data/site';
+import { breadcrumb } from '../../lib/schema';
+
+const page = PAGES.about;
+---
+
+<Base title={page.title} description={page.description}>
+  <JsonLd slot="head" data={breadcrumb([{ name: 'About', path: '/about' }])} />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero intro={page} />
+
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="lede-title">
+      <div class="container-z">
+        <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <h2 id="lede-title" class="h2 text-ink lg:col-span-5" data-split>
+            One studio,<br /><em class="accent-serif">four disciplines.</em>
+          </h2>
+          <div class="lg:col-span-6 lg:col-start-7" data-reveal>
+            <p class="text-[1.0625rem] leading-relaxed text-ink-muted">{ABOUT.lede}</p>
+            <div class="mt-8">
+              <TextLink href="/services">Every service in detail</TextLink>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The story, by chapter heading only. The bodies live on /about/story. -->
+    <section
+      class="border-t border-line bg-white py-[var(--section-y)]"
+      aria-labelledby="story-title"
+    >
+      <div class="container-z">
+        <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-reveal>
+          <h2 id="story-title" class="h2 text-ink">How the studio got its shape</h2>
+          <TextLink href="/about/story">{ABOUT.storyCta}</TextLink>
+        </div>
+
+        <ol
+          class="mt-14 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-3"
+        >
+          {
+            ABOUT.story.map((block) => (
+              <li class="relative bg-white p-7" data-reveal>
+                <span class="mono text-ink-faint tabular-nums">{block.n}</span>
+                <p class="mt-6 text-[1.1875rem] font-medium tracking-[-0.01em] text-ink">
+                  <a href="/about/story" class="after:absolute after:inset-0">
+                    {block.heading}
+                  </a>
+                </p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="values-title">
+      <div class="container-z">
+        <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-reveal>
+          <h2 id="values-title" class="h2 text-ink">{ABOUT.valuesTitle}</h2>
+          <TextLink href="/about/values">{ABOUT.valuesCta}</TextLink>
+        </div>
+
+        <ul class="mt-14 grid gap-6 sm:grid-cols-3">
+          {
+            VALUES.map((v, i) => (
+              <li class="card-tint p-7" data-reveal>
+                <span
+                  class="block h-1 w-10 rounded-full bg-gradient-to-r from-brand to-blush"
+                  style={`opacity:${1 - i * 0.2}`}
+                  aria-hidden="true"
+                />
+                <p class="mt-6 text-[1.1875rem] font-medium tracking-[-0.01em] text-ink">
+                  {v.title}
+                </p>
+                <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">{v.blurb}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="border-t border-line bg-white py-[var(--section-y)]">
+      <div class="container-z">
+        <div class="grid gap-8 lg:grid-cols-12 lg:items-center" data-reveal>
+          <h2 class="h2 max-w-lg text-ink lg:col-span-6">
+            {OWNERSHIP.title} <em class="accent-serif">{OWNERSHIP.accent}</em>.
+          </h2>
+          <p class="text-ink-muted lg:col-span-5 lg:col-start-8">{OWNERSHIP.body}</p>
+        </div>
+
+        <ul class="mt-14 flex flex-wrap gap-x-8 gap-y-3" data-reveal>
+          {
+            SERVICES.map((s) => (
+              <li>
+                <TextLink href={`/services/${s.slug}`}>{s.title}</TextLink>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>

@@ -1,0 +1,152 @@
+/* ------------------------------------------------------------------ *
+ * Three card recipes.
+ *
+ * Cards are the primary layout device on this site, so they must not all
+ * look like the same asset repeated. Each recipe has a different job:
+ *
+ *   .card-tint   the workhorse — calm surface, gradient only on the 1px border
+ *   .card-bleed  saturated gradient fill, white text. Max 5 on the page.
+ *   .card-paper  white surface where the *content* carries the gradient
+ *
+ * Depth comes from spacing and a 1px border, not from heavy shadow.
+ * ------------------------------------------------------------------ */
+
+.card-tint,
+.card-bleed,
+.card-paper {
+  position: relative;
+  border-radius: var(--radius-lg);
+  transition:
+    transform 180ms var(--ease-out-expo),
+    box-shadow 180ms var(--ease-out-expo),
+    border-color 180ms var(--ease-out-expo);
+}
+
+/* --- A. Tinted, gradient border ---------------------------------- *
+ * The double-background trick: padding-box paints the fill, border-box
+ * paints the gradient, and a transparent border reveals it as a 1px rule.
+ * ------------------------------------------------------------------ */
+.card-tint {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, #ffffff, #f1f6ff) padding-box,
+    linear-gradient(135deg, var(--color-sky-soft), var(--color-blush-soft)) border-box;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-tint:hover {
+  background:
+    linear-gradient(180deg, #ffffff, #eaf2ff) padding-box,
+    linear-gradient(135deg, var(--color-sky), var(--color-blush)) border-box;
+  box-shadow: var(--shadow-md);
+}
+
+/* --- B. Full-bleed gradient --------------------------------------- *
+ * --angle is set per instance so the four service cards don't read as
+ * one repeated gradient. Grain is baked in via ::after.
+ *
+ * THE RAMP IS BLUE ONLY, AND THAT IS A CONSTRAINT, NOT A PREFERENCE.
+ *
+ * This card carries white text. White needs a background at relative
+ * luminance <= 0.183 to clear 4.5:1. The palette measures:
+ *
+ *     --color-brand   #006BFF   L 0.177   4.62:1   the ceiling
+ *     --color-sky     #6FB6FF   L 0.440   2.14:1   fails
+ *     --color-blush   #FFAECB   L 0.558   1.73:1   fails
+ *
+ * The original recipe ran brand -> sky -> blush under white text and
+ * measured 1.6-2.3:1 on every instance of this card, site-wide. Sky and
+ * blush simply cannot sit behind white type. They still carry the
+ * gradient identity everywhere it is safe: the page washes, the hero
+ * shader, the artifact drawings, .card-tint's border, and .grad-text.
+ *
+ * So: keep the saturation, drop the pastels, end the ramp at
+ * --color-brand-text (5.5:1). Blush survives only as an 8% bloom, which
+ * is the most that fits under the luminance ceiling.
+ * ------------------------------------------------------------------ */
+.card-bleed {
+  --angle: 135deg;
+  --stop-a: #002d73;
+  --stop-b: #0050c4;
+  --stop-c: var(--color-brand-text);
+  overflow: hidden;
+  color: #ffffff;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  background: linear-gradient(
+    var(--angle),
+    var(--stop-a) 0%,
+    var(--stop-b) 52%,
+    var(--stop-c) 100%
+  );
+  box-shadow: var(--shadow-md);
+}
+
+/* A second, offset radial pass so the fill reads as a mesh rather than a
+   linear sweep. These deepen rather than lighten: the old white washes at
+   0.34 and 0.16 alpha lifted even the darkest part of the ramp past the
+   luminance ceiling on their own. */
+.card-bleed::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 80% at 12% 8%, rgb(0 24 68 / 0.34), transparent 62%),
+    radial-gradient(52% 68% at 90% 94%, rgb(255 174 203 / 0.08), transparent 60%);
+}
+
+.card-bleed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+.card-bleed > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- C. Paper ----------------------------------------------------- */
+.card-paper {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-paper:hover {
+  border-color: var(--color-sky-soft);
+  box-shadow: var(--shadow-md);
+}
+
+/* --- Shared interaction ------------------------------------------- */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card-tint:hover,
+  .card-paper:hover,
+  .card-bleed:hover {
+    transform: translateY(-4px);
+  }
+}
+
+.card-tint:focus-within,
+.card-paper:focus-within,
+.card-bleed:focus-within {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 3px;
+}
+
+/* Veil used by the sticky service stack. An outgoing card is scaled and
+   covered by this rather than faded, because reducing a card's opacity makes
+   the cards stacked behind it show through. */
+.card-bleed > .card-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: var(--color-paper);
+}

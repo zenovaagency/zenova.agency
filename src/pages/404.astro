@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/chrome/Nav.astro';
+import Footer from '../components/chrome/Footer.astro';
+import Button from '../components/ui/Button.astro';
+import { CHAIN } from '../lib/nav';
+---
+
+<Base title="Not found — Zenova" description="That page does not exist.">
+  <Nav />
+  <main id="main" class="container-z grid min-h-[68svh] place-items-center py-40">
+    <div class="max-w-lg text-center">
+      <p class="grad-text text-[clamp(5rem,16vw,10rem)] font-medium leading-none tracking-[-0.04em]">
+        404
+      </p>
+      <h1 class="h2 mt-6 text-ink">This page is not here.</h1>
+      <p class="mt-4 text-ink-muted">
+        It may have moved, or it may never have existed. Either way, the work is
+        this way.
+      </p>
+      <div class="mt-9 flex justify-center">
+        <Button href="/">Back to the start</Button>
+      </div>
+
+      <nav class="mt-12 border-t border-line pt-8" aria-label="Site">
+        <p class="mono text-ink-faint">Or go straight to</p>
+        <ul class="mt-4 flex flex-wrap justify-center gap-x-6 gap-y-2">
+          {
+            CHAIN.map((n) => (
+              <li>
+                <a
+                  href={n.href}
+                  class="text-ink-muted underline decoration-line-strong decoration-1 underline-offset-4 transition-colors hover:text-ink hover:decoration-brand"
+                >
+                  {n.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </div>
+  </main>
+  <Footer />
+</Base>

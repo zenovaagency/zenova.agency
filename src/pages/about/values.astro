@@ -1,0 +1,96 @@
+---
+/**
+ * About > Values.
+ *
+ * The three VALUES with their long bodies. Same wash-5 family as /about and
+ * /about/story, rotated to a different angle so the three do not open
+ * identically.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Button from '../../components/ui/Button.astro';
+import { PAGES, VALUES } from '../../data/site';
+import { breadcrumb } from '../../lib/schema';
+
+const page = PAGES.values;
+const siblings = [
+  { label: 'Our story', href: '/about/story' },
+  { label: 'Our values', href: '/about/values' },
+];
+---
+
+<Base title={page.title} description={page.description}>
+  <JsonLd
+    slot="head"
+    data={breadcrumb([
+      { name: 'About', path: '/about' },
+      { name: 'Our values', path: '/about/values' },
+    ])}
+  />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero
+      intro={page}
+      angle="310deg"
+      trail={[
+        { label: 'About', href: '/about' },
+        { label: 'Our values', href: '/about/values' },
+      ]}
+    />
+
+    {
+      VALUES.map((v, i) => (
+        <section
+          class:list={['border-t border-line py-[var(--section-y)]', i % 2 === 1 && 'bg-white']}
+          aria-labelledby={`value-${i}`}
+        >
+          <div class="container-z">
+            <div class="grid gap-8 lg:grid-cols-12 lg:gap-16">
+              <div class="lg:col-span-5" data-reveal>
+                <div class="mono flex items-center gap-3 text-ink-faint">
+                  <span class="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="h-px w-8 bg-line-strong" />
+                </div>
+                <h2 id={`value-${i}`} class="h2 mt-5 text-ink">
+                  {v.title}
+                </h2>
+                <p class="mt-5 text-[1.0625rem] text-ink-soft">{v.blurb}</p>
+              </div>
+
+              <p
+                class="text-[1.0625rem] leading-relaxed text-ink-muted lg:col-span-6 lg:col-start-7"
+                data-reveal
+              >
+                {v.body}
+              </p>
+            </div>
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="border-t border-line py-[var(--section-y)]">
+      <div class="container-z">
+        <div class="flex flex-wrap items-center gap-3" data-reveal>
+          <Button href="/contact">Start a project</Button>
+          <Button href="/about/story" variant="ghost">How the studio got its shape</Button>
+        </div>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav items={siblings} up={{ label: 'About', href: '/about' }} />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>

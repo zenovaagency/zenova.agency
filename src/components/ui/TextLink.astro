@@ -1,0 +1,39 @@
+---
+/**
+ * Inline forward link. Used where a home-page section hands off to the page
+ * that covers it in full, and anywhere else a link needs to read as a
+ * direction rather than as a button.
+ */
+interface Props {
+  href: string;
+  class?: string;
+}
+const { href, class: className = '' } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={[
+    'group inline-flex items-center gap-2 text-[0.9375rem] font-medium text-brand-text transition-colors duration-[180ms]',
+    className,
+  ]}
+>
+  <span class="underline decoration-sky decoration-1 underline-offset-[5px] transition-colors group-hover:decoration-brand">
+    <slot />
+  </span>
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+    class="shrink-0 transition-transform duration-[180ms] ease-[var(--ease-out-expo)] group-hover:translate-x-[3px]"
+  >
+    <path
+      d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5"
+      stroke="currentColor"
+      stroke-width="1.6"
+      stroke-linecap="round"
+      stroke-linejoin="round"></path>
+  </svg>
+</a>
