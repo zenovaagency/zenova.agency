@@ -27,6 +27,12 @@ import { SERVICES } from '../../data/site';
       Sticky stacking. Pure CSS above lg, so it degrades to a plain vertical
       list on touch with no pinning and no JS. Each card gets its own gradient
       angle so the four never read as one repeated asset.
+
+      .card-live adds the ambient light drift — the recipe, and the contrast
+      arithmetic behind its blue-not-white light, are in styles/cards.css. It
+      is opt-in: these four cards and the footer CTA (chrome/Cta, plus its
+      violet pass) carry it; the pricing cards stay static. --i desyncs the
+      cards; see the same file.
     -->
     <div class="mt-16 space-y-6 lg:mt-24 lg:space-y-0">
       {
@@ -37,9 +43,10 @@ import { SERVICES } from '../../data/site';
             data-reveal
           >
             <div
-              class="card-bleed grid gap-8 p-7 sm:p-10 lg:grid-cols-12 lg:gap-10 lg:p-14"
-              style={`--angle:${s.angle}`}
+              class="card-bleed card-live grid gap-8 p-7 sm:p-10 lg:grid-cols-12 lg:gap-10 lg:p-14"
+              style={`--angle:${s.angle}; --i:${i}`}
             >
+              <span class="card-glow" aria-hidden="true" />
               <span class="card-scrim" aria-hidden="true"></span>
               <div class="lg:col-span-6 xl:col-span-5">
                 <div class="mono flex items-center gap-3 text-white">

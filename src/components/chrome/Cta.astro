@@ -5,11 +5,21 @@ import { CTA } from '../../data/site';
 
 <section class="pb-[var(--section-y)] pt-6">
   <div class="container-z">
+    <!--
+      .card-live adds the ambient light drift and .card-glow-violet the purple
+      pass; the recipes, and the contrast arithmetic behind both, are in
+      styles/cards.css. --stop-a/--stop-b shift this card's ramp to
+      indigo -> violet-blue -> brand blue, and --i (Services uses 0-3)
+      desyncs the drift from those cards.
+    -->
     <div
-      class="card-bleed relative overflow-hidden px-7 py-16 text-center sm:px-12 sm:py-24"
-      style="--angle: 118deg"
+      class="card-bleed card-live relative overflow-hidden px-7 py-16 text-center sm:px-12 sm:py-24"
+      style="--angle: 118deg; --i: 4; --stop-a: #1e1a5e; --stop-b: #4338ca"
       data-reveal
     >
+      <span class="card-glow" aria-hidden="true" />
+      <span class="card-glow-violet" aria-hidden="true" />
+
       <p class="mono text-white">{CTA.eyebrow}</p>
 
       <h2

@@ -8,7 +8,17 @@
 import { SITE, type PricingService } from '../data/site';
 
 const abs = (path: string) => new URL(path, SITE.url).href;
-const ORG = `${SITE.url}/#organization`;
+
+/**
+ * The @id of the site-wide Organization node, which Base.astro emits.
+ *
+ * Exported because Base.astro has to stamp the *same* string onto that node.
+ * It used to be a private constant here, the Organization node carried no
+ * `@id` at all, and so every `{'@id': ORG}` below pointed at nothing. That is
+ * merely untidy for `provider`, but `hiringOrganization` is required for
+ * JobPosting rich results, so it made every role page fail validation.
+ */
+export const ORG = `${SITE.url}/#organization`;
 
 /**
  * Turn a free-form rate-card price into schema.org price fields.
@@ -153,7 +163,9 @@ export function breadcrumb(trail: { name: string; path: string }[]) {
  * point, wastes a candidate's time.
  *
  * `validThrough` is omitted rather than guessed when absent: a posting with a
- * fabricated expiry is worse than one with none.
+ * fabricated expiry is worse than one with none. `datePosted` follows the same
+ * rule — a role dated today because nobody set a date is worse than one with
+ * no date, even though Google asks for it.
  */
 export function jobPosting(job: {
   slug: string;
@@ -164,8 +176,36 @@ export function jobPosting(job: {
   summary: string;
   intro: string;
   responsibilities: string[];
+  posted?: string;
 }) {
   const url = abs(`/careers/${job.slug}`);
+
+  // Remote and on-site are different postings, not one posting with a flag.
+  // This used to emit jobLocationType TELECOMMUTE and applicantLocationRequirements
+  // unconditionally, which published every role as fully remote — including the
+  // city-based ones data/jobs.ts explicitly allows ("Remote, or a city").
+  const remote = /remote|anywhere|distributed/i.test(job.location);
+
+  // "Remote — EU", "Remote (US)" — whatever is left after the word itself is
+  // the region an applicant has to be in. Google wants applicantLocationRequirements
+  // on every TELECOMMUTE posting, so a remote role that names no region emits
+  // none and gets flagged. That is the right outcome: the posting has not said.
+  const region = job.location.replace(/remote/i, '').replace(/^[\s—–\-(,]+|[\s)]+$/g, '');
+
+  const where = remote
+    ? {
+        jobLocationType: 'TELECOMMUTE',
+        ...(region
+          ? { applicantLocationRequirements: { '@type': 'Place', name: region } }
+          : {}),
+      }
+    : {
+        jobLocation: {
+          '@type': 'Place',
+          address: { '@type': 'PostalAddress', addressLocality: job.location },
+        },
+      };
+
   return {
     '@context': 'https://schema.org',
     '@type': 'JobPosting',
@@ -175,9 +215,9 @@ export function jobPosting(job: {
     employmentType: job.type.toUpperCase().replace(/[\s-]+/g, '_'),
     hiringOrganization: { '@id': ORG },
     occupationalCategory: job.team,
-    jobLocationType: 'TELECOMMUTE',
-    applicantLocationRequirements: { '@type': 'Place', name: job.location },
     directApply: true,
     url,
+    ...(job.posted ? { datePosted: job.posted } : {}),
+    ...where,
   };
 }

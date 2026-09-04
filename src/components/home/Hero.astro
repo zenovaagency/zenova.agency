@@ -1,45 +1,43 @@
 ---
 import AvailabilityPill from '../ui/AvailabilityPill.astro';
 import Button from '../ui/Button.astro';
+import HeroGradient from '../../islands/HeroGradient';
 import { HERO } from '../../data/site';
 ---
 
-<section class="relative isolate flex min-h-[100svh] flex-col justify-center overflow-hidden pb-20 pt-28">
-  <!--
-    The static gradient is the real default: it ships in the HTML, needs no JS,
-    and is what a device without WebGL — or a reader who asked for reduced
-    motion — keeps. The canvas draws over it and only fades in once it has a
-    frame on screen, so there is nothing to flash.
-  -->
-  <div class="hero-fallback absolute inset-0 -z-10" aria-hidden="true"></div>
-  <canvas
-    id="hero-canvas"
-    class="absolute inset-0 -z-10 h-full w-full"
-    style="opacity:0;transition:opacity 600ms var(--ease-out-expo)"
-    aria-hidden="true"></canvas>
+<!--
+  Centered hero on an animated blue field: GradFlow (React island) renders
+  an `animated`-type WebGL gradient over the static CSS gradient that ships
+  in the HTML. No-JS visitors and the pre-hydration frame see the static
+  version; reduced-motion users get GradFlow's own static frame.
+-->
+<section
+  class="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pb-24 pt-32 text-center"
+>
+  <div class="hero-bg absolute inset-0 -z-10" aria-hidden="true">
+    <HeroGradient client:load />
+  </div>
 
   <div class="container-z relative">
-    <div class="max-w-[54rem]">
+    <div class="mx-auto flex max-w-[54rem] flex-col items-center">
       <div data-reveal>
         <AvailabilityPill label={HERO.badge} />
       </div>
 
-      <div data-hero-safe>
-        <h1 class="display mt-7 text-ink" data-split data-split-delay="0.15">
-          {HERO.headline}{' '}
-          <em class="accent-serif">{HERO.headlineAccent}</em>
-        </h1>
+      <h1 class="display mt-7 text-ink" data-split data-split-delay="0.15">
+        {HERO.headline}{' '}
+        <em class="accent-serif">{HERO.headlineAccent}</em>
+      </h1>
 
-        <p
-          class="mt-6 max-w-[34rem] text-[1.0625rem] text-ink-soft sm:text-[1.1875rem]"
-          data-reveal
-          data-reveal-delay="0.5"
-        >
-          {HERO.sub}
-        </p>
-      </div>
+      <p
+        class="mt-6 max-w-[36rem] text-[1.0625rem] text-ink-soft sm:text-[1.1875rem]"
+        data-reveal
+        data-reveal-delay="0.5"
+      >
+        {HERO.sub}
+      </p>
 
-      <div class="mt-9 flex flex-wrap items-center gap-3" data-reveal data-reveal-delay="0.62">
+      <div class="mt-9 flex flex-wrap items-center justify-center gap-3" data-reveal data-reveal-delay="0.62">
         <Button href={HERO.primaryHref}>{HERO.primaryCta}</Button>
         <Button href={HERO.secondaryHref} variant="ghost">{HERO.secondaryCta}</Button>
       </div>
@@ -47,7 +45,7 @@ import { HERO } from '../../data/site';
   </div>
 
   <div class="container-z relative mt-16 hidden lg:block" data-reveal data-reveal-delay="0.8">
-    <div class="mono flex items-center gap-3 text-ink-soft">
+    <div class="mono flex items-center justify-center gap-3 text-ink-soft">
       <span class="scroll-cue h-8 w-px bg-gradient-to-b from-transparent via-brand to-transparent"
       ></span>
       Scroll
@@ -57,27 +55,32 @@ import { HERO } from '../../data/site';
 
 <style>
   /*
-    Layered radials approximating the shader: pale through the upper left where
-    the headline sits, saturated blue collecting lower right, one small blush
-    lobe. Blue and pink never overlap at full strength, which is what keeps the
-    mix from turning lavender.
+    Static fallback for the hero background, verbatim from the reference
+    spec: one saturated blue glow centred on the top edge, pale washes at
+    the upper corners, white beneath. It ships in the HTML and stays
+    visible until GradFlow's first opaque frame covers it; the palette
+    matches the island's colors so the handover is seamless. The text sits
+    on the light middle of the field, so ink type carries the contrast —
+    no veil layer needed.
   */
-  .hero-fallback {
+  .hero-bg {
     background:
-      radial-gradient(52% 46% at 88% 84%, #006bff 0%, rgb(0 107 255 / 0) 64%),
-      radial-gradient(44% 40% at 70% 22%, #6fb6ff 0%, rgb(111 182 255 / 0) 68%),
-      radial-gradient(34% 34% at 97% 44%, #ffaecb 0%, rgb(255 174 203 / 0) 66%),
-      radial-gradient(66% 58% at 16% 36%, #ffffff 0%, rgb(255 255 255 / 0) 72%),
-      linear-gradient(165deg, #f6f9ff 0%, #dbe9ff 56%, #f6f9ff 100%);
-  }
-
-  /* Dissolve into the page. The shader draws its own equivalent, so this only
-     ever applies to the fallback beneath it. */
-  .hero-fallback::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, var(--color-paper) 0%, rgb(246 249 255 / 0) 26%);
+      radial-gradient(circle at 50% 0%,
+        #5E91F9 0%,
+        #B8D2FA 25%,
+        transparent 55%
+      ),
+      radial-gradient(circle at 0% 25%,
+        #C8DDF8 0%,
+        #DCF3FE 35%,
+        transparent 65%
+      ),
+      radial-gradient(circle at 100% 25%,
+        #6E97F9 0%,
+        #C6DDF9 35%,
+        transparent 65%
+      ),
+      #FFFFFF;
   }
 
   .scroll-cue {
@@ -92,10 +95,3 @@ import { HERO } from '../../data/site';
     .scroll-cue { animation: none; }
   }
 </style>
-
-<script>
-  import { initHeroCanvas } from '../../lib/hero-canvas';
-
-  const canvas = document.getElementById('hero-canvas') as HTMLCanvasElement | null;
-  if (canvas) initHeroCanvas(canvas, '[data-hero-safe]');
-</script>

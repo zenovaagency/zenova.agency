@@ -4,6 +4,7 @@ import Nav from '../components/chrome/Nav.astro';
 import Footer from '../components/chrome/Footer.astro';
 import Eyebrow from '../components/ui/Eyebrow.astro';
 import ContactForm from '../islands/ContactForm';
+import BookCall from '../islands/BookCall';
 import { SITE, VALUES, PROCESS } from '../data/site';
 ---
 
@@ -29,12 +30,18 @@ import { SITE, VALUES, PROCESS } from '../data/site';
               A quick 30-minute call. No pitch, just your project.
             </p>
 
+            {/* No data-reveal here: GSAP's finished transform would become the
+                containing block for BookCall's position:fixed modal. */}
+            <div class="mt-8">
+              <BookCall client:load />
+            </div>
+
             <a
               href={`mailto:${SITE.email}`}
-              class="mt-8 inline-block text-lg text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
+              class="mt-6 inline-block text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
               data-reveal
             >
-              {SITE.email}
+              Prefer email? {SITE.email}
             </a>
 
             <div class="mt-12 space-y-6" data-reveal>

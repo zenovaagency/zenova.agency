@@ -5,6 +5,7 @@ import '../styles/global.css';
 import '../styles/cards.css';
 import JsonLd from '../components/chrome/JsonLd.astro';
 import { SITE } from '../data/site';
+import { ORG } from '../lib/schema';
 
 interface Props {
   title?: string;
@@ -21,9 +22,16 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
 // directive on an element and never a tag of its own — an earlier
 // `<set:html value={...} />` here compiled to a literal `<set :html="...">`
 // element, so this schema shipped as inert markup and no crawler ever saw it.
+//
+// The `@id` is what the per-page builders in lib/schema.ts point their
+// `provider` and `hiringOrganization` references at. Without it those
+// references dangled — harmless for `provider`, but `hiringOrganization` is
+// required for JobPosting rich results, so every role page failed validation.
+// It is imported rather than retyped so the two halves cannot drift apart.
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': ORG,
   name: SITE.name,
   legalName: SITE.legalName,
   url: SITE.url,

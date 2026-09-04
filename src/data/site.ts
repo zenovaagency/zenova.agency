@@ -849,6 +849,12 @@ export const CAREERS = {
   emptyAccent: 'right now.',
   emptyBody: 'We would rather say so than keep a page of listings warm for roles that do not exist. If you would fit here anyway, send your work and we will keep it on file.',
   applyCta: 'Send us your work',
+  /** The secondary button beside applyCta. Lived hardcoded in the page until
+      now, and was the only string on /careers not coming from this object. */
+  aboutCta: 'What we are like',
+  /** Sits under the empty state, above the mail link. Names what to send, so
+      the ask is not just an address. */
+  emptyAside: 'Three things you built, a line each on what was yours, and where you want to be doing more of it.',
 };
 
 /* ------------------------------------------------------------------ *

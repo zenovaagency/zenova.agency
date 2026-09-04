@@ -150,3 +150,179 @@
   border-radius: inherit;
   background: var(--color-paper);
 }
+
+/* --- D. Ambient light --------------------------------------------- *
+ * Opt-in, via .card-live alongside .card-bleed. It is a modifier and not part
+ * of .card-bleed because .card-bleed has four callers — home/Services and
+ * chrome/Cta opt in deliberately, while pricing/index and pricing/[slug]
+ * stay static: a price table wants to read as fixed, not in motion.
+ *
+ * THE LIGHT IS BLUE, NOT WHITE, AND THAT IS THE WHOLE DESIGN.
+ *
+ * Same luminance ceiling as the ramp above: white text needs the background at
+ * L <= 0.183. The worst pixel on the card is the lightest one — the #0060E6 end
+ * of the ramp, already lifted to L 0.153 by the blush bloom in ::before. On
+ * that pixel the measured overlay ceilings are:
+ *
+ *     white #FFFFFF        0.080   unusable
+ *     sky   #6FB6FF        0.150   too weak to animate with
+ *     brand-lift #2480FF   0.420   workable
+ *
+ * So a white sheen is simply not available here, and the two effects have to
+ * share one budget: a 0.20 ambient plus a 0.10 white sweep measures 3.94:1 and
+ * fails. Both layers are therefore brand-lift, at 0.20 and 0.18, which compose
+ * to 4.62:1 at that worst pixel — the same figure the palette already treats as
+ * its ceiling for #006BFF. The card never gets lighter than the brand blue.
+ *
+ * The dark lobe needs no budget at all: darkening only ever raises contrast.
+ * At 0.42 over the same pixel it measures 8.79:1.
+ *
+ * Layering. .card-bleed::before (mesh) and ::after (grain) are both taken, so
+ * the lights hang off child elements instead. CSS paint order then puts them
+ * exactly where they belong with no changes to the rules above:
+ *
+ *   background -> ::before (mesh) -> .card-glow -> .card-glow-violet
+ *              -> ::after (grain) -> content (z-index 1) -> .card-scrim (z-index 3)
+ *
+ * i.e. under the grain and under the text, and the GSAP sticky-stack tween in
+ * home/Services.astro is untouched.
+ * ------------------------------------------------------------------ */
+
+/* Oversized so the drift below can never pull an edge into view. The parent
+   is overflow:hidden with a radius, which does the clipping. */
+.card-live > .card-glow {
+  position: absolute;
+  inset: -35%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(40% 44% at 34% 32%, rgb(36 128 255 / 0.2), transparent 68%);
+}
+
+.card-live > .card-glow::before,
+.card-live > .card-glow::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+/* The dark lobe. Drifts on its own path, which composes with the parent's
+   rather than replacing it — two stacked transforms tracing one another is
+   what keeps the pair from reading as a single object sliding around. */
+.card-live > .card-glow::before {
+  background: radial-gradient(38% 42% at 72% 72%, rgb(0 24 68 / 0.42), transparent 66%);
+}
+
+/* The hover sweep. Parked off to one side and invisible; it rides the parent
+   drift, which the -35% inset leaves room for. */
+.card-live > .card-glow::after {
+  background: linear-gradient(
+    100deg,
+    rgb(36 128 255 / 0) 38%,
+    rgb(36 128 255 / 0.18) 50%,
+    rgb(36 128 255 / 0) 62%
+  );
+  opacity: 0;
+  transform: translate3d(-38%, 0, 0);
+  transition: opacity 240ms linear;
+}
+
+/*
+  Both keyframes rest at 0%, because the global reduced-motion block sets
+  animation-duration to 0.01ms and iteration-count to 1 — an animation there
+  freezes at its first keyframe, so the first keyframe has to be the composed
+  resting state rather than a start position.
+
+  No will-change. A transform-only animation is promoted for as long as it
+  runs, and this one never stops, so the hint would buy nothing and cost four
+  permanent oversized layers. Same rule as lib/reveal.ts: a promise to the
+  compositor, not a decoration.
+*/
+@keyframes card-drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(7%, -5%, 0) scale(1.09); }
+  66%      { transform: translate3d(-5%, 4%, 0) scale(1.04); }
+}
+
+@keyframes card-drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.02); }
+  40%      { transform: translate3d(-6%, 5%, 0) scale(1.1); }
+  75%      { transform: translate3d(5%, 3%, 0) scale(1.05); }
+}
+
+@keyframes card-drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.03); }
+  30%      { transform: translate3d(-7%, 4%, 0) scale(1.1); }
+  70%      { transform: translate3d(5%, -5%, 0) scale(1.05); }
+}
+
+/*
+  Desync. --i is the card index, set per instance next to the --angle each
+  card already carries (home/Services.astro, chrome/Cta.astro). Every layer
+  gets its own duration on its own step — see the rules below — so no card
+  repeats another card, no card matches its own second layer, and the
+  negative delays start every card mid-cycle rather than together at first
+  paint.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .card-live > .card-glow {
+    animation: card-drift-a calc(23s + var(--i, 0) * 6s) ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -7s);
+  }
+
+  .card-live > .card-glow::before {
+    animation: card-drift-b calc(38s + var(--i, 0) * 7s) ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -11s);
+  }
+
+  .card-live > .card-glow-violet {
+    animation: card-drift-c calc(31s + var(--i, 0) * 6s) ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -9s);
+  }
+
+  .card-live > .card-glow-violet::before {
+    animation: card-drift-b calc(47s + var(--i, 0) * 7s) ease-in-out infinite;
+    animation-delay: calc(var(--i, 0) * -15s);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card-live:hover > .card-glow::after {
+    opacity: 1;
+    transform: translate3d(38%, 0, 0);
+    transition:
+      transform 1100ms var(--ease-out-expo),
+      opacity 200ms linear;
+  }
+}
+
+/* --- E. Violet pass ------------------------------------------------ *
+ * A second light layer, opt-in via the child element (exactly like
+ * .card-glow), for chrome/Cta, which wants a blue + purple field rather than
+ * blue alone. Pages that don't render the child are untouched.
+ *
+ * PURPLE HERE IS INDIGO/VIOLET, NOT PINK UNDER BLUE. Blush mixed into the
+ * blue ramp is what turns a gradient lavender; these stops are true violet
+ * and indigo, and both are darker than the lightest pixel of the ramp:
+ *
+ *     violet #6D28D9   L 0.098
+ *     indigo #4338CA   L 0.083
+ *
+ * so the pass sits on the same side of the 0.183 white-text ceiling as the
+ * dark lobe above: composited over the #0060E6 end of the ramp at working
+ * alpha, both still measure 6:1 or better against white. Darkening only ever
+ * raises contrast, so no budget arithmetic is needed.
+ * ------------------------------------------------------------------ */
+.card-live > .card-glow-violet {
+  position: absolute;
+  inset: -35%;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(44% 48% at 66% 30%, rgb(109 40 217 / 0.28), transparent 66%);
+}
+
+.card-live > .card-glow-violet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(40% 44% at 22% 74%, rgb(67 56 202 / 0.24), transparent 64%);
+}

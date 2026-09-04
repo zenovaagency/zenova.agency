@@ -39,12 +39,29 @@ const { job, siblings } = Astro.props;
 const path = `/careers/${job.slug}`;
 const mailto = `mailto:${SITE.careersEmail}?subject=${encodeURIComponent(`${job.title} — application`)}`;
 
+/**
+ * Detail pages tint their header band with an `angle` rather than a numbered
+ * wash — see the header of PageHero. Every other detail route on the site does
+ * this and this one did not, so a role page rendered the identical wash-3 band
+ * as /careers directly above it.
+ *
+ * The other five borrow the angle from a service. A role has none, so it comes
+ * off the team instead: two Engineering roles then share a band, which reads as
+ * deliberate rather than as two pages that happen to collide.
+ */
+const TEAM_ANGLE: Record<string, string> = {
+  Engineering: '135deg',
+  Design: '310deg',
+  Growth: '25deg',
+};
+const angle = TEAM_ANGLE[job.team] ?? '200deg';
+
 const intro: PageIntro = {
   eyebrow: `${job.team} · ${job.type}`,
   headline: `${job.title},`,
   accent: job.location.toLowerCase().includes('remote') ? 'from anywhere.' : `in ${job.location}.`,
   sub: job.summary,
-  wash: 3, // unused: `angle` takes precedence on detail pages
+  wash: 3, // genuinely unused: `angle` below takes precedence in PageHero
   title: `${job.title} — Careers at Zenova | Zenova`,
   description: job.summary,
 };
@@ -75,6 +92,7 @@ const lists = [
   <main id="main">
     <PageHero
       intro={intro}
+      angle={angle}
       trail={[
         { label: 'Careers', href: '/careers' },
         { label: job.title, href: path },
