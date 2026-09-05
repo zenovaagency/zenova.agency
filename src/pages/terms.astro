@@ -1,0 +1,117 @@
+---
+/**
+ * Terms of use.
+ *
+ * Written against what this site actually is: a static marketing site with a
+ * contact email — no accounts, no checkout, no user-generated content. The
+ * sections below cover only that surface; commercial work is governed by the
+ * signed agreement, not this page, and the copy says so explicitly rather
+ * than pretending a website's terms reach into a build contract.
+ *
+ * Deliberately omitted, on the same principle as the empty phone/address in
+ * data/site.ts: governing law and venue. Those clauses name a real
+ * jurisdiction, and inventing one would be worse than none. Add a Governing
+ * law section once Zenova, Inc.'s place of incorporation is being published.
+ */
+import Base from '../layouts/Base.astro';
+import Nav from '../components/chrome/Nav.astro';
+import Footer from '../components/chrome/Footer.astro';
+import PageHero from '../components/chrome/PageHero.astro';
+import Prose from '../components/ui/Prose.astro';
+import { SITE, type PageIntro } from '../data/site';
+
+const intro: PageIntro = {
+  eyebrow: 'The legal bit · updated 5 September 2026',
+  headline: 'Terms of use.',
+  accent: '',
+  sub: 'What you are reading, what you may do with it, and where the line sits. Short, because the site it governs is small.',
+  wash: 1,
+  title: 'Terms of Use | Zenova',
+  description:
+    'The terms that apply to using the Zenova website: what you may do with the material here, what client work is and is not covered by, and how to reach us.',
+};
+---
+
+<Base title={intro.title} description={intro.description}>
+  <Nav />
+
+  <main id="main">
+    <PageHero intro={intro} angle="135deg" />
+
+    <article class="border-t border-line py-[var(--section-y)]">
+      <div class="container-z">
+        <Prose class="mx-auto max-w-[42rem]">
+          <p>
+            These terms apply to your use of {SITE.url}, operated by {SITE.legalName} (“Zenova”,
+            “we”). By using the site you accept them. If you do not, the remedy is simple — do not
+            use the site.
+          </p>
+
+          <h2>Client work is governed separately</h2>
+          <p>
+            Nothing on this site is a contract, a quote, or an offer. Descriptions of our services,
+            process, and pricing are information, not commitments; every engagement is governed by
+            its own written agreement, which always prevails over anything written here or anywhere
+            else on the site.
+          </p>
+
+          <h2>You may</h2>
+          <ul>
+            <li>Read, print, and share links to any page on this site.</li>
+            <li>
+              Quote short extracts with clear attribution to Zenova and a link back to the source
+              page.
+            </li>
+            <li>Use what you learn. Our blog posts are meant to be useful whether or not you hire us.</li>
+          </ul>
+
+          <h2>You may not</h2>
+          <ul>
+            <li>Republish the site’s text, artwork, or design as your own.</li>
+            <li>
+              Present our work or writing as your own, or strip the attribution from an extract.
+            </li>
+            <li>
+              Scrape or copy the site at volumes that suggest you are building a mirror of it.
+            </li>
+          </ul>
+
+          <h2>No professional advice</h2>
+          <p>
+            The blog and service pages are general information about web, product, and marketing
+            work. They are not engineering, legal, or financial advice for your specific situation,
+            and applying a general practice to a live project is your call to make.
+          </p>
+
+          <h2>Third-party links</h2>
+          <p>
+            The site links to other places we exist — social profiles, our RSS feed, and occasionally
+            other sites. We do not control those destinations and are not responsible for their
+            content or their own terms.
+          </p>
+
+          <h2>Liability</h2>
+          <p>
+            The site is provided as-is. To the fullest extent the law allows, Zenova is not liable
+            for losses arising from your use of the site or your reliance on its content. This does
+            not limit liability that cannot be limited by law.
+          </p>
+
+          <h2>Changes</h2>
+          <p>
+            We may update these terms as the site changes. The updated date at the top of the page
+            moves when they do; material changes get a matching note.
+          </p>
+
+          <h2>Questions</h2>
+          <p>
+            Write to <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. One of the people who built
+            the site will answer.
+          </p>
+        </Prose>
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</Base>

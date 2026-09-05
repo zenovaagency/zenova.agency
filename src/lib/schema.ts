@@ -155,6 +155,48 @@ export function breadcrumb(trail: { name: string; path: string }[]) {
 }
 
 /**
+ * A BlogPosting, for /blog/<slug>.
+ *
+ * `author` defaults to the studio. An unnamed byline is not invented: if a
+ * post carries a frontmatter author we emit a Person, otherwise the post is
+ * authored by the organization and we say so — a fabricated person node would
+ * claim a writer who does not exist.
+ *
+ * Google requires image, author, datePublished and either headline or
+ * name for article rich results; publisher points at the site-wide
+ * Organization node rather than restating it, matching the other builders.
+ */
+export function blogPosting(post: {
+  slug: string;
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  author?: string;
+  image?: string;
+}) {
+  const url = abs(`/blog/${post.slug}`);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    '@id': `${url}#posting`,
+    headline: post.title,
+    description: post.description,
+    image: abs(post.image ?? '/og-card.png'),
+    datePublished: post.pubDate.toISOString(),
+    // dateModified is optional, but an absent one makes Google assume the
+    // published date — saying "never edited" explicitly is more honest than
+    // letting that assumption stand when updatedDate exists.
+    dateModified: (post.updatedDate ?? post.pubDate).toISOString(),
+    author: post.author
+      ? { '@type': 'Person', name: post.author }
+      : { '@id': ORG },
+    publisher: { '@id': ORG },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+  };
+}
+
+/**
  * A JobPosting, for /careers/<slug>.
  *
  * Only ever built for a published role — data/jobs.ts filters drafts out of

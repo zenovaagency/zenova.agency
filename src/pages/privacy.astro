@@ -1,0 +1,112 @@
+---
+/**
+ * Privacy policy.
+ *
+ * Written against what this codebase actually does, and nothing else: the
+ * site is fully static, ships no analytics, sets no cookies, and has no
+ * forms. The only personal data that ever reaches Zenova through this site
+ * is email a visitor chooses to send. Every claim below is checkable against
+ * the source — if a cookie banner, analytics script, or contact form is ever
+ * added, this page must be rewritten at the same time, not quietly left
+ * describing a site that no longer exists.
+ */
+import Base from '../layouts/Base.astro';
+import Nav from '../components/chrome/Nav.astro';
+import Footer from '../components/chrome/Footer.astro';
+import PageHero from '../components/chrome/PageHero.astro';
+import Prose from '../components/ui/Prose.astro';
+import { SITE, type PageIntro } from '../data/site';
+
+const intro: PageIntro = {
+  eyebrow: 'Your data · updated 5 September 2026',
+  headline: 'Privacy, in',
+  accent: 'plain language.',
+  sub: 'This site is static and collects nothing by itself. Here is what that means, and the one place data actually moves: email.',
+  wash: 1,
+  title: 'Privacy Policy | Zenova',
+  description:
+    'What the Zenova website collects (almost nothing), what happens with email you send us, and how to have it deleted.',
+};
+---
+
+<Base title={intro.title} description={intro.description}>
+  <Nav />
+
+  <main id="main">
+    <PageHero intro={intro} angle="135deg" />
+
+    <article class="border-t border-line py-[var(--section-y)]">
+      <div class="container-z">
+        <Prose class="mx-auto max-w-[42rem]">
+          <p>
+            This policy covers {SITE.url}, run by {SITE.legalName} (“Zenova”, “we”). It is short
+            because there is very little to say: the site is a set of published pages, and pages
+            cannot collect anything on their own.
+          </p>
+
+          <h2>The short version</h2>
+          <ul>
+            <li>No cookies, no analytics, no advertising, no tracking scripts.</li>
+            <li>No accounts, and no forms — there is nothing to submit data into.</li>
+            <li>
+              The only personal data we receive is email you send us, and we use it to reply.
+            </li>
+          </ul>
+
+          <h2>What the site collects</h2>
+          <p>
+            Nothing, deliberately. There is no analytics measuring your visit, no fingerprinting,
+            and no third-party embeds quietly following you between pages. Reading this site is
+            invisible to us as an individual.
+          </p>
+
+          <h2>Hosting</h2>
+          <p>
+            Like every website, this one is served by a hosting provider, which processes standard
+            technical request data — IP address, browser type, requested page — on our behalf as a
+            necessary part of serving pages and defending against abuse. We do not use those logs
+            to profile visitors, and we do not combine them with anything else.
+          </p>
+
+          <h2>Email</h2>
+          <p>
+            If you write to <a href={`mailto:${SITE.email}`}>{SITE.email}</a> or
+            <a href={`mailto:${SITE.careersEmail}`}>{SITE.careersEmail}</a>, we receive your address
+            and whatever you chose to tell us. We use it to answer you, and to keep the
+            conversation going if one starts. We do not add you to a list, sell it, or share it
+            with anyone who is not helping us answer you. Ask us to delete it — see below — and we
+            will.
+          </p>
+
+          <h2>Links elsewhere</h2>
+          <p>
+            The footer links to our profiles on other platforms (Instagram, LinkedIn, X, GitHub,
+            Dribbble). Once you are there, their privacy policies apply, not this one.
+          </p>
+
+          <h2>RSS</h2>
+          <p>
+            Subscribing to <a href="/rss.xml">our feed</a> happens in your own reader and sends us
+            nothing. That is most of why it exists.
+          </p>
+
+          <h2>Your choices</h2>
+          <p>
+            You can read the entire site without giving anything up. If you have emailed us and
+            want the correspondence deleted, write to
+            <a href={`mailto:${SITE.email}`}>{SITE.email}</a> and say so — we will confirm once it
+            is gone.
+          </p>
+
+          <h2>Changes</h2>
+          <p>
+            If the site ever starts collecting something — an analytics tool, a contact form, a
+            cookie — this page changes first, and the updated date at the top moves with it.
+          </p>
+        </Prose>
+      </div>
+    </article>
+  </main>
+
+  <Footer />
+</Base>

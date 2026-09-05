@@ -42,6 +42,12 @@ export const SITE = {
 /**
  * Primary navigation. Every entry is a real route — nothing here points at an
  * in-page id, so a link works the same from any page on the site.
+ *
+ * Blog is deliberately absent from the header: the nav stays on the
+ * commercial path (services → pricing → work → careers → about). The blog
+ * remains discoverable from the footer's Explore column, the sitemap, RSS
+ * and every post page, which is enough surface for a section that grows by
+ * publishing rather than by navigation.
  */
 export const NAV = [
   { label: 'Services', href: '/services' },
@@ -408,11 +414,12 @@ export interface PageIntro {
   description: string;
 }
 
-/** The five section index pages, plus the two About sub-pages. */
+/** The six section index pages, plus the two About sub-pages. */
 export type PageKey =
   | 'services'
   | 'pricing'
   | 'work'
+  | 'blog'
   | 'careers'
   | 'about'
   | 'story'
@@ -454,6 +461,20 @@ export const PAGES: Record<PageKey, PageIntro> = {
     title: 'Work — Selected Projects | Zenova',
     description:
       'Recent Zenova projects across web, apps, AI automation and digital marketing: the brief, the build, and the outcome for each.',
+  },
+  blog: {
+    eyebrow: 'Notes from the studio',
+    headline: 'What we have learned,',
+    accent: 'written down.',
+    sub: 'Practical notes on building for the web — performance, process, and what actually holds up once a project ships.',
+    // Washes are one recipe per index page and there are now six index pages
+    // and five recipes, so one had to repeat. Blog reuses pricing's quiet
+    // wash-4: both open on a long list of cards, and the same "header has no
+    // business competing" logic applies.
+    wash: 4,
+    title: 'Blog — Notes from the Studio | Zenova',
+    description:
+      'Practical notes from the Zenova studio: web performance, design and build process, and what works once a project ships.',
   },
   careers: {
     eyebrow: 'Careers',

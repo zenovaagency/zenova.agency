@@ -1,0 +1,129 @@
+---
+/**
+ * One blog post.
+ *
+ * Built from the publishable entries in the blog collection — drafts are
+ * filtered out in lib/blog.ts, so a drafted post has no route to leak from.
+ *
+ * The header is the shared PageHero with the post's own fields poured in:
+ * frontmatter title becomes the h1, the meta description becomes the sub.
+ * That keeps the single-h1 guarantee structural — the h1 cannot drift from
+ * the <title> because both come from the same frontmatter string.
+ *
+ * Markdown styling is hand-rolled scoped CSS in ui/Prose.astro rather than
+ * the typography plugin: the site's type system (weights never above 500,
+ * ink-scale text, underlined brand-text links) is already specified in
+ * tokens, and the plugin would import a second set of defaults to fight.
+ * The same styles serve the legal pages.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import Prose from '../../components/ui/Prose.astro';
+import { PAGES, SITE, type PageIntro } from '../../data/site';
+import { published } from '../../lib/blog';
+import { blogPosting, breadcrumb } from '../../lib/schema';
+import { render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await published();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+interface Props {
+  post: Awaited<ReturnType<typeof published>>[number];
+}
+
+const { post } = Astro.props as Props;
+const { Content } = await render(post);
+
+const path = `/blog/${post.id}`;
+const { title, description, pubDate, updatedDate, author, image, imageAlt } = post.data;
+const fmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
+
+const intro: PageIntro = {
+  ...PAGES.blog,
+  eyebrow: [
+    author ?? SITE.name,
+    fmt.format(pubDate),
+    updatedDate ? `updated ${fmt.format(updatedDate)}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · '),
+  headline: title,
+  accent: '',
+  sub: description,
+  wash: 4,
+  title: `${title} | ${SITE.name}`,
+  description,
+};
+---
+
+<Base
+  title={intro.title}
+  description={description}
+  image={image}
+  ogType="article"
+  publishedTime={pubDate.toISOString()}
+  modifiedTime={(updatedDate ?? pubDate).toISOString()}
+>
+  <JsonLd slot="head" data={blogPosting({ slug: post.id, ...post.data })} />
+  <JsonLd
+    slot="head"
+    data={breadcrumb([
+      { name: 'Blog', path: '/blog' },
+      { name: title, path },
+    ])}
+  />
+
+  <Nav />
+
+  <main id="main">
+    <!-- The headline is the h1; PageHero's accent line is left empty because
+         a post title is already complete — a forced accent word would be
+         decorating a sentence the author wrote. -->
+    <PageHero
+      intro={intro}
+      trail={[{ label: 'Blog', href: '/blog' }, { label: title, href: path }]}
+    />
+
+    <article class="border-t border-line py-[var(--section-y)]">
+      <div class="container-z">
+        {/* The post's own artwork, when it has one. Eager + high priority
+            because it is the first screen's largest element on the way down;
+            the intrinsic 1200x630 is stated so the page cannot reflow while
+            it loads — one of the very signals the Core Web Vitals post is
+            about. */}
+        {
+          image && (
+            <img
+              src={image}
+              alt={imageAlt ?? ''}
+              width={1200}
+              height={630}
+              fetchpriority="high"
+              decoding="async"
+              class="mx-auto mb-14 w-full max-w-[56rem] rounded-[14px] border border-line"
+            />
+          )
+        }
+
+        <Prose class="mx-auto max-w-[42rem]">
+          <Content />
+        </Prose>
+
+        <div class="mx-auto mt-14 max-w-[42rem] border-t border-line pt-8">
+          <TextLink href="/blog">All posts</TextLink>
+        </div>
+      </div>
+    </article>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>

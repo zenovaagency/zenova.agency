@@ -83,7 +83,12 @@ const crumbs: Crumb[] = trail ? [{ label: 'Home', href: '/' }, ...trail] : [];
       </div>
 
       <h1 class="h1 mt-6 text-ink" data-split data-split-delay="0.1">
-        {intro.headline}<br /><em class="accent-serif">{intro.accent}</em>
+        {intro.headline}{intro.accent && (
+          <>
+            <br />
+            <em class="accent-serif">{intro.accent}</em>
+          </>
+        )}
       </h1>
 
       <p

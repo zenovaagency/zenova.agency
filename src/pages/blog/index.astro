@@ -1,0 +1,135 @@
+---
+/**
+ * Blog — the post index.
+ *
+ * A standard section page: PageHero opener, then the posts as cards. No
+ * carousel, no pin, no scroll choreography — a blog index is a list to scan,
+ * and the honest template for a list is a list.
+ *
+ * The only machinery here is the empty state, which goes live the moment the
+ * collection has no publishable posts (every entry drafted, or the folder
+ * emptied). With the draft sample still in the collection it stays dormant.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Button from '../../components/ui/Button.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import { PAGES } from '../../data/site';
+import { published } from '../../lib/blog';
+import { breadcrumb } from '../../lib/schema';
+
+const page = PAGES.blog;
+const posts = await published();
+
+const fmt = new Intl.DateTimeFormat('en-US', { dateStyle: 'long' });
+---
+
+<Base title={page.title} description={page.description}>
+  <JsonLd slot="head" data={breadcrumb([{ name: 'Blog', path: '/blog' }])} />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero
+      intro={page}
+      trail={[{ label: 'Blog', href: '/blog' }]}
+    />
+
+    {
+      posts.length > 0 ? (
+        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="index-title">
+          <div class="container-z">
+            <h2 id="index-title" class="sr-only">All posts</h2>
+
+            <ul class="grid gap-6 md:grid-cols-2">
+              {posts.map((post) => (
+                <li data-reveal>
+                  <article class="card-tint relative flex h-full flex-col p-7 sm:p-9">
+                    {/* Posts that carry artwork lead with it. The intrinsic
+                        1200x630 is stated so the grid cannot reflow while the
+                        image loads; lazy because the index is a scan-down list,
+                        not a first-screen hero. */}
+                    {post.data.image && (
+                      <img
+                        src={post.data.image}
+                        alt={post.data.imageAlt ?? ''}
+                        width={1200}
+                        height={630}
+                        loading="lazy"
+                        decoding="async"
+                        class="mb-7 w-full rounded-[14px] border border-line"
+                      />
+                    )}
+
+                    <p class="mono flex items-center gap-3 text-ink-faint">
+                      <time datetime={post.data.pubDate.toISOString()}>
+                        {fmt.format(post.data.pubDate)}
+                      </time>
+                      {post.data.updatedDate && (
+                        <span class="text-ink-muted">
+                          · updated {fmt.format(post.data.updatedDate)}
+                        </span>
+                      )}
+                    </p>
+
+                    {/* One stretched link per card: the title carries it, so
+                        the whole card is the target without nested links. */}
+                    <h3 class="mt-5 text-[1.375rem] font-medium leading-snug tracking-[-0.01em] text-ink sm:text-[1.5rem]">
+                      <a
+                        href={`/blog/${post.id}`}
+                        class="after:absolute after:inset-0 after:rounded-[inherit] transition-colors hover:text-brand-text"
+                      >
+                        {post.data.title}
+                      </a>
+                    </h3>
+
+                    <p class="mt-4 text-[0.9375rem] leading-relaxed text-ink-soft sm:text-[1.0625rem]">
+                      {post.data.description}
+                    </p>
+                  </article>
+                </li>
+              ))}
+            </ul>
+
+            <div class="mt-12" data-reveal>
+              <TextLink href="/rss.xml">Subscribe via RSS</TextLink>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="empty-title">
+          <div class="container-z">
+            <div class="max-w-2xl" data-reveal>
+              <h2 id="empty-title" class="h1 text-ink">
+                Nothing published
+                <br />
+                <em class="accent-serif">quite yet.</em>
+              </h2>
+              <p class="mt-6 text-[1.0625rem] text-ink-muted">
+                The studio notes are still being written. The work is not waiting on them.
+              </p>
+
+              <div class="mt-9 flex flex-wrap items-center gap-3">
+                <Button href="/services">What we do</Button>
+                <Button href="/contact" variant="ghost">Start a project</Button>
+              </div>
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>

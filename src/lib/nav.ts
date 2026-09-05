@@ -43,6 +43,7 @@ export const CHAIN: ChainItem[] = [
   { label: 'Services', href: '/services' },
   { label: 'Pricing', href: '/pricing' },
   { label: 'Work', href: '/work' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Careers', href: '/careers' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
