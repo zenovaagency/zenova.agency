@@ -18,6 +18,7 @@ import Cta from '../../components/chrome/Cta.astro';
 import JsonLd from '../../components/chrome/JsonLd.astro';
 import Motif from '../../components/ui/Motif.astro';
 import TextLink from '../../components/ui/TextLink.astro';
+import { Image } from 'astro:assets';
 import { PAGES, SERVICES } from '../../data/site';
 import { breadcrumb } from '../../lib/schema';
 
@@ -49,7 +50,16 @@ const page = PAGES.services;
                     style={`--angle:${s.angle}`}
                     aria-hidden="true"
                   >
-                    <Motif kind={s.motif} />
+                    {s.image ? (
+                      <Image
+                        src={s.image.src}
+                        alt=""
+                        class="h-full w-full rounded-sm object-cover"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <Motif kind={s.motif} />
+                    )}
                   </div>
 
                   <div class="flex flex-1 flex-col border-t border-line/70 p-7 sm:p-8">

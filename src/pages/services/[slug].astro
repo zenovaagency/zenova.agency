@@ -21,6 +21,7 @@ import Motif from '../../components/ui/Motif.astro';
 import Artifact from '../../components/ui/Artifact.astro';
 import TextLink from '../../components/ui/TextLink.astro';
 import Button from '../../components/ui/Button.astro';
+import { Image } from 'astro:assets';
 import {
   DELIVERABLES,
   OWNERSHIP,
@@ -126,8 +127,16 @@ const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slu
 
           <div class="lg:col-span-5 lg:col-start-8" data-reveal>
             <div class="card-tint overflow-hidden">
-              <div class="svc-art p-8 text-brand" style={`--angle:${service.angle}`}>
-                <Motif kind={service.motif} />
+              <div class="svc-art aspect-[16/9] p-3 text-brand" style={`--angle:${service.angle}`}>
+                {service.image ? (
+                  <Image
+                    src={service.image.src}
+                    alt={service.image.alt}
+                    class="h-full w-full rounded-sm object-cover"
+                  />
+                ) : (
+                  <Motif kind={service.motif} />
+                )}
               </div>
               <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
                 {service.stack.map((tech) => <li class="mono text-ink-faint">{tech}</li>)}
