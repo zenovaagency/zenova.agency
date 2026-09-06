@@ -29,43 +29,38 @@ import { Image } from 'astro:assets';
       list on touch with no pinning and no JS. Each card gets its own gradient
       angle so the four never read as one repeated asset.
 
-      .card-live adds the ambient light drift — the recipe, and the contrast
-      arithmetic behind its blue-not-white light, are in styles/cards.css. It
-      is opt-in: these four cards and the footer CTA (chrome/Cta, plus its
-      violet pass) carry it; the pricing cards stay static. --i desyncs the
-      cards; see the same file.
+      The cards use the quieter tinted surface from styles/cards.css. --i
+      desyncs the ambient treatment on the cards; see the same file.
     -->
     <div class="mt-16 space-y-6 lg:mt-24 lg:space-y-0">
       {
         SERVICES.map((s, i) => (
           <article
-            class="lg:sticky"
+            class="mb-[10px] lg:sticky"
             style={`top: calc(96px + ${i * 16}px); z-index: ${i + 1}`}
             data-reveal
           >
             <a
               href={`/services/${s.slug}`}
               aria-label={`Explore ${s.title}`}
-              class="card-bleed card-live block grid gap-8 p-7 text-white no-underline sm:p-10 lg:grid-cols-12 lg:gap-10 lg:p-14"
+              class="card-tint block grid gap-8 p-7 text-ink no-underline sm:p-10 lg:grid-cols-12 lg:gap-10 lg:p-14"
               style={`--angle:${s.angle}; --i:${i}`}
             >
-              <span class="card-glow" aria-hidden="true" />
-              <span class="card-scrim" aria-hidden="true"></span>
               <div class="lg:col-span-6 xl:col-span-5">
-                <div class="mono flex items-center gap-3 text-white">
+                <div class="mono flex items-center gap-3 text-ink">
                   <span>{s.n}</span>
-                  <span class="h-px w-8 bg-white/55" />
+                  <span class="h-px w-8 bg-ink/30" />
                   <span>Service</span>
                 </div>
 
                 <h3 class="mt-5 text-[2rem] font-medium leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
                   {s.title}
                 </h3>
-                <p class="mt-4 max-w-md text-[1.0625rem] text-white">{s.hero}</p>
+                <p class="mt-4 max-w-md text-[1.0625rem] text-ink-muted">{s.hero}</p>
 
                 <ul class="mt-7 flex flex-wrap gap-2">
                   {s.bullets.map((b) => (
-                    <li class="rounded-full border border-white/45 px-3.5 py-1.5 text-[0.8125rem] text-white">
+                    <li class="rounded-full border border-ink/25 px-3.5 py-1.5 text-[0.8125rem] text-ink">
                       {b}
                     </li>
                   ))}
@@ -75,14 +70,14 @@ import { Image } from 'astro:assets';
                   <span class="text-[2.75rem] font-medium leading-none tracking-[-0.03em] tabular-nums">
                     {s.stat.value}
                   </span>
-                  <span class="mb-1 max-w-[9rem] text-[0.8125rem] leading-tight text-white">
+                  <span class="mb-1 max-w-[9rem] text-[0.8125rem] leading-tight text-ink-muted">
                     {s.stat.label}
                   </span>
                 </div>
               </div>
 
               <div class="lg:col-span-6 xl:col-span-7">
-                <div class="rounded-[20px] border border-white/20 bg-white/10 p-6 backdrop-blur-[2px] sm:p-3">
+                <div class="rounded-[20px] border border-line bg-white/60 p-6 sm:p-3">
                   {s.image ? (
                     <Image
                       src={s.image.src}
@@ -91,12 +86,12 @@ import { Image } from 'astro:assets';
                       loading="lazy"
                     />
                   ) : (
-                    <Motif kind={s.motif} class="text-white" />
+                    <Motif kind={s.motif} class="text-brand-text" />
                   )}
                 </div>
                 <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2">
                   {s.stack.map((tech) => (
-                    <li class="mono text-white">{tech}</li>
+                    <li class="mono text-ink-muted">{tech}</li>
                   ))}
                 </ul>
               </div>
@@ -113,7 +108,7 @@ import { Image } from 'astro:assets';
   import { DESKTOP } from '../../lib/motion';
 
   // The CSS above already stacks the cards. This only adds the depth cue:
-  // an outgoing card sinks and dims slightly as the next one covers it.
+  // an outgoing card sinks slightly as the next one covers it.
   // Desktop only, and skipped entirely under reduced motion.
   motion().then(({ gsap, reduced }) => {
     if (reduced) return;
@@ -126,10 +121,7 @@ import { Image } from 'astro:assets';
       cards.forEach((card, i) => {
         if (i === cards.length - 1) return;
         const inner = card.firstElementChild as HTMLElement;
-        const scrim = inner.querySelector('.card-scrim');
-
-        // Scale the card, veil it with the scrim. Never tween its opacity:
-        // a translucent card reveals the ones stacked behind it.
+        // Scale the card without changing its color or opacity.
         gsap
           .timeline({
             scrollTrigger: {
@@ -139,8 +131,7 @@ import { Image } from 'astro:assets';
               scrub: true,
             },
           })
-          .to(inner, { scale: 0.94, ease: 'none' }, 0)
-          .to(scrim, { opacity: 0.6, ease: 'none' }, 0);
+          .to(inner, { scale: 0.94, ease: 'none' }, 0);
       });
     });
   });

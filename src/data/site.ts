@@ -1,5 +1,8 @@
 import type { ImageMetadata } from 'astro';
-import ledgerDashboard from '../assets/services/ledger-dashboard.webp';
+import webDevelopment from '../assets/services/web-development.webp';
+import appDevelopment from '../assets/services/app-development.webp';
+import aiAutomation from '../assets/services/ai-automation.webp';
+import digitalMarketing from '../assets/services/digital-marketing.webp';
 
 /**
  * Site content.
@@ -154,7 +157,7 @@ export const SERVICES: Service[] = [
     ],
     stack: ['Next.js', 'TypeScript', 'Tailwind', 'Vercel', 'Sanity CMS'],
     angle: '135deg',
-    image: { src: ledgerDashboard, alt: 'Ledger web dashboard' },
+    image: { src: webDevelopment, alt: 'Web Development' },
     motif: 'browser',
   },
   {
@@ -173,6 +176,7 @@ export const SERVICES: Service[] = [
     ],
     stack: ['React Native', 'Flutter', 'Swift', 'Kotlin', 'Firebase', 'Supabase'],
     angle: '200deg',
+    image: { src: appDevelopment, alt: 'App Development' },
     motif: 'phone',
   },
   {
@@ -191,6 +195,7 @@ export const SERVICES: Service[] = [
     ],
     stack: ['OpenAI', 'LangChain', 'Python', 'Zapier', 'Make', 'Slack API'],
     angle: '310deg',
+    image: { src: aiAutomation, alt: 'AI Automation' },
     motif: 'flow',
   },
   {
@@ -209,6 +214,7 @@ export const SERVICES: Service[] = [
     ],
     stack: ['HubSpot', 'Google Ads', 'Meta Ads', 'Mailchimp', 'GA4', 'Ahrefs'],
     angle: '25deg',
+    image: { src: digitalMarketing, alt: 'Digital Marketing' },
     motif: 'chart',
   },
 ];
