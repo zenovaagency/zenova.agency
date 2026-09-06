@@ -1,3 +1,6 @@
+import type { ImageMetadata } from 'astro';
+import ledgerDashboard from '../assets/services/ledger-dashboard.webp';
+
 /**
  * Site content.
  *
@@ -123,7 +126,7 @@ export interface Service {
   angle: string;
   motif: MotifKind;
   /** Optional real artwork, with alt text kept alongside its source. */
-  image?: { src: string; alt: string };
+  image?: { src: ImageMetadata; alt: string };
 }
 
 /**
@@ -151,7 +154,7 @@ export const SERVICES: Service[] = [
     ],
     stack: ['Next.js', 'TypeScript', 'Tailwind', 'Vercel', 'Sanity CMS'],
     angle: '135deg',
-    image: { src: '/assets/services/ledger-dashboard.webp', alt: 'Ledger web dashboard' },
+    image: { src: ledgerDashboard, alt: 'Ledger web dashboard' },
     motif: 'browser',
   },
   {
