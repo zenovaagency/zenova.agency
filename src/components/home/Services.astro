@@ -42,8 +42,10 @@ import { SERVICES } from '../../data/site';
             style={`top: calc(96px + ${i * 16}px); z-index: ${i + 1}`}
             data-reveal
           >
-            <div
-              class="card-bleed card-live grid gap-8 p-7 sm:p-10 lg:grid-cols-12 lg:gap-10 lg:p-14"
+            <a
+              href={`/services/${s.slug}`}
+              aria-label={`Explore ${s.title}`}
+              class="card-bleed card-live block grid gap-8 p-7 text-white no-underline sm:p-10 lg:grid-cols-12 lg:gap-10 lg:p-14"
               style={`--angle:${s.angle}; --i:${i}`}
             >
               <span class="card-glow" aria-hidden="true" />
@@ -97,7 +99,7 @@ import { SERVICES } from '../../data/site';
                   ))}
                 </ul>
               </div>
-            </div>
+            </a>
           </article>
         ))
       }

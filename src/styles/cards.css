@@ -30,7 +30,7 @@
   border: 1px solid transparent;
   background:
     linear-gradient(180deg, #ffffff, #f1f6ff) padding-box,
-    linear-gradient(135deg, var(--color-sky-soft), var(--color-blush-soft)) border-box;
+    linear-gradient(135deg, var(--color-sky), var(--color-blush)) border-box;
   box-shadow: var(--shadow-sm);
 }
 
@@ -38,7 +38,9 @@
   background:
     linear-gradient(180deg, #ffffff, #eaf2ff) padding-box,
     linear-gradient(135deg, var(--color-sky), var(--color-blush)) border-box;
-  box-shadow: var(--shadow-md);
+  box-shadow:
+    0 14px 32px rgb(111 182 255 / 0.14),
+    var(--shadow-md);
 }
 
 /* --- B. Full-bleed gradient --------------------------------------- *
@@ -247,6 +249,9 @@
 }
 
 /*
+  The three keyframe animations are designed to create a subtle, organic movement
+  that enhances the visual appeal of the cards without being distracting.
+
   Both keyframes rest at 0%, because the global reduced-motion block sets
   animation-duration to 0.01ms and iteration-count to 1 — an animation there
   freezes at its first keyframe, so the first keyframe has to be the composed
