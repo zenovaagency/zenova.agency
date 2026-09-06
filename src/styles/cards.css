@@ -110,6 +110,26 @@
   z-index: 1;
 }
 
+.card-bleed > .cta-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.cta-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    42% 58% at 76% 18%,
+    rgb(255 255 255 / 0.2),
+    transparent 72%
+  );
+}
+
 /* --- C. Paper ----------------------------------------------------- */
 .card-paper {
   border: 1px solid var(--color-line);
@@ -293,6 +313,10 @@
       transform 1100ms var(--ease-out-expo),
       opacity 200ms linear;
   }
+}
+
+.cta-card:hover > .card-glow::after {
+  opacity: 0;
 }
 
 /* --- E. Violet pass ------------------------------------------------ *

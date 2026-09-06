@@ -1,10 +1,11 @@
 ---
 import Button from '../ui/Button.astro';
+import CtaGradient from '../../islands/CtaGradient';
 import { CTA } from '../../data/site';
 ---
 
-<section class="pb-[var(--section-y)] pt-6">
-  <div class="container-z">
+<section class="cta-expand" data-cta-expand>
+  <div class="cta-expand__stage">
     <!--
       .card-live adds the ambient light drift and .card-glow-violet the purple
       pass; the recipes, and the contrast arithmetic behind both, are in
@@ -13,10 +14,13 @@ import { CTA } from '../../data/site';
       desyncs the drift from those cards.
     -->
     <div
-      class="card-bleed card-live relative overflow-hidden px-7 py-16 text-center sm:px-12 sm:py-24"
-      style="--angle: 118deg; --i: 4; --stop-a: #1e1a5e; --stop-b: #4338ca"
-      data-reveal
+      class="card-bleed card-live cta-card cta-expand__card relative overflow-hidden px-7 py-16 text-center sm:px-12 sm:py-24"
+      style="--angle: 118deg; --i: 4; --stop-a: #102d72; --stop-b: #1479d1; --stop-c: #003b9f"
+      data-cta-card
     >
+      <div class="cta-gradient" aria-hidden="true">
+        <CtaGradient client:load />
+      </div>
       <span class="card-glow" aria-hidden="true" />
       <span class="card-glow-violet" aria-hidden="true" />
 
@@ -42,3 +46,138 @@ import { CTA } from '../../data/site';
     </div>
   </div>
 </section>
+
+<style>
+  /* The unenhanced version deliberately retains the old container dimensions.
+     The full-width stage only switches on after the desktop scroll trigger is
+     ready, so touch, reduced-motion, and no-JS views remain a normal CTA. */
+  .cta-expand {
+    padding: 1.5rem var(--gutter) var(--section-y);
+  }
+
+  .cta-expand__stage {
+    width: 100%;
+    max-width: calc(var(--container) - var(--gutter) - var(--gutter));
+    margin-inline: auto;
+  }
+
+  .cta-expand__card {
+    width: 100%;
+  }
+
+  /* GradFlow writes pixel dimensions inline when it mounts. During the funnel,
+     let its canvas stretch with the changing card while the island refreshes
+     its WebGL buffer at rest. */
+  .cta-gradient :global(.cta-gradient__canvas),
+  .cta-gradient :global(.cta-gradient__canvas canvas) {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  @media (min-width: 1024px) {
+    /* This is a viewport-sized canvas, not a child of .container-z. Keeping
+       it one viewport tall gives ScrollTrigger a real surface to pin while
+       the card's dimensions interpolate all the way to the window edges. */
+    .cta-expand.is-expandable {
+      padding: 0;
+    }
+
+    .cta-expand.is-expandable .cta-expand__stage {
+      width: 100vw;
+      max-width: none;
+      height: 100vh;
+      height: 100dvh;
+      margin-left: calc(50% - 50vw);
+      display: grid;
+      place-items: center;
+      overflow: visible;
+    }
+
+    .cta-expand.is-expandable .cta-expand__card {
+      /* Matches .container-z's content width at the start, then GSAP grows
+         this real box to 100vw x 100vh — there is no scale transform. */
+      width: min(
+        calc(100vw - var(--gutter) - var(--gutter)),
+        calc(var(--container) - var(--gutter) - var(--gutter))
+      );
+      display: grid;
+      align-content: center;
+    }
+
+    /* A hover translate would reveal a paper seam once the card is flush to
+       the window. The CTA keeps its existing hover treatment everywhere else. */
+    .cta-expand.is-expandable .cta-expand__card:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { motion } from '../../lib/scroll';
+  import { DESKTOP } from '../../lib/motion';
+
+  motion().then(({ gsap, reduced }) => {
+    if (reduced) return;
+
+    const section = document.querySelector<HTMLElement>('[data-cta-expand]');
+    const stage = section?.querySelector<HTMLElement>('.cta-expand__stage');
+    const card = section?.querySelector<HTMLElement>('[data-cta-card]');
+    if (!section || !stage || !card) return;
+
+    // ScrollTrigger owns the desktop funnel only. matchMedia also returns the
+    // precise, static card layout when a desktop window becomes touch-sized.
+    gsap.matchMedia().add(DESKTOP, () => {
+      section.classList.add('is-expandable');
+
+      let timeline: ReturnType<typeof gsap.timeline> | undefined;
+
+      // The card's resting height is its actual content height, so title
+      // wrapping and font loading stay honest before it grows into the canvas.
+      const setCollapsedHeight = () => {
+        gsap.set(card, { clearProps: 'width,height,borderRadius,scale' });
+        gsap.set(card, { height: card.getBoundingClientRect().height });
+      };
+
+      setCollapsedHeight();
+
+      timeline = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: stage,
+          start: 'top top',
+          end: () => `+=${Math.round(window.innerHeight * 1.15)}`,
+          pin: true,
+          scrub: 0.65,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          onRefreshInit: () => {
+            setCollapsedHeight();
+            timeline?.invalidate();
+          },
+        },
+      });
+
+      timeline
+        // The contained card becomes a real 100vw x 100vh surface first.
+        .to(card, {
+          width: () => window.innerWidth,
+          height: () => window.innerHeight,
+          borderRadius: 0,
+          duration: 0.72,
+        })
+        // Hold the immersive full-bleed moment, then ease it back into a
+        // rounded card as the next scroll beat hands over to the footer.
+        .to(card, {
+          scale: 0.9,
+          borderRadius: 24,
+          duration: 0.28,
+        });
+
+      return () => {
+        section.classList.remove('is-expandable');
+        gsap.set(card, { clearProps: 'width,height,borderRadius,scale' });
+  };
+    });
+  });
+</script>

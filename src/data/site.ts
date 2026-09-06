@@ -122,6 +122,8 @@ export interface Service {
   stack: string[];
   angle: string;
   motif: MotifKind;
+  /** Optional real artwork, with alt text kept alongside its source. */
+  image?: { src: string; alt: string };
 }
 
 /**
@@ -149,6 +151,7 @@ export const SERVICES: Service[] = [
     ],
     stack: ['Next.js', 'TypeScript', 'Tailwind', 'Vercel', 'Sanity CMS'],
     angle: '135deg',
+    image: { src: '/assets/services/ledger-dashboard.webp', alt: 'Ledger web dashboard' },
     motif: 'browser',
   },
   {

@@ -8,6 +8,12 @@
  * build gradients — see the accessibility rules below.
  * ------------------------------------------------------------------ */
 @theme {
+  /* shadcn-compatible semantic tokens, mapped to the existing Zenova palette. */
+  --color-background: var(--color-surface);
+  --color-foreground: var(--color-ink);
+  --color-primary: var(--color-brand-text);
+  --color-primary-foreground: #ffffff;
+
   /* Ink — brand navy. Never pure black. */
   --color-ink: #0b3558;
   --color-ink-muted: #5a6b7d;

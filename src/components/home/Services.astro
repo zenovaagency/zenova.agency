@@ -79,8 +79,17 @@ import { SERVICES } from '../../data/site';
               </div>
 
               <div class="lg:col-span-6 xl:col-span-7">
-                <div class="rounded-[20px] border border-white/20 bg-white/10 p-6 backdrop-blur-[2px] sm:p-8">
-                  <Motif kind={s.motif} class="text-white" />
+                <div class="rounded-[20px] border border-white/20 bg-white/10 p-6 backdrop-blur-[2px] sm:p-3">
+                  {s.image ? (
+                    <img
+                      src={s.image.src}
+                      alt={s.image.alt}
+                      class="aspect-[6/3.9] w-full rounded-sm object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <Motif kind={s.motif} class="text-white" />
+                  )}
                 </div>
                 <ul class="mt-5 flex flex-wrap gap-x-5 gap-y-2">
                   {s.stack.map((tech) => (
