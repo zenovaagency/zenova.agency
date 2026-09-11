@@ -48,9 +48,9 @@ export const SITE = {
   copyright: '© 2026 Zenova, Inc. All rights reserved.',
   socials: [
     { label: 'Instagram', url: 'https://instagram.com/zenova.agency' },
-    { label: 'LinkedIn', url: 'https://www.linkedin.com/company/zenova' },
+    { label: 'LinkedIn', url: 'https://www.linkedin.com/company/zenovahq' },
     { label: 'X', url: 'https://twitter.com/zenova' },
-    { label: 'GitHub', url: 'https://github.com/zenova' },
+    { label: 'GitHub', url: 'https://github.com/zenovaagency' },
     { label: 'Dribbble', url: 'https://dribbble.com/zenova' },
   ],
 };
