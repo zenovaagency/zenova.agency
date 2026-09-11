@@ -174,7 +174,11 @@ const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slu
                 <li>
                   <article class="card-tint flex h-full flex-col overflow-hidden">
                     <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-[#f4f8ff] to-[#eaf2ff] p-8">
-                      <Artifact art={d.art} />
+                      {d.image ? (
+                        <Image src={d.image.src} alt={d.image.alt} class="h-full w-full rounded-sm object-cover" />
+                      ) : (
+                        <Artifact art={d.art} />
+                      )}
                     </div>
                     <div class="flex flex-1 flex-col border-t border-line/70 p-7">
                       <h3 class="text-[1.375rem] font-medium tracking-[-0.015em] text-ink">

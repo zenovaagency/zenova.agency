@@ -4,6 +4,16 @@ import appDevelopment from '../assets/services/app-development.webp';
 import aiAutomation from '../assets/services/ai-automation.webp';
 import digitalMarketing from '../assets/services/digital-marketing.webp';
 
+import yourWebsite from '../assets/deliverables/your-website.webp';
+import easyEditing from '../assets/deliverables/easy-editing.webp';
+import workingApp from '../assets/deliverables/working-app.webp';
+import backendSetup from '../assets/deliverables/backend-setup.webp';
+import workingChatbot from '../assets/deliverables/working-chatbot.webp';
+import conversationFlows from '../assets/deliverables/conversation-flows.webp';
+import growthStrategy from '../assets/deliverables/growth-strategy.webp';
+import reporting from '../assets/deliverables/reporting.webp';
+
+
 /**
  * Site content.
  *
@@ -339,6 +349,8 @@ export interface Deliverable {
   title: string;
   blurb: string;
   art: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  /** Optional real artwork for cards using a service screenshot or product image. */
+  image?: { src: ImageMetadata; alt: string };
 }
 
 export const DELIVERABLES: Deliverable[] = [
@@ -348,6 +360,7 @@ export const DELIVERABLES: Deliverable[] = [
     title: 'Your website',
     blurb: 'A complete site, fully built and ready to use.',
     art: 1,
+    image: { src: yourWebsite, alt: 'Website delivery for a modern business' },
   },
   {
     service: 'web',
@@ -355,6 +368,7 @@ export const DELIVERABLES: Deliverable[] = [
     title: 'Easy editing',
     blurb: 'A simple admin so your team can update content without us.',
     art: 2,
+    image: { src: easyEditing, alt: 'Editable website content management' },
   },
   {
     service: 'app',
@@ -362,6 +376,7 @@ export const DELIVERABLES: Deliverable[] = [
     title: 'Working app',
     blurb: 'A fully functional app published on the App Store and Google Play.',
     art: 3,
+    image: { src: workingApp, alt: 'Working mobile app delivery' },
   },
   {
     service: 'app',
@@ -369,6 +384,7 @@ export const DELIVERABLES: Deliverable[] = [
     title: 'Backend setup',
     blurb: 'APIs, databases, and auth — everything your app needs to run.',
     art: 4,
+    image: { src: backendSetup, alt: 'App backend and infrastructure setup' },
   },
   {
     service: 'ai',
@@ -376,6 +392,7 @@ export const DELIVERABLES: Deliverable[] = [
     title: 'Working chatbot',
     blurb: 'A trained bot deployed on your website or platform of choice.',
     art: 5,
+    image: { src: workingChatbot, alt: 'AI chatbot workflow' },
   },
   {
     service: 'ai',
@@ -383,6 +400,7 @@ export const DELIVERABLES: Deliverable[] = [
     title: 'Conversation flows',
     blurb: 'Designed dialogues for common scenarios and edge cases.',
     art: 6,
+    image: { src: conversationFlows, alt: 'AI conversation flow design' },
   },
   {
     service: 'marketing',
@@ -390,6 +408,7 @@ export const DELIVERABLES: Deliverable[] = [
     title: 'Growth strategy',
     blurb: 'A clear plan focused on the channels that work for your business.',
     art: 7,
+    image: { src: growthStrategy, alt: 'Digital marketing growth strategy' },
   },
   {
     service: 'marketing',
@@ -397,6 +416,7 @@ export const DELIVERABLES: Deliverable[] = [
     title: 'Reporting',
     blurb: 'One dashboard. Real numbers. Updated daily.',
     art: 8,
+    image: { src: reporting, alt: 'Marketing reporting dashboard' },
   },
 ];
 
