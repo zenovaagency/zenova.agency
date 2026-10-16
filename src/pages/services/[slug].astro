@@ -26,6 +26,7 @@ import {
   DELIVERABLES,
   OWNERSHIP,
   PRICING,
+  PRICING_NOTE,
   SERVICES,
   type PageIntro,
   type Service,
@@ -227,6 +228,10 @@ const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slu
                 </li>
               ))}
             </ul>
+
+            <p class="mt-6 max-w-2xl text-[0.875rem] leading-relaxed text-ink-muted" data-reveal>
+              {PRICING_NOTE}
+            </p>
           </div>
         </section>
       )

@@ -162,7 +162,7 @@ export const SERVICES: Service[] = [
       ['<1.2s', 'Load time'],
       ['6–10 wks', 'Build time'],
       ['100%', 'Mobile ready'],
-      ['12 mo', 'Free support'],
+      ['90 d', 'Free support'],
     ],
     stack: ['Next.js', 'TypeScript', 'Tailwind', 'Vercel', 'Sanity CMS'],
     angle: '135deg',
@@ -179,9 +179,9 @@ export const SERVICES: Service[] = [
     stat: { value: '4.8★', label: 'Average app rating' },
     meta: [
       ['4.8★', 'Avg rating'],
-      ['8–14 wks', 'Build time'],
+      ['8–18 wks', 'Build time'],
       ['2', 'Platforms'],
-      ['30 d', 'Free support'],
+      ['90 d', 'Free support'],
     ],
     stack: ['React Native', 'Flutter', 'Swift', 'Kotlin', 'Firebase', 'Supabase'],
     angle: '200deg',
@@ -272,7 +272,7 @@ export const FAQS = [
   },
   {
     q: 'How long is a typical project?',
-    a: '6 to 10 weeks for a build. Many clients stay on monthly for ongoing growth work.',
+    a: '6 to 10 weeks for a website, 2 to 4 months for an app. Many clients stay on monthly for ongoing growth work.',
   },
   {
     q: 'Do we own the code and designs?',
@@ -548,8 +548,20 @@ export const PAGES: Record<PageKey, PageIntro> = {
 /* ------------------------------------------------------------------ *
  * Rate cards.
  *
- * Ported from the previous site's src/data/pricing.ts. These are the real
- * published prices — never regenerate or "refresh" them.
+ * Ported from the previous site's src/data/pricing.ts, then repriced in
+ * October 2026 against published 2026 agency ranges. Prices are USD, one-time
+ * and project-based. The positioning is boutique mid-market: the middle-to-
+ * upper band of each range, for a small senior team that designs and builds
+ * together.
+ *
+ *   web        agency brochure site $3-10k; custom agency build $15-50k+
+ *   app        MVP $15-50k; medium app $50-120k; complex $150k+
+ *   ai         FAQ or RAG bot $8-25k; CRM-integrated agent $30-100k; enterprise $75k+
+ *   marketing  audit $2.5-25k by scope; retainers $2.5-10k a month
+ *
+ * Those ranges come from agency and vendor blogs, so they are bands and not
+ * quotes, and they disagree at the edges. Treat the numbers below as a
+ * position within them, and re-check the bands about once a year.
  *
  * Two changes on the way over. The `startup` card is dropped, matching the
  * decision to leave Startup Support out of SERVICES. And `hue` is dropped:
@@ -557,15 +569,15 @@ export const PAGES: Record<PageKey, PageIntro> = {
  * is purple and belongs to no ramp here). Each service already carries an
  * `angle` in SERVICES, which is what tints its cards on this site.
  *
- * `price` is deliberately free-form. "$8k", "from $24k" and "Custom" are
- * three different commercial claims, and lib/schema.ts keeps them apart when
- * building structured data.
+ * `price` is deliberately free-form. "$6k", "from $25k" and "Custom" are
+ * three different commercial claims — a flat price, a floor, and no number —
+ * so keep them distinct rather than normalising them to one shape.
  * ------------------------------------------------------------------ */
 export interface PricingPlan {
   id: string;
   name: string;
   info: string;
-  /** One-time, project-based price — "$8k", "from $24k", or "Custom". */
+  /** One-time, project-based price — "$6k", "from $25k", or "Custom". */
   price: string;
   timeline: string;
   features: string[];
@@ -588,7 +600,7 @@ export const PRICING: PricingService[] = [
         id: 'web-1',
         name: 'Starter site',
         info: 'A clean, fast site for new businesses and small teams.',
-        price: '$8k',
+        price: 'from $9k',
         timeline: '4 – 6 weeks',
         features: ['Up to 6 pages', 'Mobile-friendly design', 'Basic CMS', '30-day support'],
         cta: 'Start this project',
@@ -597,7 +609,7 @@ export const PRICING: PricingService[] = [
         id: 'web-2',
         name: 'Growth site',
         info: 'A full rebuild for companies replacing an outdated site.',
-        price: 'from $24k',
+        price: 'from $25k',
         timeline: '6 – 10 weeks',
         features: [
           'Up to 12 pages',
@@ -628,8 +640,8 @@ export const PRICING: PricingService[] = [
         id: 'app-1',
         name: 'MVP',
         info: 'Test your idea with real users on one platform.',
-        price: 'from $20k',
-        timeline: '8 weeks',
+        price: 'from $35k',
+        timeline: '8 – 10 weeks',
         features: ['Core features', '1 platform', 'App store launch', '30-day support'],
         cta: 'Start this project',
       },
@@ -637,8 +649,8 @@ export const PRICING: PricingService[] = [
         id: 'app-2',
         name: 'Full app',
         info: 'A polished launch on both platforms.',
-        price: 'from $45k',
-        timeline: '12 weeks',
+        price: 'from $80k',
+        timeline: '14 – 18 weeks',
         features: [
           'All features',
           'iOS + Android',
@@ -668,8 +680,8 @@ export const PRICING: PricingService[] = [
         id: 'bot-1',
         name: 'Quick bot',
         info: 'Test AI support on a single channel.',
-        price: '$6k',
-        timeline: '3 weeks',
+        price: 'from $8k',
+        timeline: '3 – 4 weeks',
         features: ['Basic flows', '1 channel', 'Training data prep', '2-week monitoring'],
         cta: 'Start this project',
       },
@@ -677,8 +689,8 @@ export const PRICING: PricingService[] = [
         id: 'bot-2',
         name: 'Full assistant',
         info: 'A trained agent across your support channels.',
-        price: 'from $15k',
-        timeline: '6 weeks',
+        price: 'from $28k',
+        timeline: '6 – 8 weeks',
         features: [
           'Custom training',
           'Multi-channel',
@@ -708,7 +720,7 @@ export const PRICING: PricingService[] = [
         id: 'mkt-1',
         name: 'Growth audit',
         info: 'A deep look at your funnel with quick wins you can ship now.',
-        price: '$5k',
+        price: '$6k',
         timeline: '3 weeks',
         features: ['Channel + funnel audit', 'Tracking setup', 'Quick-win fixes', '90-day roadmap'],
         cta: 'Start this project',
@@ -717,7 +729,7 @@ export const PRICING: PricingService[] = [
         id: 'mkt-2',
         name: '90-day sprint',
         info: 'A focused push across two channels to find what converts.',
-        price: 'from $18k',
+        price: 'from $20k',
         timeline: '12 weeks',
         features: [
           '2 ad channels',
@@ -741,6 +753,14 @@ export const PRICING: PricingService[] = [
     ],
   },
 ];
+
+/**
+ * Shown under every price ladder, on the home page and on each service page.
+ * These are the costs a client pays someone else for, and the ones every 2026
+ * pricing guide lists as the usual surprise on top of a quote.
+ */
+export const PRICING_NOTE =
+  'Starting prices in USD. Third-party costs such as ad spend, app-store fees, hosting and AI model usage are not included.';
 
 /* ------------------------------------------------------------------ *
  * About.

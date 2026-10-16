@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import Button from '../ui/Button.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
 import TextLink from '../ui/TextLink.astro';
-import { DELIVERABLES, PRICING, SERVICES } from '../../data/site';
+import { DELIVERABLES, PRICING, PRICING_NOTE, SERVICES } from '../../data/site';
 
 /**
  * One project brief per service: what it costs, how long it takes and what
@@ -12,9 +12,9 @@ import { DELIVERABLES, PRICING, SERVICES } from '../../data/site';
  * owner wants before they book a call.
  *
  * Nothing on this page is written for it. Prices and timelines are PRICING,
- * which site.ts marks as the real published rate cards, and the deliverables
- * are DELIVERABLES. All four briefs render at once: a price hidden behind a
- * tab is a price nobody compares, and every plan stays in the HTML.
+ * which site.ts sets against current market ranges, and the deliverables are
+ * DELIVERABLES. All four briefs render at once: a price hidden behind a tab is
+ * a price nobody compares, and every plan stays in the HTML.
  *
  * It makes no promise the data does not: there is no standalone pricing page
  * to link to (each service page carries the full scope and prices), and the
@@ -38,8 +38,8 @@ const briefs = SERVICES.map((service) => ({
       </div>
       <div class="lg:col-span-4 lg:col-start-9" data-reveal>
         <p class="text-ink-muted">
-          The real starting prices and timelines for each service, and what you
-          walk away with.
+          Starting prices and timelines for each service, and what you walk away
+          with.
         </p>
         <div class="mt-6">
           <Button href="/contact">Book a scoping call</Button>
@@ -89,7 +89,7 @@ const briefs = SERVICES.map((service) => ({
                       </span>
                     </div>
                     <!-- The badge rides the timeline line, not the price line:
-                         beside a long name and a price like "from $24k" it has
+                         beside a long name and a price like "from $35k" it has
                          no room on a phone and forces both to wrap. -->
                     <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
                       <p class="mono text-ink-faint">{plan.timeline}</p>
@@ -134,6 +134,7 @@ const briefs = SERVICES.map((service) => ({
       }
     </ul>
 
+    <p class="mt-8 max-w-2xl text-[0.875rem] leading-relaxed text-ink-muted">{PRICING_NOTE}</p>
   </div>
 </section>
 

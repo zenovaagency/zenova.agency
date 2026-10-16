@@ -8,7 +8,14 @@ const SERVICES = [
   'Not sure yet',
 ];
 
-const BUDGETS = ['Under 10k', '10k - 25k', '25k - 50k', '50k+', 'Not sure yet'];
+const BUDGETS = [
+  'Under 10k',
+  '10k - 25k',
+  '25k - 50k',
+  '50k - 100k',
+  '100k+',
+  'Not sure yet',
+];
 
 interface Fields {
   name: string;
