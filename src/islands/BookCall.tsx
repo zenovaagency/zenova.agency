@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { lockScroll } from '../lib/scroll';
 import { EASE, reducedMotion } from '../lib/motion';
 
@@ -92,12 +93,20 @@ function calendarDays(y: number, m: number) {
  * the booking summary and stops there. No mail client is opened and nothing
  * is sent — the copy on the confirmation card stays honest about that.
  *
+ * The modal is portalled to <body>. Rendered in place, any ancestor with a
+ * transform (GSAP's finished [data-reveal] state leaves one behind) becomes the
+ * containing block for `position: fixed`, and the overlay stops covering the
+ * viewport. Portalling means the trigger can sit inside a revealed section.
+ *
+ * `variant="card"` swaps the plain button for a full path card, for pages that
+ * offer booking as one of several ways in.
+ *
  * The panel is a flex column capped at the viewport height: the header and
  * the confirm footer stay pinned while the middle scrolls, so the button is
  * reachable without scrolling on any screen. Desktop splits into a details
  * column and a schedule column to keep the panel short.
  */
-export default function BookCall() {
+export default function BookCall({ variant = 'button' }: { variant?: 'button' | 'card' }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<'form' | 'booked'>('form');
   const [submitted, setSubmitted] = useState(false);
@@ -255,19 +264,59 @@ export default function BookCall() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={openModal}
-        className="inline-flex items-center gap-2.5 rounded-[10px] bg-brand-text px-6 py-[15px] font-medium text-white transition-[transform,background-color] duration-[180ms] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:bg-[#0a52c4]"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M3.5 9.5h17M8 2.8v4M16 2.8v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-        Book a call
-      </button>
+      {variant === 'card' ? (
+        <button
+          type="button"
+          onClick={openModal}
+          className="card-bleed group flex h-full w-full cursor-pointer flex-col gap-5 p-6 text-left sm:p-7"
+        >
+          <span className="flex items-center justify-between gap-4">
+            <span className="grid h-11 w-11 place-items-center rounded-[12px] bg-white/15 text-white">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+                <path d="M3.5 9.5h17M8 2.8v4M16 2.8v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+            </span>
+            <span className="mono rounded-full border border-white/40 px-3 py-1.5 text-white">
+              Fastest
+            </span>
+          </span>
+          <span className="block">
+            <span className="block text-[1.375rem] font-medium tracking-[-0.015em]">Book a call</span>
+            <span className="mt-2 block text-[0.9375rem] leading-relaxed text-white">
+              30 minutes. Pick a slot and talk it through — no pitch, just your project.
+            </span>
+          </span>
+          <span className="mt-auto inline-flex items-center gap-2 pt-2 text-[0.9375rem] font-medium">
+            Choose a time
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+              className="transition-transform duration-[180ms] ease-[var(--ease-out-expo)] group-hover:translate-x-[3px]"
+            >
+              <path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={openModal}
+          className="inline-flex items-center gap-2.5 rounded-[10px] bg-brand-text px-6 py-[15px] font-medium text-white transition-[transform,background-color] duration-[180ms] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:bg-[#0a52c4]"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M3.5 9.5h17M8 2.8v4M16 2.8v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          Book a call
+        </button>
+      )}
 
-      {open && (
+      {open &&
+        createPortal(
         <div className="fixed inset-0 z-[100] overflow-y-auto">
           <div
             ref={backdropRef}
@@ -580,7 +629,8 @@ export default function BookCall() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

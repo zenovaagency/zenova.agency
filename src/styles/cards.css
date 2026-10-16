@@ -160,6 +160,25 @@
   outline-offset: 3px;
 }
 
+/* Opt-out for a card that is a *container* — a form, a confirmation — rather
+   than something you point at. The lift would move every field under the
+   cursor, and a ring around the whole form whenever one input has focus is
+   noise on top of the input's own ring. Keeps the tinted surface and border. */
+.card-static:hover {
+  transform: none;
+}
+
+.card-static.card-tint:hover {
+  background:
+    linear-gradient(180deg, #ffffff, #f1f6ff) padding-box,
+    linear-gradient(135deg, var(--color-sky), var(--color-blush)) border-box;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-static:focus-within {
+  outline: none;
+}
+
 /* Veil used by the sticky service stack. An outgoing card is scaled and
    covered by this rather than faded, because reducing a card's opacity makes
    the cards stacked behind it show through. */

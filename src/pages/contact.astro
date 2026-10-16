@@ -1,80 +1,282 @@
 ---
+/**
+ * Contact.
+ *
+ * Three ways in, because people differ on how they want to start: a call
+ * (fastest), a written brief (most detail), or a plain email (no commitment).
+ * The cards sit directly under the headline so the choice is the first thing
+ * on the page; the brief form is the second screen, with what happens after
+ * sending beside it so nobody submits into a void.
+ *
+ * The values list that used to live in this column belongs to /about, and the
+ * "what happens next" steps it borrowed were the project phases rather than
+ * what happens after you get in touch — hence the contact-specific list below.
+ */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/chrome/Nav.astro';
 import Footer from '../components/chrome/Footer.astro';
-import Eyebrow from '../components/ui/Eyebrow.astro';
+import JsonLd from '../components/chrome/JsonLd.astro';
+import AvailabilityPill from '../components/ui/AvailabilityPill.astro';
+import Accordion from '../components/ui/Accordion.astro';
+import TextLink from '../components/ui/TextLink.astro';
 import ContactForm from '../islands/ContactForm';
 import BookCall from '../islands/BookCall';
-import { SITE, VALUES, PROCESS } from '../data/site';
+import CopyEmail from '../islands/CopyEmail';
+import { FAQS, HERO, SITE } from '../data/site';
+import { breadcrumb } from '../lib/schema';
+
+// Everything here restates answers already given in FAQS and on the services
+// pages; nothing is new commercial copy.
+const NEXT = [
+  {
+    n: '01',
+    title: 'You reach out',
+    body: 'Book a call, send the brief, or just write. Whichever is easiest.',
+  },
+  {
+    n: '02',
+    title: 'We reply within a working day',
+    body: 'A person reads it — and it is the same team that would do the work.',
+  },
+  {
+    n: '03',
+    title: 'We scope it together',
+    body: 'A 30-minute call about your project. Flat fee per phase, no hourly billing.',
+  },
+  {
+    n: '04',
+    title: 'We get started',
+    body: 'Usually 1 to 2 weeks after our intro call.',
+  },
+];
+
+// The questions people ask before writing. Matched on the question text so the
+// answers stay owned by FAQS; a reworded question drops out rather than
+// showing stale copy.
+const ASKED = new Set([
+  'How long is a typical project?',
+  'How does pricing work?',
+  'How soon can we start?',
+  'Do we own the code and designs?',
+]);
+const quick = FAQS.filter((f) => ASKED.has(f.q));
 ---
 
 <Base
   title="Contact — Zenova"
-  description="Book a quick 30-minute call. No pitch, just your project."
+  description="Book a 30-minute call, send a short brief, or write to us. No pitch, just your project — we reply within one working day."
 >
+  <JsonLd slot="head" data={breadcrumb([{ name: 'Contact', path: '/contact' }])} />
+
   <Nav />
 
   <main id="main">
-    <section class="relative overflow-hidden pb-[var(--section-y)] pt-36">
-      <div class="contact-wash absolute inset-x-0 top-0 -z-10 h-[420px]" aria-hidden="true">
-      </div>
+    <section class="relative overflow-hidden pb-14 pt-36 sm:pt-40 lg:pb-20">
+      <div class="contact-wash absolute inset-x-0 top-0 -z-10 h-[560px]" aria-hidden="true"></div>
 
       <div class="container-z">
-        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div class="lg:col-span-5">
-            <Eyebrow>Contact</Eyebrow>
-            <h1 class="h1 mt-6 text-ink" data-split>
-              Let&rsquo;s build something <em class="accent-serif">modern.</em>
-            </h1>
-            <p class="mt-6 max-w-md text-[1.0625rem] text-ink-muted" data-reveal>
-              A quick 30-minute call. No pitch, just your project.
-            </p>
+        <div class="max-w-3xl">
+          <div data-reveal>
+            <AvailabilityPill label={HERO.badge} />
+          </div>
+          <h1 class="h1 mt-7 text-ink" data-split>
+            Let&rsquo;s build something <em class="accent-serif">modern.</em>
+          </h1>
+          <p class="mt-6 max-w-xl text-[1.0625rem] text-ink-soft" data-reveal>
+            Start whichever way suits you — a 30-minute call, a short written brief, or a plain
+            email. No pitch, just your project.
+          </p>
+        </div>
 
-            {/* No data-reveal here: GSAP's finished transform would become the
-                containing block for BookCall's position:fixed modal. */}
-            <div class="mt-8">
-              <BookCall client:load />
+        <ul class="mt-12 grid gap-4 md:grid-cols-3 lg:gap-5" role="list">
+          <!-- 1. Call. The only saturated card on the page: it is the fastest
+               route in, so it is the one the eye lands on first. -->
+          <li data-reveal>
+            <BookCall variant="card" client:load />
+          </li>
+
+          <!-- 2. Brief. Jumps to the form below and puts focus in it. -->
+          <li data-reveal>
+            <a
+              href="#brief"
+              data-goto-brief
+              class="card-tint group flex h-full flex-col gap-5 p-6 sm:p-7"
+            >
+              <span class="flex items-center justify-between gap-4">
+                <span class="grid h-11 w-11 place-items-center rounded-[12px] bg-[#eef4ff] text-brand-text">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M5.5 4.5h9l4 4v11a1 1 0 0 1-1 1h-12a1 1 0 0 1-1-1v-14a1 1 0 0 1 1-1Z"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linejoin="round"></path>
+                    <path
+                      d="M14.5 4.5v4h4M8.5 13h7M8.5 16.5h5"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                  </svg>
+                </span>
+                <span class="mono rounded-full border border-line-strong px-3 py-1.5 text-ink-faint">
+                  Most detail
+                </span>
+              </span>
+              <span class="block">
+                <span class="block text-[1.375rem] font-medium tracking-[-0.015em] text-ink">
+                  Send a brief
+                </span>
+                <span class="mt-2 block text-[0.9375rem] leading-relaxed text-ink-muted">
+                  Four quick questions, written at your own pace. We read every one.
+                </span>
+              </span>
+              <span class="mt-auto inline-flex items-center gap-2 pt-2 text-[0.9375rem] font-medium text-brand-text">
+                Start the brief
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                  class="transition-transform duration-[180ms] ease-[var(--ease-out-expo)] group-hover:translate-y-[3px]"
+                >
+                  <path
+                    d="M12 5v13m0 0-5.5-5.5M12 18l5.5-5.5"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"></path>
+                </svg>
+              </span>
+            </a>
+          </li>
+
+          <!-- 3. Email. The whole card is the mailto link; the copy button
+               sits above it (z-10) so the two stay separate tab stops. -->
+          <li data-reveal>
+            <div class="card-tint group relative flex h-full flex-col gap-5 p-6 sm:p-7">
+              <span class="flex items-center justify-between gap-4">
+                <span class="grid h-11 w-11 place-items-center rounded-[12px] bg-[#eef4ff] text-brand-text">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect
+                      x="3.5"
+                      y="5.5"
+                      width="17"
+                      height="13"
+                      rx="2.5"
+                      stroke="currentColor"
+                      stroke-width="1.6"></rect>
+                    <path
+                      d="m4.5 8 7.5 5.5L19.5 8"
+                      stroke="currentColor"
+                      stroke-width="1.6"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"></path>
+                  </svg>
+                </span>
+                <span class="mono rounded-full border border-line-strong px-3 py-1.5 text-ink-faint">
+                  Any time
+                </span>
+              </span>
+              <span class="block">
+                <a
+                  href={`mailto:${SITE.email}`}
+                  class="block text-[1.375rem] font-medium tracking-[-0.015em] text-ink after:absolute after:inset-0 after:content-['']"
+                >
+                  Write to us
+                </a>
+                <span class="mt-2 block text-[0.9375rem] leading-relaxed text-ink-muted">
+                  Prefer your own inbox? Say anything, in any shape — we will take it from there.
+                </span>
+              </span>
+              <span class="relative z-10 mt-auto flex flex-wrap items-center gap-x-3 gap-y-2 pt-2">
+                <span class="text-[0.9375rem] font-medium text-brand-text">{SITE.email}</span>
+                <CopyEmail value={SITE.email} client:load />
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section
+      class="border-t border-line bg-white py-[var(--section-y)]"
+      aria-labelledby="brief-title"
+    >
+      <div class="container-z">
+        <div class="grid items-start gap-12 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-7">
+            <div id="brief" class="scroll-mt-28" data-reveal>
+              <p class="mono text-ink-faint">The brief</p>
+              <h2 id="brief-title" class="h2 mt-4 text-ink">
+                Tell us about <em class="accent-serif">the project.</em>
+              </h2>
+              <p class="mt-4 max-w-lg text-ink-muted">
+                Four answers is plenty. The rest we will work out together on a call.
+              </p>
             </div>
 
-            <a
-              href={`mailto:${SITE.email}`}
-              class="mt-6 inline-block text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
-              data-reveal
-            >
-              Prefer email? {SITE.email}
-            </a>
+            <div class="mt-9" data-reveal>
+              <ContactForm to={SITE.email} client:load />
+            </div>
+          </div>
 
-            <div class="mt-12 space-y-6" data-reveal>
+          <aside class="lg:sticky lg:top-28 lg:col-span-4 lg:col-start-9" aria-label="What happens next">
+            <div data-reveal>
               <p class="mono text-ink-faint">What happens next</p>
-              <ol class="space-y-4">
+
+              <ol
+                class="relative mt-7 space-y-8 before:absolute before:bottom-4 before:left-4 before:top-4 before:w-px before:bg-gradient-to-b before:from-brand before:via-sky before:to-blush"
+              >
                 {
-                  PROCESS.steps.slice(0, 2).map((s) => (
-                    <li class="flex gap-4">
-                      <span class="mono mt-1 text-ink-faint tabular-nums">{s.n}</span>
-                      <span class="text-ink-muted">
-                        <span class="text-ink">{s.title}</span> — {s.blurb}
+                  NEXT.map((step) => (
+                    <li class="relative flex gap-5">
+                      <span class="mono relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full border border-line-strong bg-white tabular-nums text-ink">
+                        {step.n}
                       </span>
+                      <div class="pt-0.5">
+                        <p class="font-medium text-ink">{step.title}</p>
+                        <p class="mt-1.5 text-[0.9375rem] leading-relaxed text-ink-muted">
+                          {step.body}
+                        </p>
+                      </div>
                     </li>
                   ))
                 }
               </ol>
+
+              <div class="mt-10 rounded-[var(--radius-md)] border border-line bg-paper p-6">
+                <p class="font-medium text-ink">Here about a role?</p>
+                <p class="mt-1.5 text-[0.9375rem] leading-relaxed text-ink-muted">
+                  We hire rarely and deliberately. Open roles are listed on the careers page, or
+                  write to <a
+                    href={`mailto:${SITE.careersEmail}`}
+                    class="text-brand-text underline decoration-sky decoration-1 underline-offset-4 hover:decoration-brand"
+                    >{SITE.careersEmail}</a
+                  >.
+                </p>
+                <div class="mt-4">
+                  <TextLink href="/careers">See open roles</TextLink>
+                </div>
+              </div>
             </div>
+          </aside>
+        </div>
+      </div>
+    </section>
 
-            <ul class="mt-12 space-y-5 border-t border-line pt-8" data-reveal>
-              {
-                VALUES.map((v) => (
-                  <li>
-                    <p class="font-medium text-ink">{v.title}</p>
-                    <p class="mt-1 text-[0.9375rem] text-ink-muted">{v.blurb}</p>
-                  </li>
-                ))
-              }
-            </ul>
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="asked-title">
+      <div class="container-z">
+        <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-4">
+            <h2 id="asked-title" class="h2 text-ink" data-split>
+              Before you <em class="accent-serif">write.</em>
+            </h2>
+            <p class="mt-5 text-ink-muted" data-reveal>
+              The things people ask most. If yours is not here, just ask.
+            </p>
           </div>
-
-          <div class="lg:col-span-6 lg:col-start-7" data-reveal>
-            <ContactForm to={SITE.email} client:visible />
-          </div>
+          <Accordion items={quick} class="lg:col-span-7 lg:col-start-6" data-reveal />
         </div>
       </div>
     </section>
@@ -82,6 +284,25 @@ import { SITE, VALUES, PROCESS } from '../data/site';
 
   <Footer />
 </Base>
+
+<script>
+  import { scrollTo } from '../lib/scroll';
+
+  // "Send a brief" jumps to the form and puts the cursor in it, so the card
+  // does what it says rather than just moving the page.
+  document.querySelectorAll<HTMLAnchorElement>('[data-goto-brief]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const target = document.getElementById('brief');
+      if (!target) return;
+      e.preventDefault();
+      scrollTo(target, -112);
+      history.replaceState(null, '', '#brief');
+      window.setTimeout(() => {
+        document.getElementById('field-service')?.focus({ preventScroll: true });
+      }, 700);
+    });
+  });
+</script>
 
 <style>
   .contact-wash {
