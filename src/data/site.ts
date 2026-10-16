@@ -343,7 +343,7 @@ export const CTA = {
 export interface Deliverable {
   /** The join to SERVICES. Compile-checked, unlike matching on `label`. */
   service: ServiceSlug;
-  /** Display text — the home rail prints this as the card eyebrow. */
+  /** Display text — printed as the card eyebrow on the service pages. */
   label: string;
   title: string;
   blurb: string;
@@ -473,9 +473,8 @@ export const PAGES: Record<PageKey, PageIntro> = {
   },
   /*
    * Rewritten when /work became a portfolio. Its previous copy ("Not a deck.
-   * Working things.") described deliverables, and still runs verbatim on the
-   * home rail — see components/home/Deliverables.astro. The deliverables
-   * themselves now sit on the service that ships them.
+   * Working things.") described deliverables, which now sit on the service
+   * that ships them.
    *
    * This copy deliberately promises no results. Until PROJECTS has a
    * non-draft entry the page renders WORK_COPY's empty state, and a headline
