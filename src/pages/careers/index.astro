@@ -186,10 +186,10 @@ const mailto = `mailto:${SITE.careersEmail}`;
 <style>
   /*
     The hiring steps are the one genuine sequence on this site, so they get a
-    rail rather than four adjacent boxes. Home already owns the scrubbed
-    progress line (home/Process), the sticky stack and the pinned rail, so this
-    is deliberately none of those: it is static CSS, and /careers continues to
-    ship no client JS of its own.
+    rail rather than four adjacent boxes. Home already owns the sticky stack
+    (home/Services) and the scripted playground (home/Playground), so this is
+    deliberately neither: it is static CSS, and /careers continues to ship no
+    client JS of its own.
 
     The line is drawn per cell across the full width and the badge sits on top
     of it, opaque. That is what makes it continue across the 1px grid gaps —

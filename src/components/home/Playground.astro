@@ -1,0 +1,665 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import TextLink from '../ui/TextLink.astro';
+import { SERVICES } from '../../data/site';
+
+/**
+ * The studio playground: a live mini-product UI with four design controls and
+ * a code readout that rewrites itself as they move. It is the site's own claim
+ * made tangible — the people who design it are the people who build it — so
+ * design and code change together here, in one panel, with no handoff.
+ *
+ * The option data lives on the inputs as data-* attributes. The script reads
+ * it back from the DOM, so there is exactly one copy of each value and it is
+ * the one the markup ships with.
+ */
+
+// Ocean is --color-brand-text, not --color-brand: white on #006BFF is ~4.45:1
+// and fails AA, and the preview button is a real button surface.
+const COLOURS = [
+  { id: 'ocean', label: 'Ocean', value: '#0060e6', on: '#ffffff' },
+  { id: 'sky', label: 'Sky', value: '#6fb6ff', on: '#0b3558' },
+  { id: 'blush', label: 'Blush', value: '#ffaecb', on: '#0b3558' },
+  { id: 'ink', label: 'Ink', value: '#0b3558', on: '#ffffff' },
+];
+
+// Instrument Serif ships a single face (400 italic, see Base.astro), so the
+// serif option is italic by construction, the same as .accent-serif.
+const TYPES = [
+  {
+    id: 'sans',
+    label: 'Sans',
+    name: 'Geist',
+    stack: "'Geist Variable', ui-sans-serif, system-ui, sans-serif",
+  },
+  {
+    id: 'serif',
+    label: 'Serif',
+    name: 'Instrument Serif',
+    stack: "'Instrument Serif', Georgia, 'Times New Roman', serif",
+  },
+];
+
+const SPACES = [
+  { id: 'tight', label: 'Tight', value: '0.75rem' },
+  { id: 'regular', label: 'Regular', value: '1.25rem' },
+  { id: 'airy', label: 'Airy', value: '1.75rem' },
+];
+
+const [colour] = COLOURS;
+const [type] = TYPES;
+const space = SPACES[1];
+const RADIUS = 12;
+
+// The real first-service figure, so the preview's stat tile is a claim the
+// site already makes rather than an invented one.
+const { stat } = SERVICES[0];
+---
+
+<section
+  id="playground"
+  class="section-y relative bg-white"
+  aria-labelledby="playground-title"
+>
+  <div class="container-z">
+    <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-7">
+        <Eyebrow>Studio playground</Eyebrow>
+        <h2 id="playground-title" class="h1 mt-6 text-ink" data-split>
+          Don't take our word for&nbsp;it.<br /><em class="accent-serif">Move something.</em>
+        </h2>
+      </div>
+      <div class="lg:col-span-4 lg:col-start-9" data-reveal>
+        <p class="text-ink-muted">
+          This is the whole studio in one panel. Change the design and the code
+          changes with it, because here they are the same people.
+        </p>
+        <TextLink href="/contact" class="mt-5">Start your own brief</TextLink>
+      </div>
+    </div>
+
+    <div class="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-12 lg:gap-8" data-reveal>
+      <!-- Controls. Native inputs throughout, so keyboard and screen-reader
+           behaviour is the platform's own. Hidden without JS, since nothing
+           here would do anything. -->
+      <form
+        id="pg-form"
+        class="pg-controls pg-panel flex flex-col p-6 sm:p-8 lg:col-span-4"
+        aria-label="Design controls"
+        autocomplete="off"
+      >
+        <p class="mono text-ink-muted">Tune the brief</p>
+
+        <fieldset class="mt-7">
+          <legend class="mono text-ink">Colour</legend>
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            {
+              COLOURS.map((c, i) => (
+                <label class="pg-opt">
+                  <input
+                    type="radio"
+                    name="pg-colour"
+                    value={c.id}
+                    class="sr-only"
+                    checked={i === 0}
+                    data-accent={c.value}
+                    data-on={c.on}
+                  />
+                  <span class="pg-face gap-2.5">
+                    <span
+                      class="h-4 w-4 shrink-0 rounded-full border border-ink/15"
+                      style={`background:${c.value}`}
+                      aria-hidden="true"
+                    />
+                    {c.label}
+                  </span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <div class="mt-7">
+          <div class="flex items-baseline justify-between">
+            <label for="pg-radius" class="mono text-ink">Corners</label>
+            <output for="pg-radius" id="pg-radius-out" class="mono text-ink-muted tabular-nums">
+              {RADIUS}px
+            </output>
+          </div>
+          <input
+            id="pg-radius"
+            name="pg-radius"
+            type="range"
+            min="0"
+            max="28"
+            step="2"
+            value={RADIUS}
+            class="pg-range mt-3 w-full"
+          />
+        </div>
+
+        <fieldset class="mt-7">
+          <legend class="mono text-ink">Type</legend>
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            {
+              TYPES.map((t, i) => (
+                <label class="pg-opt">
+                  <input
+                    type="radio"
+                    name="pg-type"
+                    value={t.id}
+                    class="sr-only"
+                    checked={i === 0}
+                    data-font={t.stack}
+                    data-name={t.name}
+                  />
+                  <span class="pg-face">{t.label}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="mt-7">
+          <legend class="mono text-ink">Spacing</legend>
+          <div class="mt-3 grid grid-cols-3 gap-2">
+            {
+              SPACES.map((s, i) => (
+                <label class="pg-opt">
+                  <input
+                    type="radio"
+                    name="pg-space"
+                    value={s.id}
+                    class="sr-only"
+                    checked={i === 1}
+                    data-space={s.value}
+                  />
+                  <span class="pg-face">{s.label}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <button
+          type="button"
+          id="pg-shuffle"
+          class="mb-8 mt-8 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-[10px] border border-line-strong bg-white px-5 py-3 text-[0.9375rem] font-medium leading-none text-ink transition-[transform,border-color,box-shadow] duration-[180ms] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-sky hover:shadow-[var(--shadow-sm)] active:translate-y-0"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"></path>
+          </svg>
+          Surprise me
+        </button>
+
+        <!-- The column stretches to the stage's height; this is what fills
+             the room under the controls rather than leaving it empty. -->
+        <p class="mt-auto border-t border-line pt-6 text-[0.875rem] leading-relaxed text-ink-muted">
+          Every value in the file is a live CSS variable. Move a control and
+          the code changes with it.
+        </p>
+      </form>
+
+      <!-- Stage: the live preview, then the code it is made of. -->
+      <div class="pg-stagecard overflow-hidden p-3 sm:p-4 lg:col-span-8 lg:col-start-5">
+        <div
+          id="pg-stage"
+          style={`--pg-accent:${colour.value}; --pg-on:${colour.on}; --pg-radius:${RADIUS}px; --pg-font:${type.stack}; --pg-space:${space.value}`}
+        >
+          <div class="pg-browser" aria-hidden="true">
+            <div class="flex items-center gap-2 border-b border-line bg-white px-4 py-3">
+              <span class="h-2.5 w-2.5 rounded-full bg-blush"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-sky"></span>
+              <span class="h-2.5 w-2.5 rounded-full bg-brand"></span>
+              <span
+                class="mono ml-3 min-w-0 flex-1 truncate rounded-full bg-paper px-3 py-1.5 text-ink-faint"
+              >
+                yourproject.com
+              </span>
+            </div>
+
+            <!-- The mock UI is decorative and unfocusable on purpose: plain
+                 divs, never real buttons or inputs, so tab order stays on the
+                 controls. The sr-only status line below speaks for it. -->
+            <div class="pg-canvas">
+              <div class="pg-card">
+                <span class="pg-chip mono">
+                  <span class="pg-chip__dot"></span>
+                  New release
+                </span>
+
+                <p class="pg-title">Make the first version feel finished.</p>
+                <p class="pg-body">
+                  Design and code in one room, shipped in weeks rather than quarters.
+                </p>
+
+                <div class="pg-actions">
+                  <span class="pg-btn pg-btn--solid">Get started</span>
+                  <span class="pg-btn pg-btn--ghost">See the work</span>
+                </div>
+
+                <div class="pg-row">
+                  <div class="pg-tile">
+                    <span class="pg-tile__value tabular-nums">{stat.value}</span>
+                    <span class="pg-tile__label">{stat.label}</span>
+                  </div>
+                  <div class="pg-field">you@company.com</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pg-code" role="group" aria-label="The CSS this design is made of, updating live">
+          <div class="flex items-center justify-between border-b border-white/10 px-5 py-3">
+            <span class="mono text-[#c9d9ee]">tokens.css</span>
+            <span class="mono flex items-center gap-2 text-[#c9d9ee]">
+              <span class="pg-live" aria-hidden="true"></span>
+              Live
+            </span>
+          </div>
+<pre class="px-5 py-4"><code><span class="pg-sel">:root</span> <span class="pg-punc">{'{'}</span>
+<span class="pg-line" data-line="accent">  <span class="pg-prop">--accent</span><span class="pg-punc">:</span> <span class="pg-val">{colour.value}</span><span class="pg-punc">;</span></span>
+<span class="pg-line" data-line="radius">  <span class="pg-prop">--radius</span><span class="pg-punc">:</span> <span class="pg-val">{RADIUS}px</span><span class="pg-punc">;</span></span>
+<span class="pg-line" data-line="font">  <span class="pg-prop">--font</span><span class="pg-punc">:</span> <span class="pg-val">'{type.name}'</span><span class="pg-punc">;</span></span>
+<span class="pg-line" data-line="space">  <span class="pg-prop">--space</span><span class="pg-punc">:</span> <span class="pg-val">{space.value}</span><span class="pg-punc">;</span></span>
+<span class="pg-punc">{'}'}</span></code></pre>
+        </div>
+      </div>
+    </div>
+
+    <p id="pg-status" class="sr-only" role="status"></p>
+  </div>
+</section>
+
+<style>
+  /* Without JS there is nothing for the controls to drive, and the stage
+     keeps its column so the section does not collapse to the left. */
+  :global(html:not(.js)) .pg-controls {
+    display: none;
+  }
+
+  .pg-panel {
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: var(--color-paper);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* The same gradient-border recipe as .card-tint, without its hover lift:
+     this panel holds a slider, and a surface that jumps under the pointer
+     mid-drag is the wrong behaviour for it. */
+  .pg-stagecard {
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    background:
+      linear-gradient(180deg, #ffffff, #f1f6ff) padding-box,
+      linear-gradient(135deg, var(--color-sky), var(--color-blush)) border-box;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* --- Controls ----------------------------------------------------- */
+  .pg-opt {
+    display: block;
+    cursor: pointer;
+  }
+
+  .pg-face {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 14px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: var(--radius-btn);
+    background: #ffffff;
+    color: var(--color-ink);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1;
+    transition:
+      background-color 180ms var(--ease-out-expo),
+      border-color 180ms var(--ease-out-expo),
+      color 180ms var(--ease-out-expo);
+  }
+
+  .pg-opt:hover .pg-face {
+    border-color: var(--color-sky);
+  }
+
+  .pg-opt input:checked + .pg-face {
+    border-color: var(--color-ink);
+    background: var(--color-ink);
+    color: #ffffff;
+  }
+
+  /* The input is sr-only, so the global :focus-visible ring has nothing to
+     draw on. Hand it to the visible face instead. */
+  .pg-opt input:focus-visible + .pg-face {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+  }
+
+  .pg-range {
+    accent-color: var(--color-brand-text);
+    cursor: pointer;
+  }
+
+  /* --- Stage -------------------------------------------------------- */
+  .pg-browser {
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+  }
+
+  .pg-canvas {
+    padding: clamp(16px, 4vw, 40px);
+    background: linear-gradient(135deg, #f4f8ff, #eaf2ff);
+  }
+
+  /* Everything below reads only the five --pg-* properties on #pg-stage, so
+     the script's whole job is to set them. */
+  .pg-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--pg-space);
+    max-width: 30rem;
+    margin-inline: auto;
+    padding: calc(var(--pg-space) * 1.5);
+    border: 1px solid var(--color-line);
+    border-radius: calc(var(--pg-radius) * 1.5);
+    background: #ffffff;
+    box-shadow: var(--shadow-md);
+    transition:
+      border-radius 350ms var(--ease-out-expo),
+      gap 350ms var(--ease-out-expo),
+      padding 350ms var(--ease-out-expo);
+  }
+
+  .pg-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--pg-accent) 16%, #ffffff);
+    color: var(--color-ink);
+    transition: background-color 350ms var(--ease-out-expo);
+  }
+
+  .pg-chip__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--pg-accent);
+    transition: background-color 350ms var(--ease-out-expo);
+  }
+
+  .pg-title {
+    margin: 0;
+    font-family: var(--pg-font);
+    font-size: clamp(1.625rem, 3.2vw, 2.25rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+    text-wrap: balance;
+  }
+
+  .pg-body {
+    margin: 0;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--color-ink-muted);
+  }
+
+  .pg-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--pg-space) * 0.6);
+  }
+
+  .pg-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 18px;
+    border: 1px solid transparent;
+    border-radius: var(--pg-radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    transition:
+      background-color 350ms var(--ease-out-expo),
+      color 350ms var(--ease-out-expo),
+      border-radius 350ms var(--ease-out-expo);
+  }
+
+  .pg-btn--solid {
+    background: var(--pg-accent);
+    color: var(--pg-on);
+  }
+
+  .pg-btn--ghost {
+    border-color: var(--color-line-strong);
+    color: var(--color-ink);
+  }
+
+  .pg-row {
+    display: grid;
+    width: 100%;
+    gap: calc(var(--pg-space) * 0.6);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 520px) {
+    .pg-row {
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: stretch;
+    }
+  }
+
+  .pg-tile {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 12px 16px;
+    border-radius: var(--pg-radius);
+    background: color-mix(in srgb, var(--pg-accent) 16%, #ffffff);
+    transition:
+      background-color 350ms var(--ease-out-expo),
+      border-radius 350ms var(--ease-out-expo);
+  }
+
+  .pg-tile__value {
+    font-family: var(--pg-font);
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--color-ink);
+  }
+
+  .pg-tile__label {
+    font-size: 0.75rem;
+    line-height: 1.2;
+    color: var(--color-ink-soft);
+  }
+
+  .pg-field {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    min-height: 48px;
+    border: 1.5px solid var(--pg-accent);
+    border-radius: var(--pg-radius);
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    transition:
+      border-color 350ms var(--ease-out-expo),
+      border-radius 350ms var(--ease-out-expo);
+  }
+
+  /* --- Code readout ------------------------------------------------- *
+   * Light type on --color-ink. Measured on #0B3558: body #E6EEFB ~11:1,
+   * property sky ~5.8:1, value blush ~7.2:1, punctuation ~5.9:1. Blush is
+   * barred as text on light grounds, not on this one.
+   * ------------------------------------------------------------------ */
+  .pg-code {
+    margin-top: 12px;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--color-ink);
+    color: #e6eefb;
+  }
+
+  .pg-code pre {
+    margin: 0;
+    overflow-x: auto;
+    font-family: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.75;
+    tab-size: 2;
+  }
+
+  .pg-code code {
+    font: inherit;
+  }
+
+  .pg-prop {
+    color: var(--color-sky);
+  }
+
+  .pg-val {
+    color: var(--color-blush);
+  }
+
+  .pg-punc {
+    color: #9db6d3;
+  }
+
+  .pg-sel {
+    color: #e6eefb;
+  }
+
+  .pg-line {
+    border-radius: 4px;
+  }
+
+  .pg-line.is-changed {
+    animation: pg-flash 900ms var(--ease-out-expo);
+  }
+
+  @keyframes pg-flash {
+    from {
+      background: rgb(111 182 255 / 0.28);
+    }
+    to {
+      background: transparent;
+    }
+  }
+
+  .pg-live {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-sky);
+    animation: pg-pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pg-pulse {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('pg-form') as HTMLFormElement | null;
+  const stage = document.getElementById('pg-stage');
+  const status = document.getElementById('pg-status');
+  const radiusOut = document.getElementById('pg-radius-out');
+  const radiusIn = document.getElementById('pg-radius') as HTMLInputElement | null;
+  const shuffle = document.getElementById('pg-shuffle');
+
+  if (form && stage && radiusIn) {
+    const checked = (name: string) =>
+      form.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`)!;
+
+    // Writes one token into the code readout and flashes its line, but only
+    // when the value actually changed, so dragging the slider across a step
+    // boundary is the only thing that lights the line up.
+    const setLine = (key: string, value: string, flash: boolean) => {
+      const line = stage.parentElement?.querySelector<HTMLElement>(`[data-line="${key}"]`);
+      const val = line?.querySelector<HTMLElement>('.pg-val');
+      if (!line || !val || val.textContent === value) return;
+      val.textContent = value;
+      if (!flash) return;
+      line.classList.remove('is-changed');
+      void line.offsetWidth; // restart the animation if it is mid-flight
+      line.classList.add('is-changed');
+    };
+
+    const apply = (flash: boolean) => {
+      const colour = checked('pg-colour');
+      const type = checked('pg-type');
+      const space = checked('pg-space');
+      const radius = `${radiusIn.value}px`;
+
+      stage.style.setProperty('--pg-accent', colour.dataset.accent!);
+      stage.style.setProperty('--pg-on', colour.dataset.on!);
+      stage.style.setProperty('--pg-radius', radius);
+      stage.style.setProperty('--pg-font', type.dataset.font!);
+      stage.style.setProperty('--pg-space', space.dataset.space!);
+
+      if (radiusOut) radiusOut.textContent = radius;
+
+      setLine('accent', colour.dataset.accent!, flash);
+      setLine('radius', radius, flash);
+      setLine('font', `'${type.dataset.name}'`, flash);
+      setLine('space', space.dataset.space!, flash);
+    };
+
+    // Announced on `change`, not `input`: a slider drag fires `input` dozens
+    // of times, and a polite live region would read every one of them.
+    const announce = () => {
+      if (!status) return;
+      const colour = checked('pg-colour').value;
+      const type = checked('pg-type').value;
+      const space = checked('pg-space').value;
+      status.textContent = `Preview updated: ${colour} accent, ${radiusIn.value} pixel corners, ${type} type, ${space} spacing.`;
+    };
+
+    form.addEventListener('input', () => apply(true));
+    form.addEventListener('change', announce);
+    form.addEventListener('submit', (e) => e.preventDefault());
+
+    shuffle?.addEventListener('click', () => {
+      const pickOne = (name: string) => {
+        const options = [...form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]`)];
+        options[Math.floor(Math.random() * options.length)].checked = true;
+      };
+      pickOne('pg-colour');
+      pickOne('pg-type');
+      pickOne('pg-space');
+      radiusIn.value = String(Math.floor(Math.random() * 15) * 2); // 0-28, step 2
+      apply(true);
+      announce();
+    });
+
+    // A browser may restore form state on back/forward navigation, so the
+    // stage is synced to the inputs once on load rather than assumed.
+    apply(false);
+  }
+</script>

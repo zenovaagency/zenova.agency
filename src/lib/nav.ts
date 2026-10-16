@@ -36,8 +36,8 @@ export interface ChainItem {
  * prospective client would want them — what we do, what it costs, what we
  * have done, who we are hiring, who we are — and terminate at contact.
  *
- * Process was removed with its page; the four phases now live only on the
- * home page.
+ * Process was removed with its page, and later with its home-page section;
+ * the four phases remain in PROCESS (data/site.ts) and surface on /contact.
  */
 export const CHAIN: ChainItem[] = [
   { label: 'Services', href: '/services' },
