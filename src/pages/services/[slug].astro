@@ -204,17 +204,13 @@ const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slu
       )
     }
 
-    <!--
-      What it costs. A summary only — the full cards are one click away, and
-      repeating twelve feature lists here would bury everything above them.
-    -->
+    <!-- What it costs. A summary of the three tiers — names, prices, timelines. -->
     {
       rates && (
         <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="rates-title">
           <div class="container-z">
-            <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-reveal>
+            <div data-reveal>
               <h2 id="rates-title" class="h2 text-ink">What it costs</h2>
-              <TextLink href={`/pricing/${service.slug}`}>See the full rate card</TextLink>
             </div>
 
             <ul class="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-3">
