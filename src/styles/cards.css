@@ -176,8 +176,7 @@
 /* --- D. Ambient light --------------------------------------------- *
  * Opt-in, via .card-live alongside .card-bleed. It is a modifier and not part
  * of .card-bleed because .card-bleed has four callers — home/Services and
- * chrome/Cta opt in deliberately, while pricing/index and pricing/[slug]
- * stay static: a price table wants to read as fixed, not in motion.
+ * chrome/Cta opt in deliberately, while the others stay static.
  *
  * THE LIGHT IS BLUE, NOT WHITE, AND THAT IS THE WHOLE DESIGN.
  *

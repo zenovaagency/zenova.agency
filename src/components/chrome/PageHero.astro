@@ -148,8 +148,8 @@ const crumbs: Crumb[] = trail ? [{ label: 'Home', href: '/' }, ...trail] : [];
       linear-gradient(180deg, #eef4ff 0%, rgb(246 249 255 / 0) 100%);
   }
 
-  /* 4 — pricing. One soft lobe, and nothing else. The page below it is
-     twelve cards; the header has no business competing with them. */
+  /* 4 — blog. One soft lobe, and nothing else. The page below it is a long
+     list of cards; the header has no business competing with them. */
   .wash-4 {
     background:
       radial-gradient(44% 58% at 86% 22%, rgb(111 182 255 / 0.5), transparent 74%),
@@ -169,8 +169,8 @@ const crumbs: Crumb[] = trail ? [{ label: 'Home', href: '/' }, ...trail] : [];
   }
 
   /* Detail pages. Rotated per instance by the service's own --angle, so the
-     four service headers and the four pricing headers differ from each other
-     without minting eight more recipes.
+     four service headers differ from each other without minting four more
+     recipes.
 
      Linear rather than radial on purpose: it has no lobe to keep out of the
      text zone, and it uses only the -soft tints, so the contrast rule above

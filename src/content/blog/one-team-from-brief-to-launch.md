@@ -27,7 +27,7 @@ The client sees the preview link long after the decisions were made. Feedback th
 
 When the same people design, build and then measure the result, the handoff document disappears — because there is no handoff. The person writing the copy knows how the CMS will store it. The person animating the hero knows the performance budget. Decisions stay attached to their reasons because the reason-holder is in the room the whole time.
 
-This is how Zenova is [shaped as a studio](/about): one team from the first call to the ninetieth day, rather than a designer, then an agency, then a marketer. It is also why we [scope and price per project](/pricing) — a single accountable team cannot bill by the hour without billing the gaps.
+This is how Zenova is [shaped as a studio](/about): one team from the first call to the ninetieth day, rather than a designer, then an agency, then a marketer. It is also why we scope and price per project — a single accountable team cannot bill by the hour without billing the gaps.
 
 ## The honest caveat
 

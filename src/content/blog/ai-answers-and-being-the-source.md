@@ -21,7 +21,7 @@ One `<h1>` per page, headings that describe what the section actually says, and 
 
 ### Mark up the facts
 
-Structured data does not rank a page by itself, but it removes ambiguity about what a page *is*: an article, a product, an FAQ, a job posting. This site emits it for [every service](/services), every [rate card](/pricing) and every [role](/careers) — the same principle applies to any site we [build](/services/web).
+Structured data does not rank a page by itself, but it removes ambiguity about what a page *is*: an article, a product, an FAQ, a job posting. This site emits it for [every service](/services) and every [role](/careers) — the same principle applies to any site we [build](/services/web).
 
 ## What to stop doing
 

@@ -3,8 +3,8 @@
  * Native <details>. Keyboard support, screen-reader semantics and open state
  * all come for free, and it works with JS disabled.
  *
- * Extracted so the home FAQ and the pricing FAQ share one recipe rather than
- * two copies of the same thirty lines of CSS.
+ * Kept separate from the home FAQ section so any page can reuse the recipe
+ * rather than copying thirty lines of CSS.
  */
 interface Props {
   items: { q: string; a: string }[];

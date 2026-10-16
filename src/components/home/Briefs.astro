@@ -3,7 +3,7 @@ import { Image } from 'astro:assets';
 import Button from '../ui/Button.astro';
 import Eyebrow from '../ui/Eyebrow.astro';
 import TextLink from '../ui/TextLink.astro';
-import { DELIVERABLES, PRICING, SERVICES, TRUST } from '../../data/site';
+import { DELIVERABLES, PRICING, SERVICES } from '../../data/site';
 
 /**
  * One project brief per service: what it costs, how long it takes and what
@@ -12,10 +12,13 @@ import { DELIVERABLES, PRICING, SERVICES, TRUST } from '../../data/site';
  * owner wants before they book a call.
  *
  * Nothing on this page is written for it. Prices and timelines are PRICING,
- * which site.ts marks as the real published rate cards, the deliverables are
- * DELIVERABLES, and the terms strip is TRUST. All four briefs render at once,
- * for the same reason /pricing does: a price hidden behind a tab is a price
- * nobody compares, and every plan stays in the HTML.
+ * which site.ts marks as the real published rate cards, and the deliverables
+ * are DELIVERABLES. All four briefs render at once: a price hidden behind a
+ * tab is a price nobody compares, and every plan stays in the HTML.
+ *
+ * It makes no promise the data does not: there is no standalone pricing page
+ * to link to (each service page carries the full scope and prices), and the
+ * old "fixed quote" assurances went with the pricing copy they lived in.
  */
 const briefs = SERVICES.map((service) => ({
   service,
@@ -36,11 +39,10 @@ const briefs = SERVICES.map((service) => ({
       <div class="lg:col-span-4 lg:col-start-9" data-reveal>
         <p class="text-ink-muted">
           The real starting prices and timelines for each service, and what you
-          walk away with. Every quote is fixed before we start.
+          walk away with.
         </p>
-        <div class="mt-6 flex flex-wrap items-center gap-x-7 gap-y-4">
-          <Button href="/contact">Get a fixed quote</Button>
-          <TextLink href="/pricing">Full pricing</TextLink>
+        <div class="mt-6">
+          <Button href="/contact">Book a scoping call</Button>
         </div>
       </div>
     </div>
@@ -59,7 +61,7 @@ const briefs = SERVICES.map((service) => ({
                   <span class="h-px w-8 bg-line-strong" />
                   <span>Brief</span>
                 </div>
-                <span class="brief-stamp mono">Fixed quote</span>
+                <span class="brief-stamp mono">Starting rates</span>
               </div>
 
               <h3
@@ -123,9 +125,8 @@ const briefs = SERVICES.map((service) => ({
                 ))}
               </ul>
 
-              <div class="mt-auto flex flex-wrap gap-x-7 gap-y-3 pt-9">
-                <TextLink href={`/pricing/${s.slug}`}>Full rate card</TextLink>
-                <TextLink href={`/services/${s.slug}`}>What is included</TextLink>
+              <div class="mt-auto pt-9">
+                <TextLink href={`/services/${s.slug}`}>Scope and pricing</TextLink>
               </div>
             </article>
           </li>
@@ -133,25 +134,6 @@ const briefs = SERVICES.map((service) => ({
       }
     </ul>
 
-    <!-- The fine print, set off the way it is on a printed brief. -->
-    <div class="mt-14 border-t border-dashed border-line-strong pt-10 lg:mt-20">
-      <p class="mono text-ink-muted">Terms on every brief</p>
-      <ul class="mt-7 grid gap-x-8 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
-        {
-          TRUST.map((t, i) => (
-            <li data-reveal data-reveal-delay={i * 0.06}>
-              <span
-                class="block h-1 w-10 rounded-full bg-gradient-to-r from-brand to-blush"
-                style={`opacity:${1 - i * 0.16}`}
-                aria-hidden="true"
-              />
-              <p class="mt-5 text-[1.125rem] font-medium tracking-[-0.01em] text-ink">{t.title}</p>
-              <p class="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">{t.body}</p>
-            </li>
-          ))
-        }
-      </ul>
-    </div>
   </div>
 </section>
 
