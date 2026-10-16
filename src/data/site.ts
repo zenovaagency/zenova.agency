@@ -60,14 +60,13 @@ export const SITE = {
  * in-page id, so a link works the same from any page on the site.
  *
  * Blog is deliberately absent from the header: the nav stays on the
- * commercial path (services → pricing → work → careers → about). The blog
+ * commercial path (services → work → careers → about). The blog
  * remains discoverable from the footer's Explore column, the sitemap, RSS
  * and every post page, which is enough surface for a section that grows by
  * publishing rather than by navigation.
  */
 export const NAV = [
   { label: 'Services', href: '/services' },
-  { label: 'Pricing', href: '/pricing' },
   { label: 'Work', href: '/work' },
   { label: 'Careers', href: '/careers' },
   { label: 'About', href: '/about' },
@@ -101,7 +100,7 @@ export const MARQUEE = [
 /**
  * The four service slugs are the spine of the site: they key SERVICES,
  * PRICING and DELIVERABLES, and they are the path segment for every
- * /services/... and /pricing/... route. Typing them as a union turns a bad
+ * /services/... route. Typing them as a union turns a bad
  * join into a compile error instead of a section that silently renders empty.
  */
 export type ServiceSlug = 'web' | 'app' | 'ai' | 'marketing';
@@ -446,10 +445,9 @@ export interface PageIntro {
   description: string;
 }
 
-/** The six section index pages, plus the two About sub-pages. */
+/** The five section index pages, plus the two About sub-pages. */
 export type PageKey =
   | 'services'
-  | 'pricing'
   | 'work'
   | 'blog'
   | 'careers'
@@ -499,10 +497,8 @@ export const PAGES: Record<PageKey, PageIntro> = {
     headline: 'What we have learned,',
     accent: 'written down.',
     sub: 'Practical notes on building for the web — performance, process, and what actually holds up once a project ships.',
-    // Washes are one recipe per index page and there are now six index pages
-    // and five recipes, so one had to repeat. Blog reuses pricing's quiet
-    // wash-4: both open on a long list of cards, and the same "header has no
-    // business competing" logic applies.
+    // wash-4 is the quiet recipe: one soft lobe, for a page that opens on a
+    // long list of cards where the header has no business competing.
     wash: 4,
     title: 'Blog — Notes from the Studio | Zenova',
     description:
@@ -547,16 +543,6 @@ export const PAGES: Record<PageKey, PageIntro> = {
     title: 'Our Values | Zenova',
     description:
       'One team start to finish, build then talk, outcomes over output — the three principles behind how Zenova scopes and runs work.',
-  },
-  pricing: {
-    eyebrow: 'Pricing — project-based · one-time',
-    headline: 'One project.',
-    accent: 'One price.',
-    sub: 'No retainers, no hourly surprises. Every engagement is scoped once, priced once, and shipped as a project.',
-    wash: 4,
-    title: 'Pricing — Transparent, Project-Based Rates | Zenova',
-    description:
-      'Clear, project-based pricing for web, apps, AI automation, and marketing. Starter, growth, and custom tiers — and exactly what each one includes.',
   },
 };
 
@@ -756,63 +742,6 @@ export const PRICING: PricingService[] = [
     ],
   },
 ];
-
-/** Assurances that apply to every engagement — the flat-rate promise, spelled out. */
-export const TRUST = [
-  {
-    title: 'Fixed quote',
-    body: 'One number, agreed after scoping. It only moves if the scope does.',
-  },
-  {
-    title: 'No retainers',
-    body: 'Project-based, not open-ended. No hourly surprises on the invoice.',
-  },
-  {
-    title: 'Senior team',
-    body: 'The people who scope your project are the ones who build it.',
-  },
-  {
-    title: 'Support included',
-    body: 'Every tier ships with a post-launch support window baked in.',
-  },
-];
-
-/**
- * Pricing-specific questions. Separate from FAQS on purpose — these are the
- * ones that come up before a scoping call, not the ones about the agency.
- */
-export const PRICING_FAQ = [
-  {
-    q: 'What does the price actually include?',
-    a: 'Everything needed to ship the scope we agree on — strategy, design, build, and launch. If it is in the scope, it is in the price.',
-  },
-  {
-    q: 'What if my project does not fit a listed tier?',
-    a: 'Most do not fit exactly — the rate cards are honest starting points. Book a scoping call and we will shape a fixed quote around your actual needs.',
-  },
-  {
-    q: 'How do payments work?',
-    a: 'Typically split across milestones — a deposit to start, then staged payments as we ship. The full schedule is laid out in your proposal.',
-  },
-];
-
-export const PRICING_COPY = {
-  trustTitle: 'What every engagement includes',
-  faqTitle: 'Pricing,',
-  faqAccent: 'answered.',
-  faqSub: 'The questions we get before every scoping call. If yours is not here, just ask.',
-  noteLabel: 'Good to know',
-  noteTitle: 'Every quote is fixed',
-  noteAccent: 'before we start.',
-  noteSub:
-    'The rate cards are honest starting points. One scoping call turns them into a fixed quote and a real timeline.',
-  notePrimary: 'Book a scoping call',
-  notePrimaryHref: '/contact',
-  // Pointed at /process until that page was removed; the four phases now
-  // live only on the home page, so this sends readers to /about instead.
-  noteSecondary: 'How we work',
-  noteSecondaryHref: '/about',
-};
 
 /* ------------------------------------------------------------------ *
  * About.
