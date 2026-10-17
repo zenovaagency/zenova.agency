@@ -38,8 +38,7 @@ export interface ChainItem {
  *
  * Process and Pricing were removed with their pages, and Process later with
  * its home-page section: the four phases remain in PROCESS (data/site.ts) and
- * surface on /contact, and prices live on each service's page and in the home
- * page's briefs.
+ * surface on /contact, and prices live on each service's page.
  */
 export const CHAIN: ChainItem[] = [
   { label: 'Services', href: '/services' },
