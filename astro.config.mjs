@@ -4,6 +4,41 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
+import { rename, rm, access } from 'node:fs/promises';
+
+/**
+ * Publishes the sitemap as a single /sitemap.xml file.
+ *
+ * @astrojs/sitemap always writes an index (sitemap-index.xml) pointing at
+ * numbered chunks (sitemap-0.xml, ...), and has no option for one flat file.
+ * The site is far below the 45,000-URL chunk limit, so there is only ever one
+ * chunk: rename it to sitemap.xml and drop the index. Must be listed after
+ * sitemap() — Astro runs build:done hooks in integration order.
+ *
+ * Fails the build if a second chunk ever appears, because renaming only the
+ * first would silently drop every URL in the rest.
+ *
+ * @returns {import('astro').AstroIntegration}
+ */
+function singleSitemap() {
+  return {
+    name: 'single-sitemap',
+    hooks: {
+      'astro:build:done': async ({ dir, logger }) => {
+        const file = (/** @type {string} */ name) => new URL(name, dir);
+        const exists = (/** @type {string} */ name) =>
+          access(file(name)).then(() => true, () => false);
+
+        if (await exists('sitemap-1.xml')) {
+          throw new Error('Sitemap split into multiple chunks; sitemap.xml would be incomplete.');
+        }
+        await rename(file('sitemap-0.xml'), file('sitemap.xml'));
+        await rm(file('sitemap-index.xml'), { force: true });
+        logger.info('`sitemap.xml` written as a single file');
+      },
+    },
+  };
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -21,6 +56,7 @@ export default defineConfig({
     // it out of the sitemap stops crawlers being handed a URL whose only job
     // is to send them somewhere else.
     sitemap({ filter: (page) => !page.includes('/process') }),
+    singleSitemap(),
   ],
 
   // /process was a nav route, a footer link and a sitemap entry before this

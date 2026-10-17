@@ -46,6 +46,6 @@ Disallow: /team/
 Disallow: /login/
 Disallow: /signin/
 
-# @astrojs/sitemap writes sitemap-index.xml; vercel.json rewrites /sitemap.xml to
-# it. Without that rewrite this line 404s and the site's URLs go undiscovered.
+# A single flat file, renamed from the sitemap integration's output at build
+# time (see singleSitemap in astro.config.mjs).
 Sitemap: https://zenova.agency/sitemap.xml
