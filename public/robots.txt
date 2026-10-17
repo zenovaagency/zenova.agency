@@ -48,4 +48,4 @@ Disallow: /signin/
 
 # A single flat file, renamed from the sitemap integration's output at build
 # time (see singleSitemap in astro.config.mjs).
-Sitemap: https://zenova.agency/sitemap.xml
+Sitemap: https://zenova.agency/sitemap-main.xml
