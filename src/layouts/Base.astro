@@ -19,7 +19,12 @@ interface Props {
   modifiedTime?: string;
 }
 const { title = SITE.title, description = SITE.description } = Astro.props;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
+// No trailing slash, matching internal links, the sitemap and vercel.json.
+// Stripped explicitly because the directory build format hands prerendered
+// pages a pathname ending in "/", which made every canonical disagree with
+// the URL actually linked.
+const canonicalPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const canonical = new URL(canonicalPath, Astro.site ?? SITE.url).href;
 const ogImage = new URL(Astro.props.image ?? '/og-card.png', Astro.site ?? SITE.url).href;
 const isArticle = Astro.props.ogType === 'article';
 
@@ -63,6 +68,10 @@ const jsonLd = {
 
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <!-- Google Search picks its result favicon from these: it wants a square
+         raster at a multiple of 48px, which neither the 32px ico nor the SVG is. -->
+    <link rel="icon" href="/assets/favicon/favicon-96x96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/assets/favicon/favicon-192x192.png" type="image/png" sizes="192x192" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#f6f9ff" />
