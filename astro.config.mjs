@@ -5,6 +5,32 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import { rename, rm, access } from 'node:fs/promises';
+import { readFileSync, readdirSync } from 'node:fs';
+
+/**
+ * <lastmod> per blog post URL, from frontmatter (updatedDate, else pubDate).
+ *
+ * Google only trusts lastmod when it is consistently accurate, so it is set
+ * only where a real edit date exists. The other pages have none — a build
+ * timestamp would claim every page changed on every deploy — so they get no
+ * lastmod rather than a wrong one. Read straight from the markdown because
+ * the config runs before content collections are available.
+ *
+ * @returns {Map<string, string>}
+ */
+function blogLastmod() {
+  const dir = new URL('./src/content/blog/', import.meta.url);
+  /** @type {Map<string, string>} */
+  const dates = new Map();
+  for (const name of readdirSync(dir).filter((f) => f.endsWith('.md'))) {
+    const frontmatter = readFileSync(new URL(name, dir), 'utf8').split(/^---$/m)[1] ?? '';
+    const field = (/** @type {string} */ key) =>
+      frontmatter.match(new RegExp(`^${key}:\\s*['"]?([\\d-]+)`, 'm'))?.[1];
+    const date = field('updatedDate') ?? field('pubDate');
+    if (date) dates.set(`https://zenova.agency/blog/${name.replace(/\.md$/, '')}`, date);
+  }
+  return dates;
+}
 
 /**
  * Publishes the sitemap as a single /sitemap.xml file.
@@ -40,6 +66,8 @@ function singleSitemap() {
   };
 }
 
+const lastmods = blogLastmod();
+
 // https://astro.build/config
 export default defineConfig({
   site: 'https://zenova.agency',
@@ -55,7 +83,16 @@ export default defineConfig({
     // The /process entry below builds a meta-refresh stub, not a page. Keeping
     // it out of the sitemap stops crawlers being handed a URL whose only job
     // is to send them somewhere else.
-    sitemap({ filter: (page) => !page.includes('/process') }),
+    sitemap({
+      filter: (page) => !page.includes('/process'),
+      // Google's documented format: the sitemaps.org namespace only. The site
+      // has no news, image, video or hreflang entries to declare.
+      namespaces: { news: false, xhtml: false, image: false, video: false },
+      serialize: (item) => {
+        const lastmod = lastmods.get(item.url);
+        return lastmod ? { ...item, lastmod } : item;
+      },
+    }),
     singleSitemap(),
   ],
 
