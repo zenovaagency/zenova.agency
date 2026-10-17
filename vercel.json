@@ -4,11 +4,19 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.zenova.agency" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.zenova.agency"
+        }
+      ],
       "destination": "https://zenova.agency/:path*",
       "permanent": true
     },
-    { "source": "/process", "destination": "/about", "permanent": true }
-  ],
-  "rewrites": [{ "source": "/sitemap.xml", "destination": "/sitemap-index.xml" }]
+    {
+      "source": "/process",
+      "destination": "/about",
+      "permanent": true
+    }
+  ]
 }
