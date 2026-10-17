@@ -1,0 +1,67 @@
+---
+import { photoUrl, type Testimonial } from '../../data/testimonials';
+
+/**
+ * Round headshot for a testimonial. The monogram is always drawn underneath;
+ * the photo sits on top and removes itself if it fails to load, so a dead
+ * stock URL degrades to initials rather than a broken-image icon.
+ */
+interface Props {
+  t: Testimonial;
+  size: number;
+  /** Rotates the monogram gradient so neighbours never look identical. */
+  angle?: string;
+  class?: string;
+}
+
+const { t, size, angle = '135deg', class: className = '' } = Astro.props;
+
+const initials = t.name
+  .split(/\s+/)
+  .map((w) => w[0])
+  .slice(0, 2)
+  .join('')
+  .toUpperCase();
+const alt = t.photo?.alt ?? '';
+---
+
+<span
+  class:list={[
+    'avatar relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full',
+    className,
+  ]}
+  style={`--angle:${angle};width:${size}px;height:${size}px`}
+  aria-hidden={alt ? undefined : 'true'}
+>
+  <span class="mono" style={`font-size:${Math.round(size * 0.3)}px`}>{initials}</span>
+  {
+    t.photo && (
+      <img
+        src={photoUrl(t.photo.src, size, size)}
+        srcset={`${photoUrl(t.photo.src, size * 2, size * 2)} 2x`}
+        alt={alt}
+        width={size}
+        height={size}
+        loading="lazy"
+        decoding="async"
+        onerror="this.remove()"
+        class="absolute inset-0 h-full w-full object-cover"
+      />
+    )
+  }
+</span>
+
+<style>
+  /* Monogram ground. Ink on this wash clears 4.5:1, which white on sky/blush
+     would not (see styles/cards.css). */
+  .avatar {
+    color: var(--color-ink);
+    background: linear-gradient(
+      var(--angle),
+      rgb(191 224 255 / 0.9) 0%,
+      rgb(244 248 255 / 1) 55%,
+      rgb(255 224 236 / 0.9) 100%
+    );
+    box-shadow: 0 0 0 1px var(--color-line);
+  }
+</style>
