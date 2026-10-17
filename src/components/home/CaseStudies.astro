@@ -1,0 +1,123 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import Motif from '../ui/Motif.astro';
+import TextLink from '../ui/TextLink.astro';
+import { SERVICES, WORK_COPY } from '../../data/site';
+import { published } from '../../data/projects';
+
+/**
+ * Case studies on the home page: the published entries from PROJECTS, linked
+ * through to their write-ups on /work.
+ *
+ * Today every entry is a labelled demo with no client and no outcomes (see the
+ * header of data/projects.ts), so this section claims nothing beyond what the
+ * data holds. The "Demo" label stands where a client name would, WORK_COPY's
+ * demoNote discloses it, and outcomes render only when a project has them. When
+ * the demos are swapped for real projects all three adjust on their own.
+ */
+const projects = published();
+const byService = new Map(SERVICES.map((s) => [s.slug, s]));
+const hasDemos = projects.some((p) => p.demo);
+---
+
+{
+  projects.length > 0 && (
+    <section id="work" class="section-y relative bg-white" aria-labelledby="work-title">
+      <div class="container-z">
+        <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+          <div class="lg:col-span-7">
+            <Eyebrow>Selected work</Eyebrow>
+            <h2 id="work-title" class="h1 mt-6 text-ink" data-split>
+              Recent projects,<br />
+              <em class="accent-serif">written up properly.</em>
+            </h2>
+          </div>
+          <div class="lg:col-span-4 lg:col-start-9" data-reveal>
+            {hasDemos && <p class="text-ink-muted">{WORK_COPY.demoNote}</p>}
+            <TextLink href="/work" class={hasDemos ? 'mt-5' : ''}>
+              All projects
+            </TextLink>
+          </div>
+        </div>
+
+        <ul class="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-2 lg:gap-8">
+          {projects.map((p, i) => {
+            const service = byService.get(p.service)!;
+            // A demo has no client, so "Demo" stands where the name would.
+            const eyebrow = [p.demo ? 'Demo' : p.client, service.title, p.year]
+              .filter(Boolean)
+              .join(' · ');
+
+            return (
+              <li class="flex" data-reveal data-reveal-delay={(i % 2) * 0.08}>
+                <article class="card-tint flex w-full flex-col overflow-hidden">
+                  <div
+                    class="svc-art relative flex items-center justify-center px-8 py-10 text-brand"
+                    style={`--angle:${p.angle ?? service.angle}`}
+                    aria-hidden="true"
+                  >
+                    {p.image ? (
+                      <img
+                        src={p.image.src}
+                        alt=""
+                        loading="lazy"
+                        class="w-full max-w-[18rem] rounded-[var(--radius-md)]"
+                      />
+                    ) : (
+                      <Motif kind={p.motif ?? service.motif} class="max-w-[18rem]" />
+                    )}
+                  </div>
+
+                  <div class="flex flex-1 flex-col p-7 sm:p-9">
+                    <p class="mono text-ink-soft">{eyebrow}</p>
+
+                    <h3 class="mt-4 text-[1.75rem] font-medium leading-[1.1] tracking-[-0.02em] text-ink sm:text-[2rem]">
+                      <a href={`/work/${p.slug}`} class="after:absolute after:inset-0 after:z-[1]">
+                        {p.title}
+                      </a>
+                    </h3>
+                    <p class="mt-3 max-w-md text-[0.9375rem] leading-relaxed text-ink-muted">
+                      {p.summary}
+                    </p>
+
+                    {p.outcomes.length > 0 && (
+                      <dl class="mt-6 flex flex-wrap gap-x-8 gap-y-3">
+                        {p.outcomes.map((o) => (
+                          <div>
+                            <dt class="mono text-ink-faint">{o.label}</dt>
+                            <dd class="text-[1.375rem] font-medium tracking-[-0.02em] text-ink tabular-nums">
+                              {o.value}
+                            </dd>
+                          </div>
+                        ))}
+                      </dl>
+                    )}
+
+                    <ul class="mono mt-auto flex flex-wrap gap-x-4 gap-y-2 pt-7 text-ink-soft">
+                      {p.stack.map((tech) => (
+                        <li>{tech}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </article>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  /* Card artwork. Same recipe as work/index.astro and services/[slug].astro —
+     Astro scopes component CSS, so it is duplicated rather than shared. */
+  .svc-art {
+    background: linear-gradient(
+      var(--angle),
+      rgb(191 224 255 / 0.5) 0%,
+      rgb(244 248 255 / 0.9) 55%,
+      rgb(255 224 236 / 0.55) 100%
+    );
+  }
+</style>
