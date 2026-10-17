@@ -33,12 +33,12 @@ function blogLastmod() {
 }
 
 /**
- * Publishes the sitemap as a single /sitemap.xml file.
+ * Publishes the sitemap as a single /sitemap-main.xml file.
  *
  * @astrojs/sitemap always writes an index (sitemap-index.xml) pointing at
  * numbered chunks (sitemap-0.xml, ...), and has no option for one flat file.
  * The site is far below the 45,000-URL chunk limit, so there is only ever one
- * chunk: rename it to sitemap.xml and drop the index. Must be listed after
+ * chunk: rename it to sitemap-main.xml and drop the index. Must be listed after
  * sitemap() — Astro runs build:done hooks in integration order.
  *
  * Fails the build if a second chunk ever appears, because renaming only the
@@ -56,11 +56,11 @@ function singleSitemap() {
           access(file(name)).then(() => true, () => false);
 
         if (await exists('sitemap-1.xml')) {
-          throw new Error('Sitemap split into multiple chunks; sitemap.xml would be incomplete.');
+          throw new Error('Sitemap split into multiple chunks; sitemap-main.xml would be incomplete.');
         }
-        await rename(file('sitemap-0.xml'), file('sitemap.xml'));
+        await rename(file('sitemap-0.xml'), file('sitemap-main.xml'));
         await rm(file('sitemap-index.xml'), { force: true });
-        logger.info('`sitemap.xml` written as a single file');
+        logger.info('`sitemap-main.xml` written as a single file');
       },
     },
   };
