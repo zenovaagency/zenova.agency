@@ -1,5 +1,5 @@
 /**
- * Testimonials — the home page spotlight and quote wall.
+ * Testimonials — the home page testimonial carousel.
  *
  * WHAT IS IN HERE TODAY: twelve SAMPLE entries, written so the section has
  * real shape, copy length and outcome figures while genuine client quotes are
@@ -36,8 +36,6 @@ export interface Testimonial {
   id: string;
   /** Marks invented placeholder copy. Rendered as a visible label. */
   sample?: boolean;
-  /** Shown in the rotating spotlight rather than the scrolling wall. */
-  featured?: boolean;
   quote: string;
   name: string;
   role: string;
@@ -73,11 +71,9 @@ export function photoUrl(src: string, w: number, h: number): string {
 }
 
 export const TESTIMONIALS: Testimonial[] = [
-  // --- Spotlight: one per service ---------------------------------------
   {
     id: 't1',
     sample: true,
-    featured: true,
     service: 'web',
     quote:
       'We went from a site nobody wanted to touch to one our team edits on a Tuesday afternoon without raising a ticket. Launch landed on the date we were given in the first call, and the new checkout had paid for the project inside a quarter.',
@@ -91,7 +87,6 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     id: 't2',
     sample: true,
-    featured: true,
     service: 'app',
     quote:
       'The crews stopped asking whether an order had saved. It works in a basement with no signal and syncs when they walk back out, which is the only thing they ever wanted from an app. Nobody has asked for the paper forms back.',
@@ -105,7 +100,6 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     id: 't3',
     sample: true,
-    featured: true,
     service: 'ai',
     quote:
       'The automation sorts the inbox and drafts the reply, and a person confirms it. After a month we barely needed the confirming, which is exactly how they said it would go. I got my evenings back.',
@@ -119,7 +113,6 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     id: 't4',
     sample: true,
-    featured: true,
     service: 'marketing',
     quote:
       'They fixed what the site was doing badly before they wrote a single new post. Six months on, the phone rings with the jobs we actually want, and the monthly report tells us why in plain English.',
@@ -131,7 +124,6 @@ export const TESTIMONIALS: Testimonial[] = [
     result: { value: '3.1×', label: 'Qualified enquiries, year on year' },
   },
 
-  // --- Wall, row one ----------------------------------------------------
   {
     id: 't5',
     sample: true,
@@ -184,8 +176,6 @@ export const TESTIMONIALS: Testimonial[] = [
     photo: { src: unsplash('photo-1506794778202-cad84cf45f1d') },
     result: { value: '81%', label: 'Patients finishing their plan' },
   },
-
-  // --- Wall, row two ----------------------------------------------------
   {
     id: 't9',
     sample: true,
@@ -241,9 +231,10 @@ export const TESTIMONIALS: Testimonial[] = [
 ];
 
 export const TESTIMONIALS_COPY = {
-  eyebrow: 'Kind words',
-  title: 'What working with us',
-  accent: 'feels like.',
+  titleLead: 'There is so much',
+  accent: 'hype',
+  titleTail: 'around us',
+  sub: 'We’re helping businesses grow at record speed.',
   sampleNote:
     'These are sample quotes from invented people, pictured with stock photos, shown while real client testimonials are collected. They are placeholders, not endorsements.',
 };
