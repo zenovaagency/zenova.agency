@@ -1,0 +1,131 @@
+---
+import { Image } from 'astro:assets';
+import Eyebrow from '../ui/Eyebrow.astro';
+import { SERVICES } from '../../data/site';
+import { TESTIMONIALS, TESTIMONIALS_COPY } from '../../data/testimonials';
+
+/**
+ * Quote wall. Content lives in data/testimonials.ts, whose header explains why
+ * today's entries are labelled samples and how to swap in real ones. The label
+ * and the disclosure line here are driven by that flag, so they leave on their
+ * own once every entry is real.
+ *
+ * Avatar: the approved `photo` when there is one, otherwise a monogram on the
+ * brand gradient. A stock face would imply a real person behind a sample.
+ */
+const serviceTitle = new Map(SERVICES.map((s) => [s.slug, s.title]));
+const hasSamples = TESTIMONIALS.some((t) => t.sample);
+
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+// Rotate the monogram gradient so six avatars never read as one repeated asset.
+const ANGLES = ['135deg', '200deg', '160deg', '225deg', '110deg', '180deg'];
+---
+
+{
+  TESTIMONIALS.length > 0 && (
+    <section id="testimonials" class="section-y relative" aria-labelledby="testimonials-title">
+      <div class="container-z">
+        <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+          <div class="lg:col-span-7">
+            <Eyebrow>{TESTIMONIALS_COPY.eyebrow}</Eyebrow>
+            <h2 id="testimonials-title" class="h1 mt-6 text-ink" data-split>
+              {TESTIMONIALS_COPY.title}
+              <br />
+              <em class="accent-serif">{TESTIMONIALS_COPY.accent}</em>
+            </h2>
+          </div>
+          {hasSamples && (
+            <p class="text-ink-muted lg:col-span-4 lg:col-start-9" data-reveal>
+              {TESTIMONIALS_COPY.sampleNote}
+            </p>
+          )}
+        </div>
+
+        <ul class="mt-14 grid gap-6 md:grid-cols-2 lg:mt-20 lg:grid-cols-3 lg:gap-7">
+          {TESTIMONIALS.map((t, i) => (
+            <li class="flex" data-reveal data-reveal-delay={(i % 3) * 0.08}>
+              <figure class="card-tint flex w-full flex-col p-7 sm:p-8">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="mono text-ink-faint">{serviceTitle.get(t.service)}</span>
+                  {t.sample && <span class="sample-tag mono">Sample</span>}
+                </div>
+
+                <svg
+                  class="mt-6 h-6 w-6 text-brand"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M9.4 5C5.8 6.3 3.5 9.2 3.5 13v6h6.6v-6.4H6.7c0-2.1 1.2-3.7 3.2-4.6L9.4 5Zm10.1 0c-3.6 1.3-5.9 4.2-5.9 8v6h6.6v-6.4h-3.4c0-2.1 1.2-3.7 3.2-4.6L19.5 5Z" />
+                </svg>
+
+                <blockquote class="mt-4 text-[1.0625rem] leading-relaxed text-ink">
+                  <p>{t.quote}</p>
+                </blockquote>
+
+                <figcaption class="mt-auto flex items-center gap-4 pt-8">
+                  {t.photo ? (
+                    <Image
+                      src={t.photo.src}
+                      alt={t.photo.alt}
+                      width={96}
+                      height={96}
+                      loading="lazy"
+                      class="h-12 w-12 shrink-0 rounded-full border border-line object-cover"
+                    />
+                  ) : (
+                    <span
+                      class="avatar mono flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-[0.9375rem] font-medium"
+                      style={`--angle:${ANGLES[i % ANGLES.length]}`}
+                      aria-hidden="true"
+                    >
+                      {initials(t.name)}
+                    </span>
+                  )}
+                  <div class="min-w-0">
+                    <p class="font-medium text-ink">{t.name}</p>
+                    <p class="text-[0.875rem] leading-snug text-ink-muted">
+                      {t.role}, {t.company}
+                    </p>
+                  </div>
+                </figcaption>
+              </figure>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  /* Brand-text rather than brand: this is real text. Same stamp language as
+     the demo label on /work, without the rotation. */
+  .sample-tag {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    border: 1px solid var(--color-brand-text);
+    border-radius: 6px;
+    color: var(--color-brand-text);
+  }
+
+  /* Monogram. Pale ground with ink initials: ink on this wash clears 4.5:1,
+     which white on sky/blush would not (see styles/cards.css). */
+  .avatar {
+    color: var(--color-ink);
+    background: linear-gradient(
+      var(--angle),
+      rgb(191 224 255 / 0.9) 0%,
+      rgb(244 248 255 / 1) 55%,
+      rgb(255 224 236 / 0.9) 100%
+    );
+    border: 1px solid var(--color-line);
+  }
+</style>
