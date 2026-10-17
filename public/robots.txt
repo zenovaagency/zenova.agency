@@ -46,7 +46,6 @@ Disallow: /team/
 Disallow: /login/
 Disallow: /signin/
 
-# @astrojs/sitemap writes sitemap-index.xml, not sitemap.xml. Pointing this line
-# at sitemap.xml handed every crawler a 404 and the site's URLs went undiscovered.
-# vercel.json also rewrites /sitemap.xml so old submissions keep working.
-Sitemap: https://zenova.agency/sitemap-index.xml
+# @astrojs/sitemap writes sitemap-index.xml; vercel.json rewrites /sitemap.xml to
+# it. Without that rewrite this line 404s and the site's URLs go undiscovered.
+Sitemap: https://zenova.agency/sitemap.xml
