@@ -21,8 +21,9 @@ import JsonLd from '../../components/chrome/JsonLd.astro';
 import Motif from '../../components/ui/Motif.astro';
 import Button from '../../components/ui/Button.astro';
 import TextLink from '../../components/ui/TextLink.astro';
+import { Image } from 'astro:assets';
 import { SERVICES, type PageIntro, type Service } from '../../data/site';
-import { published, type Project } from '../../data/projects';
+import { published, projectLabel, type Project } from '../../data/projects';
 import { breadcrumb } from '../../lib/schema';
 
 export function getStaticPaths() {
@@ -47,8 +48,8 @@ const { project, siblings } = Astro.props as Props;
 const service = SERVICES.find((s) => s.slug === project.service) as Service;
 const path = `/work/${project.slug}`;
 
-// A demo has no client, so "Demo" stands where the name would.
-const eyebrow = [project.demo ? 'Demo' : project.client, service.title, project.year]
+// A demo or concept has no client, so its label stands where the name would.
+const eyebrow = [projectLabel(project), service.title, project.year]
   .filter(Boolean)
   .join(' · ');
 
@@ -90,19 +91,37 @@ const intro: PageIntro = {
       <div class="container-z">
         <h2 id="brief-title" class="sr-only">Project summary</h2>
 
+        {/* A screenshot gets the whole width and its own ratio, so the work is
+            shown in full rather than cropped into a side panel. */}
+        {
+          project.image && (
+            <div class="mb-12 lg:mb-16" data-reveal>
+              <div class="card-tint overflow-hidden">
+                <Image
+                  src={project.image.full}
+                  alt={project.image.alt}
+                  widths={[800, 1200, 1600]}
+                  sizes="(min-width: 1280px) 1200px, 100vw"
+                  class="h-auto w-full"
+                  loading="eager"
+                />
+                {project.stack.length > 0 && (
+                  <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
+                    {project.stack.map((tech) => (
+                      <li class="mono text-ink-faint">{tech}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          )
+        }
+
         <div class="grid items-start gap-10 lg:grid-cols-12 lg:gap-16">
-          <div class="lg:col-span-5" data-reveal>
-            <div class="card-tint overflow-hidden">
-              {
-                project.image ? (
-                  <img
-                    src={project.image.src}
-                    alt={project.image.alt}
-                    class="aspect-[16/10] w-full object-cover"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ) : (
+          {
+            !project.image && (
+              <div class="lg:col-span-5" data-reveal>
+                <div class="card-tint overflow-hidden">
                   <div
                     class="svc-art flex aspect-[16/10] items-center justify-center p-8 text-brand"
                     style={`--angle:${project.angle ?? service.angle}`}
@@ -110,35 +129,43 @@ const intro: PageIntro = {
                   >
                     <Motif kind={project.motif ?? service.motif} />
                   </div>
-                )
-              }
-              {
-                project.stack.length > 0 && (
-                  <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
-                    {project.stack.map((tech) => (
-                      <li class="mono text-ink-faint">{tech}</li>
-                    ))}
-                  </ul>
-                )
-              }
-            </div>
-          </div>
+                  {project.stack.length > 0 && (
+                    <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
+                      {project.stack.map((tech) => (
+                        <li class="mono text-ink-faint">{tech}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </div>
+            )
+          }
 
-          <div class="lg:col-span-6 lg:col-start-7" data-reveal>
-            <dl class="grid gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-2">
+          <div
+            class:list={[project.image ? 'lg:col-span-12' : 'lg:col-span-6 lg:col-start-7']}
+            data-reveal
+          >
+            <dl
+              class:list={[
+                'grid gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-2',
+                // Under a full-width picture the facts run in one row.
+                project.image && 'lg:grid-flow-col lg:auto-cols-fr lg:grid-cols-none',
+              ]}
+            >
               {/* Keeps the 2-up grid intact whether or not there is a client
                   to name — a demo says what it is in the same slot. */}
               <div class="bg-paper px-5 py-5">
                 <dt class="mono text-ink-faint">{project.client ? 'Client' : 'Type'}</dt>
                 <dd class="mt-2 text-[1.0625rem] text-ink">
-                  {project.client ?? (project.demo ? 'Demo project' : 'Self-initiated')}
+                  {project.client ??
+                    (project.demo ? 'Demo project' : project.concept ? 'Design concept' : 'Self-initiated')}
                 </dd>
               </div>
               <div class="bg-paper px-5 py-5">
                 <dt class="mono text-ink-faint">Year</dt>
                 <dd class="mt-2 text-[1.0625rem] text-ink tabular-nums">{project.year}</dd>
               </div>
-              <div class="bg-paper px-5 py-5 sm:col-span-2">
+              <div class:list={['bg-paper px-5 py-5', !project.image && 'sm:col-span-2']}>
                 <dt class="mono text-ink-faint">Service</dt>
                 <dd class="mt-2 text-[1.0625rem] text-ink">
                   <a
@@ -149,13 +176,30 @@ const intro: PageIntro = {
                   </a>
                 </dd>
               </div>
+              {
+                project.url && (
+                  <div class:list={['bg-paper px-5 py-5', !project.image && 'sm:col-span-2']}>
+                    <dt class="mono text-ink-faint">Live site</dt>
+                    <dd class="mt-2 text-[1.0625rem] text-ink">
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener"
+                        class="underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
+                      >
+                        {new URL(project.url).host}
+                      </a>
+                    </dd>
+                  </div>
+                )
+              }
             </dl>
 
             {
               project.scope.length > 0 && (
                 <>
                   <h3 class="mono mt-10 text-ink-faint">What we did</h3>
-                  <ul class="mt-5 grid gap-3 sm:grid-cols-2">
+                  <ul class:list={['mt-5 grid gap-3 sm:grid-cols-2', project.image && 'lg:grid-cols-4']}>
                     {project.scope.map((item) => (
                       <li class="flex items-start gap-3 text-ink">
                         <span

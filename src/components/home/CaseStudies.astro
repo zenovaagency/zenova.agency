@@ -3,21 +3,23 @@ import Eyebrow from '../ui/Eyebrow.astro';
 import Motif from '../ui/Motif.astro';
 import TextLink from '../ui/TextLink.astro';
 import { SERVICES, WORK_COPY } from '../../data/site';
-import { published } from '../../data/projects';
+import { Image } from 'astro:assets';
+import { published, projectLabel, hasSamples } from '../../data/projects';
 
 /**
  * Case studies on the home page: the published entries from PROJECTS, linked
  * through to their write-ups on /work.
  *
- * Today every entry is a labelled demo with no client and no outcomes (see the
- * header of data/projects.ts), so this section claims nothing beyond what the
- * data holds. The "Demo" label stands where a client name would, WORK_COPY's
- * demoNote discloses it, and outcomes render only when a project has them. When
- * the demos are swapped for real projects all three adjust on their own.
+ * Today every entry is either our own product or a labelled concept, with no
+ * client and no outcomes (see the header of data/projects.ts), so this section
+ * claims nothing beyond what the data holds. The "Concept" label stands where a
+ * client name would, WORK_COPY's demoNote discloses it, and outcomes render
+ * only when a project has them. When the concepts are swapped for real projects
+ * all three adjust on their own.
  */
 const projects = published();
 const byService = new Map(SERVICES.map((s) => [s.slug, s]));
-const hasDemos = projects.some((p) => p.demo);
+const hasDemos = hasSamples(projects);
 ---
 
 {
@@ -43,8 +45,8 @@ const hasDemos = projects.some((p) => p.demo);
         <ul class="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-2 lg:gap-8">
           {projects.map((p, i) => {
             const service = byService.get(p.service)!;
-            // A demo has no client, so "Demo" stands where the name would.
-            const eyebrow = [p.demo ? 'Demo' : p.client, service.title, p.year]
+            // A demo or concept has no client, so its label stands where the name would.
+            const eyebrow = [projectLabel(p), service.title, p.year]
               .filter(Boolean)
               .join(' · ');
 
@@ -52,16 +54,22 @@ const hasDemos = projects.some((p) => p.demo);
               <li class="flex" data-reveal data-reveal-delay={(i % 2) * 0.08}>
                 <article class="card-tint flex w-full flex-col overflow-hidden">
                   <div
-                    class="svc-art relative flex items-center justify-center px-8 py-10 text-brand"
+                    class:list={[
+                      'svc-art relative flex items-center justify-center text-brand',
+                      p.image ? 'p-3' : 'px-8 py-10',
+                    ]}
                     style={`--angle:${p.angle ?? service.angle}`}
                     aria-hidden="true"
                   >
                     {p.image ? (
-                      <img
-                        src={p.image.src}
+                      // The wide crop is cut at 3:2 for this frame, so it fills it.
+                      <Image
+                        src={p.image.wide}
                         alt=""
+                        widths={[480, 800, 1200]}
+                        sizes="(min-width: 1024px) 45vw, 90vw"
                         loading="lazy"
-                        class="w-full max-w-[18rem] rounded-[var(--radius-md)]"
+                        class="aspect-[3/2] w-full rounded-[var(--radius-md)] object-cover"
                       />
                     ) : (
                       <Motif kind={p.motif ?? service.motif} class="max-w-[18rem]" />

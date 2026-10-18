@@ -39,16 +39,22 @@ import Motif from '../../components/ui/Motif.astro';
 import Button from '../../components/ui/Button.astro';
 import Eyebrow from '../../components/ui/Eyebrow.astro';
 import TextLink from '../../components/ui/TextLink.astro';
+import { Image } from 'astro:assets';
 import { PAGES, SERVICES, WORK_COPY } from '../../data/site';
-import { published } from '../../data/projects';
+import { published, projectLabel, hasSamples } from '../../data/projects';
 import { breadcrumb } from '../../lib/schema';
 
 const page = PAGES.work;
 const projects = published();
 const byService = new Map(SERVICES.map((s) => [s.slug, s]));
 
-// Disappears on its own when the demos are replaced with real projects.
-const hasDemos = projects.some((p) => p.demo);
+// Disappears on its own when the demos and concepts are replaced with real projects.
+const hasDemos = hasSamples(projects);
+
+// With a screenshot on every project the tiles switch from bleed-off line art
+// to framed pictures (.mosaic--img). It is all or nothing: the framed tiles
+// size themselves from their image, which a drawing tile has no ratio for.
+const framed = projects.length > 0 && projects.every((p) => p.image);
 
 // Three numbers the page can stand behind, because all three are counted out
 // of the data rather than asserted. A demo project carries no outcomes by
@@ -71,6 +77,13 @@ type TileKind = 'feature' | 'small' | 'wide';
  * three keeps the first three, two becomes a one-row feature beside a small
  * tile, and one becomes a wide band. Odd cycles are mirrored.
  */
+/** The image variant and srcset for each tile frame. Ratios live in .mosaic--img below. */
+const FRAME_SIZES: Record<TileKind, { widths: number[]; sizes: string }> = {
+  feature: { widths: [640, 960, 1280], sizes: '(min-width: 1024px) 40vw, 90vw' },
+  small: { widths: [480, 800, 1200], sizes: '(min-width: 1024px) 38vw, 90vw' },
+  wide: { widths: [640, 960, 1280], sizes: '(min-width: 1024px) 52vw, 90vw' },
+};
+
 function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirror: boolean } {
   const cycle = Math.floor(i / 4);
   const pos = i % 4;
@@ -179,14 +192,16 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
             order are the same at every width. Everything is visible without
             JS — the entry reveal sets its own start state from the script.
           */}
-          <ul class="mosaic container-z mt-14 lg:mt-20" data-mosaic>
+          <ul class:list={['mosaic container-z mt-14 lg:mt-20', framed && 'mosaic--img']} data-mosaic>
             {projects.map((p, i) => {
               const service = byService.get(p.service)!;
               const tile = tileFor(i, projects.length);
               const wideText = tile.kind !== 'small';
-              // A demo has no client, so "Demo" stands where the name would.
-              // This label is the reason these entries can ship.
-              const eyebrow = [p.demo ? 'Demo' : p.client, service.title, p.year]
+              const frame = FRAME_SIZES[tile.kind];
+              const art = p.image && (tile.kind === 'feature' ? p.image.src : p.image[tile.kind]);
+              // A demo or concept has no client, so its label stands where the
+              // name would. This label is the reason these entries can ship.
+              const eyebrow = [projectLabel(p), service.title, p.year]
                 .filter(Boolean)
                 .join(' · ');
 
@@ -207,8 +222,19 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
 
                   <div class="tile-art text-brand" aria-hidden="true">
                     <div class="tile-art-inner">
-                      {p.image ? (
-                        <img src={p.image.src} alt="" loading="lazy" class="w-full rounded-[var(--radius-md)]" />
+                      {art ? (
+                        <Image
+                          src={art}
+                          alt=""
+                          widths={frame.widths}
+                          sizes={frame.sizes}
+                          loading="lazy"
+                          class={
+                            framed
+                              ? 'tile-img h-full w-full object-cover'
+                              : 'w-full rounded-[var(--radius-md)]'
+                          }
+                        />
                       ) : (
                         <Motif kind={p.motif ?? service.motif} />
                       )}
@@ -638,6 +664,99 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
 
     .tile[data-kind='wide'] .tile-title {
       font-size: clamp(2.25rem, 3.4vw, 3rem);
+    }
+  }
+
+  /* --- Framed pictures ---------------------------------------------- */
+
+  /* A screenshot is not a drawing: cropped and faded off a corner it loses
+     the one thing it is there to show. So when every project has one, the art
+     becomes a plain frame at the picture's own ratio, above the text. The
+     three ratios are the ones scripts/works-art.mjs cuts the images to. */
+  .mosaic--img .tile {
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .mosaic--img .tile-num {
+    display: none;
+  }
+
+  .mosaic--img .tile[data-kind] .tile-art {
+    position: relative;
+    inset: auto;
+    z-index: 1;
+    flex: none;
+    width: auto;
+    margin: 0.75rem 0.75rem 0;
+    overflow: hidden;
+    aspect-ratio: 11 / 10;
+    border-radius: var(--radius-md);
+    -webkit-mask-image: none;
+    mask-image: none;
+    box-shadow:
+      0 1px 2px rgb(11 53 88 / 0.08),
+      0 12px 32px -14px rgb(11 53 88 / 0.3);
+  }
+
+  .mosaic--img .tile[data-kind='small'] .tile-art {
+    aspect-ratio: 9 / 5;
+  }
+
+  .mosaic--img .tile[data-kind='wide'] .tile-art {
+    aspect-ratio: 3 / 2;
+  }
+
+  .mosaic--img .tile-art-inner {
+    position: absolute;
+    inset: 0;
+  }
+
+  .tile-img {
+    transition: transform 900ms var(--ease-out-expo);
+  }
+
+  .mosaic--img .tile-body {
+    flex: none;
+  }
+
+  @media (hover: hover) {
+    .mosaic--img .tile:hover .tile-art {
+      transform: none;
+    }
+
+    .mosaic--img .tile:hover .tile-img {
+      transform: scale(1.04);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    /* Rows follow the pictures instead of a fixed height. The feature spans
+       both small tiles' rows, and its picture takes whatever the text leaves. */
+    .mosaic--img {
+      grid-auto-rows: auto;
+    }
+
+    .mosaic--img .tile[data-kind='feature'][data-rows='2'] .tile-art {
+      flex: 1 1 0;
+      min-height: 0;
+      aspect-ratio: auto;
+    }
+
+    .mosaic--img .tile[data-kind='wide'] {
+      flex-direction: row;
+    }
+
+    .mosaic--img .tile[data-kind='wide'] .tile-art {
+      order: 2;
+      flex: 0 0 52%;
+      margin: 0.75rem 0.75rem 0.75rem 0;
+    }
+
+    .mosaic--img .tile[data-kind='wide'] .tile-body {
+      order: 1;
+      flex: 1;
+      max-width: none;
     }
   }
 </style>
