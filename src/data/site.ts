@@ -862,13 +862,13 @@ export const WORK_COPY = {
   emptySecondary: 'Start a project',
   emptySecondaryHref: '/contact',
   /**
-   * Shown above the grid while any entry in PROJECTS is `demo: true`. It says
-   * so out loud rather than letting a reader mistake a sample build for a
-   * client engagement, and it stops rendering by itself once the demos are
-   * replaced with real work.
+   * Shown above the grid while any entry in PROJECTS is a `demo` or a
+   * `concept`. It says so out loud rather than letting a reader mistake a
+   * design concept for a client engagement, and it stops rendering by itself
+   * once only real work is left.
    */
   demoNote:
-    'These are sample builds, shown while the real case studies are being written up. They are our own projects, not client work, and they claim no results.',
+    'The concepts here are our own design exercises, not client work, and they claim no results. Truplexy is a product we built and run ourselves.',
 };
 
 /**
