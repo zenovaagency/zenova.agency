@@ -759,61 +759,6 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
       max-width: none;
     }
   }
-
-  /* --- Dark tiles ---------------------------------------------------- */
-
-  /* Near-black tiles so the light screenshots stand out against them. Text
-     colours come from utility classes in the markup, which are layered below
-     component CSS, so they are re-pointed here rather than changed per tile. */
-  .mosaic--img .tile {
-    border-color: rgb(255 255 255 / 0.1);
-    background: linear-gradient(160deg, #141922 0%, #090b0f 100%);
-  }
-
-  .mosaic--img .tile :is(.text-ink) {
-    color: #ffffff;
-  }
-
-  .mosaic--img .tile :is(.text-ink-soft) {
-    color: rgb(255 255 255 / 0.68);
-  }
-
-  .mosaic--img .tile .tile-art {
-    box-shadow:
-      0 0 0 1px rgb(255 255 255 / 0.12),
-      0 18px 40px -18px rgb(0 0 0 / 0.8);
-  }
-
-  .mosaic--img .tile-spot {
-    background: radial-gradient(
-      26rem circle at var(--mx, 50%) var(--my, 50%),
-      rgb(255 255 255 / 0.07),
-      transparent 62%
-    );
-  }
-
-  .mosaic--img .tile-go {
-    border-color: rgb(255 255 255 / 0.28);
-    background: rgb(255 255 255 / 0.1);
-    color: #ffffff;
-  }
-
-  .mosaic--img .tile:has(a:focus-visible) {
-    outline-color: #ffffff;
-  }
-
-  @media (hover: hover) {
-    .mosaic--img .tile:hover {
-      border-color: rgb(255 255 255 / 0.28);
-      box-shadow: 0 24px 60px -28px rgb(0 0 0 / 0.7);
-    }
-
-    .mosaic--img .tile:hover .tile-go {
-      border-color: #ffffff;
-      background: #ffffff;
-      color: #090b0f;
-    }
-  }
 </style>
 
 <script>

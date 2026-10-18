@@ -52,7 +52,7 @@ const hasDemos = hasSamples(projects);
 
             return (
               <li class="flex" data-reveal data-reveal-delay={(i % 2) * 0.08}>
-                <article class="case-card flex w-full flex-col overflow-hidden">
+                <article class="card-tint flex w-full flex-col overflow-hidden">
                   <div
                     class:list={[
                       'svc-art relative flex items-center justify-center text-brand',
@@ -118,31 +118,6 @@ const hasDemos = hasSamples(projects);
 }
 
 <style>
-  /* Near-black cards, so the light screenshots stand out. The text colours are
-     utility classes in the markup, which sit below component CSS, so they are
-     re-pointed here. */
-  .case-card {
-    border: 1px solid rgb(255 255 255 / 0.1);
-    border-radius: var(--radius-lg);
-    background: linear-gradient(160deg, #141922 0%, #090b0f 100%);
-  }
-
-  .case-card :is(.text-ink) {
-    color: #ffffff;
-  }
-
-  .case-card :is(.text-ink-soft, .text-ink-muted) {
-    color: rgb(255 255 255 / 0.68);
-  }
-
-  .case-card .text-ink-faint {
-    color: rgb(255 255 255 / 0.5);
-  }
-
-  .case-card .svc-art {
-    background: linear-gradient(160deg, #1b2230 0%, #0e1218 100%);
-  }
-
   /* Card artwork. Same recipe as work/index.astro and services/[slug].astro —
      Astro scopes component CSS, so it is duplicated rather than shared. */
   .svc-art {
