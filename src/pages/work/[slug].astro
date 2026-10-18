@@ -91,37 +91,33 @@ const intro: PageIntro = {
       <div class="container-z">
         <h2 id="brief-title" class="sr-only">Project summary</h2>
 
-        {/* A screenshot gets the whole width and its own ratio, so the work is
-            shown in full rather than cropped into a side panel. */}
-        {
-          project.image && (
-            <div class="mb-12 lg:mb-16" data-reveal>
-              <div class="card-tint overflow-hidden">
-                <Image
-                  src={project.image.full}
-                  alt={project.image.alt}
-                  widths={[800, 1200, 1600]}
-                  sizes="(min-width: 1280px) 1200px, 100vw"
-                  class="h-auto w-full"
-                  loading="eager"
-                />
-                {project.stack.length > 0 && (
-                  <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
-                    {project.stack.map((tech) => (
-                      <li class="mono text-ink-faint">{tech}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-          )
-        }
-
         <div class="grid items-start gap-10 lg:grid-cols-12 lg:gap-16">
-          {
-            !project.image && (
-              <div class="lg:col-span-5" data-reveal>
-                <div class="card-tint overflow-hidden">
+          <div class="lg:col-span-5" data-reveal>
+            <div class="card-tint overflow-hidden">
+              {
+                project.image ? (
+                  /* The picture is a button: it opens the whole image, uncropped,
+                     in the dialog below. */
+                  <button
+                    type="button"
+                    class="group relative block w-full cursor-zoom-in"
+                    data-lightbox-open
+                    aria-haspopup="dialog"
+                    aria-label={`View ${project.title} full size`}
+                  >
+                    <Image
+                      src={project.image.src}
+                      alt={project.image.alt}
+                      widths={[640, 960, 1280]}
+                      sizes="(min-width: 1024px) 40vw, 100vw"
+                      class="h-auto w-full"
+                      loading="lazy"
+                    />
+                    <span class="mono pointer-events-none absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1.5 text-ink shadow-sm transition-opacity group-hover:opacity-100 lg:opacity-0 lg:group-focus-visible:opacity-100">
+                      View full size
+                    </span>
+                  </button>
+                ) : (
                   <div
                     class="svc-art flex aspect-[16/10] items-center justify-center p-8 text-brand"
                     style={`--angle:${project.angle ?? service.angle}`}
@@ -129,29 +125,22 @@ const intro: PageIntro = {
                   >
                     <Motif kind={project.motif ?? service.motif} />
                   </div>
-                  {project.stack.length > 0 && (
-                    <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
-                      {project.stack.map((tech) => (
-                        <li class="mono text-ink-faint">{tech}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              </div>
-            )
-          }
+                )
+              }
+              {
+                project.stack.length > 0 && (
+                  <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
+                    {project.stack.map((tech) => (
+                      <li class="mono text-ink-faint">{tech}</li>
+                    ))}
+                  </ul>
+                )
+              }
+            </div>
+          </div>
 
-          <div
-            class:list={[project.image ? 'lg:col-span-12' : 'lg:col-span-6 lg:col-start-7']}
-            data-reveal
-          >
-            <dl
-              class:list={[
-                'grid gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-2',
-                // Under a full-width picture the facts run in one row.
-                project.image && 'lg:grid-flow-col lg:auto-cols-fr lg:grid-cols-none',
-              ]}
-            >
+          <div class="lg:col-span-6 lg:col-start-7" data-reveal>
+            <dl class="grid gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-2">
               {/* Keeps the 2-up grid intact whether or not there is a client
                   to name — a demo says what it is in the same slot. */}
               <div class="bg-paper px-5 py-5">
@@ -165,7 +154,7 @@ const intro: PageIntro = {
                 <dt class="mono text-ink-faint">Year</dt>
                 <dd class="mt-2 text-[1.0625rem] text-ink tabular-nums">{project.year}</dd>
               </div>
-              <div class:list={['bg-paper px-5 py-5', !project.image && 'sm:col-span-2']}>
+              <div class="bg-paper px-5 py-5 sm:col-span-2">
                 <dt class="mono text-ink-faint">Service</dt>
                 <dd class="mt-2 text-[1.0625rem] text-ink">
                   <a
@@ -178,7 +167,7 @@ const intro: PageIntro = {
               </div>
               {
                 project.url && (
-                  <div class:list={['bg-paper px-5 py-5', !project.image && 'sm:col-span-2']}>
+                  <div class="bg-paper px-5 py-5 sm:col-span-2">
                     <dt class="mono text-ink-faint">Live site</dt>
                     <dd class="mt-2 text-[1.0625rem] text-ink">
                       <a
@@ -199,7 +188,7 @@ const intro: PageIntro = {
               project.scope.length > 0 && (
                 <>
                   <h3 class="mono mt-10 text-ink-faint">What we did</h3>
-                  <ul class:list={['mt-5 grid gap-3 sm:grid-cols-2', project.image && 'lg:grid-cols-4']}>
+                  <ul class="mt-5 grid gap-3 sm:grid-cols-2">
                     {project.scope.map((item) => (
                       <li class="flex items-start gap-3 text-ink">
                         <span
@@ -291,6 +280,30 @@ const intro: PageIntro = {
     </div>
 
     <Cta />
+
+    {
+      project.image && (
+        <dialog
+          class="lightbox"
+          data-lightbox
+          aria-label={`${project.title}, full size`}
+        >
+          <button type="button" class="lightbox-close mono" data-lightbox-close>
+            Close
+          </button>
+          <div class="lightbox-scroll" data-lightbox-scroll>
+            <Image
+              src={project.image.full}
+              alt={project.image.alt}
+              widths={[1200, 1600]}
+              sizes="100vw"
+              class="lightbox-img"
+              loading="lazy"
+            />
+          </div>
+        </dialog>
+      )
+    }
   </main>
 
   <Footer />
@@ -305,4 +318,67 @@ const intro: PageIntro = {
       rgb(255 224 236 / 0.55) 100%
     );
   }
+
+  .lightbox {
+    width: min(96vw, 1600px);
+    max-width: none;
+    max-height: 94vh;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    overflow: hidden;
+  }
+
+  .lightbox::backdrop {
+    background: rgb(8 14 26 / 0.78);
+    backdrop-filter: blur(4px);
+  }
+
+  .lightbox[open] {
+    display: block;
+  }
+
+  .lightbox-scroll {
+    max-height: 94vh;
+    overflow: auto;
+  }
+
+  .lightbox-img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    padding: 0.5rem 0.875rem;
+    border-radius: 999px;
+    background: rgb(11 53 88 / 0.92);
+    color: #fff;
+    cursor: pointer;
+  }
 </style>
+
+<script>
+  // Click the picture to see the whole thing; click outside it, press Escape
+  // (native to <dialog>) or use Close to go back.
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
+  const open = document.querySelector<HTMLElement>('[data-lightbox-open]');
+  const close = document.querySelector<HTMLElement>('[data-lightbox-close]');
+
+  if (dialog && open) {
+    open.addEventListener('click', () => {
+      dialog.showModal();
+      dialog.querySelector<HTMLElement>('[data-lightbox-scroll]')?.scrollTo(0, 0);
+    });
+    close?.addEventListener('click', () => dialog.close());
+    // A click on the backdrop lands on the <dialog> itself, not its content.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+</script>
