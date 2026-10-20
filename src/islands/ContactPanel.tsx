@@ -184,7 +184,7 @@ export default function ContactPanel({
               Send us two or three times that suit you, with your time zone, and we will confirm one
               within a working day.
             </p>
-            <a href={mailtoCall} className="btn btn--primary btn--lg mt-7" data-magnetic="">
+            <a href={mailtoCall} className="btn btn--primary btn--lg mt-7">
               <span className="btn__label">Email two times that suit you</span>
             </a>
             <p className="mt-4 text-[0.875rem] text-ink-faint">

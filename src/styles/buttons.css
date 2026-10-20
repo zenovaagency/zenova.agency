@@ -12,19 +12,15 @@
  *                            prominent CTAs.
  *   .text-link               descriptive underlined link with a small arrow.
  *
- * Motion model: calm. Nothing wipes, rises or flashes. Hover is a slow eased
- * change of colour, border and glow; the arrow travels through its chip.
- * The two moving effects live on separate properties, so neither waits on
- * the other's transition:
- *
- *   translate   --mx / --my, the magnetic drift. No CSS transition: the
- *               spring in lib/magnetic.ts already eases every frame.
- *   scale       --press, the pressed state. A short transition.
+ * Motion model: calm, and the button stays where it is. Nothing drifts,
+ * wipes, rises or flashes. Hover is a slow eased change of colour, border
+ * and glow; the arrow travels through its chip. Pressing scales the button
+ * down slightly about its own centre (--press), so its position never shifts.
  *
  * Rules that are not up for negotiation:
  *   - Primary fill is --color-brand-text (5.5:1 with white) or darker, never
  *     --color-brand (4.45:1, fails AA at this size). See global.css.
- *   - Nothing changes layout size on hover, press, drift or loading.
+ *   - Nothing changes layout size or position on hover, press or loading.
  *   - Hover styles sit behind (hover: hover), so a tap on a phone does not
  *     leave a button stuck in its hover state.
  * ------------------------------------------------------------------ */
@@ -38,8 +34,6 @@
     --btn-chip-fg: var(--color-brand-text);
     --btn-ease: cubic-bezier(0.22, 1, 0.36, 1);
     --btn-dur: 450ms;
-    --mx: 0px;
-    --my: 0px;
     --press: 1;
 
     position: relative;
@@ -64,7 +58,6 @@
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    translate: var(--mx) var(--my);
     scale: var(--press);
     transition:
       background-color var(--btn-dur) var(--btn-ease),
@@ -427,11 +420,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn,
-  .btn:hover,
   .btn:active {
-    --mx: 0px !important;
-    --my: 0px !important;
+    --press: 1;
   }
   /* The global rule stops all animation; a slowed spin keeps the loading
      state legible without fast motion. */
