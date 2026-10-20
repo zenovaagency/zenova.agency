@@ -20,6 +20,23 @@ const abs = (path: string) => new URL(path, SITE.url).href;
  */
 export const ORG = `${SITE.url}/#organization`;
 
+/**
+ * The WebSite node, for the home page only. Google reads the site name shown
+ * beside the favicon in results from here (`name`, then `alternateName`),
+ * and only from the home page; without it, the name is guessed from titles.
+ */
+export function webSite() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE.url}/#website`,
+    name: SITE.name,
+    alternateName: ['Zenova Agency', 'zenova.agency'],
+    url: `${SITE.url}/`,
+    publisher: { '@id': ORG },
+  };
+}
+
 export function faqPage(path: string, items: { q: string; a: string }[]) {
   return {
     '@context': 'https://schema.org',

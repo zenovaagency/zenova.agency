@@ -1,0 +1,242 @@
+---
+/**
+ * Full-screen image viewer. Include once on a page; every [data-viewer]
+ * trigger on that page opens it (behaviour and trigger contract in
+ * lib/viewer.ts; build a trigger's attributes with viewerAttrs() from
+ * lib/viewer-attrs.ts).
+ *
+ * A native <dialog> opened with showModal(), so focus is trapped, the page
+ * behind is inert and Escape closes it. The dialog itself is the dark field
+ * (the ::backdrop is left transparent) so the open and close can fade as one
+ * layer. data-lenis-prevent keeps smooth scroll away from the wheel zoom.
+ */
+---
+
+<dialog class="iv" data-iv data-lenis-prevent aria-label="Image viewer">
+  <div class="iv-bar">
+    <p class="iv-caption" data-iv-caption></p>
+    <div class="iv-tools" role="toolbar" aria-label="Zoom">
+      <button type="button" class="iv-btn" data-iv-out aria-label="Zoom out">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+      </button>
+      <output class="iv-level mono" data-iv-level aria-live="polite">Fit</output>
+      <button type="button" class="iv-btn" data-iv-in aria-label="Zoom in">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+      </button>
+      <button type="button" class="iv-btn" data-iv-fit aria-label="Fit to screen">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+      <span class="iv-sep" aria-hidden="true"></span>
+      <button type="button" class="iv-btn" data-iv-close aria-label="Close viewer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="iv-stage" data-iv-stage>
+    <img class="iv-img" data-iv-img alt="" draggable="false" decoding="async" />
+    <span class="iv-spinner" aria-hidden="true"></span>
+  </div>
+
+  <p class="iv-hint mono" aria-hidden="true">
+    <span class="iv-hint--fine">Scroll to zoom · drag to pan · double-click to toggle</span>
+    <span class="iv-hint--touch">Pinch to zoom · drag to pan · double-tap to toggle</span>
+  </p>
+</dialog>
+
+<style>
+  .iv {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    flex-direction: column;
+    background: rgb(7 12 24 / 0.96);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    color: #ffffff;
+    opacity: 0;
+    transition: opacity 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .iv[open] {
+    display: flex;
+  }
+  .iv.is-open {
+    opacity: 1;
+  }
+  .iv::backdrop {
+    background: transparent;
+  }
+
+  /* --- Toolbar ------------------------------------------------------ */
+  .iv-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 12px 12px 20px;
+    transform: translateY(-8px);
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .iv.is-open .iv-bar {
+    transform: none;
+  }
+  .iv-caption {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    color: rgb(255 255 255 / 0.78);
+  }
+  .iv-tools {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  .iv-btn {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    color: #ffffff;
+    transition:
+      background-color 300ms cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .iv-btn:hover:not(:disabled) {
+    background: rgb(255 255 255 / 0.12);
+  }
+  .iv-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .iv-btn:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 1px;
+    border-radius: 999px;
+  }
+  .iv-level {
+    min-width: 3.5rem;
+    text-align: center;
+    color: rgb(255 255 255 / 0.85);
+    font-variant-numeric: tabular-nums;
+  }
+  .iv-sep {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background: rgb(255 255 255 / 0.18);
+  }
+  @media (pointer: coarse) {
+    .iv-btn {
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  /* --- Stage -------------------------------------------------------- */
+  .iv-stage {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    margin: 0 clamp(8px, 2vw, 24px);
+    overflow: hidden;
+    touch-action: none;
+    cursor: zoom-in;
+  }
+  .iv-stage.is-zoomed {
+    cursor: grab;
+  }
+  .iv-stage.is-zoomed.is-dragging {
+    cursor: grabbing;
+  }
+  .iv-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: none;
+    height: auto;
+    border-radius: 6px;
+    transform-origin: 0 0;
+    user-select: none;
+    -webkit-user-drag: none;
+    opacity: 0;
+    transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.7);
+  }
+  .iv.is-open:not(.is-loading) .iv-img {
+    opacity: 1;
+  }
+  .iv-img.is-easing {
+    transition:
+      opacity 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .iv-spinner {
+    position: absolute;
+    inset: 0;
+    display: none;
+    width: 28px;
+    height: 28px;
+    margin: auto;
+    border: 2px solid rgb(255 255 255 / 0.8);
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: iv-spin 700ms linear infinite;
+  }
+  .iv.is-loading .iv-spinner {
+    display: block;
+  }
+
+  .iv-hint {
+    padding: 12px 20px 16px;
+    text-align: center;
+    color: rgb(255 255 255 / 0.55);
+  }
+  .iv-hint--touch {
+    display: none;
+  }
+  @media (pointer: coarse) {
+    .iv-hint--fine {
+      display: none;
+    }
+    .iv-hint--touch {
+      display: inline;
+    }
+  }
+
+  @keyframes iv-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .iv,
+    .iv-bar,
+    .iv-img,
+    .iv-img.is-easing {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { initViewer } from '../../lib/viewer';
+  initViewer();
+</script>

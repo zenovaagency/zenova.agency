@@ -18,12 +18,15 @@ import Accordion from '../../components/ui/Accordion.astro';
 import Button from '../../components/ui/Button.astro';
 import TextLink from '../../components/ui/TextLink.astro';
 import ProductShot from '../../components/ui/ProductShot.astro';
+import ImageViewer from '../../components/ui/ImageViewer.astro';
 import { PAGES, PRODUCT_FAQS } from '../../data/site';
 import { PRODUCTS } from '../../data/products';
 import { breadcrumb, faqPage, ORG } from '../../lib/schema';
+import { viewerAttrs } from '../../lib/viewer-attrs';
 
 const page = PAGES.products;
 const host = (url: string) => new URL(url).host;
+const zooms = await Promise.all(PRODUCTS.map((p) => viewerAttrs(p.image.full, p.image.alt)));
 
 // Only fields the product's own site states. No offers, no ratings.
 const apps = PRODUCTS.map((p) => ({
@@ -116,7 +119,7 @@ const lessons = [
     </section>
 
     {
-      PRODUCTS.map((p) => (
+      PRODUCTS.map((p, i) => (
         <section id={p.slug} class="scroll-mt-24 border-t border-line bg-white py-[var(--section-y)]" aria-labelledby={`${p.slug}-title`}>
           <div class="container-z">
             <div class="grid gap-10 lg:grid-cols-12 lg:gap-14">
@@ -147,7 +150,7 @@ const lessons = [
               </div>
 
               <div class="lg:col-span-7" data-reveal data-reveal-delay="0.08">
-                <ProductShot src={p.image.full} alt={p.image.alt} domain={host(p.url)} sizes="(min-width: 1024px) 50vw, 92vw" />
+                <ProductShot src={p.image.full} alt={p.image.alt} domain={host(p.url)} sizes="(min-width: 1024px) 50vw, 92vw" zoom={zooms[i]} />
               </div>
             </div>
 
@@ -253,6 +256,8 @@ const lessons = [
     </div>
 
     <Cta />
+
+    <ImageViewer />
   </main>
 
   <Footer />
