@@ -3,7 +3,7 @@
  * Contact.
  *
  * Left: what happens after you get in touch, and the terms that matter
- * before you do (pricing model, ownership, response time). Right: the panel
+ * before you do (how pricing is agreed, ownership, response time). Right: the panel
  * with the two ways in — a written brief, or a 30-minute call (Calendly).
  *
  * The brief still hands off to the visitor's mail client; there is no
@@ -13,16 +13,14 @@ import Base from '../layouts/Base.astro';
 import Nav from '../components/chrome/Nav.astro';
 import Footer from '../components/chrome/Footer.astro';
 import ContactPanel from '../islands/ContactPanel';
-import { SITE, SERVICES, PRICING } from '../data/site';
+import { SITE, SERVICES, SCOPES } from '../data/site';
 import '../styles/contact.css';
 
 const services = SERVICES.map((s) => ({ slug: s.slug, title: s.title }));
 
-// Plan id → readable label, for briefs that arrive from a pricing card.
+// Scope option id → readable label, for briefs that arrive from a scope card.
 const plans = Object.fromEntries(
-  PRICING.flatMap((svc) =>
-    svc.plans.map((p) => [p.id, `${p.name} (${svc.label}, ${p.price})`]),
-  ),
+  SCOPES.flatMap((svc) => svc.plans.map((p) => [p.id, `${p.name} (${svc.label})`])),
 );
 
 const next = [
@@ -43,7 +41,7 @@ const next = [
 const terms = [
   ['Fixed price per phase', 'No hourly billing.'],
   ['Yours from day one', 'Code, designs, domain and accounts.'],
-  ['30–90 days of support', 'Included after launch, by plan.'],
+  ['30–90 days of support', 'Included after launch, by scope.'],
 ];
 ---
 

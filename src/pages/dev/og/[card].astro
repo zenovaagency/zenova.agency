@@ -1,0 +1,165 @@
+---
+/**
+ * The social share card (og:image / twitter:image) — DEV ONLY.
+ *
+ * Rendered here with the site's real fonts, logo and service drawing, then
+ * captured to public/og-card.png by scripts/og-card.mjs. getStaticPaths
+ * returns nothing in a production build, so this page never ships.
+ *
+ * The card is exactly 1200×630, the size every major scraper expects, and
+ * Base.astro declares those dimensions. Keep the two in step.
+ */
+import Base from '../../../layouts/Base.astro';
+import Logo from '../../../components/chrome/Logo.astro';
+import ServiceVisual from '../../../components/ui/ServiceVisual.astro';
+import { HERO, SERVICES } from '../../../data/site';
+
+export function getStaticPaths() {
+  return import.meta.env.DEV ? [{ params: { card: 'default' } }] : [];
+}
+---
+
+<Base title="OG card (dev only)" description="Internal share card source.">
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+
+  <div class="og">
+    <div class="og__wash" aria-hidden="true"></div>
+
+    <div class="og__text">
+      <Logo size={34} />
+
+      <p class="og__eyebrow mono">
+        <span class="og__dot" aria-hidden="true"></span>
+        {HERO.eyebrow}
+      </p>
+
+      <h1 class="og__title">
+        {HERO.headline}<br /><em class="accent-serif">{HERO.headlineAccent}</em>
+      </h1>
+
+      <ul class="og__services">
+        {SERVICES.map((s) => <li>{s.title}</li>)}
+      </ul>
+    </div>
+
+    <div class="og__art" aria-hidden="true">
+      <ServiceVisual kind="web" decorative />
+    </div>
+
+    <p class="og__url mono">zenova.agency</p>
+  </div>
+</Base>
+
+<style is:global>
+  /* The capture window is the card; nothing else may scroll or overlay it. */
+  html,
+  body {
+    overflow: hidden;
+  }
+  .grain,
+  astro-dev-toolbar {
+    display: none;
+  }
+</style>
+
+<style>
+  .og {
+    position: relative;
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: var(--color-paper);
+  }
+
+  .og__wash {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(55% 70% at 88% 18%, #bfe0ff 0%, transparent 70%),
+      radial-gradient(40% 60% at 100% 95%, #9ccaff 0%, transparent 70%),
+      radial-gradient(30% 40% at 60% 105%, #ffe0ec 0%, transparent 70%),
+      radial-gradient(45% 60% at 0% 0%, #e3efff 0%, transparent 70%),
+      #f6f9ff;
+  }
+
+  .og__text {
+    position: absolute;
+    left: 72px;
+    top: 76px;
+    width: 640px;
+  }
+
+  .og__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 48px;
+    color: var(--color-ink-soft);
+    font-size: 15px;
+  }
+
+  .og__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--color-brand);
+  }
+
+  .og__title {
+    margin-top: 22px;
+    color: var(--color-ink);
+    font-size: 66px;
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+
+  .og__title em {
+    font-size: 1.08em;
+    letter-spacing: -0.01em;
+  }
+
+  .og__services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 40px;
+  }
+
+  .og__services li {
+    padding: 8px 14px;
+    border: 1px solid rgb(11 53 88 / 0.14);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.7);
+    color: var(--color-ink);
+    font-size: 16px;
+  }
+
+  .og__art {
+    position: absolute;
+    right: -40px;
+    top: 112px;
+    width: 500px;
+    padding: 10px;
+    border: 1px solid rgb(255 255 255 / 0.9);
+    border-radius: 28px;
+    background: rgb(255 255 255 / 0.55);
+    box-shadow:
+      0 40px 80px -36px rgb(0 96 230 / 0.45),
+      0 2px 6px rgb(11 53 88 / 0.08);
+  }
+
+  .og__art :global(.viz) {
+    display: block;
+    width: 100%;
+    border-radius: 20px;
+  }
+
+  .og__url {
+    position: absolute;
+    right: 72px;
+    bottom: 40px;
+    color: var(--color-ink-soft);
+    font-size: 15px;
+  }
+</style>

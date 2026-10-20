@@ -12,8 +12,13 @@ import { ORG } from '../lib/schema';
 interface Props {
   title?: string;
   description?: string;
-  /** Per-page OG/Twitter image. Defaults to the shared /og-card.png card. */
+  /**
+   * Per-page OG/Twitter image, 1200×630. Defaults to the shared
+   * /og-card.png card (source: pages/dev/og, captured by scripts/og-card.mjs).
+   */
   image?: string;
+  /** Describes `image` for screen readers on social platforms. */
+  imageAlt?: string;
   /** "article" on blog posts; everything else stays "website". */
   ogType?: 'website' | 'article';
   /** ISO timestamps for og:type article. Ignored unless ogType is "article". */
@@ -28,6 +33,11 @@ const { title = SITE.title, description = SITE.description } = Astro.props;
 const canonicalPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const canonical = new URL(canonicalPath, Astro.site ?? SITE.url).href;
 const ogImage = new URL(Astro.props.image ?? '/og-card.png', Astro.site ?? SITE.url).href;
+const ogImageAlt =
+  Astro.props.imageAlt ??
+  (Astro.props.image
+    ? title
+    : 'Zenova: We design and build software for ambitious businesses. Web development, app development, AI automation and digital marketing.');
 const isArticle = Astro.props.ogType === 'article';
 
 // Organization only. No LocalBusiness: the brand has no verified postal
@@ -88,8 +98,10 @@ const jsonLd = {
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:image" content={ogImage} />
-    <meta property="og:image:width" content="1600" />
-    <meta property="og:image:height" content="840" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
     {isArticle && Astro.props.publishedTime && (
       <meta property="article:published_time" content={Astro.props.publishedTime} />
     )}
@@ -104,6 +116,7 @@ const jsonLd = {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <link
       rel="alternate"

@@ -3,15 +3,16 @@
  * One service, in full.
  *
  * Reading order is the order a buyer asks in — what is it, what do I get,
- * what does it cost, how does it run, what about ownership and support — with
+ * where would we start, how does it run, what about ownership and support — with
  * a sticky sub-nav so any of those is one click away on a long page.
  *
  * Everything with a number in it comes from data: the facts strip from
- * SERVICES.meta, the tiers from PRICING, the phases from PROCESS, the answers
- * from AGENCY_FAQS. Nothing on this page is typed twice.
+ * SERVICES.meta, the scope options from SCOPES, the phases from PROCESS, the
+ * answers from AGENCY_FAQS. Nothing on this page is typed twice. There are no
+ * prices: pricing is agreed on a call and written into the proposal.
  *
- * Every plan's button carries ?service=&plan= to /contact, where the brief
- * form pre-selects the service and names the plan.
+ * Every scope option's button carries ?service=&plan= to /contact, where the
+ * brief form pre-selects the service and names the option.
  */
 import Base from '../../layouts/Base.astro';
 import Nav from '../../components/chrome/Nav.astro';
@@ -28,7 +29,7 @@ import {
   AGENCY_FAQS,
   DELIVERABLES,
   OWNERSHIP,
-  PRICING,
+  SCOPES,
   PROCESS,
   SERVICES,
   type Service,
@@ -54,23 +55,23 @@ const lead = words.slice(0, -1).join(' ');
 const last = words[words.length - 1];
 
 const deliverables = DELIVERABLES.filter((d) => d.service === service.slug);
-const rates = PRICING.find((p) => p.slug === service.slug);
+const scopes = SCOPES.find((p) => p.slug === service.slug);
 const projects = projectsFor(service.slug);
 const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slug}` }));
 
-// The buying questions: timeline, pricing, ownership, revisions, support.
+// The buying questions: timeline, how pricing is agreed, ownership, revisions, support.
 const faqs = AGENCY_FAQS.slice(1, 6);
 
 const sections = [
   { id: 'overview', label: 'Overview' },
   { id: 'deliverables', label: 'What you get' },
-  { id: 'pricing', label: 'Pricing' },
+  { id: 'options', label: 'Scope options' },
   { id: 'process', label: 'Process' },
   { id: 'faq', label: 'FAQ' },
 ];
 
 const contactHref = `/contact?service=${service.slug}`;
-const title = `${service.title} — Scope, Timeline and Pricing | Zenova`;
+const title = `${service.title} — Scope, Process and Timeline | Zenova`;
 ---
 
 <Base title={title} description={service.hero}>
@@ -115,7 +116,7 @@ const title = `${service.title} — Scope, Timeline and Pricing | Zenova`;
             <Button href={contactHref} size="lg" arrow="split">
               Start a {service.title.toLowerCase()} project
             </Button>
-            <Button href="#pricing" variant="secondary" size="lg" arrow="none">See pricing</Button>
+            <Button href="/contact#book" variant="secondary" size="lg">Book a 30-min call</Button>
           </div>
 
           <dl class="mt-10 flex flex-wrap gap-x-8 gap-y-4" data-reveal data-reveal-delay="0.5">
@@ -184,7 +185,7 @@ const title = `${service.title} — Scope, Timeline and Pricing | Zenova`;
             }
           </ul>
 
-          <dl class="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-4" data-reveal>
+          <dl class="mt-6 grid gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-3" data-reveal>
             {
               service.meta.map(([value, label]) => (
                 <div class="bg-white px-4 py-5">
@@ -242,35 +243,35 @@ const title = `${service.title} — Scope, Timeline and Pricing | Zenova`;
       </div>
     </section>
 
-    <!-- Pricing -->
+    <!-- Scope options: where a project usually starts. No prices; those are
+         agreed on a call. -->
     {
-      rates && (
-        <section id="pricing" class="scroll-mt-32 border-t border-line py-[var(--section-y)]" aria-labelledby="rates-title" data-spy>
+      scopes && (
+        <section id="options" class="scroll-mt-32 border-t border-line py-[var(--section-y)]" aria-labelledby="options-title" data-spy>
           <div class="container-z">
             <div class="grid gap-6 lg:grid-cols-12 lg:items-end" data-reveal>
               <div class="lg:col-span-7">
-                <p class="mono text-ink-faint">Pricing</p>
-                <h2 id="rates-title" class="h2 mt-4 text-ink">
-                  Three ways to start, <em class="accent-serif">priced up front.</em>
+                <p class="mono text-ink-faint">Scope options</p>
+                <h2 id="options-title" class="h2 mt-4 text-ink">
+                  Three ways to start, <em class="accent-serif">scoped on a call.</em>
                 </h2>
               </div>
               <p class="text-ink-muted lg:col-span-4 lg:col-start-9">
-                One-time project prices, paid per phase. Anything marked Custom is scoped and priced
-                after a call, before work starts.
+                Pick the one closest to what you need. On a short call we shape the scope with you,
+                then send a written proposal with a fixed price per phase.
               </p>
             </div>
 
             <ul class="mt-12 grid gap-6 lg:grid-cols-3">
-              {rates.plans.map((plan, i) => (
+              {scopes.plans.map((plan, i) => (
                 <li class="flex" data-reveal data-reveal-delay={i * 0.08}>
-                  <article class:list={['plan w-full', plan.highlighted && 'plan--hl']}>
-                    {plan.highlighted && <p class="plan__tag mono">Recommended</p>}
-                    <h3 class="text-[1.25rem] font-medium tracking-[-0.01em] text-ink">{plan.name}</h3>
-                    <p class="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">{plan.info}</p>
-                    <p class="mt-7 text-[clamp(2rem,3.4vw,2.6rem)] font-medium leading-none tracking-[-0.03em] text-ink tabular-nums">
-                      {plan.price}
+                  <article class="plan w-full">
+                    <p class="mono flex items-center gap-3 text-ink-faint">
+                      <span class="plan__n tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                      {plan.timeline}
                     </p>
-                    <p class="mono mt-3 text-ink-faint">One-time · {plan.timeline}</p>
+                    <h3 class="mt-6 text-[1.5rem] font-medium tracking-[-0.02em] text-ink">{plan.name}</h3>
+                    <p class="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">{plan.info}</p>
                     <ul class="mt-7 space-y-3 border-t border-line pt-6 text-[0.9375rem] text-ink">
                       {plan.features.map((f) => (
                         <li class="flex items-start gap-3">
@@ -284,7 +285,7 @@ const title = `${service.title} — Scope, Timeline and Pricing | Zenova`;
                     <div class="mt-auto pt-8">
                       <Button
                         href={`${contactHref}&plan=${plan.id}`}
-                        variant={plan.highlighted ? 'primary' : 'secondary'}
+                        variant="secondary"
                         class="w-full"
                         aria-label={`${plan.cta}: ${plan.name}`}
                       >
@@ -513,20 +514,27 @@ const title = `${service.title} — Scope, Timeline and Pricing | Zenova`;
     background: #ffffff;
     box-shadow: var(--shadow-sm);
   }
-  .plan--hl {
-    border-color: var(--color-brand-text);
-    box-shadow:
-      0 0 0 1px var(--color-brand-text),
-      0 24px 48px -24px rgb(0 96 230 / 0.4);
-  }
-  .plan__tag {
-    position: absolute;
-    top: -12px;
-    left: 28px;
-    padding: 6px 10px;
+  .plan__n {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
     border-radius: 999px;
-    background: var(--color-brand-text);
-    color: #ffffff;
+    background: #eef4ff;
+    color: var(--color-brand-text);
+  }
+  @media (hover: hover) {
+    .plan {
+      transition:
+        border-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+        box-shadow 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .plan:hover {
+      border-color: rgb(0 96 230 / 0.35);
+      box-shadow:
+        0 18px 40px -18px rgb(0 96 230 / 0.3),
+        var(--shadow-md);
+    }
   }
 </style>
 

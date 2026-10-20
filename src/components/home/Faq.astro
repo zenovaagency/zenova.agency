@@ -9,13 +9,14 @@ import { faqPage } from '../../lib/schema';
  * Working with us: the facts a buyer needs before a first call, then the
  * FAQ. Product questions live on /products, where they belong.
  *
- * Every fact in the strip comes from PRICING and OWNERSHIP in data/site.ts.
- * If a price, timeline or support window changes there, check this too.
+ * Every fact in the strip comes from SCOPES and OWNERSHIP in data/site.ts.
+ * If a timeline or support window changes there, check this too. No prices:
+ * those are agreed on a call.
  */
 const facts = [
   {
     value: 'Fixed price',
-    label: 'Per phase, agreed before the phase starts. No hourly billing.',
+    label: 'Per phase, agreed with you on a call. No hourly billing.',
   },
   {
     value: '3–12 weeks',
@@ -27,7 +28,7 @@ const facts = [
   },
   {
     value: '30–90 days',
-    label: 'Support included after launch, depending on the plan.',
+    label: 'Support included after launch, depending on the scope.',
   },
 ];
 

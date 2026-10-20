@@ -49,13 +49,13 @@ import { HERO, SERVICES } from '../../data/site';
         <Button href={HERO.secondaryHref} variant="secondary" size="lg">{HERO.secondaryCta}</Button>
       </div>
 
-      <nav class="mt-14" aria-label="Services" data-reveal data-reveal-delay="0.75">
-        <ul class="flex flex-wrap items-center justify-center gap-x-2 gap-y-2">
+      <nav class="mt-14 w-full" aria-label="Services" data-reveal data-reveal-delay="0.75">
+        <ul class="hero-chips">
           {
             SERVICES.map((s) => (
               <li>
                 <a href={`/services/${s.slug}`} class="hero-chip">
-                  <span class="mono tabular-nums text-ink-faint">{s.n}</span>
+                  <span class="hero-chip__n mono tabular-nums text-ink-faint">{s.n}</span>
                   {s.title}
                 </a>
               </li>
@@ -173,6 +173,45 @@ import { HERO, SERVICES } from '../../data/site';
       background: #ffffff;
       border-color: rgb(0 96 230 / 0.35);
       transform: translateY(-1px);
+    }
+  }
+
+  /* Phones: an even 2×2 grid, every chip the same size. From 640px up they
+     sit in one centred, wrapping row at their natural widths. */
+  .hero-chips {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    max-width: 22rem;
+    margin-inline: auto;
+  }
+  .hero-chips .hero-chip {
+    width: 100%;
+    justify-content: center;
+    gap: 6px;
+    min-height: 40px;
+    padding: 0 10px;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+  }
+  @media (max-width: 379px) {
+    .hero-chip__n {
+      display: none;
+    }
+  }
+  @media (min-width: 640px) {
+    .hero-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: none;
+    }
+    .hero-chips .hero-chip {
+      width: auto;
+      gap: 10px;
+      padding: 0 16px;
+      font-size: 0.875rem;
     }
   }
 

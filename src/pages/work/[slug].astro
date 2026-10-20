@@ -3,70 +3,67 @@
  * One project.
  *
  * Built from the entries in data/projects.ts that are not drafts. Today that
- * is four demo projects: labelled as demos in the eyebrow and in the meta
- * grid, with no client and no metrics. See that file for the checklist that
- * turns an entry into a real, published case study.
+ * is our own product and three design concepts: each says what it is in the
+ * eyebrow and in the facts list, with no client and no metrics. See that file
+ * for the checklist that turns an entry into a real, published case study.
  *
- * `outcomes` renders only when it has entries, which is what lets a thin demo
- * and a full case study share this template. An empty metrics grid reads as a
- * result being hidden, which is worse than not claiming one.
+ * Reading order: what it is (hero and facts), the thing itself (a large
+ * framed showcase that opens full size), then the write-up beside a sticky
+ * summary of what we did, and finally the next project.
+ *
+ * `outcomes` renders only when it has entries, which is what lets a thin
+ * concept and a full case study share this template. An empty metrics grid
+ * reads as a result being hidden, which is worse than not claiming one.
  */
 import Base from '../../layouts/Base.astro';
 import Nav from '../../components/chrome/Nav.astro';
 import Footer from '../../components/chrome/Footer.astro';
-import PageHero from '../../components/chrome/PageHero.astro';
-import PageNav from '../../components/chrome/PageNav.astro';
 import Cta from '../../components/chrome/Cta.astro';
 import JsonLd from '../../components/chrome/JsonLd.astro';
 import Motif from '../../components/ui/Motif.astro';
 import Button from '../../components/ui/Button.astro';
 import TextLink from '../../components/ui/TextLink.astro';
 import { Image } from 'astro:assets';
-import { SERVICES, type PageIntro, type Service } from '../../data/site';
+import { SERVICES, type Service } from '../../data/site';
 import { published, projectKind, KIND_LABEL, type Project } from '../../data/projects';
 import { breadcrumb } from '../../lib/schema';
 
 export function getStaticPaths() {
   const live = published();
-  return live.map((project) => ({
+  return live.map((project, i) => ({
     params: { slug: project.slug },
     props: {
       project,
-      // Siblings come from the same filtered array the routes did, so a draft
-      // can never appear as a "next project" link.
-      siblings: live.map((p) => ({ label: p.title, href: `/work/${p.slug}` })),
+      // From the same filtered array the routes came from, so a draft can
+      // never appear as the next project. Wraps to the first.
+      next: live.length > 1 ? live[(i + 1) % live.length] : undefined,
     },
   }));
 }
 
 interface Props {
   project: Project;
-  siblings: { label: string; href: string }[];
+  next?: Project;
 }
 
-const { project, siblings } = Astro.props as Props;
-const service = SERVICES.find((s) => s.slug === project.service) as Service;
+const { project, next } = Astro.props as Props;
+const serviceOf = (p: Project) => SERVICES.find((s) => s.slug === p.service) as Service;
+const service = serviceOf(project);
 const path = `/work/${project.slug}`;
 
 // The client name when there is one; otherwise what kind of entry this is,
 // so a concept or our own product is never mistaken for client work.
 const kind = projectKind(project);
-const eyebrow = [project.client ?? KIND_LABEL[kind], service.title, project.year].join(' · ');
+const eyebrowOf = (p: Project) =>
+  [p.client ?? KIND_LABEL[projectKind(p)], serviceOf(p).title, p.year].join(' · ');
 
-const intro: PageIntro = {
-  eyebrow,
-  headline: `${project.title},`,
-  // Deliberately not "in full." — these write-ups are short by design, and a
-  // demo has nothing withheld to be shown in full.
-  accent: 'up close.',
-  sub: project.intro,
-  wash: 2, // unused: `angle` takes precedence on detail pages
-  title: `${project.title} — ${service.title} | Zenova`,
-  description: project.summary,
-};
+const typeLabel =
+  project.client ?? (project.demo ? 'Demo project' : project.concept ? 'Design concept' : 'Our own product');
+
+const title = `${project.title} — ${service.title} | Zenova`;
 ---
 
-<Base title={intro.title} description={intro.description}>
+<Base title={title} description={project.summary}>
   <JsonLd
     slot="head"
     data={breadcrumb([
@@ -78,131 +75,125 @@ const intro: PageIntro = {
   <Nav />
 
   <main id="main">
-    <PageHero
-      intro={intro}
-      angle={project.angle ?? service.angle}
-      trail={[
-        { label: 'Work', href: '/work' },
-        { label: project.title, href: path },
-      ]}
-    />
+    <!-- Hero: what it is, at a glance. -->
+    <section class="relative overflow-hidden pb-14 pt-32 sm:pt-36 lg:pb-20">
+      <div class="case-wash absolute inset-x-0 top-0 -z-10 h-[680px]" style={`--angle:${project.angle ?? service.angle}`} aria-hidden="true"></div>
 
-    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="brief-title">
       <div class="container-z">
-        <h2 id="brief-title" class="sr-only">Project summary</h2>
+        <nav aria-label="Breadcrumb" data-reveal>
+          <ol class="mono flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <li><a href="/" class="text-ink-soft hover:text-ink">Home</a></li>
+            <li class="text-ink-faint" aria-hidden="true">/</li>
+            <li><a href="/work" class="text-ink-soft hover:text-ink">Work</a></li>
+            <li class="text-ink-faint" aria-hidden="true">/</li>
+            <li class="text-ink-soft" aria-current="page">{project.title}</li>
+          </ol>
+        </nav>
 
-        <div class="grid items-start gap-10 lg:grid-cols-12 lg:gap-16">
-          <div class="lg:col-span-5" data-reveal>
-            <div class="card-tint overflow-hidden">
-              {
-                project.image ? (
-                  /* The picture is a button: it opens the whole image, uncropped,
-                     in the dialog below. */
-                  <button
-                    type="button"
-                    class="group relative block w-full cursor-zoom-in"
-                    data-lightbox-open
-                    aria-haspopup="dialog"
-                    aria-label={`View ${project.title} full size`}
-                  >
-                    <Image
-                      src={project.image.src}
-                      alt={project.image.alt}
-                      widths={[640, 960, 1280]}
-                      sizes="(min-width: 1024px) 40vw, 100vw"
-                      class="h-auto w-full"
-                      loading="lazy"
-                    />
-                    <span class="mono pointer-events-none absolute bottom-3 right-3 rounded-full bg-white/90 px-3 py-1.5 text-ink shadow-sm transition-opacity group-hover:opacity-100 lg:opacity-0 lg:group-focus-visible:opacity-100">
-                      View full size
-                    </span>
-                  </button>
-                ) : (
-                  <div
-                    class="svc-art flex aspect-[16/10] items-center justify-center p-8 text-brand"
-                    style={`--angle:${project.angle ?? service.angle}`}
-                    aria-hidden="true"
-                  >
-                    <Motif kind={project.motif ?? service.motif} />
-                  </div>
-                )
-              }
-              {
-                project.stack.length > 0 && (
-                  <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
-                    {project.stack.map((tech) => (
-                      <li class="mono text-ink-faint">{tech}</li>
-                    ))}
-                  </ul>
-                )
-              }
+        <p class="mono mt-10 flex items-center gap-2.5 text-ink-soft" data-reveal data-reveal-delay="0.05">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true"></span>
+          {eyebrowOf(project)}
+        </p>
+
+        <h1 class="case-title mt-6 text-ink" data-split data-split-delay="0.1">{project.title}</h1>
+
+        <div class="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-7" data-reveal data-reveal-delay="0.3">
+            <p class="max-w-[40rem] text-[1.0625rem] leading-relaxed text-ink-soft sm:text-[1.1875rem]">
+              {project.intro}
+            </p>
+
+            {/* Our own product: the next step is the product itself, not a
+                project enquiry. Everything else ends on the enquiry. */}
+            <div class="mt-9 flex flex-wrap items-center gap-3">
+              {kind === 'product' && project.url ? (
+                <>
+                  <Button href={project.url} size="lg" arrow="split" external>Explore {project.title}</Button>
+                  <Button href="/products" variant="secondary" size="lg">Product details</Button>
+                </>
+              ) : (
+                <>
+                  <Button href="/contact" size="lg" arrow="split">Start a similar project</Button>
+                  <Button href={`/services/${service.slug}`} variant="secondary" size="lg">
+                    About {service.title.toLowerCase()}
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
-          <div class="lg:col-span-6 lg:col-start-7" data-reveal>
-            <dl class="grid gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-2">
-              {/* Keeps the 2-up grid intact whether or not there is a client
-                  to name — a demo says what it is in the same slot. */}
-              <div class="bg-paper px-5 py-5">
-                <dt class="mono text-ink-faint">{project.client ? 'Client' : 'Type'}</dt>
-                <dd class="mt-2 text-[1.0625rem] text-ink">
-                  {project.client ??
-                    (project.demo ? 'Demo project' : project.concept ? 'Design concept' : 'Self-initiated')}
-                </dd>
-              </div>
-              <div class="bg-paper px-5 py-5">
-                <dt class="mono text-ink-faint">Year</dt>
-                <dd class="mt-2 text-[1.0625rem] text-ink tabular-nums">{project.year}</dd>
-              </div>
-              <div class="bg-paper px-5 py-5 sm:col-span-2">
-                <dt class="mono text-ink-faint">Service</dt>
-                <dd class="mt-2 text-[1.0625rem] text-ink">
-                  <a
-                    href={`/services/${service.slug}`}
-                    class="underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
-                  >
-                    {service.title}
-                  </a>
-                </dd>
-              </div>
-              {
-                project.url && (
-                  <div class="bg-paper px-5 py-5 sm:col-span-2">
-                    <dt class="mono text-ink-faint">Live site</dt>
-                    <dd class="mt-2 text-[1.0625rem] text-ink">
-                      <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener"
-                        class="underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
-                      >
-                        {new URL(project.url).host}
-                      </a>
-                    </dd>
-                  </div>
-                )
-              }
-            </dl>
-
+          <dl class="case-facts lg:col-span-4 lg:col-start-9" data-reveal data-reveal-delay="0.4">
+            <div>
+              <dt class="mono text-ink-faint">{project.client ? 'Client' : 'Type'}</dt>
+              <dd>{typeLabel}</dd>
+            </div>
+            <div>
+              <dt class="mono text-ink-faint">Service</dt>
+              <dd>
+                <a href={`/services/${service.slug}`} class="case-link">{service.title}</a>
+              </dd>
+            </div>
+            <div>
+              <dt class="mono text-ink-faint">Year</dt>
+              <dd class="tabular-nums">{project.year}</dd>
+            </div>
             {
-              project.scope.length > 0 && (
-                <>
-                  <h3 class="mono mt-10 text-ink-faint">What we did</h3>
-                  <ul class="mt-5 grid gap-3 sm:grid-cols-2">
-                    {project.scope.map((item) => (
-                      <li class="flex items-start gap-3 text-ink">
-                        <span
-                          class="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
-                          aria-hidden="true"
-                        />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </>
+              project.url && (
+                <div>
+                  <dt class="mono text-ink-faint">Live site</dt>
+                  <dd>
+                    <a href={project.url} target="_blank" rel="noopener" class="case-link">
+                      {new URL(project.url).host}
+                      <span class="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  </dd>
+                </div>
               )
             }
-          </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- Showcase. The picture is a button: it opens the whole image, uncropped,
+         in the dialog at the end of the page. -->
+    <section class="pb-[var(--section-y)]" aria-label={`${project.title} showcase`}>
+      <div class="container-z">
+        <div class="case-frame" data-reveal>
+          {
+            project.image ? (
+              <button
+                type="button"
+                class="case-shot group"
+                data-lightbox-open
+                aria-haspopup="dialog"
+                aria-label={`View ${project.title} full size`}
+              >
+                <Image
+                  src={project.image.wide}
+                  alt={project.image.alt}
+                  widths={[800, 1200, 1600]}
+                  sizes="(min-width: 1280px) 1200px, 94vw"
+                  loading="eager"
+                  class="case-shot__img"
+                />
+                <span class="case-shot__hint mono">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  View full showcase
+                </span>
+              </button>
+            ) : (
+              <div
+                class="svc-art flex aspect-[16/9] items-center justify-center p-10 text-brand"
+                style={`--angle:${project.angle ?? service.angle}`}
+                aria-hidden="true"
+              >
+                <Motif kind={project.motif ?? service.motif} />
+              </div>
+            )
+          }
         </div>
       </div>
     </section>
@@ -210,10 +201,7 @@ const intro: PageIntro = {
     <!-- Renders only when there are numbers the client has agreed to publish. -->
     {
       project.outcomes.length > 0 && (
-        <section
-          class="border-t border-line bg-white py-[var(--section-y)]"
-          aria-labelledby="outcome-title"
-        >
+        <section class="border-t border-line bg-white py-[var(--section-y)]" aria-labelledby="outcome-title">
           <div class="container-z">
             <h2 id="outcome-title" class="h2 max-w-xl text-ink" data-split>
               What changed.
@@ -234,71 +222,127 @@ const intro: PageIntro = {
       )
     }
 
-    {
-      project.sections.length > 0 && (
-        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="story-title">
-          <div class="container-z">
-            <h2 id="story-title" class="sr-only">
-              The story
-            </h2>
+    <!-- The write-up, beside a sticky summary of what we did. -->
+    <section class="border-t border-line bg-white py-[var(--section-y)]" aria-labelledby="story-title">
+      <div class="container-z grid gap-14 lg:grid-cols-12 lg:gap-16">
+        <aside class="lg:col-span-4">
+          <div class="case-aside" data-reveal>
+            {
+              project.scope.length > 0 && (
+                <>
+                  <h2 class="mono text-ink-faint">What we did</h2>
+                  <ul class="mt-5 space-y-3">
+                    {project.scope.map((item) => (
+                      <li class="flex items-start gap-3 text-ink">
+                        <span class="case-tick" aria-hidden="true">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )
+            }
 
-            <div class="grid gap-14">
-              {project.sections.map((block, i) => (
-                <div class="grid gap-6 lg:grid-cols-12 lg:gap-16" data-reveal>
-                  <div class="lg:col-span-4">
-                    <div class="mono flex items-center gap-3 text-ink-faint">
-                      <span class="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
-                      <span class="h-px w-8 bg-line-strong" />
-                    </div>
-                    <h3 class="h3 mt-5 text-ink">{block.heading}</h3>
-                  </div>
-                  <p class="text-[1.0625rem] leading-relaxed text-ink-muted lg:col-span-7 lg:col-start-6">
-                    {block.body}
+            {
+              project.stack.length > 0 && (
+                <>
+                  <h2 class="mono mt-10 text-ink-faint">Tools</h2>
+                  <ul class="mt-4 flex flex-wrap gap-2">
+                    {project.stack.map((tech) => (
+                      <li class="rounded-full border border-line-strong bg-paper px-3 py-1.5 text-[0.8125rem] text-ink">
+                        {tech}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )
+            }
+
+            <TextLink href={`/services/${service.slug}`} class="mt-10">
+              How we approach {service.title.toLowerCase()}
+            </TextLink>
+          </div>
+        </aside>
+
+        <div class="lg:col-span-7 lg:col-start-6">
+          <h2 id="story-title" class="h2 text-ink" data-split>
+            The brief <em class="accent-serif">and the build.</em>
+          </h2>
+
+          <div class="mt-12 grid gap-12">
+            {
+              project.sections.map((block, i) => (
+                <article class="case-block" data-reveal>
+                  <p class="mono flex items-center gap-3 text-ink-faint">
+                    <span class="tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                    <span class="h-px w-8 bg-line-strong" aria-hidden="true" />
                   </p>
-                </div>
-              ))}
+                  <h3 class="h3 mt-4 text-ink">{block.heading}</h3>
+                  <p class="mt-4 text-[1.0625rem] leading-relaxed text-ink-muted">{block.body}</p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Next project: one large card, then the way back to the list. -->
+    {
+      next && (
+        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="next-title">
+          <div class="container-z">
+            <div class="flex flex-wrap items-end justify-between gap-4" data-reveal>
+              <h2 id="next-title" class="mono text-ink-faint">Next project</h2>
+              <TextLink href="/work">All work</TextLink>
             </div>
+
+            <article class="next-card mt-8" data-reveal>
+              <div class="next-card__text">
+                <p class="mono text-ink-faint">{eyebrowOf(next)}</p>
+                <h3 class="next-card__title mt-4 text-ink">
+                  <a href={`/work/${next.slug}`} class="next-card__link">
+                    {next.title}
+                  </a>
+                </h3>
+                <p class="mt-4 max-w-md text-ink-muted">{next.summary}</p>
+                <span class="next-card__go" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </div>
+              <div class="next-card__art" aria-hidden="true">
+                {next.image ? (
+                  <Image
+                    src={next.image.wide}
+                    alt=""
+                    widths={[640, 960, 1280]}
+                    sizes="(min-width: 1024px) 50vw, 92vw"
+                    loading="lazy"
+                    class="next-card__img"
+                  />
+                ) : (
+                  <div class="svc-art flex h-full items-center justify-center p-10 text-brand" style={`--angle:${next.angle ?? serviceOf(next).angle}`}>
+                    <Motif kind={next.motif ?? serviceOf(next).motif} />
+                  </div>
+                )}
+              </div>
+            </article>
           </div>
         </section>
       )
     }
 
-    <section class="border-t border-line py-[var(--section-y)]">
-      <div class="container-z">
-        {/* Our own product: the next step is the product itself, not a project
-            enquiry. Everything else ends on the enquiry. */}
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-4" data-reveal>
-          {kind === 'product' && project.url ? (
-            <>
-              <Button href={project.url} arrow="split" external>Explore {project.title}</Button>
-              <Button href="/products" variant="secondary">Product details</Button>
-            </>
-          ) : (
-            <>
-              <Button href="/contact">Start a project</Button>
-              <Button href="/work" variant="secondary">All work</Button>
-            </>
-          )}
-          <TextLink href={`/services/${service.slug}`} class="ml-1">
-            About {service.title.toLowerCase()}
-          </TextLink>
-        </div>
-      </div>
-    </section>
-
-    <div class="border-t border-line py-[var(--section-y)]">
-      <PageNav items={siblings} up={{ label: 'Work', href: '/work' }} />
-    </div>
-
     <Cta />
 
     {
       project.image && (
-        <dialog
-          class="lightbox"
-          data-lightbox
-          aria-label={`${project.title}, full size`}
-        >
+        <dialog class="lightbox" data-lightbox aria-label={`${project.title}, full size`}>
           <button type="button" class="lightbox-close mono" data-lightbox-close>
             Close
           </button>
@@ -321,6 +365,19 @@ const intro: PageIntro = {
 </Base>
 
 <style>
+  .case-wash {
+    background:
+      radial-gradient(42% 60% at 88% 18%, rgb(111 182 255 / 0.42), transparent 70%),
+      radial-gradient(30% 44% at 100% 70%, rgb(255 174 203 / 0.32), transparent 70%),
+      linear-gradient(var(--angle), #eaf2ff 0%, var(--color-paper) 62%);
+  }
+  .case-wash::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--color-paper) 0%, rgb(246 249 255 / 0) 40%);
+  }
+
   .svc-art {
     background: linear-gradient(
       var(--angle),
@@ -330,6 +387,225 @@ const intro: PageIntro = {
     );
   }
 
+  .case-title {
+    font-weight: 500;
+    font-size: clamp(3rem, 9vw, 7.5rem);
+    line-height: 0.96;
+    letter-spacing: -0.045em;
+  }
+
+  /* --- Facts -------------------------------------------------------- */
+  .case-facts {
+    display: grid;
+    align-self: start;
+    border-top: 1px solid var(--color-line-strong);
+  }
+  .case-facts > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .case-facts dd {
+    color: var(--color-ink);
+    text-align: right;
+  }
+  .case-link {
+    text-decoration: underline;
+    text-decoration-color: var(--color-sky);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    transition: text-decoration-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .case-link:hover {
+    text-decoration-color: var(--color-brand);
+  }
+
+  /* --- Showcase ----------------------------------------------------- */
+  .case-frame {
+    overflow: hidden;
+    padding: 10px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    background: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 53 88 / 0.06),
+      0 50px 100px -50px rgb(11 53 88 / 0.4);
+  }
+  .case-shot {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: calc(var(--radius-xl) - 10px);
+    cursor: zoom-in;
+  }
+  .case-shot__img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .case-shot__hint {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.92);
+    color: var(--color-ink);
+    box-shadow: var(--shadow-md);
+    transition:
+      opacity 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .case-shot:focus-visible {
+    outline: 2px solid var(--color-brand-text);
+    outline-offset: 3px;
+  }
+  @media (hover: hover) {
+    .case-shot:hover .case-shot__img {
+      transform: scale(1.015);
+    }
+    .case-shot:hover .case-shot__hint {
+      transform: translateY(-2px);
+    }
+  }
+
+  /* --- Write-up ----------------------------------------------------- */
+  @media (min-width: 1024px) {
+    .case-aside {
+      position: sticky;
+      top: 112px;
+    }
+  }
+  .case-tick {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: var(--color-brand-text);
+  }
+  .case-block + .case-block {
+    padding-top: 3rem;
+    border-top: 1px solid var(--color-line);
+  }
+
+  /* --- Next project ------------------------------------------------- */
+  .next-card {
+    position: relative;
+    display: grid;
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    background: #ffffff;
+    transition:
+      border-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  /* No position here: the card itself is the context for the stretched link. */
+  .next-card__text {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 28px 32px;
+  }
+  .next-card__title {
+    font-weight: 500;
+    font-size: clamp(2rem, 4.6vw, 3.75rem);
+    line-height: 1;
+    letter-spacing: -0.035em;
+  }
+  .next-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+  }
+  .next-card__link:focus-visible {
+    outline: none;
+  }
+  .next-card:focus-within {
+    outline: 2px solid var(--color-brand-text);
+    outline-offset: 3px;
+  }
+  .next-card__go {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin-top: 28px;
+    border: 1px solid var(--color-line-strong);
+    border-radius: 999px;
+    color: var(--color-ink);
+    transition:
+      background-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .next-card__art {
+    overflow: hidden;
+    aspect-ratio: 3 / 2;
+    margin: 0 10px 10px;
+    border-radius: calc(var(--radius-xl) - 10px);
+  }
+  .next-card__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @media (min-width: 1024px) {
+    .next-card {
+      grid-template-columns: 5fr 7fr;
+      align-items: stretch;
+    }
+    .next-card__text {
+      justify-content: flex-end;
+      padding: 44px 40px;
+    }
+    .next-card__art {
+      margin: 10px 10px 10px 0;
+    }
+  }
+  @media (hover: hover) {
+    .next-card:hover {
+      border-color: rgb(0 96 230 / 0.35);
+      box-shadow:
+        0 24px 50px -24px rgb(0 96 230 / 0.35),
+        var(--shadow-md);
+    }
+    .next-card:hover .next-card__img {
+      transform: scale(1.03);
+    }
+    .next-card:hover .next-card__go {
+      background: var(--color-brand-text);
+      border-color: var(--color-brand-text);
+      color: #ffffff;
+      transform: translateX(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .case-shot__img,
+    .next-card__img,
+    .next-card__go {
+      transition: none;
+    }
+  }
+
+  /* --- Lightbox ----------------------------------------------------- */
   .lightbox {
     width: min(96vw, 1600px);
     max-width: none;

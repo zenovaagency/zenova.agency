@@ -8,8 +8,8 @@ import { useEffect, useState, type ReactNode } from 'react';
  * outcome rather than a fake success toast. Swap `handoff` for a POST once an
  * endpoint exists; nothing else here needs to change.
  *
- * Arriving from a pricing card (/contact?service=web&plan=web-2) pre-selects
- * the service and names the plan in the brief, so nobody has to retype what
+ * Arriving from a scope card (/contact?service=web&plan=web-2) pre-selects
+ * the service and names the scope option in the brief, so nobody has to retype what
  * they just clicked.
  */
 
@@ -108,7 +108,7 @@ export default function ContactForm({
 }: {
   to: string;
   services: ServiceOption[];
-  /** plan id → "Growth site (Web Development, from $24k)" */
+  /** scope option id → "Growth site (Web Development)" */
   plans: Record<string, string>;
 }) {
   const [values, setValues] = useState<Fields>(EMPTY);
@@ -143,7 +143,7 @@ export default function ContactForm({
       'Email: ' + v.email,
       v.company ? 'Company: ' + v.company : null,
       'Service: ' + v.service,
-      plan ? 'Plan: ' + plan : null,
+      plan ? 'Scope option: ' + plan : null,
       v.budget ? 'Budget: ' + v.budget : null,
       v.timeline ? 'Timeline: ' + v.timeline : null,
       '',
@@ -269,7 +269,7 @@ export default function ContactForm({
         </div>
         {plan && (
           <p className="mt-3 flex items-center gap-2 text-[0.875rem] text-ink-muted">
-            <span className="rounded-full bg-[#eef4ff] px-2.5 py-1 text-brand-text">Plan</span>
+            <span className="rounded-full bg-[#eef4ff] px-2.5 py-1 text-brand-text">Scope</span>
             {plan}
             <button
               type="button"
