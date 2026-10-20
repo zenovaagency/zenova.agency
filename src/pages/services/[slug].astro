@@ -465,9 +465,7 @@ const title = `${service.title} — Scope, Process and Timeline | Zenova`;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-lg);
     background: #ffffff;
-    transition:
-      transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      box-shadow 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: border-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .deliv__art {
     margin: 10px 10px 0;
@@ -476,8 +474,7 @@ const title = `${service.title} — Scope, Process and Timeline | Zenova`;
   }
   @media (hover: hover) {
     .deliv:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      border-color: rgb(0 96 230 / 0.4);
     }
   }
   .deliv:focus-within {

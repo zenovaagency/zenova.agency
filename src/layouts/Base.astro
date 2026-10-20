@@ -24,6 +24,12 @@ interface Props {
   /** ISO timestamps for og:type article. Ignored unless ogType is "article". */
   publishedTime?: string;
   modifiedTime?: string;
+  /**
+   * Keeps the page out of search: emits robots noindex and drops the
+   * canonical, which would otherwise ask Google to index this URL. For the
+   * 404 page and dev-only previews.
+   */
+  noindex?: boolean;
 }
 const { title = SITE.title, description = SITE.description } = Astro.props;
 // No trailing slash, matching internal links, the sitemap and vercel.json.
@@ -39,6 +45,7 @@ const ogImageAlt =
     ? title
     : 'Zenova: We design and build software for ambitious businesses. Web development, app development, AI automation and digital marketing.');
 const isArticle = Astro.props.ogType === 'article';
+const noindex = Astro.props.noindex ?? false;
 
 // Organization only. No LocalBusiness: the brand has no verified postal
 // address or phone, and the previous site deliberately suppressed that schema
@@ -76,15 +83,18 @@ const jsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
 
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <!-- All generated from favicon.svg by scripts/favicons.mjs: the mark on a
+         solid white tile, so it reads on dark backgrounds too. Google Search
+         wants a square icon at a multiple of 48px; the ico carries 16/32/48
+         and the PNGs 96 and 192. All live at the site root, which is where
+         crawlers look first. -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48 32x32 16x16" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <!-- Google Search picks its result favicon from these: it wants a square
-         raster at a multiple of 48px, which neither the 32px ico nor the SVG is. -->
-    <link rel="icon" href="/assets/favicon/favicon-96x96.png" type="image/png" sizes="96x96" />
-    <link rel="icon" href="/assets/favicon/favicon-192x192.png" type="image/png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon-96x96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/favicon-192x192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#f6f9ff" />
     <meta name="color-scheme" content="light" />

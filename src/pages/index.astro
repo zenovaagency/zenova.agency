@@ -4,17 +4,20 @@ import Nav from '../components/chrome/Nav.astro';
 import Footer from '../components/chrome/Footer.astro';
 import Hero from '../components/home/Hero.astro';
 import Services from '../components/home/Services.astro';
+import FeaturedProduct from '../components/home/FeaturedProduct.astro';
 import CaseStudies from '../components/home/CaseStudies.astro';
 import Process from '../components/home/Process.astro';
 import Faq from '../components/home/Faq.astro';
 import Cta from '../components/chrome/Cta.astro';
+import JsonLd from '../components/chrome/JsonLd.astro';
+import { webSite } from '../lib/schema';
 
 /*
  * Reading order is the order a business owner decides in: what you do for
- * me (services), proof (work, where our own product sits on its own labelled
- * shelf), how it would go (process), what it costs and who owns it (FAQ),
- * then the ask. Products are not pushed here: Zenova is a studio first, and
- * /products is one click away in the nav.
+ * me (services), the product we build and run ourselves (Truplexy, right
+ * after the services it grew out of), proof (work), how it would go
+ * (process), what it costs and who owns it (FAQ), then the ask. The hero
+ * stays about client work: Zenova is a studio first.
  *
  * The keyword Marquee is no longer on the home page — it repeated the
  * service names as slogans directly above the services themselves. The
@@ -23,10 +26,13 @@ import Cta from '../components/chrome/Cta.astro';
 ---
 
 <Base>
+  <JsonLd slot="head" data={webSite()} />
+
   <Nav />
   <main id="main">
     <Hero />
     <Services />
+    <FeaturedProduct />
     <CaseStudies />
     <Process />
     <Faq />

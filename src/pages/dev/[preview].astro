@@ -156,24 +156,24 @@ const stateClass: Record<(typeof states)[number], string> = {
 </Base>
 
 <style is:global>
-  /* Forced states — preview only. They set the same custom properties the
-     real :hover / :active rules in styles/buttons.css set. */
-  .btn.is-hover { --lift: -1px; background-size: 100% 100%; }
-  .btn--secondary.is-hover { border-color: var(--color-brand-text); }
-  .btn--on-dark-secondary.is-hover { border-color: #fff; }
-  .btn.is-hover .btn__arrow > svg:first-child { transform: translateX(130%); }
+  /* Forced states — preview only. They mirror the real :hover / :active
+     rules in styles/buttons.css. */
+  .btn.is-hover .btn__arrow > svg:first-child { transform: translateX(24px); }
   .btn.is-hover .btn__arrow > svg + svg { transform: translateX(0); }
-  .btn--primary.is-hover::before, .btn--on-dark.is-hover::before { transform: translateX(10%); }
+  .btn--primary.is-hover { --btn-chip-bg: rgb(255 255 255 / 0.24); background-color: #0052c7; border-color: #004cb8; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 1px 2px rgb(11 53 88 / 0.12), 0 14px 32px -12px rgb(0 96 230 / 0.6); }
+  .btn--secondary.is-hover { --btn-chip-bg: var(--color-brand-text); --btn-chip-fg: #fff; background-color: #eef4ff; border-color: var(--color-brand-text); }
+  .btn--on-dark.is-hover { --btn-chip-bg: var(--color-brand-text); --btn-chip-fg: #fff; background-color: #eaf2ff; }
+  .btn--on-dark-secondary.is-hover { --btn-chip-bg: #fff; --btn-chip-fg: var(--color-brand-text); background-color: rgb(255 255 255 / 0.12); border-color: #fff; }
   .text-link.is-hover .text-link__label { background-size: 100% 2px, 100% 1px; }
   .text-link.is-hover .btn__icon { transform: translateX(3px); }
 
-  .btn.is-active { --press: 0.98; }
-  .btn--primary.is-active { background-color: #0848ad; box-shadow: inset 0 2px 4px rgb(0 20 60 / 0.32), 0 1px 1px rgb(11 53 88 / 0.1); }
-  .btn--secondary.is-active { --btn-fill: #dde9ff; background-size: 100% 100%; box-shadow: inset 0 1px 3px rgb(11 53 88 / 0.16); }
-  .btn--on-dark.is-active { --btn-fill: #dce9ff; background-size: 100% 100%; box-shadow: inset 0 2px 4px rgb(0 40 110 / 0.2); }
-  .btn--on-dark-secondary.is-active { --btn-fill: rgb(255 255 255 / 0.2); background-size: 100% 100%; }
+  .btn.is-active { --press: 0.97; }
+  .btn--primary.is-active { background-color: #0848ad; }
+  .btn--secondary.is-active { background-color: #e2edff; }
+  .btn--on-dark.is-active { background-color: #dce9ff; }
+  .btn--on-dark-secondary.is-active { background-color: rgb(255 255 255 / 0.18); }
 
-  .btn.is-focus { outline: 2px solid var(--color-brand-text); outline-offset: 3px; }
+  .btn.is-focus { outline: 2px solid var(--color-brand-text); outline-offset: 3px; border-radius: 999px; }
   .btn--on-dark.is-focus, .btn--on-dark-secondary.is-focus { outline-color: #fff; }
 </style>
 
