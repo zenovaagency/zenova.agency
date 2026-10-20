@@ -290,9 +290,22 @@ export const published = (): Project[] => PROJECTS.filter((p) => !p.draft);
 export const projectsFor = (service: ServiceSlug): Project[] =>
   published().filter((p) => p.service === service);
 
-/** "Demo", "Concept" or the client's name; undefined for our own shipped work. */
-export const projectLabel = (p: Project): string | undefined =>
-  p.demo ? 'Demo' : p.concept ? 'Concept' : p.client;
 
 /** True while any project is a demo or concept, which is what the /work disclosure keys off. */
 export const hasSamples = (list: Project[]): boolean => list.some((p) => p.demo || p.concept);
+
+/**
+ * Which of the three shelves on /work an entry sits on. Derived rather than
+ * stored, so it cannot disagree with the demo/concept flags or with `client`.
+ * Our own shipped work with no client is a product.
+ */
+export type ProjectKind = 'client' | 'product' | 'concept';
+
+export const projectKind = (p: Project): ProjectKind =>
+  p.demo || p.concept ? 'concept' : p.client ? 'client' : 'product';
+
+export const KIND_LABEL: Record<ProjectKind, string> = {
+  client: 'Client work',
+  product: 'Our product',
+  concept: 'Design concept',
+};

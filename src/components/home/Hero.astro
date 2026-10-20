@@ -1,90 +1,190 @@
 ---
-import AvailabilityPill from '../ui/AvailabilityPill.astro';
 import Button from '../ui/Button.astro';
-import HeroGradient from '../../islands/HeroGradient';
-import { HERO } from '../../data/site';
+import { HERO, SERVICES } from '../../data/site';
+
+/**
+ * The hero: centered type over a liquid glass shader (lib/liquid-shader.ts).
+ *
+ * Three layers, back to front:
+ *   1. a static CSS gradient — what no-JS, no-WebGL and the first frame see
+ *   2. the shader canvas, faded in once its first frame has drawn
+ *   3. the type, whose letters react to the cursor (lib/proximity-text.ts)
+ *
+ * The cursor bends the shader like a lens and thickens the letters nearest to
+ * it, so moving across the headline does both at once. Neither runs on touch
+ * or under reduced motion, where the hero is still and complete.
+ */
 ---
 
-<!--
-  Centered hero on an animated blue field: GradFlow (React island) renders
-  an `animated`-type WebGL gradient over the static CSS gradient that ships
-  in the HTML. No-JS visitors and the pre-hydration frame see the static
-  version; reduced-motion users get GradFlow's own static frame.
--->
 <section
-  class="relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pb-24 pt-32 text-center"
+  class="hero relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pb-20 pt-32 text-center"
+  data-hero
 >
   <div class="hero-bg absolute inset-0 -z-10" aria-hidden="true">
-    <HeroGradient client:load />
+    <canvas class="hero-canvas absolute inset-0 h-full w-full" data-liquid></canvas>
   </div>
 
   <div class="container-z relative">
-    <div class="mx-auto flex max-w-[54rem] flex-col items-center">
-      <div data-reveal>
-        <AvailabilityPill label={HERO.badge} />
-      </div>
+    <div class="mx-auto flex max-w-[60rem] flex-col items-center">
+      <p class="mono flex items-center gap-2.5 text-ink-soft" data-reveal>
+        <span class="inline-block h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true"></span>
+        {HERO.eyebrow}
+      </p>
 
-      <h1 class="display mt-7 text-ink" data-split data-split-delay="0.15">
-        {HERO.headline}{' '}
+      <h1 class="display hero-title mt-7 text-ink" data-proximity>
+        {HERO.headline}<br />
         <em class="accent-serif">{HERO.headlineAccent}</em>
       </h1>
 
       <p
-        class="mt-6 max-w-[36rem] text-[1.0625rem] text-ink-soft sm:text-[1.1875rem]"
+        class="mt-7 max-w-[40rem] text-[1.0625rem] text-ink-soft sm:text-[1.1875rem]"
         data-reveal
-        data-reveal-delay="0.5"
+        data-reveal-delay="0.45"
       >
         {HERO.sub}
       </p>
 
-      <div class="mt-9 flex flex-wrap items-center justify-center gap-3" data-reveal data-reveal-delay="0.62">
-        <Button href={HERO.primaryHref} variant="primary">{HERO.primaryCta}</Button>
-        <Button href={HERO.secondaryHref} variant="ghost">{HERO.secondaryCta}</Button>
+      <div class="hero-ctas mt-10 flex flex-wrap items-center justify-center gap-3" data-reveal data-reveal-delay="0.6">
+        <Button href={HERO.primaryHref} size="lg" arrow="split">{HERO.primaryCta}</Button>
+        <Button href={HERO.secondaryHref} variant="secondary" size="lg">{HERO.secondaryCta}</Button>
       </div>
+
+      <nav class="mt-14" aria-label="Services" data-reveal data-reveal-delay="0.75">
+        <ul class="flex flex-wrap items-center justify-center gap-x-2 gap-y-2">
+          {
+            SERVICES.map((s) => (
+              <li>
+                <a href={`/services/${s.slug}`} class="hero-chip">
+                  <span class="mono tabular-nums text-ink-faint">{s.n}</span>
+                  {s.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
     </div>
   </div>
 
-  <div class="container-z relative mt-16 hidden lg:block" data-reveal data-reveal-delay="0.8">
-    <div class="mono flex items-center justify-center gap-3 text-ink-soft">
-      <span class="scroll-cue h-8 w-px bg-gradient-to-b from-transparent via-brand to-transparent"
-      ></span>
-      Scroll
+  <div class="absolute bottom-8 left-1/2 hidden -translate-x-1/2 lg:block" data-reveal data-reveal-delay="0.9">
+    <div class="mono flex flex-col items-center gap-3 text-ink-soft">
+      <span class="scroll-cue h-8 w-px bg-gradient-to-b from-transparent via-brand to-transparent"></span>
     </div>
   </div>
 </section>
 
 <style>
-  /*
-    Static fallback for the hero background, verbatim from the reference
-    spec: one saturated blue glow centred on the top edge, pale washes at
-    the upper corners, white beneath. It ships in the HTML and stays
-    visible until GradFlow's first opaque frame covers it; the palette
-    matches the island's colors so the handover is seamless. The text sits
-    on the light middle of the field, so ink type carries the contrast —
-    no veil layer needed.
-  */
+  /* Static fallback, and the frame before the shader's first draw. Same
+     palette as the shader, so the handover is a soft fade, not a jump. */
   .hero-bg {
     background:
-      radial-gradient(circle at 50% 0%,
-        #5E91F9 0%,
-        #B8D2FA 25%,
-        transparent 55%
-      ),
-      radial-gradient(circle at 0% 25%,
-        #C8DDF8 0%,
-        #DCF3FE 35%,
-        transparent 65%
-      ),
-      radial-gradient(circle at 100% 25%,
-        #6E97F9 0%,
-        #C6DDF9 35%,
-        transparent 65%
-      ),
-      #FFFFFF;
+      radial-gradient(60% 50% at 50% 0%, #bfe0ff 0%, transparent 70%),
+      radial-gradient(40% 50% at 0% 30%, #dcebff 0%, transparent 70%),
+      radial-gradient(40% 50% at 100% 25%, #9ccaff 0%, transparent 70%),
+      radial-gradient(30% 30% at 100% 0%, #ffe0ec 0%, transparent 70%),
+      #f6f9ff;
+  }
+
+  .hero-canvas {
+    opacity: 0;
+    transition: opacity 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .hero-canvas[data-ready] {
+    opacity: 1;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 6.4vw, 5.75rem);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+
+  /* --- Proximity text (lib/proximity-text.ts) ---------------------- */
+  .hero-title :global(.pt-word) {
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .hero-title :global(.pt-char) {
+    --k: 0;
+    display: inline-block;
+    -webkit-text-stroke: calc(var(--k) * 1.4px) currentColor;
+    transform: translateY(calc(var(--k) * -4px));
+    transition:
+      transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      -webkit-text-stroke-width 420ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .hero-title :global(.pt-char[data-serif]) {
+    -webkit-text-stroke: 0;
+    color: color-mix(in srgb, var(--color-brand-text) calc(var(--k) * 100%), var(--color-ink));
+  }
+
+  /* Held back until the letters are split, so the entrance does not flash
+     the plain headline first. If the script never runs, a delayed fallback
+     shows it anyway — the headline can never stay hidden. */
+  :global(html.js) .hero-title:not([data-pt-ready]) {
+    opacity: 0;
+    animation: pt-fallback 0s linear 2.5s forwards;
+  }
+  @keyframes pt-fallback {
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Entrance: each word arrives out of a soft blur, left to right. */
+  .hero-title:global(.pt-enter) :global(.pt-word) {
+    animation: pt-in 1000ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(120ms + var(--i) * 70ms);
+  }
+  @keyframes pt-in {
+    from {
+      opacity: 0;
+      filter: blur(12px);
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: none;
+    }
+  }
+
+  .hero-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid rgb(255 255 255 / 0.8);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.55);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: var(--color-ink);
+    font-size: 0.875rem;
+    transition:
+      background-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @media (hover: hover) {
+    .hero-chip:hover {
+      background: #ffffff;
+      border-color: rgb(0 96 230 / 0.35);
+      transform: translateY(-1px);
+    }
+  }
+
+  /* Under 480px the two CTAs stack full width, so neither wraps mid-label. */
+  @media (max-width: 479px) {
+    .hero-ctas > :global(.btn) {
+      width: 100%;
+    }
   }
 
   .scroll-cue {
-    animation: cue 2.6s var(--ease-out-expo) infinite;
+    animation: cue 2.6s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
     transform-origin: top;
   }
   @keyframes cue {
@@ -95,3 +195,20 @@ import { HERO } from '../../data/site';
     .scroll-cue { animation: none; }
   }
 </style>
+
+<script>
+  import { mountLiquid } from '../../lib/liquid-shader';
+  import { mountProximityText } from '../../lib/proximity-text';
+
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const canvas = hero?.querySelector<HTMLCanvasElement>('[data-liquid]');
+  const title = hero?.querySelector<HTMLElement>('[data-proximity]');
+
+  if (hero && canvas) mountLiquid(canvas, hero);
+
+  if (hero && title) {
+    // Split after the webfont lands, so letter positions are measured on the
+    // real glyphs rather than the fallback face.
+    (document.fonts?.ready ?? Promise.resolve()).then(() => mountProximityText(title, hero));
+  }
+</script>

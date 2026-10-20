@@ -1,0 +1,312 @@
+/* ------------------------------------------------------------------ *
+ * Contact page: the tabbed panel (islands/ContactPanel.tsx) and the
+ * brief form (islands/ContactForm.tsx). Plain classes, because both are
+ * React islands and Astro's scoped styles do not reach into them.
+ * ------------------------------------------------------------------ */
+
+.cp {
+  position: relative;
+  scroll-margin-top: 96px;
+  padding: 10px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-xl);
+  background: #ffffff;
+  box-shadow:
+    0 40px 80px -40px rgb(0 96 230 / 0.28),
+    var(--shadow-md);
+}
+
+/* --- Tabs: a segmented control with a sliding thumb ---------------- */
+.cp-tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 5px;
+  border-radius: calc(var(--radius-xl) - 10px);
+  background: var(--color-paper);
+  border: 1px solid var(--color-line);
+}
+
+.cp-tab {
+  position: relative;
+  z-index: 1;
+  min-height: 46px;
+  padding: 0 12px;
+  border-radius: 14px;
+  color: var(--color-ink-muted);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: color 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cp-tab[aria-selected='true'] {
+  color: #ffffff;
+}
+
+.cp-tab:hover:not([aria-selected='true']) {
+  color: var(--color-ink);
+}
+
+.cp-tab:focus-visible {
+  outline: 2px solid var(--color-brand-text);
+  outline-offset: 2px;
+  border-radius: 14px;
+}
+
+.cp-tabs__thumb {
+  position: absolute;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc(50% - 5px);
+  border-radius: 14px;
+  background: var(--color-ink);
+  box-shadow: 0 6px 16px -6px rgb(11 53 88 / 0.5);
+  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cp-tabs__thumb[data-at='book'] {
+  transform: translateX(100%);
+}
+
+.cp-panel {
+  padding: 28px 22px 22px;
+}
+
+@media (min-width: 640px) {
+  .cp-panel {
+    padding: 36px 34px 30px;
+  }
+}
+
+.cp-panel:not([hidden]) {
+  animation: cp-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes cp-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.cp-embed {
+  position: relative;
+  margin-top: 20px;
+  min-height: 700px;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+}
+
+.cp-embed .calendly-inline-widget,
+.cp-embed iframe {
+  width: 100%;
+  min-width: 280px;
+  height: 700px;
+}
+
+.cp-embed__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--color-ink-faint);
+  font-size: 0.9375rem;
+}
+
+.cp-fallback {
+  padding: 8px 4px 12px;
+}
+
+/* --- Form ---------------------------------------------------------- */
+.cf-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-ink);
+  font-size: 1.0625rem;
+  font-weight: 500;
+}
+
+.cf-step {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: var(--color-brand-text);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.cf-optional {
+  margin-left: auto;
+  color: var(--color-ink-faint);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+/* Service cards: native radios, styled through their label. */
+.cf-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 14px;
+  background: #ffffff;
+  cursor: pointer;
+  transition:
+    border-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cf-choice:hover {
+  border-color: rgb(0 96 230 / 0.45);
+  background: #f7faff;
+}
+
+.cf-choice__icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--color-paper);
+  color: var(--color-ink-soft);
+  transition:
+    background-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cf-choice__label {
+  flex: 1;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.cf-choice__tick {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  color: transparent;
+  transition:
+    background-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cf-choice:has(input:checked) {
+  border-color: var(--color-brand-text);
+  background: #f3f8ff;
+  box-shadow: 0 0 0 1px var(--color-brand-text);
+}
+
+.cf-choice:has(input:checked) .cf-choice__icon {
+  background: var(--color-brand-text);
+  color: #ffffff;
+}
+
+.cf-choice:has(input:checked) .cf-choice__tick {
+  border-color: var(--color-brand-text);
+  background: var(--color-brand-text);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+.cf-choice:has(input:focus-visible),
+.cf-chip:has(input:focus-visible) {
+  outline: 2px solid var(--color-brand-text);
+  outline-offset: 2px;
+}
+
+/* Budget and timing chips. */
+.cf-chip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--color-ink);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition:
+    background-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    color 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cf-chip {
+  border-radius: 999px;
+}
+
+.cf-chip span:hover {
+  border-color: rgb(0 96 230 / 0.45);
+}
+
+.cf-chip input:checked + span {
+  border-color: var(--color-ink);
+  background: var(--color-ink);
+  color: #ffffff;
+}
+
+/* Text inputs. */
+.cf-input {
+  width: 100%;
+  min-height: 50px;
+  padding: 13px 16px;
+  border: 1px solid var(--color-line-strong);
+  border-radius: 12px;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  transition:
+    border-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    background-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cf-input::placeholder {
+  color: var(--color-ink-faint);
+}
+
+.cf-input:hover {
+  border-color: rgb(11 53 88 / 0.4);
+}
+
+.cf-input:focus {
+  outline: none;
+  border-color: var(--color-brand-text);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgb(0 96 230 / 0.14);
+}
+
+.cf-input--bad {
+  border-color: #c8384f;
+}
+
+.cf-error {
+  margin-top: 8px;
+  color: #b3263e;
+  font-size: 0.8125rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-panel:not([hidden]) {
+    animation: none;
+  }
+}

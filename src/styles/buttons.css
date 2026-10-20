@@ -1,0 +1,459 @@
+/* ------------------------------------------------------------------ *
+ * Buttons and text links.
+ *
+ * Plain classes rather than Tailwind strings, so the Astro <Button> and the
+ * React islands (ContactForm, ContactPanel) draw from one recipe.
+ *
+ *   .btn--primary            filled brand blue. One per section.
+ *   .btn--secondary          outlined; a tonal fill rises on hover.
+ *   .btn--on-dark            white fill, for dark-blue surfaces.
+ *   .btn--on-dark-secondary  outline on dark.
+ *   .btn--split              separated arrow cell, for the most prominent CTAs.
+ *   .text-link               descriptive underlined link with a small arrow.
+ *
+ * Motion model. Every moving part runs on one easing curve, and transform is
+ * composed from custom properties so three independent effects never fight:
+ *
+ *   --mx / --my   magnetic drift toward the cursor (lib/magnetic.ts)
+ *   --lift        hover rise
+ *   --press       pressed scale
+ *
+ * Rules that are not up for negotiation:
+ *   - Primary fill is --color-brand-text (5.5:1 with white), never
+ *     --color-brand (4.45:1, fails AA at this size). See global.css.
+ *   - Nothing changes layout size on hover, press, drift or loading.
+ *   - Hover styles sit behind (hover: hover), so a tap on a phone does not
+ *     leave a button stuck in its hover state.
+ * ------------------------------------------------------------------ */
+
+@layer components {
+  .btn {
+    --btn-h: 48px;
+    --btn-px: 22px;
+    --btn-fg: var(--color-ink);
+    --btn-fill: #eef4ff;
+    --btn-cell-line: rgb(11 53 88 / 0.14);
+    --btn-cell-bg: rgb(11 53 88 / 0.04);
+    --btn-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --mx: 0px;
+    --my: 0px;
+    --lift: 0px;
+    --press: 1;
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: var(--btn-h);
+    padding: 0 var(--btn-px);
+    border: 1px solid transparent;
+    border-radius: var(--radius-btn);
+    color: var(--btn-fg);
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transform: translate3d(var(--mx), calc(var(--my) + var(--lift)), 0) scale(var(--press));
+    /* The fill layer is a background-image sized 0 → 100% from the bottom,
+       so it rises rather than snapping. Variants set --btn-fill. */
+    background-image: linear-gradient(var(--btn-fill), var(--btn-fill));
+    background-repeat: no-repeat;
+    background-position: 50% 100%;
+    background-size: 100% 0%;
+    transition:
+      transform 260ms var(--btn-ease),
+      background-color 240ms var(--btn-ease),
+      background-size 320ms var(--btn-ease),
+      border-color 240ms var(--btn-ease),
+      box-shadow 240ms var(--btn-ease),
+      color 240ms var(--btn-ease);
+  }
+
+  .btn--sm {
+    --btn-h: 40px;
+    --btn-px: 16px;
+  }
+
+  .btn--lg {
+    --btn-h: 56px;
+    --btn-px: 26px;
+    font-size: 1rem;
+  }
+
+  /* Touch targets: the compact size still clears 44px under a finger. */
+  @media (pointer: coarse) {
+    .btn--sm {
+      --btn-h: 44px;
+    }
+  }
+
+  .btn--block {
+    width: 100%;
+  }
+
+  .btn__label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* --- Arrow ------------------------------------------------------ *
+   * Two copies of the icon in a clipped box. On hover the first leaves to
+   * the right while the second arrives from the left, so the arrow travels
+   * rather than jumps. External links do the same on the diagonal.
+   * ---------------------------------------------------------------- */
+  .btn__arrow {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+  }
+
+  .btn__arrow > svg {
+    position: absolute;
+    inset: 0;
+    transition: transform 380ms var(--btn-ease);
+  }
+
+  .btn__arrow > svg + svg {
+    transform: translateX(-130%);
+  }
+
+  .btn__arrow--external > svg + svg {
+    transform: translate(-130%, 130%);
+  }
+
+  /* Legacy single icon (still used by a few islands): a plain nudge. */
+  .btn__icon {
+    flex-shrink: 0;
+    transition: transform 260ms var(--btn-ease);
+  }
+
+  /* --- Split cell ------------------------------------------------- */
+  .btn--split {
+    padding-right: 0;
+    gap: 0;
+  }
+
+  /* The label takes any spare width, so on a full-width button the arrow
+     cell stays pinned to the right edge instead of floating mid-button. */
+  .btn--split .btn__label {
+    flex: 1;
+    justify-content: center;
+    padding-right: var(--btn-px);
+  }
+
+  .btn__cell {
+    display: grid;
+    place-items: center;
+    align-self: stretch;
+    width: calc(var(--btn-h) - 2px);
+    border-left: 1px solid var(--btn-cell-line);
+    background: var(--btn-cell-bg);
+    transition: background-color 240ms var(--btn-ease);
+  }
+
+  /* --- Sheen (primary only) --------------------------------------- *
+   * A soft highlight glides across once on hover. Behind the label, never
+   * over it, and only ever a 22% white, so text contrast is untouched.
+   * ---------------------------------------------------------------- */
+  .btn--primary::before,
+  .btn--on-dark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 30%,
+      rgb(255 255 255 / 0.22) 50%,
+      transparent 70%
+    );
+    transform: translateX(-120%);
+    transition: transform 700ms var(--btn-ease);
+  }
+
+  .btn--on-dark::before {
+    background: linear-gradient(105deg, transparent 30%, rgb(0 96 230 / 0.1) 50%, transparent 70%);
+  }
+
+  /* --- Primary ---------------------------------------------------- */
+  .btn--primary {
+    --btn-fg: #ffffff;
+    --btn-fill: #0a55cf;
+    --btn-cell-line: rgb(255 255 255 / 0.22);
+    --btn-cell-bg: rgb(255 255 255 / 0.08);
+    background-color: var(--color-brand-text);
+    border-color: #0052c7;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.2),
+      0 1px 2px rgb(11 53 88 / 0.14),
+      0 6px 16px -6px rgb(0 96 230 / 0.45);
+  }
+
+  /* --- Secondary -------------------------------------------------- */
+  .btn--secondary {
+    --btn-fg: var(--color-ink);
+    --btn-fill: #e8f1ff;
+    background-color: rgb(255 255 255 / 0.78);
+    /* Navy at 52%: ~3:1 against paper, so the boundary reads as a control
+       on its own (WCAG 1.4.11). */
+    border-color: rgb(11 53 88 / 0.52);
+    box-shadow:
+      inset 0 1px 0 #ffffff,
+      0 1px 2px rgb(11 53 88 / 0.06);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  /* --- On dark ---------------------------------------------------- */
+  .btn--on-dark {
+    --btn-fg: var(--color-brand-text);
+    --btn-fill: #eaf2ff;
+    --btn-cell-line: rgb(0 96 230 / 0.16);
+    --btn-cell-bg: rgb(0 96 230 / 0.06);
+    background-color: #ffffff;
+    border-color: #ffffff;
+    box-shadow:
+      inset 0 -1px 0 rgb(11 53 88 / 0.08),
+      0 1px 2px rgb(0 20 60 / 0.2),
+      0 8px 20px -8px rgb(0 20 60 / 0.5);
+  }
+
+  .btn--on-dark-secondary {
+    --btn-fg: #ffffff;
+    --btn-fill: rgb(255 255 255 / 0.14);
+    --btn-cell-line: rgb(255 255 255 / 0.3);
+    --btn-cell-bg: rgb(255 255 255 / 0.06);
+    background-color: rgb(255 255 255 / 0.04);
+    border-color: rgb(255 255 255 / 0.6);
+  }
+
+  /* --- Hover ------------------------------------------------------ */
+  @media (hover: hover) {
+    .btn:hover {
+      --lift: -1px;
+      background-size: 100% 100%;
+    }
+
+    .btn:hover .btn__arrow > svg:first-child {
+      transform: translateX(130%);
+    }
+    .btn:hover .btn__arrow > svg + svg {
+      transform: translateX(0);
+    }
+    .btn:hover .btn__arrow--external > svg:first-child {
+      transform: translate(130%, -130%);
+    }
+    .btn:hover .btn__arrow--external > svg + svg {
+      transform: translate(0, 0);
+    }
+    .btn:hover .btn__icon {
+      transform: translateX(3px);
+    }
+
+    .btn--primary:hover::before,
+    .btn--on-dark:hover::before {
+      transform: translateX(120%);
+    }
+
+    .btn--primary:hover {
+      box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.2),
+        0 2px 4px rgb(11 53 88 / 0.14),
+        0 12px 26px -10px rgb(0 96 230 / 0.6);
+    }
+    .btn--primary:hover .btn__cell {
+      background: rgb(255 255 255 / 0.14);
+    }
+
+    .btn--secondary:hover {
+      border-color: var(--color-brand-text);
+    }
+
+    .btn--on-dark-secondary:hover {
+      border-color: #ffffff;
+    }
+  }
+
+  /* --- Pressed ---------------------------------------------------- *
+   * Back to rest height, a touch smaller, with an inset shadow: the surface
+   * goes in rather than just changing colour.
+   * ---------------------------------------------------------------- */
+  .btn:active {
+    --lift: 0px;
+    --press: 0.98;
+    transition-duration: 90ms;
+  }
+
+  .btn--primary:active {
+    background-color: #0848ad;
+    background-size: 100% 0%;
+    box-shadow:
+      inset 0 2px 4px rgb(0 20 60 / 0.32),
+      0 1px 1px rgb(11 53 88 / 0.1);
+  }
+
+  .btn--secondary:active {
+    --btn-fill: #dde9ff;
+    box-shadow: inset 0 1px 3px rgb(11 53 88 / 0.16);
+  }
+
+  .btn--on-dark:active {
+    --btn-fill: #dce9ff;
+    box-shadow: inset 0 2px 4px rgb(0 40 110 / 0.2);
+  }
+
+  .btn--on-dark-secondary:active {
+    --btn-fill: rgb(255 255 255 / 0.2);
+    box-shadow: inset 0 2px 4px rgb(0 20 60 / 0.3);
+  }
+
+  /* --- Focus ------------------------------------------------------ *
+   * Restyled, never removed. The radius is restated because the global
+   * :focus-visible rule rounds to 4px, which would reshape the button.
+   * ---------------------------------------------------------------- */
+  .btn:focus-visible {
+    outline: 2px solid var(--color-brand-text);
+    outline-offset: 3px;
+    border-radius: var(--radius-btn);
+  }
+
+  .btn--on-dark:focus-visible,
+  .btn--on-dark-secondary:focus-visible {
+    outline-color: #ffffff;
+  }
+
+  /* --- Disabled --------------------------------------------------- */
+  .btn:disabled,
+  .btn[aria-disabled='true'] {
+    --lift: 0px;
+    --press: 1;
+    cursor: not-allowed;
+    box-shadow: none;
+    background-size: 100% 0%;
+    opacity: 0.5;
+  }
+
+  a.btn[aria-disabled='true'] {
+    pointer-events: none;
+  }
+
+  /* --- Loading ---------------------------------------------------- *
+   * The label is made transparent, not removed, so the button keeps its
+   * exact width. The spinner sits over the middle of it.
+   * ---------------------------------------------------------------- */
+  .btn[data-loading] {
+    color: transparent;
+    cursor: progress;
+    pointer-events: none;
+  }
+
+  .btn__spinner {
+    display: none;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--btn-fg);
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: btn-spin 700ms linear infinite;
+  }
+
+  .btn[data-loading] .btn__spinner {
+    display: block;
+  }
+
+  /* --- Text link -------------------------------------------------- */
+  .text-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-brand-text);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.35;
+    text-decoration: none;
+    transition: color 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* The underline is drawn, not decorated: a 1px sky rule that a 2px brand
+     rule sweeps over from the left on hover. */
+  .text-link__label {
+    background:
+      linear-gradient(currentColor, currentColor) 0 100% / 0% 2px no-repeat,
+      linear-gradient(var(--color-sky), var(--color-sky)) 0 100% / 100% 1px no-repeat;
+    padding-bottom: 3px;
+    transition: background-size 380ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .text-link:hover .text-link__label,
+  .text-link:focus-visible .text-link__label {
+    background-size:
+      100% 2px,
+      100% 1px;
+  }
+
+  .text-link .btn__icon {
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @media (hover: hover) {
+    .text-link:hover .btn__icon {
+      transform: translateX(3px);
+    }
+    .text-link:hover .btn__icon--external {
+      transform: translate(2px, -2px);
+    }
+  }
+
+  .text-link--on-dark {
+    color: #ffffff;
+  }
+  .text-link--on-dark .text-link__label {
+    background:
+      linear-gradient(currentColor, currentColor) 0 100% / 0% 2px no-repeat,
+      linear-gradient(rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.55)) 0 100% / 100% 1px no-repeat;
+  }
+  .text-link--on-dark:focus-visible {
+    outline-color: #ffffff;
+  }
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .btn:hover,
+  .btn:active {
+    --mx: 0px !important;
+    --my: 0px !important;
+    --lift: 0px !important;
+  }
+  .btn::before {
+    display: none;
+  }
+  /* The global rule stops all animation; a slowed spin keeps the loading
+     state legible without fast motion. */
+  .btn__spinner {
+    animation: btn-spin 2.4s linear infinite !important;
+  }
+}

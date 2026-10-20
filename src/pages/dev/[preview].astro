@@ -1,0 +1,195 @@
+---
+/**
+ * Component preview — DEV ONLY.
+ *
+ * getStaticPaths returns nothing in a production build, so /dev/buttons is
+ * never written to dist/, never reaches the sitemap, and cannot be reached by
+ * guessing the URL on the live site. It exists only under `astro dev`.
+ *
+ * The forced states (.is-hover, .is-active, .is-focus) are defined in this
+ * page's own <style> and mirror the real rules in styles/buttons.css, so every
+ * state can be compared side by side without a pointer.
+ */
+import Base from '../../layouts/Base.astro';
+import Button from '../../components/ui/Button.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+
+export function getStaticPaths() {
+  return import.meta.env.DEV ? [{ params: { preview: 'buttons' } }] : [];
+}
+
+const variants = ['primary', 'secondary'] as const;
+const states = ['Rest', 'Hover', 'Pressed', 'Focus', 'Loading', 'Disabled'] as const;
+const stateClass: Record<(typeof states)[number], string> = {
+  Rest: '',
+  Hover: 'is-hover',
+  Pressed: 'is-active',
+  Focus: 'is-focus',
+  Loading: '',
+  Disabled: '',
+};
+---
+
+<Base title="Button preview (dev only)" description="Internal component preview.">
+  <meta slot="head" name="robots" content="noindex, nofollow" />
+
+  <main id="main" class="container-z py-16">
+    <p class="mono text-ink-faint">Dev only · not linked · not built</p>
+    <h1 class="h1 mt-4 text-ink">Buttons</h1>
+    <p class="mt-4 max-w-2xl text-ink-muted">
+      Every variant and state from <code>styles/buttons.css</code>. Hover, pressed and focus are
+      forced with preview-only classes; the live controls at the bottom use the real interactions.
+    </p>
+
+    {
+      variants.map((v) => (
+        <section class="mt-14">
+          <h2 class="h3 text-ink capitalize">{v}</h2>
+          <div class="mt-6 overflow-x-auto rounded-[var(--radius-md)] border border-line bg-white p-6">
+            <table class="w-full border-separate border-spacing-x-4 border-spacing-y-5 text-left">
+              <thead>
+                <tr class="mono text-ink-faint">
+                  <th class="font-medium">Size / arrow</th>
+                  {states.map((s) => <th class="font-medium">{s}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {(
+                  [
+                    ['sm', 'none'],
+                    ['md', 'inline'],
+                    ['lg', 'split'],
+                  ] as const
+                ).map(([size, arrow]) => (
+                  <tr>
+                    <td class="mono whitespace-nowrap text-ink-muted">
+                      {size} · {arrow}
+                    </td>
+                    {states.map((s) => (
+                      <td>
+                        <Button
+                          href="#"
+                          variant={v}
+                          size={size}
+                          arrow={arrow}
+                          class={stateClass[s]}
+                          loading={s === 'Loading'}
+                          disabled={s === 'Disabled'}
+                        >
+                          Start a project
+                        </Button>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ))
+    }
+
+    <section class="mt-14">
+      <h2 class="h3 text-ink">On dark</h2>
+      <div class="card-bleed mt-6 overflow-x-auto p-8" style="--angle: 118deg">
+        <table class="w-full border-separate border-spacing-x-4 border-spacing-y-5 text-left">
+          <thead>
+            <tr class="mono text-white/80">
+              <th class="font-medium">Variant</th>
+              {states.map((s) => <th class="font-medium">{s}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {(['on-dark', 'on-dark-secondary'] as const).map((v) => (
+              <tr>
+                <td class="mono whitespace-nowrap text-white/80">{v}</td>
+                {states.map((s) => (
+                  <td>
+                    <Button
+                      href="#"
+                      variant={v}
+                      arrow={v === 'on-dark' ? 'split' : 'inline'}
+                      class={stateClass[s]}
+                      loading={s === 'Loading'}
+                      disabled={s === 'Disabled'}
+                    >
+                      Explore Truplexy
+                    </Button>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div class="mt-6 flex flex-wrap gap-6 px-4">
+          <TextLink href="#" tone="on-dark">Text link on dark</TextLink>
+          <TextLink href="#" tone="on-dark" external>External text link on dark</TextLink>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-14">
+      <h2 class="h3 text-ink">Text links</h2>
+      <div class="mt-6 flex flex-wrap items-center gap-8 rounded-[var(--radius-md)] border border-line bg-white p-6">
+        <TextLink href="#">Web development scope and pricing</TextLink>
+        <TextLink href="#" class="is-hover">Hover (forced)</TextLink>
+        <TextLink href="#" external>Explore Truplexy</TextLink>
+        <TextLink href="#" arrow={false}>Without arrow</TextLink>
+      </div>
+    </section>
+
+    <section class="mt-14">
+      <h2 class="h3 text-ink">Live controls</h2>
+      <p class="mt-2 text-ink-muted">
+        Real hover (with magnetic drift), press, Tab focus. The button toggles its own loading state for two seconds and
+        reports its width before and during loading.
+      </p>
+      <div class="mt-6 flex flex-wrap items-center gap-4 rounded-[var(--radius-md)] border border-line bg-white p-6">
+        <Button type="button" arrow="split" size="lg" id="live-loading">Submit action</Button>
+        <Button type="button" variant="secondary">Secondary action</Button>
+        <Button type="button" disabled>Disabled action</Button>
+        <Button href="/contact">Navigation link</Button>
+        <p id="live-width" class="mono text-ink-faint" aria-live="polite"></p>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<style is:global>
+  /* Forced states — preview only. They set the same custom properties the
+     real :hover / :active rules in styles/buttons.css set. */
+  .btn.is-hover { --lift: -1px; background-size: 100% 100%; }
+  .btn--secondary.is-hover { border-color: var(--color-brand-text); }
+  .btn--on-dark-secondary.is-hover { border-color: #fff; }
+  .btn.is-hover .btn__arrow > svg:first-child { transform: translateX(130%); }
+  .btn.is-hover .btn__arrow > svg + svg { transform: translateX(0); }
+  .btn--primary.is-hover::before, .btn--on-dark.is-hover::before { transform: translateX(10%); }
+  .text-link.is-hover .text-link__label { background-size: 100% 2px, 100% 1px; }
+  .text-link.is-hover .btn__icon { transform: translateX(3px); }
+
+  .btn.is-active { --press: 0.98; }
+  .btn--primary.is-active { background-color: #0848ad; box-shadow: inset 0 2px 4px rgb(0 20 60 / 0.32), 0 1px 1px rgb(11 53 88 / 0.1); }
+  .btn--secondary.is-active { --btn-fill: #dde9ff; background-size: 100% 100%; box-shadow: inset 0 1px 3px rgb(11 53 88 / 0.16); }
+  .btn--on-dark.is-active { --btn-fill: #dce9ff; background-size: 100% 100%; box-shadow: inset 0 2px 4px rgb(0 40 110 / 0.2); }
+  .btn--on-dark-secondary.is-active { --btn-fill: rgb(255 255 255 / 0.2); background-size: 100% 100%; }
+
+  .btn.is-focus { outline: 2px solid var(--color-brand-text); outline-offset: 3px; }
+  .btn--on-dark.is-focus, .btn--on-dark-secondary.is-focus { outline-color: #fff; }
+</style>
+
+<script>
+  const btn = document.getElementById('live-loading');
+  const out = document.getElementById('live-width');
+  btn?.addEventListener('click', () => {
+    if (!btn || !out || btn.hasAttribute('data-loading')) return;
+    const before = btn.getBoundingClientRect().width;
+    btn.setAttribute('data-loading', '');
+    btn.setAttribute('aria-busy', 'true');
+    const during = btn.getBoundingClientRect().width;
+    out.textContent = `width at rest ${before.toFixed(1)}px · loading ${during.toFixed(1)}px`;
+    setTimeout(() => {
+      btn.removeAttribute('data-loading');
+      btn.removeAttribute('aria-busy');
+    }, 2000);
+  });
+</script>

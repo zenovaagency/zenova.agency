@@ -23,7 +23,7 @@ import Button from '../../components/ui/Button.astro';
 import TextLink from '../../components/ui/TextLink.astro';
 import { Image } from 'astro:assets';
 import { SERVICES, type PageIntro, type Service } from '../../data/site';
-import { published, projectLabel, type Project } from '../../data/projects';
+import { published, projectKind, KIND_LABEL, type Project } from '../../data/projects';
 import { breadcrumb } from '../../lib/schema';
 
 export function getStaticPaths() {
@@ -48,10 +48,10 @@ const { project, siblings } = Astro.props as Props;
 const service = SERVICES.find((s) => s.slug === project.service) as Service;
 const path = `/work/${project.slug}`;
 
-// A demo or concept has no client, so its label stands where the name would.
-const eyebrow = [projectLabel(project), service.title, project.year]
-  .filter(Boolean)
-  .join(' · ');
+// The client name when there is one; otherwise what kind of entry this is,
+// so a concept or our own product is never mistaken for client work.
+const kind = projectKind(project);
+const eyebrow = [project.client ?? KIND_LABEL[kind], service.title, project.year].join(' · ');
 
 const intro: PageIntro = {
   eyebrow,
@@ -265,9 +265,20 @@ const intro: PageIntro = {
 
     <section class="border-t border-line py-[var(--section-y)]">
       <div class="container-z">
+        {/* Our own product: the next step is the product itself, not a project
+            enquiry. Everything else ends on the enquiry. */}
         <div class="flex flex-wrap items-center gap-x-3 gap-y-4" data-reveal>
-          <Button href="/contact">Start a project</Button>
-          <Button href="/work" variant="ghost">All work</Button>
+          {kind === 'product' && project.url ? (
+            <>
+              <Button href={project.url} arrow="split" external>Explore {project.title}</Button>
+              <Button href="/products" variant="secondary">Product details</Button>
+            </>
+          ) : (
+            <>
+              <Button href="/contact">Start a project</Button>
+              <Button href="/work" variant="secondary">All work</Button>
+            </>
+          )}
           <TextLink href={`/services/${service.slug}`} class="ml-1">
             About {service.title.toLowerCase()}
           </TextLink>

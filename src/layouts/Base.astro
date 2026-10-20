@@ -3,6 +3,8 @@ import '@fontsource-variable/geist/wght.css';
 import '@fontsource/instrument-serif/400-italic.css';
 import '../styles/global.css';
 import '../styles/cards.css';
+import '../styles/buttons.css';
+import '../styles/visuals.css';
 import JsonLd from '../components/chrome/JsonLd.astro';
 import { SITE } from '../data/site';
 import { ORG } from '../lib/schema';
@@ -139,6 +141,13 @@ const jsonLd = {
     <script>
       import { motion } from '../lib/scroll';
       import { initReveals } from '../lib/reveal';
+      import { initMagnetic } from '../lib/magnetic';
+      import { initInView } from '../lib/inview';
+
+      // Cheap, and wanted before the first hover or scroll, so these run
+      // immediately rather than waiting for the idle boot below.
+      initMagnetic();
+      initInView();
 
       // Boot after first paint so GSAP never blocks the initial render.
       const boot = async () => {

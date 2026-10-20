@@ -1,0 +1,259 @@
+---
+/**
+ * Products — the software Zenova builds and runs itself.
+ *
+ * The page answers three questions in order: how is a product different from
+ * hiring us, what does each product do and for whom, and where do I go to
+ * use it. Detailed plans, billing and onboarding are deliberately left to
+ * each product's own site; see the header of data/products.ts for why.
+ */
+import Base from '../../layouts/Base.astro';
+import Nav from '../../components/chrome/Nav.astro';
+import Footer from '../../components/chrome/Footer.astro';
+import PageHero from '../../components/chrome/PageHero.astro';
+import PageNav from '../../components/chrome/PageNav.astro';
+import Cta from '../../components/chrome/Cta.astro';
+import JsonLd from '../../components/chrome/JsonLd.astro';
+import Accordion from '../../components/ui/Accordion.astro';
+import Button from '../../components/ui/Button.astro';
+import TextLink from '../../components/ui/TextLink.astro';
+import ProductShot from '../../components/ui/ProductShot.astro';
+import { PAGES, PRODUCT_FAQS } from '../../data/site';
+import { PRODUCTS } from '../../data/products';
+import { breadcrumb, faqPage, ORG } from '../../lib/schema';
+
+const page = PAGES.products;
+const host = (url: string) => new URL(url).host;
+
+// Only fields the product's own site states. No offers, no ratings.
+const apps = PRODUCTS.map((p) => ({
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: p.name,
+  url: p.url,
+  description: p.whatItDoes,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  creator: { '@id': ORG },
+}));
+
+const compare = [
+  {
+    label: 'Client services',
+    title: 'We build it for you',
+    points: [
+      'A project scoped around your business',
+      'A fixed price per phase',
+      'Code, designs and accounts are yours',
+      'Support window after launch, then optional monthly work',
+    ],
+    link: { href: '/services', label: 'See the four services' },
+  },
+  {
+    label: 'Our products',
+    title: 'You subscribe to ours',
+    points: [
+      'Ready-made software you can sign up for',
+      'Plans and billing on the product’s own site',
+      'We host, run, support and improve it',
+      'Separate from any agency engagement',
+    ],
+    link: { href: '#truplexy', label: 'Go to Truplexy' },
+  },
+];
+
+const lessons = [
+  {
+    title: 'We carry the pager',
+    body: 'When something breaks in a product we run, nobody else is on the hook. That shapes how we build for clients: monitoring, error handling and the boring recovery paths get built in, not bolted on.',
+  },
+  {
+    title: 'We do our own onboarding',
+    body: 'Sign-up flows, setup guides and docs are where a product is won or lost, and we write ours ourselves. Client handover docs get the same treatment.',
+  },
+  {
+    title: 'We live with our decisions',
+    body: 'A product does not end at launch. Every shortcut we take is one we pay for later, so we choose a stack and an architecture we are willing to maintain for years.',
+  },
+];
+---
+
+<Base title={page.title} description={page.description}>
+  <JsonLd slot="head" data={[breadcrumb([{ name: 'Products', path: '/products' }]), faqPage('/products', PRODUCT_FAQS), ...apps]} />
+
+  <Nav />
+
+  <main id="main">
+    <PageHero intro={page} />
+
+    <!-- Services vs products, in a business owner's terms. -->
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="diff-title">
+      <div class="container-z">
+        <h2 id="diff-title" class="h2 max-w-2xl text-ink" data-split>
+          Two ways to <em class="accent-serif">work with us.</em>
+        </h2>
+
+        <div class="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line md:grid-cols-2">
+          {
+            compare.map((c, i) => (
+              <div class:list={['p-7 sm:p-9', i === 0 ? 'bg-white' : 'bg-[#eef4ff]']} data-reveal data-reveal-delay={i * 0.06}>
+                <p class="mono text-ink-faint">{c.label}</p>
+                <h3 class="h3 mt-4 text-ink">{c.title}</h3>
+                <ul class="mt-6 space-y-3 text-ink">
+                  {c.points.map((pt) => (
+                    <li class="flex items-start gap-3">
+                      <span class="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden="true" />
+                      {pt}
+                    </li>
+                  ))}
+                </ul>
+                <TextLink href={c.link.href} class="mt-7">{c.link.label}</TextLink>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    {
+      PRODUCTS.map((p) => (
+        <section id={p.slug} class="scroll-mt-24 border-t border-line bg-white py-[var(--section-y)]" aria-labelledby={`${p.slug}-title`}>
+          <div class="container-z">
+            <div class="grid gap-10 lg:grid-cols-12 lg:gap-14">
+              <div class="lg:col-span-5" data-reveal>
+                <p class="mono flex flex-wrap items-center gap-x-3 gap-y-2 text-ink-faint">
+                  <span>{p.category}</span>
+                  <span class="inline-flex items-center gap-2 rounded-full border border-line-strong px-2.5 py-1 text-ink">
+                    <span class="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
+                    {p.status === 'live' ? 'Live' : p.status === 'beta' ? 'Beta' : 'Waitlist'}
+                  </span>
+                </p>
+                <h2 id={`${p.slug}-title`} class="mt-5 text-[clamp(2.75rem,5vw,4rem)] font-medium leading-none tracking-[-0.03em] text-ink">
+                  {p.name}
+                </h2>
+                <p class="mt-5 text-[1.1875rem] text-ink-soft">{p.tagline}</p>
+                <p class="mt-4 text-ink-muted">Designed, built and run by Zenova.</p>
+
+                <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+                  <Button href={p.url} size="lg" arrow="split" external>
+                    Explore {p.name}
+                  </Button>
+                  {p.docsUrl && (
+                    <TextLink href={p.docsUrl} external>
+                      {p.name} documentation
+                    </TextLink>
+                  )}
+                </div>
+              </div>
+
+              <div class="lg:col-span-7" data-reveal data-reveal-delay="0.08">
+                <ProductShot src={p.image.full} alt={p.image.alt} domain={host(p.url)} sizes="(min-width: 1024px) 50vw, 92vw" />
+              </div>
+            </div>
+
+            <dl class="mt-16 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line md:grid-cols-2 lg:mt-20">
+              <div class="bg-paper p-7 sm:p-8" data-reveal>
+                <dt class="mono text-ink-faint">What it does</dt>
+                <dd class="mt-4 text-ink">{p.whatItDoes}</dd>
+              </div>
+              <div class="bg-paper p-7 sm:p-8" data-reveal>
+                <dt class="mono text-ink-faint">Who it is for</dt>
+                <dd class="mt-4 text-ink">{p.whoFor}</dd>
+              </div>
+              <div class="bg-paper p-7 sm:p-8" data-reveal>
+                <dt class="mono text-ink-faint">The problems it addresses</dt>
+                <dd class="mt-4">
+                  <ul class="space-y-2.5 text-ink">
+                    {p.problems.map((pr) => (
+                      <li class="flex items-start gap-3">
+                        <span class="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden="true" />
+                        {pr}
+                      </li>
+                    ))}
+                  </ul>
+                </dd>
+              </div>
+              <div class="bg-paper p-7 sm:p-8" data-reveal>
+                <dt class="mono text-ink-faint">Where it works</dt>
+                <dd class="mt-4 space-y-4 text-[0.9375rem] text-ink">
+                  <p>
+                    <span class="text-ink-muted">Channels: </span>
+                    {p.channels.join(', ')}.
+                  </p>
+                  <p>
+                    <span class="text-ink-muted">Connects to: </span>
+                    {p.integrations.join(', ')}.
+                  </p>
+                  <p>
+                    <span class="text-ink-muted">For developers: </span>
+                    {p.developer.join(', ')}.
+                  </p>
+                </dd>
+              </div>
+            </dl>
+
+            <div class="mt-10 flex flex-col gap-4 rounded-[var(--radius-md)] border border-line bg-paper p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7" data-reveal>
+              <p class="text-ink">
+                <span class="mono mr-3 text-ink-faint">Availability</span>
+                {p.availability} Plans, billing and setup guides live there too.
+              </p>
+              {p.caseStudy && <TextLink href={p.caseStudy}>How we built {p.name}</TextLink>}
+            </div>
+          </div>
+        </section>
+      ))
+    }
+
+    <!-- What running a product changes about client work. No outcome claims. -->
+    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="lessons-title">
+      <div class="container-z">
+        <div class="grid gap-6 lg:grid-cols-12 lg:items-end">
+          <h2 id="lessons-title" class="h2 text-ink lg:col-span-7" data-split>
+            What running our own product <em class="accent-serif">changes for clients.</em>
+          </h2>
+          <p class="text-ink-muted lg:col-span-4 lg:col-start-9" data-reveal>
+            Building software for someone else and keeping your own running are different jobs. Doing
+            both keeps us honest about the second one.
+          </p>
+        </div>
+        <ol class="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+          {
+            lessons.map((l, i) => (
+              <li class="border-t border-line-strong pt-6" data-reveal data-reveal-delay={i * 0.06}>
+                <p class="mono text-ink-faint tabular-nums">0{i + 1}</p>
+                <h3 class="mt-4 text-[1.375rem] font-medium tracking-[-0.015em] text-ink">{l.title}</h3>
+                <p class="mt-3 text-[0.9375rem] leading-relaxed text-ink-muted">{l.body}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="border-t border-line bg-white py-[var(--section-y)]" aria-labelledby="pfaq-title">
+      <div class="container-z">
+        <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-4">
+            <h2 id="pfaq-title" class="h2 text-ink" data-split>
+              Product <em class="accent-serif">questions.</em>
+            </h2>
+            <p class="mt-5 text-ink-muted" data-reveal>
+              Questions about hiring us for a project are answered on the home page and each service
+              page.
+            </p>
+            <TextLink href="/#faq" class="mt-5">Agency questions</TextLink>
+          </div>
+          <Accordion items={PRODUCT_FAQS} class="lg:col-span-7 lg:col-start-6" data-reveal />
+        </div>
+      </div>
+    </section>
+
+    <div class="border-t border-line py-[var(--section-y)]">
+      <PageNav />
+    </div>
+
+    <Cta />
+  </main>
+
+  <Footer />
+</Base>

@@ -1,29 +1,78 @@
 ---
 import Eyebrow from '../ui/Eyebrow.astro';
 import Accordion from '../ui/Accordion.astro';
-import { FAQS, SITE } from '../../data/site';
+import JsonLd from '../chrome/JsonLd.astro';
+import { AGENCY_FAQS, SITE } from '../../data/site';
+import { faqPage } from '../../lib/schema';
+
+/**
+ * Working with us: the facts a buyer needs before a first call, then the
+ * FAQ. Product questions live on /products, where they belong.
+ *
+ * Every fact in the strip comes from PRICING and OWNERSHIP in data/site.ts.
+ * If a price, timeline or support window changes there, check this too.
+ */
+const facts = [
+  {
+    value: 'Fixed price',
+    label: 'Per phase, agreed before the phase starts. No hourly billing.',
+  },
+  {
+    value: '3–12 weeks',
+    label: 'Typical build, depending on the service. Larger work is scoped.',
+  },
+  {
+    value: 'Yours',
+    label: 'Code, designs, domain and accounts, in your name from day one.',
+  },
+  {
+    value: '30–90 days',
+    label: 'Support included after launch, depending on the plan.',
+  },
+];
+
+const all = AGENCY_FAQS;
 ---
 
-<section id="faq" class="section-y relative">
+<section id="faq" class="section-y relative" aria-labelledby="faq-title">
+  <JsonLd data={faqPage('/', all)} />
+
   <div class="container-z">
-    <div class="grid gap-10 lg:grid-cols-12 lg:gap-16">
+    <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
       <div class="lg:col-span-4">
-        <Eyebrow>FAQ</Eyebrow>
-        <h2 class="h2 mt-6 text-ink" data-split>
-          Common <em class="accent-serif">questions.</em>
+        <Eyebrow>Working with us</Eyebrow>
+        <h2 id="faq-title" class="h2 mt-6 text-ink" data-split>
+          Before you <em class="accent-serif">get in touch.</em>
         </h2>
         <p class="mt-5 text-ink-muted" data-reveal>
-          If you do not see your question here, just ask.
+          Scope, time, price, ownership and support, answered up front. Anything else, just ask.
         </p>
+
+        <dl class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line" data-reveal>
+          {
+            facts.map((f) => (
+              <div class="bg-white p-5">
+                <dt class="text-[1.375rem] font-medium leading-none tracking-[-0.02em] text-ink">
+                  {f.value}
+                </dt>
+                <dd class="mt-3 text-[0.8125rem] leading-snug text-ink-muted">{f.label}</dd>
+              </div>
+            ))
+          }
+        </dl>
+
         <a
           href={`mailto:${SITE.email}`}
-          class="mt-5 inline-block text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
+          class="mt-8 inline-block text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
         >
           {SITE.email}
         </a>
       </div>
 
-      <Accordion items={FAQS} class="lg:col-span-7 lg:col-start-6" data-reveal />
+      <div class="lg:col-span-7 lg:col-start-6">
+        <Accordion items={AGENCY_FAQS} data-reveal />
+      </div>
     </div>
   </div>
 </section>
+

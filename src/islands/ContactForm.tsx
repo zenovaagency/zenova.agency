@@ -1,26 +1,48 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
-const SERVICES = [
-  'Web Development',
-  'App Development',
-  'AI Automation',
-  'Digital Marketing',
-  'Not sure yet',
-];
+/**
+ * The project brief.
+ *
+ * There is no backend on this project yet, so a validated submission opens the
+ * reader's mail client with everything pre-filled. That is a real, working
+ * outcome rather than a fake success toast. Swap `handoff` for a POST once an
+ * endpoint exists; nothing else here needs to change.
+ *
+ * Arriving from a pricing card (/contact?service=web&plan=web-2) pre-selects
+ * the service and names the plan in the brief, so nobody has to retype what
+ * they just clicked.
+ */
 
-const BUDGETS = ['Under 10k', '10k - 25k', '25k - 50k', '50k+', 'Not sure yet'];
+export interface ServiceOption {
+  slug: string;
+  title: string;
+}
+
+const BUDGETS = ['Under $10k', '$10k–25k', '$25k–50k', '$50k+', 'Not sure yet'];
+const TIMELINES = ['As soon as possible', 'In 1–3 months', 'In 3–6 months', 'Flexible'];
+const NOT_SURE = 'Not sure yet';
 
 interface Fields {
   name: string;
   email: string;
+  company: string;
   service: string;
   budget: string;
+  timeline: string;
   message: string;
 }
 
 type Errors = Partial<Record<keyof Fields, string>>;
 
-const EMPTY: Fields = { name: '', email: '', service: '', budget: '', message: '' };
+const EMPTY: Fields = {
+  name: '',
+  email: '',
+  company: '',
+  service: '',
+  budget: '',
+  timeline: '',
+  message: '',
+};
 
 function validate(values: Fields): Errors {
   const errors: Errors = {};
@@ -34,19 +56,76 @@ function validate(values: Fields): Errors {
   return errors;
 }
 
-/**
- * Contact form.
- *
- * There is no backend on this project yet, so a validated submission opens the
- * reader's mail client with everything pre-filled. That is a real, working
- * outcome rather than a fake success toast. Swap `handoff` for a POST once an
- * endpoint exists; nothing else here needs to change.
- */
-export default function ContactForm({ to }: { to: string }) {
+/** Small line icons for the service cards, keyed by slug. */
+const ICONS: Record<string, ReactNode> = {
+  web: (
+    <>
+      <rect x="3" y="4.5" width="18" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M3 9h18" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="6" cy="6.8" r="0.8" fill="currentColor" />
+    </>
+  ),
+  app: (
+    <>
+      <rect x="6.5" y="2.5" width="11" height="19" rx="2.8" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M10.5 18.5h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </>
+  ),
+  ai: (
+    <path
+      d="M12 3.5l1.9 5.1 5.1 1.9-5.1 1.9L12 17.5l-1.9-5.1L5 10.5l5.1-1.9z M18.5 15.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
+  ),
+  marketing: (
+    <path
+      d="M4 19.5h16M6.5 16V11M11 16V7.5M15.5 16v-5M20 16V5"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+  ),
+  unsure: (
+    <>
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <circle cx="12" cy="16.6" r="0.9" fill="currentColor" />
+    </>
+  ),
+};
+
+export default function ContactForm({
+  to,
+  services,
+  plans,
+}: {
+  to: string;
+  services: ServiceOption[];
+  /** plan id → "Growth site (Web Development, from $24k)" */
+  plans: Record<string, string>;
+}) {
   const [values, setValues] = useState<Fields>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof Fields, boolean>>>({});
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [plan, setPlan] = useState<string>('');
+
+  // Pre-fill from a pricing card link.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const slug = q.get('service');
+    const match = services.find((s) => s.slug === slug);
+    if (match) setValues((v) => ({ ...v, service: match.title }));
+    const p = q.get('plan');
+    if (p && plans[p]) setPlan(plans[p]);
+  }, [services, plans]);
 
   const set = (key: keyof Fields) => (value: string) => {
     setValues((v) => ({ ...v, [key]: value }));
@@ -62,12 +141,15 @@ export default function ContactForm({ to }: { to: string }) {
     const body = [
       'Name: ' + v.name,
       'Email: ' + v.email,
+      v.company ? 'Company: ' + v.company : null,
       'Service: ' + v.service,
+      plan ? 'Plan: ' + plan : null,
       v.budget ? 'Budget: ' + v.budget : null,
+      v.timeline ? 'Timeline: ' + v.timeline : null,
       '',
       v.message,
     ]
-      .filter(Boolean)
+      .filter((line) => line !== null)
       .join('\n');
 
     const subject = encodeURIComponent('New project enquiry from ' + v.name);
@@ -78,24 +160,26 @@ export default function ContactForm({ to }: { to: string }) {
   function submit() {
     const found = validate(values);
     setErrors(found);
-    setTouched({ name: true, email: true, service: true, budget: true, message: true });
+    setTouched({ name: true, email: true, service: true, message: true });
 
     if (Object.keys(found).length) {
       // Move focus to the first problem, so keyboard and screen-reader users
-      // are not left guessing which field failed.
-      const first = Object.keys(found)[0];
+      // are not left guessing which field failed. Document order, not object
+      // order: service comes first on the page.
+      const order: (keyof Fields)[] = ['service', 'name', 'email', 'message'];
+      const first = order.find((k) => found[k]);
       document.getElementById('field-' + first)?.focus();
       return;
     }
 
     setStatus('sending');
     handoff(values);
-    setTimeout(() => setStatus('sent'), 600);
+    setTimeout(() => setStatus('sent'), 700);
   }
 
   if (status === 'sent') {
     return (
-      <div className="card-tint p-8 sm:p-10" role="status">
+      <div className="p-2 sm:p-4" role="status">
         <div className="grid h-12 w-12 place-items-center rounded-full bg-[#eef4ff]">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
@@ -109,11 +193,12 @@ export default function ContactForm({ to }: { to: string }) {
         </div>
         <h2 className="h3 mt-6 text-ink">Your mail client should be open.</h2>
         <p className="mt-3 text-ink-muted">
-          If nothing happened, write to{' '}
+          Send the email it drafted and we will reply within one working day. If nothing opened,
+          write to{' '}
           <a href={'mailto:' + to} className="text-brand-text underline underline-offset-4">
             {to}
-          </a>{' '}
-          and we will pick it up from there.
+          </a>
+          .
         </p>
         <button
           type="button"
@@ -121,27 +206,22 @@ export default function ContactForm({ to }: { to: string }) {
             setValues(EMPTY);
             setTouched({});
             setErrors({});
+            setPlan('');
             setStatus('idle');
           }}
-          className="mt-7 rounded-[10px] border border-line-strong px-5 py-3 text-[0.9375rem] font-medium text-ink transition-colors hover:border-sky"
+          className="btn btn--secondary mt-7"
         >
-          Send another
+          Start another brief
         </button>
       </div>
     );
   }
 
-  const base =
-    'w-full rounded-[10px] border bg-white px-4 py-3.5 text-ink placeholder:text-ink-faint transition-[border-color,box-shadow] duration-[180ms] focus:outline-none focus:ring-2 focus:ring-brand/35 ';
-
-  const ring = (key: keyof Fields) =>
-    base +
-    (errors[key] && touched[key]
-      ? 'border-[#c8384f]'
-      : 'border-line-strong focus:border-brand');
-
   const bad = (key: keyof Fields) => Boolean(touched[key] && errors[key]);
   const describedBy = (key: keyof Fields) => (bad(key) ? 'err-' + key : undefined);
+  const input = (key: keyof Fields) => 'cf-input' + (bad(key) ? ' cf-input--bad' : '');
+
+  const options = [...services.map((s) => ({ key: s.slug, title: s.title })), { key: 'unsure', title: NOT_SURE }];
 
   return (
     <form
@@ -149,108 +229,219 @@ export default function ContactForm({ to }: { to: string }) {
         e.preventDefault();
         submit();
       }}
-      noValidate className="card-tint space-y-5 p-6 sm:p-9">
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field id="name" label="Your name" error={touched.name ? errors.name : undefined}>
-          <input
-            id="field-name"
-            type="text"
-            autoComplete="name"
-            className={ring('name')}
-            value={values.name}
-            onChange={(e) => set('name')(e.target.value)}
-            onBlur={blur('name')}
-            aria-invalid={bad('name')}
-            aria-describedby={describedBy('name')}
-          />
-        </Field>
+      noValidate
+      className="space-y-8"
+    >
+      <fieldset aria-describedby={describedBy('service')}>
+        <legend className="cf-legend">
+          <span className="cf-step">1</span>
+          What do you need?
+        </legend>
+        <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+          {options.map((o, i) => (
+            <label key={o.key} className="cf-choice">
+              <input
+                id={i === 0 ? 'field-service' : undefined}
+                type="radio"
+                name="service"
+                value={o.title}
+                checked={values.service === o.title}
+                onChange={() => {
+                  set('service')(o.title);
+                  setTouched((t) => ({ ...t, service: true }));
+                  setErrors(validate({ ...values, service: o.title }));
+                }}
+                className="sr-only"
+              />
+              <span className="cf-choice__icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  {ICONS[o.key]}
+                </svg>
+              </span>
+              <span className="cf-choice__label">{o.title}</span>
+              <span className="cf-choice__tick" aria-hidden="true">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+            </label>
+          ))}
+        </div>
+        {plan && (
+          <p className="mt-3 flex items-center gap-2 text-[0.875rem] text-ink-muted">
+            <span className="rounded-full bg-[#eef4ff] px-2.5 py-1 text-brand-text">Plan</span>
+            {plan}
+            <button
+              type="button"
+              className="ml-1 text-ink-faint underline underline-offset-4 hover:text-ink"
+              onClick={() => setPlan('')}
+            >
+              Remove
+            </button>
+          </p>
+        )}
+        {bad('service') && (
+          <p id="err-service" className="cf-error">
+            {errors.service}
+          </p>
+        )}
+      </fieldset>
 
-        <Field id="email" label="Email" error={touched.email ? errors.email : undefined}>
-          <input
-            id="field-email"
-            type="email"
-            autoComplete="email"
-            className={ring('email')}
-            value={values.email}
-            onChange={(e) => set('email')(e.target.value)}
-            onBlur={blur('email')}
-            aria-invalid={bad('email')}
-            aria-describedby={describedBy('email')}
-          />
-        </Field>
-      </div>
-
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Field
-          id="service"
-          label="What do you need?"
-          error={touched.service ? errors.service : undefined}
-        >
-          <select
-            id="field-service"
-            className={ring('service')}
-            value={values.service}
-            onChange={(e) => set('service')(e.target.value)}
-            onBlur={blur('service')}
-            aria-invalid={bad('service')}
-            aria-describedby={describedBy('service')}
-          >
-            <option value="">Select one</option>
-            {SERVICES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </Field>
-
-        <Field id="budget" label="Budget" hint="Optional">
-          <select
-            id="field-budget"
-            className={ring('budget')}
-            value={values.budget}
-            onChange={(e) => set('budget')(e.target.value)}
-          >
-            <option value="">Prefer not to say</option>
-            {BUDGETS.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
-        </Field>
-      </div>
-
-      <Field
-        id="message"
-        label="About the project"
-        error={touched.message ? errors.message : undefined}
-      >
-        <textarea
-          id="field-message"
-          rows={5}
-          className={ring('message') + ' resize-y'}
-          placeholder="What are you building, and when does it need to be live?"
-          value={values.message}
-          onChange={(e) => set('message')(e.target.value)}
-          onBlur={blur('message')}
-          aria-invalid={bad('message')}
-          aria-describedby={describedBy('message')}
+      <fieldset>
+        <legend className="cf-legend">
+          <span className="cf-step">2</span>
+          Budget and timing <span className="cf-optional">Optional</span>
+        </legend>
+        <ChipGroup
+          name="budget"
+          label="Budget"
+          items={BUDGETS}
+          value={values.budget}
+          onChange={set('budget')}
         />
-      </Field>
+        <ChipGroup
+          name="timeline"
+          label="When should it be live?"
+          items={TIMELINES}
+          value={values.timeline}
+          onChange={set('timeline')}
+        />
+      </fieldset>
 
-      <button
-        type="submit"
-        disabled={status === 'sending'}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-[10px] bg-brand-text px-6 py-4 font-medium text-white transition-[transform,background-color] duration-[180ms] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:bg-[#0a52c4] disabled:pointer-events-none disabled:opacity-60 sm:w-auto"
-      >
-        {status === 'sending' ? 'Opening your mail client...' : 'Send it'}
-      </button>
+      <fieldset className="space-y-5">
+        <legend className="cf-legend">
+          <span className="cf-step">3</span>
+          About you and the project
+        </legend>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Field id="name" label="Your name" error={bad('name') ? errors.name : undefined}>
+            <input
+              id="field-name"
+              type="text"
+              autoComplete="name"
+              className={input('name')}
+              value={values.name}
+              onChange={(e) => set('name')(e.target.value)}
+              onBlur={blur('name')}
+              aria-invalid={bad('name')}
+              aria-describedby={describedBy('name')}
+            />
+          </Field>
+          <Field id="email" label="Work email" error={bad('email') ? errors.email : undefined}>
+            <input
+              id="field-email"
+              type="email"
+              autoComplete="email"
+              className={input('email')}
+              value={values.email}
+              onChange={(e) => set('email')(e.target.value)}
+              onBlur={blur('email')}
+              aria-invalid={bad('email')}
+              aria-describedby={describedBy('email')}
+            />
+          </Field>
+        </div>
+        <Field id="company" label="Company or website" hint="Optional">
+          <input
+            id="field-company"
+            type="text"
+            autoComplete="organization"
+            className={input('company')}
+            value={values.company}
+            onChange={(e) => set('company')(e.target.value)}
+          />
+        </Field>
+        <Field
+          id="message"
+          label="What are you building?"
+          hint={`${values.message.trim().length < 10 ? 'A sentence or two' : 'Thanks'}`}
+          error={bad('message') ? errors.message : undefined}
+        >
+          <textarea
+            id="field-message"
+            rows={5}
+            className={input('message') + ' resize-y'}
+            placeholder="The goal, who it is for, anything that already exists, and any date it has to hit."
+            value={values.message}
+            onChange={(e) => set('message')(e.target.value)}
+            onBlur={blur('message')}
+            aria-invalid={bad('message')}
+            aria-describedby={describedBy('message')}
+          />
+        </Field>
+      </fieldset>
 
-      <p className="text-[0.8125rem] text-ink-faint">
-        We reply to everything within one working day.
+      <div className="flex flex-col gap-4 border-t border-line pt-7 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-xs text-[0.8125rem] text-ink-faint">
+          Opens your email app with this brief filled in. We reply within one working day.
+        </p>
+        {/* The label stays in place while sending, so the button keeps its
+            width; the spinner covers it and the status line announces it. */}
+        <button
+          type="submit"
+          data-loading={status === 'sending' ? '' : undefined}
+          aria-busy={status === 'sending' || undefined}
+          data-magnetic=""
+          className="btn btn--primary btn--lg btn--split w-full sm:w-auto"
+        >
+          <span className="btn__label">Send brief</span>
+          <span className="btn__cell" aria-hidden="true">
+            <span className="btn__arrow">
+              {[0, 1].map((k) => (
+                <svg key={k} width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ))}
+            </span>
+          </span>
+          <span className="btn__spinner" aria-hidden="true" />
+        </button>
+      </div>
+      <p className="sr-only" role="status">
+        {status === 'sending' ? 'Opening your mail client.' : ''}
       </p>
     </form>
+  );
+}
+
+function ChipGroup({
+  name,
+  label,
+  items,
+  value,
+  onChange,
+}: {
+  name: string;
+  label: string;
+  items: string[];
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="mt-4" role="radiogroup" aria-label={label}>
+      <p className="mb-2.5 text-[0.875rem] font-medium text-ink">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {items.map((item) => (
+          <label key={item} className="cf-chip">
+            <input
+              type="radio"
+              name={name}
+              value={item}
+              checked={value === item}
+              onChange={() => onChange(item)}
+              className="sr-only"
+            />
+            <span>{item}</span>
+          </label>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -278,7 +469,7 @@ function Field({
       </label>
       {children}
       {error && (
-        <p id={'err-' + id} className="mt-2 text-[0.8125rem] text-[#c8384f]">
+        <p id={'err-' + id} className="cf-error">
           {error}
         </p>
       )}

@@ -37,7 +37,7 @@ const here = Astro.url.pathname;
     <div class="flex items-center gap-2">
       <a
         href={HERO.primaryHref}
-        class="hidden rounded-[10px] bg-ink px-5 py-[11px] text-[0.9375rem] font-medium leading-none text-white transition-[transform,background-color] duration-[180ms] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:bg-brand-text sm:inline-flex"
+        class="btn btn--primary btn--sm hidden sm:inline-flex"
       >
         {HERO.primaryCta}
       </a>
@@ -84,7 +84,7 @@ const here = Astro.url.pathname;
       <li class="pb-4 pt-5">
         <a
           href={HERO.primaryHref}
-          class="flex items-center justify-center rounded-[10px] bg-ink px-5 py-4 font-medium text-white"
+          class="btn btn--primary btn--lg btn--block"
           data-nav-close
         >
           {HERO.primaryCta}

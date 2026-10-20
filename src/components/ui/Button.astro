@@ -1,35 +1,128 @@
 ---
 /**
- * Buttons use --color-brand-text (#0060E6), never --color-brand (#006BFF).
- * White on #006BFF is ~4.45:1 and fails AA at 16px. This is an audited
- * constraint carried over from the previous site.
+ * The one button. Styles live in styles/buttons.css so the React islands can
+ * use the same classes.
+ *
+ * A link when it has an `href` (navigation), a <button> when it does not
+ * (actions). Never a <button> wrapped in a link or the other way round.
+ *
+ * Primary fills use --color-brand-text (#0060E6), never --color-brand
+ * (#006BFF): white on #006BFF is ~4.45:1 and fails AA at 16px. This is an
+ * audited constraint carried over from the previous site.
+ *
+ * `ghost` and `light` are the previous variant names, kept as aliases so an
+ * old call site cannot silently render unstyled.
+ *
+ * Medium and large buttons are magnetic by default (lib/magnetic.ts): they
+ * drift a few pixels toward a fine pointer. Pass `magnetic={false}` to opt out.
  */
 interface Props {
-  href: string;
-  variant?: 'primary' | 'ghost' | 'light';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  variant?: 'primary' | 'secondary' | 'on-dark' | 'on-dark-secondary' | 'ghost' | 'light';
+  size?: 'sm' | 'md' | 'lg';
+  /** Defaults to an inline arrow on links and none on buttons. */
+  arrow?: 'inline' | 'split' | 'none';
+  /** Off-site link: opens in a new tab and says so to screen readers. */
+  external?: boolean;
+  magnetic?: boolean;
+  loading?: boolean;
+  disabled?: boolean;
   class?: string;
+  [key: string]: unknown;
 }
-const { href, variant = 'primary', class: className = '' } = Astro.props;
 
-const base =
-  'group relative inline-flex items-center justify-center gap-2 rounded-[10px] px-6 py-[15px] text-[0.9375rem] font-medium leading-none transition-[transform,background-color,border-color,box-shadow] duration-[180ms] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 active:translate-y-0';
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  size = 'md',
+  arrow,
+  external = false,
+  magnetic,
+  loading = false,
+  disabled = false,
+  class: className = '',
+  ...rest
+} = Astro.props;
 
-const variants = {
-  primary:
-    'bg-brand-text text-white shadow-[0_2px_4px_rgb(11_53_88/0.10),0_10px_24px_rgb(0_96_230/0.22)] hover:bg-[#0a52c4] hover:shadow-[0_4px_8px_rgb(11_53_88/0.12),0_16px_36px_rgb(0_96_230/0.28)]',
-  ghost:
-    'border border-line-strong bg-white/70 text-ink backdrop-blur-sm hover:border-sky hover:bg-white',
-  light:
-    'bg-white text-brand-text shadow-[0_8px_24px_rgb(11_53_88/0.16)] hover:bg-white',
+const aliases: Record<string, string> = { ghost: 'secondary', light: 'on-dark' };
+const tone = aliases[variant] ?? variant;
+const arrowMode = arrow ?? (href ? 'inline' : 'none');
+const isMagnetic = magnetic ?? size !== 'sm';
+
+const classes = [
+  'btn',
+  `btn--${tone}`,
+  size !== 'md' && `btn--${size}`,
+  arrowMode === 'split' && 'btn--split',
+  className,
+];
+
+const isLink = href !== undefined;
+// A disabled link loses its href, so it drops out of the tab order and
+// cannot be followed; aria-disabled tells assistive tech why.
+const anchorAttrs = {
+  href: disabled ? undefined : href,
+  'aria-disabled': disabled ? ('true' as const) : undefined,
+  target: external ? '_blank' : undefined,
+  rel: external ? 'noopener' : undefined,
 };
+const buttonAttrs = { type, disabled: disabled || undefined };
+const shared = {
+  'data-loading': loading ? '' : undefined,
+  'aria-busy': loading ? ('true' as const) : undefined,
+  'data-magnetic': isMagnetic ? '' : undefined,
+};
+
+const straight = 'M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5';
+const diagonal = 'M7 17 17 7m0 0H9m8 0v8';
+const d = external ? diagonal : straight;
 ---
 
-<a href={href} class:list={[base, variants[variant], className]}>
-  <span><slot /></span>
-  <svg
-    width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"
-    class="transition-transform duration-[180ms] ease-[var(--ease-out-expo)] group-hover:translate-x-[3px]"
-  >
-    <path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-  </svg>
-</a>
+{
+  isLink ? (
+    <a class:list={classes} {...anchorAttrs} {...shared} {...rest}>
+      <span class="btn__label">
+        <slot />
+        {external && <span class="sr-only"> (opens in a new tab)</span>}
+        {arrowMode === 'inline' && (
+          <span class:list={['btn__arrow', external && 'btn__arrow--external']} aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d={d} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d={d} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </span>
+        )}
+      </span>
+      {arrowMode === 'split' && (
+        <span class="btn__cell" aria-hidden="true">
+          <span class:list={['btn__arrow', external && 'btn__arrow--external']}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d={d} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d={d} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </span>
+        </span>
+      )}
+      {loading && <span class="btn__spinner" aria-hidden="true" />}
+    </a>
+  ) : (
+    <button class:list={classes} {...buttonAttrs} {...shared} {...rest}>
+      <span class="btn__label">
+        <slot />
+        {arrowMode === 'inline' && (
+          <span class="btn__arrow" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d={straight} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d={straight} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </span>
+        )}
+      </span>
+      {arrowMode === 'split' && (
+        <span class="btn__cell" aria-hidden="true">
+          <span class="btn__arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d={straight} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d={straight} stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </span>
+        </span>
+      )}
+      <span class="btn__spinner" aria-hidden="true" />
+    </button>
+  )
+}

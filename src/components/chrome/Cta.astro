@@ -35,13 +35,10 @@ import { CTA } from '../../data/site';
       <p class="mx-auto mt-6 max-w-md text-[1.0625rem] text-white">{CTA.sub}</p>
 
       <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
-        <Button href={CTA.primaryHref} variant="light">{CTA.primary}</Button>
-        <a
-          href={CTA.secondaryHref}
-          class="rounded-[10px] border border-white/50 px-6 py-[14px] text-[0.9375rem] font-medium leading-none text-white transition-[transform,background-color,color] duration-[180ms] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:bg-white hover:text-brand-text"
-        >
+        <Button href={CTA.primaryHref} variant="on-dark" size="lg" arrow="split">{CTA.primary}</Button>
+        <Button href={CTA.secondaryHref} variant="on-dark-secondary" size="lg" arrow="none">
           {CTA.secondary}
-        </a>
+        </Button>
       </div>
     </div>
   </div>
@@ -84,11 +81,13 @@ import { CTA } from '../../data/site';
     }
 
     .cta-expand.is-expandable .cta-expand__stage {
-      width: 100vw;
+      /* 100%, not 100vw: the section is already full width here, and 100vw
+         includes a classic scrollbar, which left an 8px horizontal scroll. */
+      width: 100%;
       max-width: none;
       height: 100vh;
       height: 100dvh;
-      margin-left: calc(50% - 50vw);
+      margin-left: 0;
       display: grid;
       place-items: center;
       overflow: visible;
@@ -161,7 +160,7 @@ import { CTA } from '../../data/site';
       timeline
         // The contained card becomes a real 100vw x 100vh surface first.
         .to(card, {
-          width: () => window.innerWidth,
+          width: () => document.documentElement.clientWidth,
           height: () => window.innerHeight,
           borderRadius: 0,
           duration: 0.72,

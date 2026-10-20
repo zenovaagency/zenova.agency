@@ -41,7 +41,7 @@ import Eyebrow from '../../components/ui/Eyebrow.astro';
 import TextLink from '../../components/ui/TextLink.astro';
 import { Image } from 'astro:assets';
 import { PAGES, SERVICES, WORK_COPY } from '../../data/site';
-import { published, projectLabel, hasSamples } from '../../data/projects';
+import { published, projectKind, KIND_LABEL, hasSamples } from '../../data/projects';
 import { breadcrumb } from '../../lib/schema';
 
 const page = PAGES.work;
@@ -201,9 +201,7 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
               const art = p.image && (tile.kind === 'feature' ? p.image.src : p.image[tile.kind]);
               // A demo or concept has no client, so its label stands where the
               // name would. This label is the reason these entries can ship.
-              const eyebrow = [projectLabel(p), service.title, p.year]
-                .filter(Boolean)
-                .join(' · ');
+              const eyebrow = [p.client ?? KIND_LABEL[projectKind(p)], service.title, p.year].join(' · ');
 
               return (
                 <li
@@ -299,7 +297,7 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
 
               <div class="mt-9 flex flex-wrap items-center gap-3">
                 <Button href={WORK_COPY.emptyPrimaryHref}>{WORK_COPY.emptyPrimary}</Button>
-                <Button href={WORK_COPY.emptySecondaryHref} variant="ghost">
+                <Button href={WORK_COPY.emptySecondaryHref} variant="secondary">
                   {WORK_COPY.emptySecondary}
                 </Button>
               </div>

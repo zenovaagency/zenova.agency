@@ -1,0 +1,490 @@
+---
+/**
+ * Code-built illustrations of what each service delivers. They replace the
+ * AI-rendered webps the site used to ship: SVG scales crisply at any size,
+ * weighs a few KB, stays in the brand palette, and can move.
+ *
+ *   web       a  a page assembling itself, with a cursor clicking the CTA
+ *             b  a CMS editor with live-editing text and a Publish action
+ *   app       a  a phone app: scrolling feed, stepping tab bar, notification
+ *             b  the backend behind it: app → API → auth and data
+ *   ai        a  an assistant answering from the business's own docs
+ *             b  an automation: trigger → AI → three actions
+ *   marketing a  a campaign dashboard: tiles, line chart, bars
+ *             b  a channel plan: SEO, ads and email lanes on a timeline
+ *
+ * Nothing here shows a figure. Dashboards are bars and shapes, never numbers,
+ * so no visual can be read as a claimed result.
+ *
+ * Motion lives in styles/visuals.css and only runs while the visual is on
+ * screen (lib/inview.ts). Pass `decorative` when nearby text already says
+ * what the picture shows.
+ */
+import type { ServiceSlug } from '../../data/site';
+
+interface Props {
+  kind: ServiceSlug;
+  variant?: 'a' | 'b';
+  decorative?: boolean;
+  /** 'slice' fills the box and crops the edges, like object-fit: cover. */
+  fit?: 'meet' | 'slice';
+  class?: string;
+}
+
+const { kind, variant = 'a', decorative = false, fit = 'meet', class: className = '' } = Astro.props;
+
+const labels: Record<string, string> = {
+  'web-a': 'Illustration: a website being assembled in a browser window.',
+  'web-b': 'Illustration: a content editor updating a live page.',
+  'app-a': 'Illustration: a mobile app on a phone screen.',
+  'app-b': 'Illustration: an app connected to its API, authentication and database.',
+  'ai-a': 'Illustration: an AI assistant answering a customer from the business’s own documents.',
+  'ai-b': 'Illustration: an automation where a new enquiry triggers AI and three follow-up actions.',
+  'marketing-a': 'Illustration: a marketing dashboard with charts.',
+  'marketing-b': 'Illustration: a channel plan for SEO, ads and email over four weeks.',
+};
+
+const key = `${kind}-${variant}`;
+// Gradient ids must be unique per instance: several visuals share a page.
+const id = `v${Math.random().toString(36).slice(2, 8)}`;
+
+const C = {
+  ink: '#0b3558',
+  brand: '#0060e6',
+  sky: '#6fb6ff',
+  skySoft: '#bfe0ff',
+  tint: '#eef4ff',
+  line: '#dbe5f3',
+  muted: '#b8c7db',
+  blush: '#ffaecb',
+};
+---
+
+<svg
+  class:list={['viz', className]}
+  viewBox="0 0 480 360"
+  preserveAspectRatio={`xMidYMid ${fit}`}
+  role={decorative ? undefined : 'img'}
+  aria-label={decorative ? undefined : labels[key]}
+  aria-hidden={decorative ? 'true' : undefined}
+  focusable="false"
+  data-visual
+>
+  <defs>
+    <linearGradient id={`${id}-bg`} gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="480" y2="360">
+      <stop offset="0" stop-color="#f4f8ff" />
+      <stop offset="1" stop-color="#e3eeff" />
+    </linearGradient>
+    <radialGradient id={`${id}-glowA`} gradientUnits="userSpaceOnUse" cx="420" cy="30" r="300">
+      <stop offset="0" stop-color={C.sky} stop-opacity="0.45" />
+      <stop offset="1" stop-color={C.sky} stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id={`${id}-glowB`} gradientUnits="userSpaceOnUse" cx="40" cy="345" r="240">
+      <stop offset="0" stop-color={C.blush} stop-opacity="0.35" />
+      <stop offset="1" stop-color={C.blush} stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id={`${id}-brand`} x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color={C.sky} />
+      <stop offset="1" stop-color={C.brand} />
+    </linearGradient>
+    <linearGradient id={`${id}-area`} x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color={C.brand} stop-opacity="0.22" />
+      <stop offset="1" stop-color={C.brand} stop-opacity="0" />
+    </linearGradient>
+    <filter id={`${id}-shadow`} x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0b3558" flood-opacity="0.12" />
+    </filter>
+  </defs>
+
+  {/* Backgrounds run far past the viewBox: the root <svg> clips to its
+      viewport, not its viewBox, so when a frame letterboxes the drawing
+      ("meet" in a wider or taller box) the bands are filled, not blank. */}
+  <rect x="-800" y="-600" width="2080" height="1560" fill={`url(#${id}-bg)`} />
+  <rect x="-800" y="-600" width="2080" height="1560" fill={`url(#${id}-glowA)`} />
+  <rect x="-800" y="-600" width="2080" height="1560" fill={`url(#${id}-glowB)`} />
+
+  {
+    key === 'web-a' && (
+      <g>
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="40" y="36" width="400" height="290" rx="16" fill="#fff" stroke={C.line} />
+        </g>
+        <circle cx="60" cy="54" r="4" fill={C.muted} />
+        <circle cx="73" cy="54" r="4" fill={C.muted} />
+        <circle cx="86" cy="54" r="4" fill={C.muted} />
+        <rect x="170" y="46" width="140" height="16" rx="8" fill={C.tint} />
+        <line x1="40" y1="72" x2="440" y2="72" stroke={C.line} />
+
+        <g class="a v-in" style="--d:0">
+          <rect x="64" y="88" width="44" height="9" rx="4.5" fill={C.ink} />
+          <rect x="290" y="90" width="26" height="5" rx="2.5" fill={C.muted} />
+          <rect x="324" y="90" width="26" height="5" rx="2.5" fill={C.muted} />
+          <rect x="358" y="90" width="26" height="5" rx="2.5" fill={C.muted} />
+          <rect x="392" y="85" width="32" height="14" rx="7" fill={C.brand} />
+        </g>
+        <g class="a v-in" style="--d:0.12">
+          <rect x="64" y="122" width="168" height="13" rx="6.5" fill={C.ink} />
+          <rect x="64" y="142" width="124" height="13" rx="6.5" fill={C.ink} />
+        </g>
+        <g class="a v-in" style="--d:0.24">
+          <rect x="64" y="168" width="160" height="6" rx="3" fill={C.muted} />
+          <rect x="64" y="180" width="128" height="6" rx="3" fill={C.muted} />
+        </g>
+        <g class="a v-in" style="--d:0.36">
+          <rect x="64" y="200" width="76" height="22" rx="11" fill={C.brand} />
+          <rect x="148" y="200" width="60" height="22" rx="11" fill="#fff" stroke={C.ink} stroke-opacity="0.4" />
+        </g>
+        <g class="a v-in" style="--d:0.3">
+          <rect x="252" y="114" width="172" height="112" rx="12" fill={`url(#${id}-brand)`} />
+          <circle cx="388" cy="146" r="16" fill="#fff" fill-opacity="0.55" />
+          <path d="M252 206 C290 170 320 214 360 184 S410 176 424 190 V214 Q424 226 412 226 H264 Q252 226 252 214Z" fill="#fff" fill-opacity="0.35" />
+        </g>
+        {[64, 188, 312].map((x, i) => (
+          <g class="a v-in" style={`--d:${0.48 + i * 0.1}`}>
+            <rect x={x} y="242" width="112" height="66" rx="10" fill={C.tint} stroke={C.line} />
+            <rect x={x + 12} y="254" width="18" height="18" rx="5" fill={C.brand} fill-opacity={0.25 + i * 0.25} />
+            <rect x={x + 12} y="282" width="70" height="6" rx="3" fill={C.ink} fill-opacity="0.75" />
+            <rect x={x + 12} y="294" width="50" height="5" rx="2.5" fill={C.muted} />
+          </g>
+        ))}
+
+        <g class="a v-cursor">
+          <circle class="a v-click" cx="196" cy="282" r="14" fill="none" stroke={C.brand} stroke-width="2" />
+          <path d="M194 280 l0 22 l6 -6 l5 11 l4 -2 l-5 -11 l8 0 z" fill={C.ink} stroke="#fff" stroke-width="1.5" stroke-linejoin="round" />
+        </g>
+      </g>
+    )
+  }
+
+  {
+    key === 'web-b' && (
+      <g>
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="30" y="36" width="420" height="290" rx="16" fill="#fff" stroke={C.line} />
+        </g>
+        <rect x="30" y="36" width="176" height="290" rx="16" fill={C.tint} />
+        <rect x="190" y="36" width="16" height="290" fill={C.tint} />
+        <line x1="206" y1="36" x2="206" y2="326" stroke={C.line} />
+
+        <text x="50" y="66" font-size="12" fill={C.ink}>Edit page</text>
+        <text x="50" y="94" font-size="10" fill={C.ink} fill-opacity="0.6">Headline</text>
+        <rect x="50" y="102" width="136" height="28" rx="7" fill="#fff" stroke={C.brand} stroke-width="1.5" />
+        <rect class="a v-grow" style="--d:0" x="60" y="112" width="96" height="8" rx="4" fill={C.ink} />
+        <rect class="a v-caret" x="160" y="109" width="1.6" height="14" fill={C.brand} />
+
+        <text x="50" y="154" font-size="10" fill={C.ink} fill-opacity="0.6">Body</text>
+        <rect x="50" y="162" width="136" height="66" rx="7" fill="#fff" stroke={C.line} />
+        <rect x="60" y="174" width="110" height="5" rx="2.5" fill={C.muted} />
+        <rect x="60" y="186" width="96" height="5" rx="2.5" fill={C.muted} />
+        <rect x="60" y="198" width="104" height="5" rx="2.5" fill={C.muted} />
+
+        <rect x="50" y="244" width="30" height="16" rx="8" fill={C.brand} />
+        <circle cx="72" cy="252" r="6" fill="#fff" />
+        <text x="88" y="256" font-size="10" fill={C.ink} fill-opacity="0.7">Visible</text>
+
+        <rect x="50" y="280" width="136" height="28" rx="8" fill={C.brand} />
+        <text x="118" y="298" font-size="12" fill="#fff" text-anchor="middle">Publish</text>
+        <g class="a v-pop" style="--d:0">
+          <circle cx="184" cy="280" r="10" fill="#fff" stroke={C.brand} stroke-width="1.5" />
+          <path d="M179 280 l3.5 3.5 l6 -7" fill="none" stroke={C.brand} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+
+        <text x="226" y="66" font-size="10" fill={C.ink} fill-opacity="0.6">Live preview</text>
+        <rect x="226" y="78" width="204" height="230" rx="10" fill="#fff" stroke={C.line} />
+        <rect x="242" y="94" width="34" height="7" rx="3.5" fill={C.ink} />
+        <rect x="372" y="92" width="42" height="12" rx="6" fill={C.brand} />
+        <rect class="a v-grow" style="--d:0" x="242" y="124" width="150" height="14" rx="7" fill={C.ink} />
+        <rect x="242" y="146" width="112" height="14" rx="7" fill={C.ink} />
+        <rect x="242" y="172" width="168" height="6" rx="3" fill={C.muted} />
+        <rect x="242" y="184" width="140" height="6" rx="3" fill={C.muted} />
+        <rect x="242" y="206" width="172" height="86" rx="10" fill={`url(#${id}-brand)`} fill-opacity="0.85" />
+        <path d="M242 276 C280 246 320 286 360 258 S404 252 414 262 V282 Q414 292 404 292 H252 Q242 292 242 282Z" fill="#fff" fill-opacity="0.3" />
+      </g>
+    )
+  }
+
+  {
+    key === 'app-a' && (
+      <g>
+        <defs>
+          <clipPath id={`${id}-screen`}>
+            <rect x="160" y="34" width="160" height="292" rx="24" />
+          </clipPath>
+        </defs>
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="150" y="22" width="180" height="316" rx="32" fill={C.ink} />
+        </g>
+        <rect x="160" y="34" width="160" height="292" rx="24" fill="#fff" />
+        <g clip-path={`url(#${id}-screen)`}>
+          <rect x="214" y="40" width="52" height="12" rx="6" fill={C.ink} />
+          <rect x="176" y="68" width="60" height="7" rx="3.5" fill={C.muted} />
+          <rect x="176" y="80" width="104" height="13" rx="6.5" fill={C.ink} />
+          <g class="a v-scroll">
+            <rect x="176" y="106" width="128" height="72" rx="14" fill={`url(#${id}-brand)`} />
+            <rect x="188" y="120" width="54" height="7" rx="3.5" fill="#fff" fill-opacity="0.9" />
+            <rect x="188" y="134" width="84" height="12" rx="6" fill="#fff" />
+            <rect x="188" y="156" width="36" height="12" rx="6" fill="#fff" fill-opacity="0.35" />
+            {[192, 240, 288, 336].map((y, i) => (
+              <g>
+                <rect x="176" y={y} width="128" height="40" rx="10" fill={C.tint} />
+                <circle cx="194" cy={y + 20} r="9" fill={C.brand} fill-opacity={0.3 + (i % 2) * 0.4} />
+                <rect x="210" y={y + 12} width={60 - i * 6} height="6" rx="3" fill={C.ink} fill-opacity="0.8" />
+                <rect x="210" y={y + 24} width="44" height="5" rx="2.5" fill={C.muted} />
+              </g>
+            ))}
+          </g>
+          <rect x="160" y="290" width="160" height="36" fill="#fff" />
+          <line x1="160" y1="290" x2="320" y2="290" stroke={C.line} />
+          {[186, 222, 258, 294].map((x) => (
+            <rect x={x - 7} y="301" width="14" height="10" rx="3" fill={C.muted} />
+          ))}
+          <circle class="a v-tab" cx="186" cy="318" r="2.5" fill={C.brand} />
+        </g>
+
+        <g class="a v-float" style="--d:-1">
+          <g filter={`url(#${id}-shadow)`}>
+            <rect x="292" y="74" width="160" height="54" rx="14" fill="#fff" stroke={C.line} />
+          </g>
+          <rect x="304" y="86" width="30" height="30" rx="9" fill={C.brand} />
+          <path d="M313 101 l4 4 l8 -9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          <rect x="344" y="92" width="80" height="7" rx="3.5" fill={C.ink} />
+          <rect x="344" y="105" width="58" height="5" rx="2.5" fill={C.muted} />
+        </g>
+        <g class="a v-float" style="--d:-3.5">
+          <g filter={`url(#${id}-shadow)`}>
+            <rect x="34" y="228" width="140" height="44" rx="22" fill="#fff" stroke={C.line} />
+          </g>
+          <circle cx="58" cy="250" r="11" fill={C.tint} />
+          <path d="M53 250 l3.5 3.5 l6 -7" fill="none" stroke={C.brand} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="76" y="254" font-size="12" fill={C.ink}>Release ready</text>
+        </g>
+      </g>
+    )
+  }
+
+  {
+    key === 'app-b' && (
+      <g>
+        <path d="M118 196 C160 196 160 180 196 180" fill="none" stroke={C.muted} stroke-width="2" />
+        <path d="M296 166 C330 166 330 96 356 96" fill="none" stroke={C.muted} stroke-width="2" />
+        <path d="M296 194 C330 194 330 262 356 262" fill="none" stroke={C.muted} stroke-width="2" />
+        <path class="a v-flow" pathLength="1" d="M118 196 C160 196 160 180 196 180" fill="none" stroke={C.brand} stroke-width="4" stroke-linecap="round" />
+        <path class="a v-flow" style="--d:0.9" pathLength="1" d="M296 166 C330 166 330 96 356 96" fill="none" stroke={C.brand} stroke-width="4" stroke-linecap="round" />
+        <path class="a v-flow" style="--d:1.6" pathLength="1" d="M296 194 C330 194 330 262 356 262" fill="none" stroke={C.brand} stroke-width="4" stroke-linecap="round" />
+
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="40" y="128" width="78" height="136" rx="18" fill={C.ink} />
+        </g>
+        <rect x="47" y="138" width="64" height="116" rx="12" fill="#fff" />
+        <rect x="55" y="150" width="36" height="6" rx="3" fill={C.ink} />
+        <rect x="55" y="164" width="48" height="26" rx="6" fill={`url(#${id}-brand)`} />
+        <rect x="55" y="198" width="48" height="8" rx="4" fill={C.tint} />
+        <rect x="55" y="212" width="48" height="8" rx="4" fill={C.tint} />
+        <text x="79" y="290" font-size="12" fill={C.ink} text-anchor="middle">App</text>
+
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="196" y="140" width="100" height="80" rx="20" fill={`url(#${id}-brand)`} />
+        </g>
+        <text x="246" y="176" font-size="18" fill="#fff" text-anchor="middle">API</text>
+        <text x="246" y="196" font-size="10" fill="#fff" fill-opacity="0.85" text-anchor="middle">REST · webhooks</text>
+
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="356" y="64" width="96" height="64" rx="14" fill="#fff" stroke={C.line} />
+        </g>
+        <rect x="370" y="80" width="22" height="18" rx="4" fill="none" stroke={C.brand} stroke-width="2" />
+        <path d="M374 80 v-4 a7 7 0 0 1 14 0 v4" fill="none" stroke={C.brand} stroke-width="2" />
+        <text x="400" y="94" font-size="12" fill={C.ink}>Auth</text>
+        <rect x="370" y="108" width="68" height="5" rx="2.5" fill={C.muted} />
+
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="356" y="228" width="96" height="68" rx="14" fill="#fff" stroke={C.line} />
+        </g>
+        <ellipse cx="381" cy="246" rx="11" ry="4" fill="none" stroke={C.brand} stroke-width="2" />
+        <path d="M370 246 v16 a11 4 0 0 0 22 0 v-16 M370 254 a11 4 0 0 0 22 0" fill="none" stroke={C.brand} stroke-width="2" />
+        <text x="400" y="258" font-size="12" fill={C.ink}>Data</text>
+        <rect x="370" y="276" width="68" height="5" rx="2.5" fill={C.muted} />
+
+        <g class="a v-pop" style="--d:0.2">
+          <circle cx="296" cy="140" r="11" fill="#fff" stroke={C.brand} stroke-width="1.5" />
+          <path d="M291 140 l3.5 3.5 l6 -7" fill="none" stroke={C.brand} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </g>
+      </g>
+    )
+  }
+
+  {
+    key === 'ai-a' && (
+      <g>
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="56" y="28" width="368" height="304" rx="18" fill="#fff" stroke={C.line} />
+        </g>
+        <circle cx="86" cy="58" r="13" fill={`url(#${id}-brand)`} />
+        <path d="M86 50 l2.2 5.8 l5.8 2.2 l-5.8 2.2 l-2.2 5.8 l-2.2 -5.8 l-5.8 -2.2 l5.8 -2.2z" fill="#fff" />
+        <text x="108" y="62" font-size="13" fill={C.ink}>Assistant</text>
+        <circle cx="176" cy="58" r="3.5" fill={C.brand} />
+        <line x1="56" y1="84" x2="424" y2="84" stroke={C.line} />
+
+        <rect x="228" y="100" width="172" height="40" rx="16" fill={C.brand} />
+        <rect x="244" y="112" width="128" height="6" rx="3" fill="#fff" />
+        <rect x="244" y="124" width="84" height="6" rx="3" fill="#fff" fill-opacity="0.7" />
+
+        <g class="a v-in" style="--d:0">
+          <rect x="80" y="154" width="236" height="66" rx="16" fill={C.tint} />
+          <rect x="96" y="168" width="196" height="6" rx="3" fill={C.ink} fill-opacity="0.8" />
+          <rect x="96" y="181" width="176" height="6" rx="3" fill={C.ink} fill-opacity="0.8" />
+          <rect x="96" y="194" width="120" height="6" rx="3" fill={C.ink} fill-opacity="0.8" />
+        </g>
+        <g class="a v-in" style="--d:0.15">
+          <rect x="80" y="228" width="138" height="24" rx="12" fill="#fff" stroke={C.brand} stroke-opacity="0.5" />
+          <rect x="92" y="234" width="9" height="12" rx="2" fill="none" stroke={C.brand} stroke-width="1.5" />
+          <text x="108" y="244" font-size="10.5" fill={C.brand}>From your docs</text>
+        </g>
+
+        <rect x="80" y="262" width="58" height="24" rx="12" fill={C.tint} />
+        <circle class="a v-dot" style="--d:0" cx="96" cy="274" r="3" fill={C.ink} />
+        <circle class="a v-dot" style="--d:0.15" cx="109" cy="274" r="3" fill={C.ink} />
+        <circle class="a v-dot" style="--d:0.3" cx="122" cy="274" r="3" fill={C.ink} />
+
+        <rect x="80" y="296" width="320" height="26" rx="13" fill="#fff" stroke={C.line} />
+        <rect x="96" y="306" width="120" height="6" rx="3" fill={C.muted} />
+        <circle cx="386" cy="309" r="10" fill={C.brand} />
+        <path d="M381 309 h9 m-3.5 -3.5 l3.5 3.5 l-3.5 3.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+    )
+  }
+
+  {
+    key === 'ai-b' && (
+      <g>
+        {[
+          'M146 180 C170 180 172 180 192 180',
+          'M292 166 C318 166 316 82 344 82',
+          'M292 180 C316 180 320 180 344 180',
+          'M292 194 C318 194 316 278 344 278',
+        ].map((d) => (
+          <path d={d} fill="none" stroke={C.muted} stroke-width="2" />
+        ))}
+        {[
+          'M146 180 C170 180 172 180 192 180',
+          'M292 166 C318 166 316 82 344 82',
+          'M292 180 C316 180 320 180 344 180',
+          'M292 194 C318 194 316 278 344 278',
+        ].map((d, i) => (
+          <path class="a v-flow" style={`--d:${i === 0 ? 0 : 0.7 + i * 0.25}`} pathLength="1" d={d} fill="none" stroke={C.brand} stroke-width="4" stroke-linecap="round" />
+        ))}
+
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="30" y="138" width="116" height="84" rx="16" fill="#fff" stroke={C.line} />
+        </g>
+        <rect x="44" y="152" width="26" height="20" rx="4" fill="none" stroke={C.brand} stroke-width="2" />
+        <path d="M44 154 l13 9 l13 -9" fill="none" stroke={C.brand} stroke-width="2" stroke-linejoin="round" />
+        <text x="44" y="194" font-size="12" fill={C.ink}>New enquiry</text>
+        <rect x="44" y="204" width="70" height="5" rx="2.5" fill={C.muted} />
+
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="192" y="118" width="100" height="124" rx="26" fill={`url(#${id}-brand)`} />
+        </g>
+        <path d="M242 150 l4.5 12 l12 4.5 l-12 4.5 l-4.5 12 l-4.5 -12 l-12 -4.5 l12 -4.5z" fill="#fff" />
+        <text x="242" y="216" font-size="14" fill="#fff" text-anchor="middle">AI</text>
+
+        {[
+          { y: 54, label: 'Update CRM' },
+          { y: 152, label: 'Draft reply' },
+          { y: 250, label: 'Notify team' },
+        ].map((n, i) => (
+          <g>
+            <g filter={`url(#${id}-shadow)`}>
+              <rect x="344" y={n.y} width="116" height="56" rx="14" fill="#fff" stroke={C.line} />
+            </g>
+            <rect x="356" y={n.y + 16} width="24" height="24" rx="7" fill={C.tint} />
+            <rect x="363" y={n.y + 23} width="10" height="10" rx="2" fill={C.brand} fill-opacity={0.5 + i * 0.2} />
+            <text x="388" y={n.y + 26} font-size="11" fill={C.ink}>{n.label}</text>
+            <rect x="388" y={n.y + 33} width="52" height="5" rx="2.5" fill={C.muted} />
+            <g class="a v-pop" style={`--d:${0.2 + i * 0.25}`}>
+              <circle cx="458" cy={n.y + 4} r="9" fill={C.brand} />
+              <path d={`M454 ${n.y + 4} l3 3 l5 -6`} fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </g>
+          </g>
+        ))}
+      </g>
+    )
+  }
+
+  {
+    key === 'marketing-a' && (
+      <g>
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="30" y="30" width="420" height="300" rx="18" fill="#fff" stroke={C.line} />
+        </g>
+        <rect x="30" y="30" width="54" height="300" rx="18" fill={C.tint} />
+        <rect x="66" y="30" width="18" height="300" fill={C.tint} />
+        {[60, 96, 132, 168].map((y, i) => (
+          <rect x="47" y={y} width="20" height="20" rx="6" fill={i === 0 ? C.brand : C.muted} fill-opacity={i === 0 ? 1 : 0.6} />
+        ))}
+
+        {[100, 218, 336].map((x, i) => (
+          <g>
+            <rect x={x} y="50" width="104" height="58" rx="10" fill="#fff" stroke={C.line} />
+            <rect x={x + 12} y="62" width="44" height="5" rx="2.5" fill={C.muted} />
+            <rect class="a v-grow" style={`--d:${i * 0.1}`} x={x + 12} y="76" width={50 + i * 8} height="14" rx="7" fill={C.ink} />
+            <path d={`M${x + 70} 96 l8 -6 l7 3 l9 -10`} fill="none" stroke={C.brand} stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+        ))}
+
+        <rect x="100" y="122" width="222" height="136" rx="10" fill="#fff" stroke={C.line} />
+        {[150, 180, 210, 240].map((y) => (
+          <line x1="112" y1={y} x2="310" y2={y} stroke={C.line} stroke-dasharray="3 4" />
+        ))}
+        <path d="M112 232 C140 226 150 200 176 204 S214 176 236 184 S276 150 310 142 V246 H112Z" fill={`url(#${id}-area)`} />
+        <path class="a v-draw" pathLength="1" d="M112 232 C140 226 150 200 176 204 S214 176 236 184 S276 150 310 142" fill="none" stroke={C.brand} stroke-width="3" stroke-linecap="round" />
+
+        <rect x="336" y="122" width="104" height="136" rx="10" fill="#fff" stroke={C.line} />
+        {[40, 62, 52, 84, 100].map((h, i) => (
+          <rect class="a v-rise" style={`--d:${i * 0.08}`} x={350 + i * 17} y={244 - h} width="11" height={h} rx="3" fill={i === 4 ? C.brand : C.skySoft} />
+        ))}
+
+        {[274, 296].map((y) => (
+          <g>
+            <circle cx="112" cy={y + 4} r="5" fill={C.brand} fill-opacity="0.4" />
+            <rect x="126" y={y} width="120" height="7" rx="3.5" fill={C.ink} fill-opacity="0.7" />
+            <rect x="300" y={y} width="60" height="7" rx="3.5" fill={C.muted} />
+            <rect x="380" y={y} width="56" height="7" rx="3.5" fill={C.tint} />
+          </g>
+        ))}
+      </g>
+    )
+  }
+
+  {
+    key === 'marketing-b' && (
+      <g>
+        <g filter={`url(#${id}-shadow)`}>
+          <rect x="30" y="40" width="420" height="280" rx="18" fill="#fff" stroke={C.line} />
+        </g>
+        <text x="52" y="72" font-size="13" fill={C.ink}>Channel plan</text>
+        {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((w, i) => (
+          <g>
+            <text x={152 + i * 72} y="100" font-size="10" fill={C.ink} fill-opacity="0.55">{w}</text>
+            <line x1={146 + i * 72} y1="108" x2={146 + i * 72} y2="296" stroke={C.line} />
+          </g>
+        ))}
+        {[
+          { y: 124, label: 'SEO', from: 150, w: 270 },
+          { y: 180, label: 'Paid ads', from: 222, w: 190 },
+          { y: 236, label: 'Email', from: 186, w: 120 },
+        ].map((r, i) => (
+          <g>
+            <circle cx="58" cy={r.y + 14} r="5" fill={C.brand} fill-opacity={1 - i * 0.25} />
+            <text x="70" y={r.y + 18} font-size="12" fill={C.ink}>{r.label}</text>
+            <rect class="a v-grow" style={`--d:${i * 0.15}`} x={r.from} y={r.y} width={r.w} height="28" rx="10" fill={i === 0 ? `url(#${id}-brand)` : C.tint} stroke={i === 0 ? 'none' : C.line} />
+            <rect x={r.from + 12} y={r.y + 11} width={Math.min(90, r.w - 30)} height="6" rx="3" fill={i === 0 ? '#fff' : C.ink} fill-opacity={i === 0 ? 0.9 : 0.6} />
+          </g>
+        ))}
+        <g class="a v-sweep">
+          <line x1="170" y1="110" x2="170" y2="296" stroke={C.blush} stroke-width="2" />
+          <circle cx="170" cy="110" r="4" fill={C.blush} />
+        </g>
+      </g>
+    )
+  }
+</svg>

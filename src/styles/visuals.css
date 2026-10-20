@@ -1,0 +1,194 @@
+/* ------------------------------------------------------------------ *
+ * Code-built service visuals (components/ui/ServiceVisual.astro).
+ *
+ * Every animation here is paused until lib/inview.ts marks the visual
+ * [data-play] — offscreen visuals cost nothing. And every keyframe set
+ * RESTS AT 0% AND 100% ON THE COMPOSED FRAME: a paused visual, a reduced-
+ * motion visual (whose animations the global rule ends instantly) and a
+ * no-JS visual all show the finished picture, never a half-built one.
+ * ------------------------------------------------------------------ */
+
+.viz {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.viz text {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.viz .a {
+  animation-duration: 7s;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-play-state: paused;
+  transform-box: fill-box;
+}
+
+.viz[data-play] .a {
+  animation-play-state: running;
+}
+
+/* Stagger: each element's delay comes from --d (seconds). */
+.viz .a {
+  animation-delay: calc(var(--d, 0) * 1s);
+}
+
+/* Blocks re-assemble at the end of each cycle. */
+.viz .v-in {
+  animation-name: v-in;
+}
+@keyframes v-in {
+  0%, 70% { opacity: 1; transform: none; }
+  78%, 84% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* Width grows from the left, like text being typed or a bar filling. */
+.viz .v-grow {
+  animation-name: v-grow;
+  transform-origin: left center;
+}
+@keyframes v-grow {
+  0%, 62% { transform: scaleX(1); }
+  70% { transform: scaleX(0.08); }
+  100% { transform: scaleX(1); }
+}
+
+/* Height grows from the baseline. */
+.viz .v-rise {
+  animation-name: v-rise;
+  transform-origin: center bottom;
+}
+@keyframes v-rise {
+  0%, 64% { transform: scaleY(1); }
+  72% { transform: scaleY(0.12); }
+  100% { transform: scaleY(1); }
+}
+
+/* A line that draws itself. Needs pathLength="1" on the path. */
+.viz .v-draw {
+  animation-name: v-draw;
+  stroke-dasharray: 1;
+}
+@keyframes v-draw {
+  0%, 62% { stroke-dashoffset: 0; }
+  70% { stroke-dashoffset: 1; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* A packet travelling along an edge. Needs pathLength="1". */
+.viz .v-flow {
+  animation-name: v-flow;
+  animation-duration: 2.8s;
+  animation-timing-function: linear;
+  stroke-dasharray: 0.08 1;
+  stroke-dashoffset: 0.08;
+}
+@keyframes v-flow {
+  from { stroke-dashoffset: 0.08; }
+  to { stroke-dashoffset: -1; }
+}
+
+/* A badge that pops in. */
+.viz .v-pop {
+  animation-name: v-pop;
+  transform-origin: center;
+}
+@keyframes v-pop {
+  0%, 74% { opacity: 1; transform: scale(1); }
+  80%, 86% { opacity: 0; transform: scale(0.4); }
+  94% { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Gentle float for detached cards. */
+.viz .v-float {
+  animation-name: v-float;
+  animation-duration: 6s;
+  animation-timing-function: ease-in-out;
+}
+@keyframes v-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Vertical feed scroll inside a phone screen. */
+.viz .v-scroll {
+  animation-name: v-scroll;
+  animation-duration: 9s;
+}
+@keyframes v-scroll {
+  0%, 30% { transform: translateY(0); }
+  45%, 75% { transform: translateY(-62px); }
+  90%, 100% { transform: translateY(0); }
+}
+
+/* Tab indicator stepping across a tab bar (four stops, 36px apart). */
+.viz .v-tab {
+  animation-name: v-tab;
+  animation-duration: 9s;
+}
+@keyframes v-tab {
+  0%, 22% { transform: translateX(0); }
+  28%, 47% { transform: translateX(36px); }
+  53%, 72% { transform: translateX(72px); }
+  78%, 94% { transform: translateX(108px); }
+  100% { transform: translateX(0); }
+}
+
+/* Typing dots. */
+.viz .v-dot {
+  animation-name: v-dot;
+  animation-duration: 1.2s;
+  animation-timing-function: ease-in-out;
+}
+@keyframes v-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+
+/* Caret blink. */
+.viz .v-caret {
+  animation-name: v-caret;
+  animation-duration: 1s;
+  animation-timing-function: steps(1, end);
+}
+@keyframes v-caret {
+  0%, 50% { opacity: 1; }
+  50.01%, 100% { opacity: 0; }
+}
+
+/* A cursor travelling to a button and clicking it. */
+.viz .v-cursor {
+  animation-name: v-cursor;
+}
+@keyframes v-cursor {
+  0%, 20% { transform: translate(0, 0); }
+  40%, 60% { transform: translate(-92px, -70px); }
+  80%, 100% { transform: translate(0, 0); }
+}
+.viz .v-click {
+  animation-name: v-click;
+  transform-origin: center;
+}
+@keyframes v-click {
+  0%, 40% { opacity: 0; transform: scale(0.4); }
+  46% { opacity: 0.7; transform: scale(1); }
+  56%, 100% { opacity: 0; transform: scale(1.8); }
+}
+
+/* "Today" marker sweeping a planning board. */
+.viz .v-sweep {
+  animation-name: v-sweep;
+  animation-duration: 10s;
+  animation-timing-function: linear;
+}
+@keyframes v-sweep {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(220px); }
+  100% { transform: translateX(0); }
+}

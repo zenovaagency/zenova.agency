@@ -33,8 +33,9 @@ export interface ChainItem {
 
 /**
  * Reading order across the site. The nav routes run in the order a
- * prospective client would want them — what we do, what we have done, who we
- * are hiring, who we are — and terminate at contact.
+ * prospective client would want them — what we build for clients, what we
+ * build for ourselves, what we have done, who we are hiring, who we are — and
+ * terminate at contact.
  *
  * Process and Pricing were removed with their pages, and Process later with
  * its home-page section: the four phases remain in PROCESS (data/site.ts) and
@@ -42,6 +43,7 @@ export interface ChainItem {
  */
 export const CHAIN: ChainItem[] = [
   { label: 'Services', href: '/services' },
+  { label: 'Products', href: '/products' },
   { label: 'Work', href: '/work' },
   { label: 'Blog', href: '/blog' },
   { label: 'Careers', href: '/careers' },
