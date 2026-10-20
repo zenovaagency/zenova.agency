@@ -381,7 +381,6 @@ export default function ContactForm({
           type="submit"
           data-loading={status === 'sending' ? '' : undefined}
           aria-busy={status === 'sending' || undefined}
-          data-magnetic=""
           className="btn btn--primary btn--lg btn--split w-full sm:w-auto"
         >
           <span className="btn__label">Send brief</span>

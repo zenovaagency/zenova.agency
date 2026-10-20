@@ -13,8 +13,8 @@
  * `ghost` and `light` are the previous variant names, kept as aliases so an
  * old call site cannot silently render unstyled.
  *
- * Medium and large buttons are magnetic by default (lib/magnetic.ts): they
- * drift a few pixels toward a fine pointer. Pass `magnetic={false}` to opt out.
+ * Buttons never move: no drift toward the cursor and no hover lift. Only
+ * colour, border and the arrow inside its chip change.
  */
 interface Props {
   href?: string;
@@ -25,7 +25,6 @@ interface Props {
   arrow?: 'inline' | 'split' | 'none';
   /** Off-site link: opens in a new tab and says so to screen readers. */
   external?: boolean;
-  magnetic?: boolean;
   loading?: boolean;
   disabled?: boolean;
   class?: string;
@@ -39,7 +38,6 @@ const {
   size = 'md',
   arrow,
   external = false,
-  magnetic,
   loading = false,
   disabled = false,
   class: className = '',
@@ -49,7 +47,6 @@ const {
 const aliases: Record<string, string> = { ghost: 'secondary', light: 'on-dark' };
 const tone = aliases[variant] ?? variant;
 const arrowMode = arrow ?? (href ? 'inline' : 'none');
-const isMagnetic = magnetic ?? size !== 'sm';
 
 const classes = [
   'btn',
@@ -72,7 +69,6 @@ const buttonAttrs = { type, disabled: disabled || undefined };
 const shared = {
   'data-loading': loading ? '' : undefined,
   'aria-busy': loading ? ('true' as const) : undefined,
-  'data-magnetic': isMagnetic ? '' : undefined,
 };
 
 const straight = 'M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5';
