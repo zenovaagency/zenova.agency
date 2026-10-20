@@ -85,7 +85,7 @@ export const MARQUEE = [
 
 /**
  * The four service slugs are the spine of the site: they key SERVICES,
- * PRICING and DELIVERABLES, and they are the path segment for every
+ * SCOPES and DELIVERABLES, and they are the path segment for every
  * /services/... route. Typing them as a union turns a bad
  * join into a compile error instead of a section that silently renders empty.
  */
@@ -119,10 +119,11 @@ export interface Service {
   hero: string;
   bullets: string[];
   /**
-   * Four facts for the strip on /services/<slug>, as [value, label]. Every
-   * value is lifted from PRICING below or from OWNERSHIP, never a measured
+   * Three facts for the strip on /services/<slug>, as [value, label]. Every
+   * value is lifted from SCOPES below or from OWNERSHIP, never a measured
    * result: the previous figures here (73% auto-resolve, a 4.8★ average,
    * 3.4× growth, <1.2s loads) had no published source and were removed.
+   * No prices either: pricing is agreed on a call, never published.
    */
   meta: [string, string][];
   stack: string[];
@@ -147,7 +148,6 @@ export const SERVICES: Service[] = [
     hero: 'We build websites that load fast, look great, and are easy for your team to update.',
     bullets: ['Marketing sites and web apps', 'Easy-to-edit content (CMS)', 'Performance and SEO basics', 'Analytics set up'],
     meta: [
-      ['From $8k', 'Starter site'],
       ['4–10 wks', 'Typical build'],
       ['30–90 days', 'Support included'],
       ['Yours', 'Code and accounts'],
@@ -164,7 +164,6 @@ export const SERVICES: Service[] = [
     hero: 'We design and build mobile apps that are fast, reliable, and pleasant to use.',
     bullets: ['iOS and Android', 'Cross-platform builds', 'App Store and Google Play launch', 'Backend, APIs and auth'],
     meta: [
-      ['From $20k', 'MVP, one platform'],
       ['8–12 wks', 'Typical build'],
       ['30–90 days', 'Support included'],
       ['Yours', 'Code and accounts'],
@@ -181,7 +180,6 @@ export const SERVICES: Service[] = [
     hero: 'We build AI that does real work — assistants, chatbots and automations that answer from your own content and connect to your tools.',
     bullets: ['AI chat assistants', 'Workflow automation', 'Trained on your own content', 'CRM and tool integrations'],
     meta: [
-      ['From $6k', 'Single-channel bot'],
       ['3–6 wks', 'Typical build'],
       ['2–4 wks', 'Monitoring and tuning'],
       ['Yours', 'Data and accounts'],
@@ -198,7 +196,6 @@ export const SERVICES: Service[] = [
     hero: 'We help you reach the people who buy from you, and report what each channel actually brings in.',
     bullets: ['SEO foundations', 'Paid ad campaigns', 'Email automation', 'Clear reporting'],
     meta: [
-      ['From $5k', 'Growth audit'],
       ['3–12 wks', 'Audit to sprint'],
       ['Weekly', 'Experiments in a sprint'],
       ['Yours', 'Ad and analytics accounts'],
@@ -252,14 +249,14 @@ export const PROCESS = {
 };
 
 /**
- * Questions a buyer asks before signing, answered from the published prices
- * in PRICING and the ownership terms in OWNERSHIP. If either of those
+ * Questions a buyer asks before signing, answered from the scope options
+ * in SCOPES and the ownership terms in OWNERSHIP. If either of those
  * changes, these answers have to change with it.
  */
 export const AGENCY_FAQS = [
   {
     q: 'What do you build?',
-    a: 'Marketing websites and web apps, iOS and Android apps, AI assistants and workflow automation, and digital marketing: SEO, paid ads and email. Each service page lists what is included and what it costs.',
+    a: 'Marketing websites and web apps, iOS and Android apps, AI assistants and workflow automation, and digital marketing: SEO, paid ads and email. Each service page lists what is included and how long it usually takes.',
   },
   {
     q: 'How long does a project take?',
@@ -267,7 +264,7 @@ export const AGENCY_FAQS = [
   },
   {
     q: 'How does pricing work?',
-    a: 'A fixed price per phase, agreed before the phase begins. No hourly billing, so nobody is rewarded for taking longer. Starting prices are published on each service page; anything larger is scoped after a call.',
+    a: 'We talk it through on a call first. You then get a written proposal with a fixed price for each phase, agreed before anything starts. No hourly billing, so nobody is rewarded for taking longer.',
   },
   {
     q: 'Who owns the code, designs and accounts?',
@@ -485,13 +482,13 @@ export const PAGES: Record<PageKey, PageIntro> = {
     // The ported intro closed with "Explore what Zenova can build for you."
     // Dropped: it instructs rather than informs, and the sentence before it
     // already carries the whole claim.
-    sub: 'Four services for businesses: websites, apps, AI automation and digital marketing. We build it, you own it, and each one has a published starting price.',
+    sub: 'Four services for businesses: websites, apps, AI automation and digital marketing. We build it, you own it, and the price is agreed with you on a call before work starts.',
     wash: 1,
     title: 'Services — Web, App, AI & Marketing | Zenova',
     // Rewritten from the previous site's description, which still listed
     // services this site does not offer (startup support, content, ops).
     description:
-      'Web development, app development, AI automation, and digital marketing — what each one includes, what it costs in time, and what you own at the end.',
+      'Web development, app development, AI automation, and digital marketing — what each one includes, how long it takes, and what you own at the end.',
   },
   products: {
     eyebrow: 'Our products',
@@ -578,40 +575,32 @@ export const PAGES: Record<PageKey, PageIntro> = {
 };
 
 /* ------------------------------------------------------------------ *
- * Rate cards.
+ * Scope options.
  *
- * Ported from the previous site's src/data/pricing.ts. These are the real
- * published prices — never regenerate or "refresh" them.
+ * Three ways to start each service, ported from the previous site's rate
+ * cards. The prices were removed on purpose: pricing is agreed on a call and
+ * written into the proposal, never published on the site. Do not add a
+ * `price` back here.
  *
- * Two changes on the way over. The `startup` card is dropped, matching the
- * decision to leave Startup Support out of SERVICES. And `hue` is dropped:
- * those were the previous site's flat palette (#1e5ea7, #4d3589 — the second
- * is purple and belongs to no ramp here). Each service already carries an
- * `angle` in SERVICES, which is what tints its cards on this site.
- *
- * `price` is deliberately free-form. "$8k", "from $24k" and "Custom" are
- * three different commercial claims, and lib/schema.ts keeps them apart when
- * building structured data.
+ * Each option's `id` travels to /contact as ?plan=, where the brief form
+ * names the option so nobody has to retype it.
  * ------------------------------------------------------------------ */
-export interface PricingPlan {
+export interface ScopeOption {
   id: string;
   name: string;
   info: string;
-  /** One-time, project-based price — "$8k", "from $24k", or "Custom". */
-  price: string;
   timeline: string;
   features: string[];
   cta: string;
-  highlighted?: boolean;
 }
 
-export interface PricingService {
+export interface ServiceScopes {
   slug: ServiceSlug;
   label: string;
-  plans: PricingPlan[];
+  plans: ScopeOption[];
 }
 
-export const PRICING: PricingService[] = [
+export const SCOPES: ServiceScopes[] = [
   {
     slug: 'web',
     label: 'Web Development',
@@ -620,16 +609,14 @@ export const PRICING: PricingService[] = [
         id: 'web-1',
         name: 'Starter site',
         info: 'A clean, fast site for new businesses and small teams.',
-        price: '$8k',
         timeline: '4 – 6 weeks',
         features: ['Up to 6 pages', 'Mobile-friendly design', 'Basic CMS', '30-day support'],
-        cta: 'Start this project',
+        cta: 'Discuss this scope',
       },
       {
         id: 'web-2',
         name: 'Growth site',
         info: 'A full rebuild for companies replacing an outdated site.',
-        price: 'from $24k',
         timeline: '6 – 10 weeks',
         features: [
           'Up to 12 pages',
@@ -638,17 +625,15 @@ export const PRICING: PricingService[] = [
           'Built-in analytics',
           '90-day support',
         ],
-        cta: 'Start this project',
-        highlighted: true,
+        cta: 'Discuss this scope',
       },
       {
         id: 'web-3',
         name: 'Custom build',
         info: 'Complex products, portals, and web apps — scoped to fit.',
-        price: 'Custom',
         timeline: 'Scoped per project',
         features: ['Custom features', 'Third-party integrations', 'Team training', 'Ongoing support'],
-        cta: 'Scope it with us',
+        cta: 'Discuss this scope',
       },
     ],
   },
@@ -660,16 +645,14 @@ export const PRICING: PricingService[] = [
         id: 'app-1',
         name: 'MVP',
         info: 'Test your idea with real users on one platform.',
-        price: 'from $20k',
         timeline: '8 weeks',
         features: ['Core features', '1 platform', 'App store launch', '30-day support'],
-        cta: 'Start this project',
+        cta: 'Discuss this scope',
       },
       {
         id: 'app-2',
         name: 'Full app',
         info: 'A polished launch on both platforms.',
-        price: 'from $45k',
         timeline: '12 weeks',
         features: [
           'All features',
@@ -678,17 +661,15 @@ export const PRICING: PricingService[] = [
           'Backend + APIs',
           '90-day support',
         ],
-        cta: 'Start this project',
-        highlighted: true,
+        cta: 'Discuss this scope',
       },
       {
         id: 'app-3',
         name: 'Product suite',
         info: 'Complex apps with integrations and compliance needs.',
-        price: 'Custom',
         timeline: 'Scoped per project',
         features: ['Custom architecture', 'Integrations', 'Security review', 'Team training'],
-        cta: 'Scope it with us',
+        cta: 'Discuss this scope',
       },
     ],
   },
@@ -700,16 +681,14 @@ export const PRICING: PricingService[] = [
         id: 'bot-1',
         name: 'Quick bot',
         info: 'Test AI support on a single channel.',
-        price: '$6k',
         timeline: '3 weeks',
         features: ['Basic flows', '1 channel', 'Training data prep', '2-week monitoring'],
-        cta: 'Start this project',
+        cta: 'Discuss this scope',
       },
       {
         id: 'bot-2',
         name: 'Full assistant',
         info: 'A trained agent across your support channels.',
-        price: 'from $15k',
         timeline: '6 weeks',
         features: [
           'Custom training',
@@ -718,17 +697,15 @@ export const PRICING: PricingService[] = [
           'Analytics',
           '30-day tuning',
         ],
-        cta: 'Start this project',
-        highlighted: true,
+        cta: 'Discuss this scope',
       },
       {
         id: 'bot-3',
         name: 'Enterprise',
         info: 'Fine-tuned models with compliance and on-premise options.',
-        price: 'Custom',
         timeline: 'Scoped per project',
         features: ['Fine-tuned LLM', 'On-premise deploy', 'Compliance review', 'Dedicated support'],
-        cta: 'Scope it with us',
+        cta: 'Discuss this scope',
       },
     ],
   },
@@ -740,16 +717,14 @@ export const PRICING: PricingService[] = [
         id: 'mkt-1',
         name: 'Growth audit',
         info: 'A deep look at your funnel with quick wins you can ship now.',
-        price: '$5k',
         timeline: '3 weeks',
         features: ['Channel + funnel audit', 'Tracking setup', 'Quick-win fixes', '90-day roadmap'],
-        cta: 'Start this project',
+        cta: 'Discuss this scope',
       },
       {
         id: 'mkt-2',
         name: '90-day sprint',
         info: 'A focused push across two channels to find what converts.',
-        price: 'from $18k',
         timeline: '12 weeks',
         features: [
           '2 ad channels',
@@ -758,17 +733,15 @@ export const PRICING: PricingService[] = [
           'SEO foundations',
           'Live dashboard',
         ],
-        cta: 'Start this project',
-        highlighted: true,
+        cta: 'Discuss this scope',
       },
       {
         id: 'mkt-3',
         name: 'Full launch',
         info: 'Multi-channel go-to-market for a product or rebrand.',
-        price: 'Custom',
         timeline: 'Scoped per project',
         features: ['All channels', 'Senior strategy', 'Content + creative', 'Team handoff'],
-        cta: 'Scope it with us',
+        cta: 'Discuss this scope',
       },
     ],
   },

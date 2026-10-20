@@ -2,29 +2,21 @@
 /**
  * Work — the projects index.
  *
- * The signature move is a Z-mosaic: projects are laid out in cycles of four
- * tiles on a 12-column grid — one feature tile two rows tall, two small tiles
- * stacked beside it, and a full-width band under all three — and every other
- * cycle is mirrored, so the page zig-zags down rather than repeating one bento.
+ * An editorial showcase: one full-width row per project, a large framed
+ * screenshot on one side and the write-up on the other, alternating sides
+ * down the page. A service filter sits above the list.
  *
- * That device is not a variant of anything else here, which is the point. The
- * home page already owns the sticky card stack (home/Services) and the
- * velocity marquee. Nothing on this page pins.
+ * These are our own product and design concepts, with no client and no
+ * metrics — see the header of data/projects.ts — so the rows carry no proof.
+ * Each row says what kind of entry it is in its eyebrow, and the disclosure
+ * in the heading band covers the whole list.
  *
- * These are demo entries with no client and no metrics — see the header of
- * data/projects.ts — so the tiles carry no proof. What tells them apart is the
- * drawing, cropped so it bleeds off the tile edge, a large serif index numeral,
- * and the tile's size in the mosaic. A real `image` takes the drawing's place
- * the moment one is set.
+ * The filter is progressive: it renders hidden and the script reveals it, so
+ * without JS every project is simply listed. Filtering re-alternates the
+ * visible rows so the zig-zag never breaks.
  *
- * The placement is computed in tileFor() rather than left to auto-flow, so an
- * incomplete last cycle (1, 2 or 3 projects) still closes without a hole.
- *
- * PageHero is deliberately not used on this one route. The band below reuses
- * its wash-2 recipe verbatim, so the page still reads as family, but sets the
- * headline at .display size with counts under it. Those counts are the only
- * numbers on the page and every one is counted out of PROJECTS rather than
- * claimed, which is what keeps them on the right side of the rule above.
+ * The counts under the headline are the only numbers on the page, and every
+ * one is counted out of PROJECTS rather than claimed.
  *
  * The empty state is still live code and takes over the moment PROJECTS has
  * nothing publishable in it.
@@ -51,14 +43,9 @@ const byService = new Map(SERVICES.map((s) => [s.slug, s]));
 // Disappears on its own when the demos and concepts are replaced with real projects.
 const hasDemos = hasSamples(projects);
 
-// With a screenshot on every project the tiles switch from bleed-off line art
-// to framed pictures (.mosaic--img). It is all or nothing: the framed tiles
-// size themselves from their image, which a drawing tile has no ratio for.
-const framed = projects.length > 0 && projects.every((p) => p.image);
+// Only services that actually have a project get a filter button.
+const filters = SERVICES.filter((s) => projects.some((p) => p.service === s.slug));
 
-// Three numbers the page can stand behind, because all three are counted out
-// of the data rather than asserted. A demo project carries no outcomes by
-// design, so these describe the portfolio and never its results.
 const disciplines = new Set(projects.map((p) => p.service)).size;
 const technologies = new Set(projects.flatMap((p) => p.stack)).size;
 const pad = (n: number) => String(n).padStart(2, '0');
@@ -68,34 +55,6 @@ const counts: [string, string][] = [
   [pad(disciplines), 'Disciplines'],
   [pad(technologies), 'Technologies'],
 ];
-
-type TileKind = 'feature' | 'small' | 'wide';
-
-/**
- * Where tile `i` of `total` sits in the mosaic. A full cycle is
- * feature (2 rows) / small / small / wide. A short final cycle closes itself:
- * three keeps the first three, two becomes a one-row feature beside a small
- * tile, and one becomes a wide band. Odd cycles are mirrored.
- */
-/** The image variant and srcset for each tile frame. Ratios live in .mosaic--img below. */
-const FRAME_SIZES: Record<TileKind, { widths: number[]; sizes: string }> = {
-  feature: { widths: [640, 960, 1280], sizes: '(min-width: 1024px) 40vw, 90vw' },
-  small: { widths: [480, 800, 1200], sizes: '(min-width: 1024px) 38vw, 90vw' },
-  wide: { widths: [640, 960, 1280], sizes: '(min-width: 1024px) 52vw, 90vw' },
-};
-
-function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirror: boolean } {
-  const cycle = Math.floor(i / 4);
-  const pos = i % 4;
-  const inCycle = Math.min(4, total - cycle * 4);
-  const mirror = cycle % 2 === 1;
-
-  if (inCycle === 1) return { kind: 'wide', rows: 1, mirror };
-  if (inCycle === 2) return { kind: pos === 0 ? 'feature' : 'small', rows: 1, mirror };
-  if (pos === 0) return { kind: 'feature', rows: 2, mirror };
-  if (pos === 3) return { kind: 'wide', rows: 1, mirror };
-  return { kind: 'small', rows: 1, mirror };
-}
 ---
 
 <Base title={page.title} description={page.description}>
@@ -104,17 +63,7 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
   <Nav />
 
   <main id="main">
-    <!--
-      Bespoke opener rather than the shared PageHero. Same wash-2 recipe,
-      copied down into the scoped style below because Astro scopes component
-      CSS and the class cannot be imported — the same deliberate duplication
-      .svc-art already lives with across four files.
-
-      Contrast: wash-2's lobes were positioned for h1-sized text in the left
-      ~58% of the band. .display is larger, so the headline is capped in width
-      to stay clear of the brand lobe low-right, and everything sitting on the
-      wash uses ink-soft (4.8:1), never ink-muted (~4.0:1 over a gradient).
-    -->
+    <!-- Opener. Everything on the wash uses ink-soft (4.8:1), never ink-muted. -->
     <section class="relative overflow-hidden pb-16 pt-36 sm:pt-40">
       <div class="page-wash wash-2 absolute inset-x-0 top-0 -z-10 h-[620px]" aria-hidden="true">
       </div>
@@ -145,10 +94,7 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
             >
               {counts.map(([value, label]) => (
                 <li class="flex items-baseline gap-3">
-                  <span
-                    class="text-[clamp(1.75rem,6vw,2.25rem)] font-medium leading-none tracking-[-0.03em] tabular-nums text-ink"
-                    data-count
-                  >
+                  <span class="text-[clamp(1.75rem,6vw,2.25rem)] font-medium leading-none tracking-[-0.03em] tabular-nums text-ink">
                     {value}
                   </span>
                   <span class="mono text-ink-soft">{label}</span>
@@ -171,9 +117,8 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
                 <em class="accent-serif">{WORK_COPY.indexAccent}</em>
               </h2>
 
-              {/* Kept in the heading band rather than anywhere inside the
-                  mosaic: this is the disclosure that makes the demos safe to
-                  publish, so it covers every tile rather than living on one. */}
+              {/* The disclosure that makes the concepts safe to publish. It
+                  covers every row, so it sits above them all. */}
               {hasDemos && (
                 <p
                   class="text-[0.9375rem] leading-relaxed text-ink-muted lg:col-span-4 lg:col-start-9"
@@ -183,106 +128,105 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
                 </p>
               )}
             </div>
-          </div>
 
-          {/*
-            The mosaic. Placement comes from data-kind / data-rows /
-            data-mirror, which only the grid rules below read: under 768px it is
-            a single column in document order, so the reading order and the tab
-            order are the same at every width. Everything is visible without
-            JS — the entry reveal sets its own start state from the script.
-          */}
-          <ul class:list={['mosaic container-z mt-14 lg:mt-20', framed && 'mosaic--img']} data-mosaic>
-            {projects.map((p, i) => {
-              const service = byService.get(p.service)!;
-              const tile = tileFor(i, projects.length);
-              const wideText = tile.kind !== 'small';
-              const frame = FRAME_SIZES[tile.kind];
-              const art = p.image && (tile.kind === 'feature' ? p.image.src : p.image[tile.kind]);
-              // A demo or concept has no client, so its label stands where the
-              // name would. This label is the reason these entries can ship.
-              const eyebrow = [p.client ?? KIND_LABEL[projectKind(p)], service.title, p.year].join(' · ');
+            {filters.length > 1 && (
+              <div class="mt-12 flex flex-wrap items-center gap-x-5 gap-y-3" data-filter hidden>
+                <div class="work-filter" role="group" aria-label="Filter projects by service">
+                  <button type="button" class="work-filter__btn" aria-pressed="true" data-filter-value="all">
+                    All
+                    <span class="work-filter__count tabular-nums" aria-hidden="true">{projects.length}</span>
+                  </button>
+                  {filters.map((s) => (
+                    <button type="button" class="work-filter__btn" aria-pressed="false" data-filter-value={s.slug}>
+                      {s.title}
+                      <span class="work-filter__count tabular-nums" aria-hidden="true">
+                        {projects.filter((p) => p.service === s.slug).length}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <p class="sr-only" aria-live="polite" data-filter-status></p>
+              </div>
+            )}
 
-              return (
-                <li
-                  class="tile svc-art"
-                  style={`--angle:${p.angle ?? service.angle}`}
-                  data-tile
-                  data-kind={tile.kind}
-                  data-rows={String(tile.rows)}
-                  data-mirror={String(tile.mirror)}
-                >
-                  <span class="tile-spot" aria-hidden="true" />
+            <ol class="work-list mt-14 lg:mt-20" data-work-list>
+              {projects.map((p, i) => {
+                const service = byService.get(p.service)!;
+                // A concept or our own product has no client, so its label
+                // stands where the name would.
+                const eyebrow = [p.client ?? KIND_LABEL[projectKind(p)], service.title, p.year].join(' · ');
+                const href = `/work/${p.slug}`;
 
-                  <span class="tile-num accent-serif tabular-nums" aria-hidden="true">
-                    {pad(i + 1)}
-                  </span>
+                return (
+                  <li class="work-row" data-row data-service={p.service} data-flip={String(i % 2 === 1)}>
+                    {/* A second way in for the pointer. The title link is the
+                        one keyboard and screen-reader target. */}
+                    <a href={href} class="work-media" tabindex="-1" aria-hidden="true" data-media>
+                      <span class="work-media__inner" data-media-inner>
+                        {p.image ? (
+                          <Image
+                            src={p.image.wide}
+                            alt=""
+                            widths={[640, 960, 1280, 1600]}
+                            sizes="(min-width: 1024px) 56vw, 92vw"
+                            loading={i === 0 ? 'eager' : 'lazy'}
+                            class="work-media__img"
+                          />
+                        ) : (
+                          <span class="work-media__motif svc-art text-brand" style={`--angle:${p.angle ?? service.angle}`}>
+                            <Motif kind={p.motif ?? service.motif} />
+                          </span>
+                        )}
+                      </span>
+                      <span class="work-cursor" data-cursor>
+                        View project
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                    </a>
 
-                  <div class="tile-art text-brand" aria-hidden="true">
-                    <div class="tile-art-inner">
-                      {art ? (
-                        <Image
-                          src={art}
-                          alt=""
-                          widths={frame.widths}
-                          sizes={frame.sizes}
-                          loading="lazy"
-                          class={
-                            framed
-                              ? 'tile-img h-full w-full object-cover'
-                              : 'w-full rounded-[var(--radius-md)]'
-                          }
-                        />
-                      ) : (
-                        <Motif kind={p.motif ?? service.motif} />
+                    <div class="work-text" data-reveal>
+                      <span class="work-num accent-serif tabular-nums" aria-hidden="true">
+                        {pad(i + 1)}
+                      </span>
+                      <p class="mono mt-4 text-ink-faint">{eyebrow}</p>
+
+                      <h3 class="work-title mt-4 text-ink">
+                        <a href={href} class="work-title__link">
+                          {p.title}
+                          <svg class="work-title__arrow" width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M7 17 17 7m0 0H9m8 0v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        </a>
+                      </h3>
+
+                      <p class="mt-4 max-w-[34rem] text-[1.0625rem] leading-relaxed text-ink-muted">{p.summary}</p>
+
+                      {p.scope.length > 0 && (
+                        <ul class="mt-7 space-y-2.5 border-t border-line pt-6">
+                          {p.scope.slice(0, 3).map((item) => (
+                            <li class="flex items-start gap-3 text-[0.9375rem] text-ink">
+                              <span class="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden="true" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
                       )}
-                    </div>
-                  </div>
 
-                  <div class="tile-body">
-                    <p class="mono text-ink-soft">{eyebrow}</p>
-
-                    <h3 class="tile-title mt-4 text-ink">
-                      <a href={`/work/${p.slug}`} class="after:absolute after:inset-0 after:z-[3]">
-                        {p.title}
-                      </a>
-                    </h3>
-
-                    <p
-                      class:list={[
-                        'mt-3 max-w-[44ch] text-[0.9875rem] leading-relaxed text-ink-soft',
-                        !wideText && 'lg:line-clamp-2',
-                      ]}
-                    >
-                      {p.summary}
-                    </p>
-
-                    {wideText && (
-                      <ul class="mono mt-6 flex flex-wrap gap-x-4 gap-y-2 text-ink-soft">
+                      <ul class="mt-6 flex flex-wrap gap-2" aria-label="Tools">
                         {p.stack.map((tech) => (
-                          <li>{tech}</li>
+                          <li class="rounded-full border border-line-strong bg-white px-3 py-1.5 text-[0.8125rem] text-ink">
+                            {tech}
+                          </li>
                         ))}
                       </ul>
-                    )}
-                  </div>
-
-                  {/* Decoration: the stretched title link is the real target. */}
-                  <span class="tile-go" aria-hidden="true">
-                    <span class="tile-go-label">View project</span>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="shrink-0">
-                      <path
-                        d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
         </section>
       ) : (
         <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="empty-title">
@@ -356,20 +300,9 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
 </Base>
 
 <style>
-  /* Card artwork. Duplicated verbatim from services/index.astro,
-     services/[slug].astro and work/[slug].astro — Astro scopes component CSS,
-     so this is the existing house pattern rather than a missing shared class. */
-  .svc-art {
-    background: linear-gradient(
-      var(--angle),
-      rgb(191 224 255 / 0.5) 0%,
-      rgb(244 248 255 / 0.9) 55%,
-      rgb(255 224 236 / 0.55) 100%
-    );
-  }
-
-  /* Copied from PageHero's wash-2, unchanged, for the same reason. Brand
-     collects low and right, well under the headline. */
+  /* Copied from PageHero's wash-2, unchanged: Astro scopes component CSS, so
+     the class cannot be imported. Brand collects low and right, well under
+     the headline. */
   .page-wash::after {
     content: '';
     position: absolute;
@@ -385,376 +318,244 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
       linear-gradient(180deg, #f0f6ff 0%, rgb(246 249 255 / 0) 100%);
   }
 
-
-  /* --- The mosaic ---------------------------------------------------- */
-
-  /* Below 768px: one column, document order, every tile the same shape. */
-  .mosaic {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .tile {
-    position: relative;
-    overflow: hidden;
-    isolation: isolate;
-    display: flex;
-    min-height: 27rem;
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-lg);
-    transition:
-      border-color 240ms var(--ease-out-expo),
-      box-shadow 240ms var(--ease-out-expo);
-  }
-
-  /* One ring for the whole tile, and only for keyboard focus. The title link
-     is the target, so its own outline is folded into this one. */
-  .tile a:focus-visible {
-    outline: none;
-  }
-
-  .tile:has(a:focus-visible) {
-    outline: 2px solid var(--color-brand);
-    outline-offset: 3px;
-  }
-
-  /* Follows the pointer (see the script). White lightens the pale ground,
-     so it only ever raises contrast for the ink sitting on it. */
-  .tile-spot {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0;
-    background: radial-gradient(
-      26rem circle at var(--mx, 50%) var(--my, 50%),
-      rgb(255 255 255 / 0.6),
-      transparent 62%
+  .svc-art {
+    background: linear-gradient(
+      var(--angle),
+      rgb(191 224 255 / 0.5) 0%,
+      rgb(244 248 255 / 0.9) 55%,
+      rgb(255 224 236 / 0.55) 100%
     );
-    transition: opacity 320ms var(--ease-out-expo);
   }
 
-  .tile-num {
-    position: absolute;
-    top: 1.25rem;
-    left: 1.5rem;
-    z-index: 1;
-    font-size: clamp(4rem, 12vw, 5.5rem);
-    line-height: 0.8;
-    color: rgb(11 53 88 / 0.14);
-    pointer-events: none;
+  /* --- Filter ------------------------------------------------------- */
+  .work-filter {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 5px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: #ffffff;
   }
 
-  /* The drawing, oversized and pushed off the top-right edge so the tile
-     crops it, then faded out toward the text in the opposite corner. */
-  .tile-art {
-    position: absolute;
-    top: -6%;
-    right: -14%;
-    z-index: 1;
-    width: min(80%, 26rem);
-    pointer-events: none;
-    -webkit-mask-image: linear-gradient(to bottom left, #000 35%, transparent 80%);
-    mask-image: linear-gradient(to bottom left, #000 35%, transparent 80%);
-    transition: transform 900ms var(--ease-out-expo);
-  }
-
-  .tile-body {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    width: 100%;
-    padding: 1.75rem 1.5rem;
-    padding-right: 5rem; /* room for .tile-go */
-  }
-
-  .tile-title {
-    font-weight: 500;
-    letter-spacing: -0.022em;
-    line-height: 1.04;
-    font-size: clamp(1.875rem, 5vw, 2.5rem);
-  }
-
-  /* The arrow. A circle at rest; on hover it opens into a labelled pill. */
-  .tile-go {
-    position: absolute;
-    right: 1.25rem;
-    bottom: 1.25rem;
-    z-index: 2;
+  .work-filter__btn {
     display: inline-flex;
     align-items: center;
-    height: 2.75rem;
-    padding-inline: 0.875rem;
-    border: 1px solid rgb(11 53 88 / 0.16);
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 16px;
     border-radius: 999px;
-    background: rgb(255 255 255 / 0.7);
-    color: var(--color-ink);
-    pointer-events: none;
-    transition:
-      background-color 240ms var(--ease-out-expo),
-      color 240ms var(--ease-out-expo),
-      border-color 240ms var(--ease-out-expo);
-  }
-
-  .tile-go-label {
-    max-width: 0;
-    overflow: hidden;
-    white-space: nowrap;
-    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    font-size: 0.9375rem;
     font-weight: 500;
-    opacity: 0;
     transition:
-      max-width 420ms var(--ease-out-expo),
-      margin 420ms var(--ease-out-expo),
-      opacity 200ms linear;
+      background-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  @media (hover: hover) {
-    .tile:hover {
-      border-color: var(--color-sky-soft);
-      box-shadow: var(--shadow-md);
-    }
-
-    .tile:hover .tile-spot {
-      opacity: 1;
-    }
-
-    /* brand-text, not brand: this pill carries white text. */
-    .tile:hover .tile-go {
-      border-color: var(--color-brand-text);
-      background: var(--color-brand-text);
-      color: #ffffff;
-    }
-
-    .tile:hover .tile-go-label {
-      max-width: 8rem;
-      margin-right: 0.5rem;
-      opacity: 1;
-    }
-
-    .tile:hover .tile-art {
-      transform: translate3d(-2%, 2%, 0) scale(1.04);
-    }
+  .work-filter__btn:hover {
+    color: var(--color-ink);
+    background: rgb(11 53 88 / 0.05);
   }
 
-  /* --- 768-1023: two columns --------------------------------------- */
-  @media (min-width: 768px) and (max-width: 1023px) {
-    .mosaic {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .tile[data-kind='wide'],
-    .tile[data-kind='feature'][data-rows='2'] {
-      grid-column: span 2;
-    }
-
-    .tile {
-      min-height: 26rem;
-    }
+  .work-filter__btn[aria-pressed='true'] {
+    color: #ffffff;
+    background: var(--color-ink);
   }
 
-  /* --- 1024+: the Z-mosaic ------------------------------------------ */
-
-  /* Every tile has a definite column and an auto row, and `dense` sends
-     each one to the earliest row where it fits. That is what slots the two
-     small tiles beside the feature instead of under it. */
-  @media (min-width: 1024px) {
-    .mosaic {
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      grid-auto-rows: clamp(18rem, 25vw, 22rem);
-      grid-auto-flow: row dense;
-      gap: 1.25rem;
-    }
-
-    .tile {
-      min-height: 0;
-    }
-
-    .tile[data-kind='feature'] {
-      grid-column: 1 / span 7;
-    }
-
-    .tile[data-kind='feature'][data-rows='2'] {
-      grid-row: span 2;
-    }
-
-    .tile[data-kind='small'] {
-      grid-column: 8 / span 5;
-    }
-
-    .tile[data-kind='wide'] {
-      grid-column: 1 / -1;
-    }
-
-    .tile[data-mirror='true'][data-kind='feature'] {
-      grid-column: 6 / span 7;
-    }
-
-    .tile[data-mirror='true'][data-kind='small'] {
-      grid-column: 1 / span 5;
-    }
-
-    .tile-body {
-      padding: 2rem;
-      padding-right: 6rem;
-    }
-
-    .tile-go {
-      right: 1.5rem;
-      bottom: 1.5rem;
-    }
-
-    .tile[data-kind='small'] .tile-art {
-      width: 52%;
-      top: 4%;
-      right: -8%;
-    }
-
-    .tile[data-kind='small'] .tile-title {
-      font-size: clamp(1.75rem, 2.4vw, 2.25rem);
-    }
-
-    /* Feature: the drawing sits high and large, the text low. */
-    .tile[data-kind='feature'][data-rows='2'] .tile-num {
-      top: 1.75rem;
-      left: 2rem;
-      font-size: clamp(6rem, 10vw, 9.5rem);
-    }
-
-    .tile[data-kind='feature'] .tile-art {
-      width: 74%;
-      top: 7%;
-      right: -10%;
-    }
-
-    .tile[data-kind='feature'][data-rows='1'] .tile-art {
-      width: 52%;
-      top: -12%;
-    }
-
-    .tile[data-kind='feature'] .tile-body {
-      max-width: 38rem;
-      padding: 2.5rem;
-      padding-right: 6rem;
-    }
-
-    .tile[data-kind='feature'] .tile-title {
-      font-size: clamp(2.5rem, 4.2vw, 3.75rem);
-    }
-
-    /* Wide: text holds the left half, the drawing runs off the bottom-right
-       and fades out toward it. */
-    .tile[data-kind='wide'] .tile-art {
-      width: 46%;
-      top: auto;
-      bottom: -22%;
-      right: 7%; /* clear of .tile-go in the corner */
-      -webkit-mask-image: linear-gradient(to left, #000 45%, transparent 95%);
-      mask-image: linear-gradient(to left, #000 45%, transparent 95%);
-    }
-
-    .tile[data-kind='wide'] .tile-body {
-      max-width: 52%;
-      padding: 2.5rem;
-    }
-
-    .tile[data-kind='wide'] .tile-title {
-      font-size: clamp(2.25rem, 3.4vw, 3rem);
-    }
+  .work-filter__btn:focus-visible {
+    outline: 2px solid var(--color-brand-text);
+    outline-offset: 2px;
   }
 
-  /* --- Framed pictures ---------------------------------------------- */
-
-  /* A screenshot is not a drawing: cropped and faded off a corner it loses
-     the one thing it is there to show. So when every project has one, the art
-     becomes a plain frame at the picture's own ratio, above the text. The
-     three ratios are the ones scripts/works-art.mjs cuts the images to. */
-  .mosaic--img .tile {
-    flex-direction: column;
-    min-height: 0;
+  .work-filter__count {
+    display: grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: rgb(11 53 88 / 0.07);
+    font-size: 0.75rem;
   }
 
-  .mosaic--img .tile-num {
+  .work-filter__btn[aria-pressed='true'] .work-filter__count {
+    background: rgb(255 255 255 / 0.18);
+  }
+
+  /* --- Rows --------------------------------------------------------- */
+  .work-list {
+    display: grid;
+    gap: clamp(4.5rem, 10vw, 9rem);
+  }
+
+  .work-row {
+    display: grid;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .work-row[hidden] {
     display: none;
   }
 
-  .mosaic--img .tile[data-kind] .tile-art {
+  .work-media {
     position: relative;
-    inset: auto;
-    z-index: 1;
-    flex: none;
-    width: auto;
-    margin: 0.75rem 0.75rem 0;
+    display: block;
     overflow: hidden;
-    aspect-ratio: 11 / 10;
-    border-radius: var(--radius-md);
-    -webkit-mask-image: none;
-    mask-image: none;
+    aspect-ratio: 3 / 2;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    background: #e4e9f6;
     box-shadow:
       0 1px 2px rgb(11 53 88 / 0.08),
-      0 12px 32px -14px rgb(11 53 88 / 0.3);
+      0 40px 80px -40px rgb(11 53 88 / 0.35);
   }
 
-  .mosaic--img .tile[data-kind='small'] .tile-art {
-    aspect-ratio: 9 / 5;
-  }
-
-  .mosaic--img .tile[data-kind='wide'] .tile-art {
-    aspect-ratio: 3 / 2;
-  }
-
-  .mosaic--img .tile-art-inner {
+  /* Taller than the frame so the scroll drift never shows an edge. */
+  .work-media__inner {
     position: absolute;
-    inset: 0;
+    inset: -6% 0;
+    display: block;
   }
 
-  .tile-img {
-    transition: transform 900ms var(--ease-out-expo);
+  .work-media__img,
+  .work-media__motif {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .mosaic--img .tile-body {
-    flex: none;
+  .work-media__motif {
+    display: grid;
+    place-items: center;
+    padding: 12%;
   }
 
-  @media (hover: hover) {
-    .mosaic--img .tile:hover .tile-art {
-      transform: none;
+  /* The "View project" pill follows the pointer over the picture. Fine
+     pointers only; everywhere else the title link is the cue. */
+  .work-cursor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: var(--color-brand-text);
+    color: #ffffff;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate3d(var(--cx, 50%), var(--cy, 50%), 0) translate(-50%, -50%) scale(0.6);
+    transition:
+      opacity 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 12px 30px -10px rgb(0 60 160 / 0.55);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .work-media {
+      cursor: none;
     }
-
-    .mosaic--img .tile:hover .tile-img {
-      transform: scale(1.04);
+    .work-cursor {
+      display: inline-flex;
+    }
+    .work-media:hover .work-cursor {
+      opacity: 1;
+      transform: translate3d(var(--cx, 50%), var(--cy, 50%), 0) translate(-50%, -50%) scale(1);
+    }
+    .work-row:has(.work-media:hover) .work-media__img,
+    .work-row:has(.work-title__link:hover) .work-media__img {
+      transform: scale(1.03);
+    }
+    .work-row:has(.work-media:hover) .work-title__link,
+    .work-title__link:hover {
+      color: var(--color-brand-text);
+    }
+    .work-row:has(.work-media:hover) .work-title__arrow,
+    .work-title__link:hover .work-title__arrow {
+      transform: translate(3px, -3px);
+      opacity: 1;
     }
   }
 
+  .work-num {
+    display: block;
+    font-size: clamp(3.5rem, 7vw, 6rem);
+    line-height: 0.8;
+    color: rgb(11 53 88 / 0.16);
+  }
+
+  .work-title {
+    font-weight: 500;
+    font-size: clamp(2rem, 4.4vw, 3.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .work-title__link {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 0.25em;
+    transition: color 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .work-title__link:focus-visible {
+    outline: 2px solid var(--color-brand-text);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+
+  .work-title__arrow {
+    flex-shrink: 0;
+    margin-top: 0.12em;
+    width: 0.6em;
+    height: 0.6em;
+    opacity: 0.45;
+    transition:
+      transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* --- 1024+: the alternating showcase ------------------------------ */
   @media (min-width: 1024px) {
-    /* Rows follow the pictures instead of a fixed height. The feature spans
-       both small tiles' rows, and its picture takes whatever the text leaves. */
-    .mosaic--img {
-      grid-auto-rows: auto;
+    .work-row {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0 3rem;
     }
 
-    .mosaic--img .tile[data-kind='feature'][data-rows='2'] .tile-art {
-      flex: 1 1 0;
-      min-height: 0;
-      aspect-ratio: auto;
+    .work-media {
+      grid-row: 1;
+      grid-column: 1 / span 7;
     }
 
-    .mosaic--img .tile[data-kind='wide'] {
-      flex-direction: row;
+    .work-text {
+      grid-row: 1;
+      grid-column: 8 / span 5;
     }
 
-    .mosaic--img .tile[data-kind='wide'] .tile-art {
-      order: 2;
-      flex: 0 0 52%;
-      margin: 0.75rem 0.75rem 0.75rem 0;
+    .work-row[data-flip='true'] .work-media {
+      grid-column: 6 / span 7;
     }
 
-    .mosaic--img .tile[data-kind='wide'] .tile-body {
-      order: 1;
-      flex: 1;
-      max-width: none;
+    .work-row[data-flip='true'] .work-text {
+      grid-column: 1 / span 5;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .work-media__img,
+    .work-cursor,
+    .work-title__arrow {
+      transition: none;
     }
   }
 </style>
@@ -763,64 +564,94 @@ function tileFor(i: number, total: number): { kind: TileKind; rows: 1 | 2; mirro
   import { motion } from '../../lib/scroll';
   import { DESKTOP, DUR, EASE } from '../../lib/motion';
 
-  const mosaic = document.querySelector<HTMLElement>('[data-mosaic]');
-  const tiles = mosaic ? Array.from(mosaic.querySelectorAll<HTMLElement>('[data-tile]')) : [];
+  const list = document.querySelector<HTMLElement>('[data-work-list]');
+  const rows = list ? Array.from(list.querySelectorAll<HTMLElement>('[data-row]')) : [];
 
-  // The spotlight is a hover state, not an animation, so it runs under reduced
-  // motion too. Pointer devices only: on touch there is nothing to follow.
-  if (window.matchMedia('(hover: hover)').matches) {
-    tiles.forEach((tile) => {
-      tile.addEventListener('pointermove', (e) => {
-        const r = tile.getBoundingClientRect();
-        tile.style.setProperty('--mx', `${e.clientX - r.left}px`);
-        tile.style.setProperty('--my', `${e.clientY - r.top}px`);
+  // --- Filter ---------------------------------------------------------
+  const bar = document.querySelector<HTMLElement>('[data-filter]');
+  const status = document.querySelector<HTMLElement>('[data-filter-status]');
+  let refresh: () => void = () => {};
+
+  if (bar && rows.length) {
+    bar.hidden = false;
+    const buttons = Array.from(bar.querySelectorAll<HTMLButtonElement>('[data-filter-value]'));
+
+    const apply = (value: string) => {
+      let shown = 0;
+      rows.forEach((row) => {
+        const match = value === 'all' || row.dataset.service === value;
+        row.hidden = !match;
+        // Re-alternate the visible rows so the zig-zag survives filtering.
+        if (match) row.dataset.flip = String(shown++ % 2 === 1);
+      });
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filterValue === value)));
+      if (status) status.textContent = `Showing ${shown} project${shown === 1 ? '' : 's'}`;
+      refresh();
+    };
+
+    buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.filterValue ?? 'all')));
+  }
+
+  // --- Cursor pill ----------------------------------------------------
+  // Written straight to CSS vars, rAF-batched, fine pointers only.
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    document.querySelectorAll<HTMLElement>('[data-media]').forEach((media) => {
+      let frame = 0;
+      media.addEventListener('pointermove', (e) => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const r = media.getBoundingClientRect();
+          media.style.setProperty('--cx', `${e.clientX - r.left}px`);
+          media.style.setProperty('--cy', `${e.clientY - r.top}px`);
+        });
       });
     });
   }
 
+  // --- Scroll motion --------------------------------------------------
   motion().then(({ gsap, ScrollTrigger, reduced }) => {
-    // Reduced motion keeps the static grid, which is also what a reader with
-    // JS disabled gets. Nothing below runs.
-    if (reduced || !tiles.length) return;
+    refresh = () => ScrollTrigger.refresh();
+    // Reduced motion keeps the static list, which is also what a reader
+    // with JS disabled gets.
+    if (reduced || !rows.length) return;
 
-    // Each tile unmasks upward from its bottom edge. The start state is set
-    // here, not in CSS, so a failed script can never leave the grid hidden.
-    // The clip is rounded to the tile's own radius, which halves on phones.
-    const clip = (tile: HTMLElement, top: string) =>
-      `inset(${top} 0% 0% 0% round ${getComputedStyle(tile).borderTopLeftRadius})`;
+    const frames = rows.map((r) => r.querySelector<HTMLElement>('[data-media]')!).filter(Boolean);
 
-    tiles.forEach((tile) => gsap.set(tile, { clipPath: clip(tile, '100%'), y: 48 }));
+    // Each picture unmasks upward. The start state is set here, not in CSS,
+    // so a failed script can never leave the list hidden.
+    const clip = (el: HTMLElement, top: string) =>
+      `inset(${top} 0% 0% 0% round ${getComputedStyle(el).borderTopLeftRadius})`;
 
-    ScrollTrigger.batch(tiles, {
-      start: 'top 90%',
+    frames.forEach((el) => gsap.set(el, { clipPath: clip(el, '100%'), y: 56 }));
+
+    ScrollTrigger.batch(frames, {
+      start: 'top 88%',
       once: true,
       onEnter: (batch) => {
         gsap.to(batch, {
           clipPath: (_: number, el: HTMLElement) => clip(el, '0%'),
           y: 0,
-          duration: DUR.hero,
+          duration: DUR.hero * 1.2,
           ease: EASE,
           stagger: 0.1,
-          // Hands transform back to CSS so the hover rules apply cleanly.
           clearProps: 'clipPath,transform',
         });
       },
     });
 
-    // Desktop only, like every scrubbed effect on the site: the drawing drifts
-    // against the scroll inside its tile. The inner wrapper takes the tween so
-    // it composes with the hover transform on .tile-art.
+    // Desktop only: the picture drifts against the scroll inside its frame.
     gsap.matchMedia().add(DESKTOP, () => {
-      tiles.forEach((tile) => {
-        const art = tile.querySelector<HTMLElement>('.tile-art-inner');
-        if (!art) return;
+      rows.forEach((row) => {
+        const inner = row.querySelector<HTMLElement>('[data-media-inner]');
+        if (!inner) return;
         gsap.fromTo(
-          art,
-          { yPercent: 8 },
+          inner,
+          { yPercent: 4 },
           {
-            yPercent: -8,
+            yPercent: -4,
             ease: 'none',
-            scrollTrigger: { trigger: tile, start: 'top bottom', end: 'bottom top', scrub: true },
+            scrollTrigger: { trigger: row, start: 'top bottom', end: 'bottom top', scrub: true },
           },
         );
       });

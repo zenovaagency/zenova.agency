@@ -3,8 +3,9 @@
  * Services index.
  *
  * The four cards (the same component the home page uses), then the one view
- * the detail pages cannot give: all four side by side on price, time and
- * support. Every cell in that table comes from PRICING and SERVICES.meta.
+ * the detail pages cannot give: all four side by side on scope, time and
+ * support. Every cell in that table comes from SCOPES and SERVICES.meta.
+ * No prices: pricing is agreed on a call.
  */
 import Base from '../../layouts/Base.astro';
 import Nav from '../../components/chrome/Nav.astro';
@@ -14,19 +15,19 @@ import PageNav from '../../components/chrome/PageNav.astro';
 import Cta from '../../components/chrome/Cta.astro';
 import JsonLd from '../../components/chrome/JsonLd.astro';
 import ServiceCard from '../../components/ServiceCard.astro';
-import { PAGES, PRICING, SERVICES } from '../../data/site';
+import { PAGES, SCOPES, SERVICES } from '../../data/site';
 import { breadcrumb } from '../../lib/schema';
 
 const page = PAGES.services;
 
 const rows = SERVICES.map((s) => {
-  const plans = PRICING.find((p) => p.slug === s.slug)?.plans ?? [];
+  const plans = SCOPES.find((p) => p.slug === s.slug)?.plans ?? [];
   return {
     s,
-    from: s.meta[0][0],
     entry: plans[0]?.name ?? '',
-    build: s.meta[1][0],
-    support: s.meta[2],
+    entryInfo: plans[0]?.info ?? '',
+    build: s.meta[0][0],
+    support: s.meta[1],
   };
 });
 ---
@@ -60,8 +61,8 @@ const rows = SERVICES.map((s) => {
             Side by side, <em class="accent-serif">before you call.</em>
           </h2>
           <p class="text-ink-muted lg:col-span-4 lg:col-start-9">
-            Starting prices and typical timelines for each service. Your proposal fixes the real
-            figures before any work starts.
+            Where each service usually starts and how long it takes. Price and timeline are
+            agreed on a call and fixed in your proposal before any work starts.
           </p>
         </div>
 
@@ -70,7 +71,7 @@ const rows = SERVICES.map((s) => {
             <thead>
               <tr>
                 <th scope="col">Service</th>
-                <th scope="col">Starts at</th>
+                <th scope="col">Usually starts with</th>
                 <th scope="col">Typical build</th>
                 <th scope="col">After launch</th>
                 <th scope="col"><span class="sr-only">Details</span></th>
@@ -85,8 +86,8 @@ const rows = SERVICES.map((s) => {
                       {r.s.title}
                     </th>
                     <td>
-                      <span class="text-ink">{r.from}</span>
-                      <span class="block text-[0.8125rem] text-ink-faint">{r.entry}</span>
+                      <span class="text-ink">{r.entry}</span>
+                      <span class="block max-w-[16rem] text-[0.8125rem] text-ink-faint">{r.entryInfo}</span>
                     </td>
                     <td class="text-ink">{r.build}</td>
                     <td>

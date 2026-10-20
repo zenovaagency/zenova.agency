@@ -113,13 +113,162 @@ const link = 'text-ink-muted transition-colors hover:text-ink';
   </div>
 
   <!-- Oversized wordmark, cropped by the footer edge. Decorative only, and
-       the accessible name already exists in the lockup above. -->
-  <div class="pointer-events-none select-none px-[var(--gutter)]" aria-hidden="true">
-    <span
-      class="grad-text block translate-y-[22%] text-center font-medium leading-[0.78] tracking-[-0.045em]"
-      style="font-size:clamp(5rem,20vw,17rem)"
-    >
-      Zenova
-    </span>
+       the accessible name already exists in the lockup above.
+
+       Two layers of the same word: the brand gradient, and a glow layer on
+       top that lights the letters near the cursor. The script splits both
+       into letters, raises them out of the footer edge when the footer
+       comes into view, and gives each letter its slice of the one gradient
+       so the word still reads as a single fill. Without JS, or under
+       reduced motion, this is the plain gradient word. -->
+  <div class="wm pointer-events-none select-none px-[var(--gutter)]" aria-hidden="true" data-wordmark>
+    <div class="wm__inner relative translate-y-[22%]">
+      <span class="wm__word grad-text" data-wm-layer>Zenova</span>
+      <span class="wm__word wm__glow" data-wm-layer>Zenova</span>
+    </div>
   </div>
 </footer>
+
+<style>
+  .wm__word {
+    position: relative;
+    display: block;
+    text-align: center;
+    font-weight: 500;
+    font-size: clamp(5rem, 20vw, 17rem);
+    line-height: 0.78;
+    letter-spacing: -0.045em;
+  }
+
+  /* The glow layer only exists once the script has split it. */
+  .wm__glow {
+    position: absolute;
+    inset: 0;
+    display: none;
+    opacity: 0;
+    transition: opacity 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .wm[data-wm-split] .wm__glow {
+    display: block;
+  }
+  .wm[data-wm-glow] .wm__glow {
+    opacity: 1;
+  }
+
+  /* Split: the layer gives up its own fill, and each letter takes its slice
+     of a gradient sized to the whole word (--w), offset by where the letter
+     sits in it (--x). */
+  .wm[data-wm-split] .wm__word {
+    background: none;
+  }
+  .wm :global(.wm__ch) {
+    display: inline-block;
+    background-size: var(--w, 100%) 100%;
+    background-position: calc(var(--x, 0px) * -1) 0;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .wm .grad-text :global(.wm__ch) {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-brand-text) 0%,
+      var(--color-brand) 38%,
+      var(--color-sky) 74%,
+      var(--color-blush) 100%
+    );
+    transform: translateY(118%);
+    transition: transform 1100ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition-delay: calc(var(--i) * 70ms);
+  }
+  .wm[data-wm-in] .grad-text :global(.wm__ch) {
+    transform: none;
+  }
+  /* --gx / --gy are in the word's own coordinates, like the gradient. */
+  .wm__glow :global(.wm__ch) {
+    background-image: radial-gradient(
+      15rem circle at var(--gx, -50rem) var(--gy, 50%),
+      #0b3558 0%,
+      var(--color-brand-text) 34%,
+      rgb(255 174 203 / 0.9) 56%,
+      transparent 74%
+    );
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-wordmark]');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (root && !reduced) {
+    const layers = Array.from(root.querySelectorAll<HTMLElement>('[data-wm-layer]'));
+    const text = (layers[0]?.textContent ?? '').trim();
+    let origin = 0;
+
+    layers.forEach((layer) => {
+      layer.textContent = '';
+      [...text].forEach((ch, i) => {
+        const span = document.createElement('span');
+        span.className = 'wm__ch';
+        span.textContent = ch;
+        span.style.setProperty('--i', String(i));
+        layer.append(span);
+      });
+    });
+    root.dataset.wmSplit = '';
+
+    // Each letter's slice of the word-wide gradient. offsetLeft ignores
+    // transforms, so this is right mid-rise too.
+    const measure = () => {
+      layers.forEach((layer) => {
+        const chars = Array.from(layer.children) as HTMLElement[];
+        if (!chars.length) return;
+        const first = chars[0];
+        const last = chars[chars.length - 1];
+        origin = first.offsetLeft;
+        const width = last.offsetLeft + last.offsetWidth - origin;
+        chars.forEach((c) => {
+          c.style.setProperty('--w', `${width}px`);
+          c.style.setProperty('--x', `${c.offsetLeft - origin}px`);
+        });
+      });
+    };
+    measure();
+    document.fonts?.ready.then(measure);
+    new ResizeObserver(measure).observe(root);
+
+    // Rise once, when the wordmark is properly in view.
+    const total = text.length * 70 + 1100;
+    let risen = false;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        root.dataset.wmIn = '';
+        io.disconnect();
+        setTimeout(() => (risen = true), total);
+      },
+      { threshold: 0.35 },
+    );
+    io.observe(root);
+
+    // The glow follows the pointer anywhere over the footer. Fine pointers
+    // only: on touch there is nothing to follow.
+    const footer = root.closest('footer');
+    if (footer && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      const glow = layers[1];
+      let frame = 0;
+      footer.addEventListener('pointermove', (e) => {
+        if (frame) return;
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          const r = glow.getBoundingClientRect();
+          root.style.setProperty('--gx', `${e.clientX - r.left - origin}px`);
+          root.style.setProperty('--gy', `${e.clientY - r.top}px`);
+          if (risen) root.dataset.wmGlow = '';
+        });
+      });
+      footer.addEventListener('pointerleave', () => delete root.dataset.wmGlow);
+    }
+  }
+</script>

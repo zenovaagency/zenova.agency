@@ -13,8 +13,8 @@
  * become the thing that was removed.
  *
  * THE THREE KINDS OF ENTRY
- *   - `concept: true` — a design exercise we did for ourselves. Labelled
- *     "Concept" on the card and on the page.
+ *   - `concept: true` — a design exercise we did for ourselves. Shelved under
+ *     "Design concepts" on the home page and labelled on /work and its page.
  *   - `demo: true` — a sample build with nothing shipped. Labelled "Demo".
  *   - neither — real work. Truplexy is our own product, so it has no `client`
  *     and reads "Self-initiated"; its `url` adds a link to the live site.

@@ -13,8 +13,8 @@ import { published, projectKind, type Project } from '../../data/projects';
  *                      hiding the shelf.
  *   Our products     — a one-line pointer to the product band above, not a
  *                      second copy of the pitch.
- *   Design concepts  — our own design exercises, each with a visible
- *                      "Concept" badge on the tile itself.
+ *   Design concepts  — our own design exercises, under a shelf heading
+ *                      that says so.
  *
  * When a client project is published (see data/projects.ts), it lands on the
  * first shelf by itself, because projectKind() derives the shelf from the data.
@@ -127,16 +127,12 @@ const concepts = of('concept');
                           class="aspect-[3/2] w-full rounded-[var(--radius-sm)] object-cover"
                         />
                       )}
-                      <span class="concept-badge mono absolute left-5 top-5 rounded-full px-2.5 py-1.5">
-                        Concept
-                      </span>
                     </div>
                     <div class="flex flex-1 flex-col px-6 pb-6 pt-4">
                       <p class="mono text-ink-faint">{service.title}</p>
                       <h3 class="mt-3 text-[1.375rem] font-medium tracking-[-0.015em] text-ink">
                         <a href={`/work/${p.slug}`} class="after:absolute after:inset-0 after:z-[1]">
                           {p.title}
-                          <span class="sr-only"> (design concept)</span>
                         </a>
                       </h3>
                       <p class="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">{p.summary}</p>
@@ -151,14 +147,3 @@ const concepts = of('concept');
     }
   </div>
 </section>
-
-<style>
-  /* Sits on a photograph, so it carries its own solid ground rather than
-     relying on whatever the image happens to be under it. */
-  .concept-badge {
-    background: rgb(11 53 88 / 0.86);
-    color: #ffffff;
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-  }
-</style>
