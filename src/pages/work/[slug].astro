@@ -67,7 +67,7 @@ const title = `${project.title} — ${service.title} | Zenova`;
   <JsonLd
     slot="head"
     data={breadcrumb([
-      { name: 'Work', path: '/work' },
+      { name: 'Works', path: '/work' },
       { name: project.title, path },
     ])}
   />
@@ -84,7 +84,7 @@ const title = `${project.title} — ${service.title} | Zenova`;
           <ol class="mono flex flex-wrap items-center gap-x-2.5 gap-y-1">
             <li><a href="/" class="text-ink-soft hover:text-ink">Home</a></li>
             <li class="text-ink-faint" aria-hidden="true">/</li>
-            <li><a href="/work" class="text-ink-soft hover:text-ink">Work</a></li>
+            <li><a href="/work" class="text-ink-soft hover:text-ink">Works</a></li>
             <li class="text-ink-faint" aria-hidden="true">/</li>
             <li class="text-ink-soft" aria-current="page">{project.title}</li>
           </ol>

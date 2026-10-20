@@ -57,7 +57,7 @@ export const SITE = {
 export const NAV = [
   { label: 'Services', href: '/services' },
   { label: 'Products', href: '/products' },
-  { label: 'Work', href: '/work' },
+  { label: 'Works', href: '/work' },
   { label: 'About', href: '/about' },
 ];
 
@@ -516,7 +516,7 @@ export const PAGES: Record<PageKey, PageIntro> = {
     accent: 'labelled honestly.',
     sub: 'Client work, our own products and design concepts, each marked for what it is, with one page per project.',
     wash: 2,
-    title: 'Work — Selected Projects | Zenova',
+    title: 'Works — Selected Projects | Zenova',
     description:
       'Zenova projects across web, apps and AI automation: our own product Truplexy and labelled design concepts, with the brief and the build for each.',
   },

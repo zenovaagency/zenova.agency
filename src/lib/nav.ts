@@ -44,7 +44,7 @@ export interface ChainItem {
 export const CHAIN: ChainItem[] = [
   { label: 'Services', href: '/services' },
   { label: 'Products', href: '/products' },
-  { label: 'Work', href: '/work' },
+  { label: 'Works', href: '/work' },
   { label: 'Blog', href: '/blog' },
   { label: 'Careers', href: '/careers' },
   { label: 'About', href: '/about' },
