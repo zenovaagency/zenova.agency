@@ -1,39 +1,48 @@
 ---
 /**
- * Inline forward link. Used where a home-page section hands off to the page
- * that covers it in full, and anywhere else a link needs to read as a
- * direction rather than as a button.
+ * Inline forward link. Used where a section hands off to the page that covers
+ * it in full, and anywhere else a link needs to read as a direction rather
+ * than as a button. Styles are .text-link in styles/buttons.css.
+ *
+ * The label should say where it goes ("Web development scope and pricing"),
+ * not "Learn more": a screen reader's link list reads these out of context.
  */
 interface Props {
   href: string;
   class?: string;
+  /** Off-site: opens in a new tab, swaps to a diagonal arrow, says so. */
+  external?: boolean;
+  tone?: 'default' | 'on-dark';
+  /** Drops the arrow for links that sit inside running text. */
+  arrow?: boolean;
 }
-const { href, class: className = '' } = Astro.props;
+const { href, class: className = '', external = false, tone = 'default', arrow = true } = Astro.props;
 ---
 
 <a
   href={href}
-  class:list={[
-    'group inline-flex items-center gap-2 text-[0.9375rem] font-medium text-brand-text transition-colors duration-[180ms]',
-    className,
-  ]}
+  target={external ? '_blank' : undefined}
+  rel={external ? 'noopener' : undefined}
+  class:list={['text-link group', tone === 'on-dark' && 'text-link--on-dark', className]}
 >
-  <span class="underline decoration-sky decoration-1 underline-offset-[5px] transition-colors group-hover:decoration-brand">
-    <slot />
-  </span>
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-    class="shrink-0 transition-transform duration-[180ms] ease-[var(--ease-out-expo)] group-hover:translate-x-[3px]"
-  >
-    <path
-      d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5"
-      stroke="currentColor"
-      stroke-width="1.6"
-      stroke-linecap="round"
-      stroke-linejoin="round"></path>
-  </svg>
+  <span class="text-link__label"><slot /></span>
+  {external && <span class="sr-only"> (opens in a new tab)</span>}
+  {
+    arrow && (
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden="true"
+        class:list={['btn__icon', external && 'btn__icon--external']}
+      >
+        {external ? (
+          <path d="M7 17 17 7m0 0H9m8 0v8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        ) : (
+          <path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        )}
+      </svg>
+    )
+  }
 </a>

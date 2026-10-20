@@ -1,0 +1,100 @@
+---
+/**
+ * A product screenshot in a plain browser frame, so a reader can tell at a
+ * glance that this is a real, live site rather than a mockup. The address bar
+ * shows the product's actual domain.
+ *
+ * Used on the home Products band and on /products, with the same real
+ * screenshot from src/assets/works (made by scripts/works-art.mjs).
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  /** The domain in the address bar, e.g. "truplexy.com". */
+  domain: string;
+  tone?: 'light' | 'dark';
+  sizes?: string;
+  class?: string;
+}
+
+const { src, alt, domain, tone = 'light', sizes = '(min-width: 1024px) 55vw, 92vw', class: className = '' } =
+  Astro.props;
+---
+
+<figure class:list={['shot', tone === 'dark' ? 'shot--dark' : 'shot--light', className]}>
+  <div class="shot-bar" aria-hidden="true">
+    <span class="shot-dots"><i></i><i></i><i></i></span>
+    <span class="shot-url mono">{domain}</span>
+  </div>
+  <Image src={src} alt={alt} widths={[640, 960, 1280, 1600]} sizes={sizes} loading="lazy" class="block h-auto w-full" />
+</figure>
+
+<style>
+  .shot {
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+  .shot--light {
+    border: 1px solid var(--color-line);
+    background: #ffffff;
+    box-shadow: var(--shadow-md);
+  }
+  .shot--dark {
+    border: 1px solid rgb(255 255 255 / 0.22);
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: 0 24px 60px -24px rgb(0 10 40 / 0.6);
+  }
+  .shot-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 36px;
+    padding: 0 14px;
+  }
+  .shot--light .shot-bar {
+    border-bottom: 1px solid var(--color-line);
+    background: var(--color-paper);
+  }
+  .shot--dark .shot-bar {
+    border-bottom: 1px solid rgb(255 255 255 / 0.16);
+  }
+  .shot-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .shot-dots i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.25;
+  }
+  .shot--light .shot-dots {
+    color: var(--color-ink);
+  }
+  .shot--dark .shot-dots {
+    color: #ffffff;
+  }
+  .shot-url {
+    flex: 1;
+    max-width: 16rem;
+    margin-inline: auto;
+    padding: 5px 10px;
+    border-radius: 6px;
+    text-align: center;
+    text-transform: none;
+    letter-spacing: 0.02em;
+  }
+  .shot--light .shot-url {
+    background: #ffffff;
+    border: 1px solid var(--color-line);
+    color: var(--color-ink-muted);
+  }
+  .shot--dark .shot-url {
+    background: rgb(255 255 255 / 0.1);
+    color: rgb(255 255 255 / 0.9);
+  }
+</style>

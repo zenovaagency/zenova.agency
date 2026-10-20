@@ -1,19 +1,3 @@
-import type { ImageMetadata } from 'astro';
-import webDevelopment from '../assets/services/web-development.webp';
-import appDevelopment from '../assets/services/app-development.webp';
-import aiAutomation from '../assets/services/ai-automation.webp';
-import digitalMarketing from '../assets/services/digital-marketing.webp';
-
-import yourWebsite from '../assets/deliverables/your-website.webp';
-import easyEditing from '../assets/deliverables/easy-editing.webp';
-import workingApp from '../assets/deliverables/working-app.webp';
-import backendSetup from '../assets/deliverables/backend-setup.webp';
-import workingChatbot from '../assets/deliverables/working-chatbot.webp';
-import conversationFlows from '../assets/deliverables/conversation-flows.webp';
-import growthStrategy from '../assets/deliverables/growth-strategy.webp';
-import reporting from '../assets/deliverables/reporting.webp';
-
-
 /**
  * Site content.
  *
@@ -38,12 +22,18 @@ export const SITE = {
   name: 'Zenova',
   legalName: 'Zenova, Inc.',
   url: 'https://zenova.agency',
-  title: 'Zenova — One agency for everything modern',
-  tagline: 'Design, build, and grow — one team.',
+  title: 'Zenova — Software development studio for web, apps and AI',
+  tagline: 'Websites, apps and AI automation, designed and built by one team.',
   strapline: 'Design, build, and grow',
   description:
-    'Zenova combines design, development, marketing, and startup support into one seamless partnership for ambitious modern businesses.',
+    'Zenova is a software development studio. We design and build websites, web and mobile apps, AI automation and digital marketing for businesses — one team, a fixed price per phase, and everything in your name.',
   email: 'hello@zenova.agency',
+  /**
+   * The Calendly event link for the 30-minute intro call, e.g.
+   * 'https://calendly.com/zenova/30min'. Leave empty until it exists: the
+   * contact page then shows an email fallback instead of a broken embed.
+   */
+  calendlyUrl: '',
   careersEmail: 'careers@zenova.agency',
   copyright: '© 2026 Zenova, Inc. All rights reserved.',
   socials: [
@@ -59,29 +49,25 @@ export const SITE = {
  * Primary navigation. Every entry is a real route — nothing here points at an
  * in-page id, so a link works the same from any page on the site.
  *
- * Blog is deliberately absent from the header: the nav stays on the
- * commercial path (services → work → careers → about). The blog
- * remains discoverable from the footer's Explore column, the sitemap, RSS
- * and every post page, which is enough surface for a section that grows by
- * publishing rather than by navigation.
+ * The header carries the two halves of the business — what we build for
+ * clients (Services) and what we build for ourselves (Products) — then the
+ * proof (Work) and who we are (About). Blog and Careers are secondary and
+ * live in the footer, the sitemap and PageNav's chain.
  */
 export const NAV = [
   { label: 'Services', href: '/services' },
+  { label: 'Products', href: '/products' },
   { label: 'Work', href: '/work' },
-  { label: 'Careers', href: '/careers' },
   { label: 'About', href: '/about' },
 ];
 
 export const HERO = {
-  badge: 'Available for new projects',
-  headline: 'Building ambitious brands with',
-  headlineAccent: 'thoughtful design',
-  sub: 'Design, development, and growth — one team, from strategy to launch.',
+  eyebrow: 'Software development studio',
+  headline: 'We design and build software',
+  headlineAccent: 'for ambitious businesses.',
+  sub: 'Websites, web and mobile apps, AI automation and digital marketing — one team from first call to launch, a fixed price per phase, and everything in your name.',
   primaryCta: 'Start a project',
   primaryHref: '/contact',
-  // Back to /work now that PROJECTS ships entries. If those are ever removed
-  // and the portfolio empties out again, point this at /services instead: a
-  // hero button landing on an empty state is worse than no second button.
   secondaryCta: 'See our work',
   secondaryHref: '/work',
 };
@@ -132,17 +118,20 @@ export interface Service {
   short: string;
   hero: string;
   bullets: string[];
-  stat: { value: string; label: string };
+  /**
+   * Four facts for the strip on /services/<slug>, as [value, label]. Every
+   * value is lifted from PRICING below or from OWNERSHIP, never a measured
+   * result: the previous figures here (73% auto-resolve, a 4.8★ average,
+   * 3.4× growth, <1.2s loads) had no published source and were removed.
+   */
   meta: [string, string][];
   stack: string[];
   angle: string;
   motif: MotifKind;
-  /** Optional real artwork, with alt text kept alongside its source. */
-  image?: { src: ImageMetadata; alt: string };
 }
 
 /**
- * The four services. Copy, stats, phases and stacks are the real ones.
+ * The four services. Copy, phases and stacks are the real ones.
  * "AI Development" is presented as AI Automation and "Marketing" as Digital
  * Marketing, per the brief; Startup Support is out of scope for this page.
  *
@@ -154,139 +143,177 @@ export const SERVICES: Service[] = [
     n: '01',
     slug: 'web',
     title: 'Web Development',
-    short: 'Fast, modern websites and web apps that grow with your business.',
+    short: 'Marketing sites and web apps that load fast and that your team can update without us.',
     hero: 'We build websites that load fast, look great, and are easy for your team to update.',
-    bullets: ['Modern web apps', 'Easy-to-edit content', 'Fast and optimized', 'Built-in analytics'],
-    stat: { value: '<1.2s', label: 'Average load time' },
+    bullets: ['Marketing sites and web apps', 'Easy-to-edit content (CMS)', 'Performance and SEO basics', 'Analytics set up'],
     meta: [
-      ['<1.2s', 'Load time'],
-      ['6–10 wks', 'Build time'],
-      ['100%', 'Mobile ready'],
-      ['12 mo', 'Free support'],
+      ['From $8k', 'Starter site'],
+      ['4–10 wks', 'Typical build'],
+      ['30–90 days', 'Support included'],
+      ['Yours', 'Code and accounts'],
     ],
     stack: ['Next.js', 'TypeScript', 'Tailwind', 'Vercel', 'Sanity CMS'],
     angle: '135deg',
-    image: { src: webDevelopment, alt: 'Web Development' },
     motif: 'browser',
   },
   {
     n: '02',
     slug: 'app',
     title: 'App Development',
-    short: 'Native and cross-platform apps that your users will love.',
-    hero: 'We design and build mobile apps that are fast, reliable, and delightful to use.',
-    bullets: ['iOS and Android', 'Cross-platform', 'App store launch', 'Ongoing support'],
-    stat: { value: '4.8★', label: 'Average app rating' },
+    short: 'iOS and Android apps, with the backend they run on, taken through to the app stores.',
+    hero: 'We design and build mobile apps that are fast, reliable, and pleasant to use.',
+    bullets: ['iOS and Android', 'Cross-platform builds', 'App Store and Google Play launch', 'Backend, APIs and auth'],
     meta: [
-      ['4.8★', 'Avg rating'],
-      ['8–14 wks', 'Build time'],
-      ['2', 'Platforms'],
-      ['30 d', 'Free support'],
+      ['From $20k', 'MVP, one platform'],
+      ['8–12 wks', 'Typical build'],
+      ['30–90 days', 'Support included'],
+      ['Yours', 'Code and accounts'],
     ],
     stack: ['React Native', 'Flutter', 'Swift', 'Kotlin', 'Firebase', 'Supabase'],
     angle: '200deg',
-    image: { src: appDevelopment, alt: 'App Development' },
     motif: 'phone',
   },
   {
     n: '03',
     slug: 'ai',
     title: 'AI Automation',
-    short: 'Custom AI agents, chatbots, and automations wired into your business.',
-    hero: 'We build AI that does real work — agents, chatbots, and automations trained on your data and connected to your tools.',
-    bullets: ['AI chat agents', 'Workflow automation', 'Custom model training', 'Tool integrations'],
-    stat: { value: '73%', label: 'Auto-resolve rate' },
+    short: 'AI assistants and workflow automations that answer from your own content and plug into the tools you use.',
+    hero: 'We build AI that does real work — assistants, chatbots and automations that answer from your own content and connect to your tools.',
+    bullets: ['AI chat assistants', 'Workflow automation', 'Trained on your own content', 'CRM and tool integrations'],
     meta: [
-      ['73%', 'Auto-resolve'],
-      ['24/7', 'Availability'],
-      ['5 min', 'Setup time'],
-      ['3', 'Languages'],
+      ['From $6k', 'Single-channel bot'],
+      ['3–6 wks', 'Typical build'],
+      ['2–4 wks', 'Monitoring and tuning'],
+      ['Yours', 'Data and accounts'],
     ],
     stack: ['OpenAI', 'LangChain', 'Python', 'Zapier', 'Make', 'Slack API'],
     angle: '310deg',
-    image: { src: aiAutomation, alt: 'AI Automation' },
     motif: 'flow',
   },
   {
     n: '04',
     slug: 'marketing',
     title: 'Digital Marketing',
-    short: 'Get more customers with SEO, ads, and email that actually work.',
-    hero: 'We help you grow your audience and bring in real customers — not just clicks.',
-    bullets: ['SEO that ranks', 'Paid ads that convert', 'Email automation', 'Clear reports'],
-    stat: { value: '3.4×', label: 'Average growth in 90 days' },
+    short: 'SEO, paid ads and email, planned around the channels that suit your business and reported plainly.',
+    hero: 'We help you reach the people who buy from you, and report what each channel actually brings in.',
+    bullets: ['SEO foundations', 'Paid ad campaigns', 'Email automation', 'Clear reporting'],
     meta: [
-      ['3.4×', 'Avg growth'],
-      ['90 days', 'To see results'],
-      ['1', 'Simple dashboard'],
-      ['24/7', 'Tracking'],
+      ['From $5k', 'Growth audit'],
+      ['3–12 wks', 'Audit to sprint'],
+      ['Weekly', 'Experiments in a sprint'],
+      ['Yours', 'Ad and analytics accounts'],
     ],
     stack: ['HubSpot', 'Google Ads', 'Meta Ads', 'Mailchimp', 'GA4', 'Ahrefs'],
     angle: '25deg',
-    image: { src: digitalMarketing, alt: 'Digital Marketing' },
     motif: 'chart',
   },
 ];
 
+/**
+ * The four phases. Timelines are typical for a mid-sized website and are
+ * labelled that way; the proposal for a given project sets the real ones.
+ */
 export const PROCESS = {
-  eyebrow: 'How we work',
-  title: 'A simple process,',
-  titleAccent: 'start to finish.',
-  sub: 'Four phases in constant motion.',
+  eyebrow: 'How a project runs',
+  title: 'Four phases,',
+  titleAccent: 'each one signed off.',
+  sub: 'You approve the scope before design starts, and the design before anything is built. No phase begins on an assumption.',
+  note: 'Week ranges are typical for a mid-sized website. Your proposal sets the real timeline.',
   steps: [
     {
       n: '01',
-      title: 'Discover',
-      timeline: 'Week 1',
-      blurb: 'A working session to align on your goals, audience, and what success looks like.',
-      deliverables: ['Goals workshop', 'Project plan', 'Timeline', 'Success metrics'],
+      title: 'Discovery',
+      timeline: 'Typically week 1',
+      blurb: 'A working session on your goals, customers and constraints. You get a written scope, a fixed price for each phase and a timeline to approve.',
+      deliverables: ['Written scope', 'Fixed price per phase', 'Timeline', 'The one number to move'],
     },
     {
       n: '02',
       title: 'Design',
-      timeline: 'Week 2–4',
-      blurb: 'Brand, layout, and product design in one shared file. You see what we see, every day.',
-      deliverables: ['Brand identity', 'Page designs', 'Prototype', 'Design review'],
+      timeline: 'Weeks 2–4',
+      blurb: 'Pages and key screens in a shared Figma file you can comment on at any time. Nothing is built until you approve it.',
+      deliverables: ['Page and screen designs', 'Clickable prototype', 'Design sign-off'],
     },
     {
       n: '03',
-      title: 'Build',
-      timeline: 'Week 4–8',
-      blurb: 'We build it in small pieces with weekly demos. Code is yours, written to be easy to maintain.',
-      deliverables: ['Working website', 'CMS setup', 'Speed optimization', 'Handoff docs'],
+      title: 'Build and test',
+      timeline: 'Weeks 4–8',
+      blurb: 'Built in small pieces with a demo every week, and tested on real phones and browsers as we go. You review working software, not status reports.',
+      deliverables: ['Weekly demos', 'Device and browser testing', 'CMS or admin set up', 'Handover docs'],
     },
     {
       n: '04',
-      title: 'Grow',
-      timeline: 'Month 2+',
-      blurb: 'After launch we stay involved. Monthly cycles of marketing, SEO, and content to build on what we shipped.',
-      deliverables: ['Ad campaigns', 'SEO and content', 'Email automation', 'Monthly report'],
+      title: 'Launch and support',
+      timeline: 'Launch, then 30–90 days',
+      blurb: 'We launch, watch it closely and fix what comes up. Every build includes a support window, and ongoing work can continue on a flat monthly fee.',
+      deliverables: ['Launch checklist', 'Included support window', 'Every account in your name', 'Optional monthly work'],
     },
   ],
 };
 
-export const FAQS = [
+/**
+ * Questions a buyer asks before signing, answered from the published prices
+ * in PRICING and the ownership terms in OWNERSHIP. If either of those
+ * changes, these answers have to change with it.
+ */
+export const AGENCY_FAQS = [
   {
-    q: 'How are you different from an agency?',
-    a: 'One team handles design, build, and growth. No handoffs between vendors — same people from start to finish.',
+    q: 'What do you build?',
+    a: 'Marketing websites and web apps, iOS and Android apps, AI assistants and workflow automation, and digital marketing: SEO, paid ads and email. Each service page lists what is included and what it costs.',
   },
   {
-    q: 'How long is a typical project?',
-    a: '6 to 10 weeks for a build. Many clients stay on monthly for ongoing growth work.',
-  },
-  {
-    q: 'Do we own the code and designs?',
-    a: 'Yes. Everything sits in your accounts from day one — your GitHub, your Figma, your domain.',
+    q: 'How long does a project take?',
+    a: 'It depends on scope. As a guide: a starter website takes 4 to 6 weeks and a larger site 6 to 10, an app MVP about 8 weeks and a two-platform app about 12, and a first AI assistant 3 to 6. Bigger work is scoped individually, and the timeline is fixed in the proposal before anything starts.',
   },
   {
     q: 'How does pricing work?',
-    a: 'Flat fee per phase for builds. Flat monthly fee for ongoing work. No hourly billing.',
+    a: 'A fixed price per phase, agreed before the phase begins. No hourly billing, so nobody is rewarded for taking longer. Starting prices are published on each service page; anything larger is scoped after a call.',
   },
   {
-    q: 'Can you work with our team?',
+    q: 'Who owns the code, designs and accounts?',
+    a: 'You do. The code, design files, domain, hosting and ad accounts sit in your accounts from day one, not at handover, so you can change supplier at any point.',
+  },
+  {
+    q: 'How do revisions work?',
+    a: 'You review real designs and working builds every week, and feedback inside the agreed scope is part of the fixed price. If a change alters the scope, we price it as a change and you decide before we do it.',
+  },
+  {
+    q: 'What happens after launch?',
+    a: 'Every build includes a support window for fixes and small adjustments: 30 or 90 days depending on the plan, and two weeks to a month of monitoring and tuning for AI work. After that, ongoing work can continue on a flat monthly fee.',
+  },
+  {
+    q: 'Can you work with our in-house team?',
     a: 'Yes. We often plug into existing teams and follow your conventions.',
   },
-  { q: 'How soon can we start?', a: 'Usually 1 to 2 weeks after our intro call.' },
+  {
+    q: 'How soon can we start?',
+    a: 'Usually one to two weeks after the first call, depending on what is already in progress.',
+  },
+];
+
+/**
+ * Product questions are kept apart from agency ones on purpose: a buyer who
+ * hires Zenova and a business that subscribes to Truplexy are making
+ * different purchases. Billing, plans and onboarding detail stay on the
+ * product's own site — see the header of data/products.ts.
+ */
+export const PRODUCT_FAQS = [
+  {
+    q: 'What is the difference between your services and your products?',
+    a: 'Services are projects we build for you: you pay for the work and own the result. Products are software we build and run ourselves: you subscribe and use them, and we keep them running and improving.',
+  },
+  {
+    q: 'Is Truplexy included when we hire Zenova?',
+    a: 'No. Truplexy is a separate subscription with its own plans, billing and terms on truplexy.com. An agency project does not include it, and you do not need it to work with us.',
+  },
+  {
+    q: 'Where do I find Truplexy pricing, setup and support?',
+    a: 'On truplexy.com: the plans, the setup guides for each channel, the API documentation and the terms are all there, and questions go to the Truplexy team at hello@truplexy.com.',
+  },
+  {
+    q: 'Can you build a custom integration that connects to Truplexy?',
+    a: 'Truplexy has a REST API and webhooks for exactly this. If you want us to build the integration for you, that is an agency project like any other, scoped and priced on its own.',
+  },
 ];
 
 /**
@@ -323,13 +350,13 @@ export const VALUES: Value[] = [
 
 export const CTA = {
   eyebrow: 'Open for new projects',
-  title: 'Got an idea?',
+  title: 'Have a project in mind?',
   accent: "Let's talk.",
-  sub: 'A quick 30-minute call. No pitch, just your project.',
-  primary: 'Book a call',
+  sub: 'A 30-minute call about your project. No pitch deck and no obligation.',
+  primary: 'Start a project',
   primaryHref: '/contact',
-  secondary: SITE.email,
-  secondaryHref: `mailto:${SITE.email}`,
+  secondary: 'Book a 30-min call',
+  secondaryHref: '/contact#book',
 };
 
 /**
@@ -347,9 +374,11 @@ export interface Deliverable {
   label: string;
   title: string;
   blurb: string;
-  art: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
-  /** Optional real artwork for cards using a service screenshot or product image. */
-  image?: { src: ImageMetadata; alt: string };
+  /**
+   * Which composition of the service's code-built visual illustrates this
+   * deliverable (components/visuals). 'a' is the service's lead visual.
+   */
+  variant: 'a' | 'b';
 }
 
 export const DELIVERABLES: Deliverable[] = [
@@ -358,64 +387,56 @@ export const DELIVERABLES: Deliverable[] = [
     label: 'Web',
     title: 'Your website',
     blurb: 'A complete site, fully built and ready to use.',
-    art: 1,
-    image: { src: yourWebsite, alt: 'Website delivery for a modern business' },
+    variant: 'a',
   },
   {
     service: 'web',
     label: 'Web',
     title: 'Easy editing',
     blurb: 'A simple admin so your team can update content without us.',
-    art: 2,
-    image: { src: easyEditing, alt: 'Editable website content management' },
+    variant: 'b',
   },
   {
     service: 'app',
     label: 'App',
     title: 'Working app',
     blurb: 'A fully functional app published on the App Store and Google Play.',
-    art: 3,
-    image: { src: workingApp, alt: 'Working mobile app delivery' },
+    variant: 'a',
   },
   {
     service: 'app',
     label: 'App',
     title: 'Backend setup',
     blurb: 'APIs, databases, and auth — everything your app needs to run.',
-    art: 4,
-    image: { src: backendSetup, alt: 'App backend and infrastructure setup' },
+    variant: 'b',
   },
   {
     service: 'ai',
     label: 'AI',
     title: 'Working chatbot',
     blurb: 'A trained bot deployed on your website or platform of choice.',
-    art: 5,
-    image: { src: workingChatbot, alt: 'AI chatbot workflow' },
+    variant: 'a',
   },
   {
     service: 'ai',
     label: 'AI',
     title: 'Conversation flows',
     blurb: 'Designed dialogues for common scenarios and edge cases.',
-    art: 6,
-    image: { src: conversationFlows, alt: 'AI conversation flow design' },
+    variant: 'b',
   },
   {
     service: 'marketing',
     label: 'Marketing',
     title: 'Growth strategy',
     blurb: 'A clear plan focused on the channels that work for your business.',
-    art: 7,
-    image: { src: growthStrategy, alt: 'Digital marketing growth strategy' },
+    variant: 'a',
   },
   {
     service: 'marketing',
     label: 'Marketing',
     title: 'Reporting',
     blurb: 'One dashboard. Real numbers. Updated daily.',
-    art: 8,
-    image: { src: reporting, alt: 'Marketing reporting dashboard' },
+    variant: 'b',
   },
 ];
 
@@ -440,7 +461,7 @@ export interface PageIntro {
    * which rotates a single shared recipe. Twelve more numbered washes would
    * be twelve more things to keep in contrast budget for no gain.
    */
-  wash: 1 | 2 | 3 | 4 | 5;
+  wash: 1 | 2 | 3 | 4 | 5 | 6;
   title: string;
   description: string;
 }
@@ -448,6 +469,7 @@ export interface PageIntro {
 /** The five section index pages, plus the two About sub-pages. */
 export type PageKey =
   | 'services'
+  | 'products'
   | 'work'
   | 'blog'
   | 'careers'
@@ -463,13 +485,23 @@ export const PAGES: Record<PageKey, PageIntro> = {
     // The ported intro closed with "Explore what Zenova can build for you."
     // Dropped: it instructs rather than informs, and the sentence before it
     // already carries the whole claim.
-    sub: 'From first sketch to launch and growth: design, development, marketing, and the operational muscle to scale.',
+    sub: 'Four services for businesses: websites, apps, AI automation and digital marketing. We build it, you own it, and each one has a published starting price.',
     wash: 1,
     title: 'Services — Web, App, AI & Marketing | Zenova',
     // Rewritten from the previous site's description, which still listed
     // services this site does not offer (startup support, content, ops).
     description:
       'Web development, app development, AI automation, and digital marketing — what each one includes, what it costs in time, and what you own at the end.',
+  },
+  products: {
+    eyebrow: 'Our products',
+    headline: 'Software we build,',
+    accent: 'and run, ourselves.',
+    sub: 'Alongside client projects we design, ship and operate our own software. You subscribe to a product instead of commissioning it, and we keep it running.',
+    wash: 6,
+    title: 'Products — Software Built and Run by Zenova | Zenova',
+    description:
+      'The software products Zenova builds and operates, starting with Truplexy, an AI customer support platform for businesses that answer customers on more than one channel.',
   },
   /*
    * Rewritten when /work became a portfolio. Its previous copy ("Not a deck.
@@ -484,12 +516,12 @@ export const PAGES: Record<PageKey, PageIntro> = {
   work: {
     eyebrow: 'Selected work',
     headline: 'The projects,',
-    accent: 'written up properly.',
-    sub: 'What the brief was, what we built, and what shipped at the end of it — one page per project.',
+    accent: 'labelled honestly.',
+    sub: 'Client work, our own products and design concepts, each marked for what it is, with one page per project.',
     wash: 2,
     title: 'Work — Selected Projects | Zenova',
     description:
-      'Recent Zenova projects across web, apps, AI automation and digital marketing: the brief, the build, and the outcome for each.',
+      'Zenova projects across web, apps and AI automation: our own product Truplexy and labelled design concepts, with the brief and the build for each.',
   },
   blog: {
     eyebrow: 'Notes from the studio',
@@ -751,7 +783,7 @@ export const PRICING: PricingService[] = [
  * that could be published. See this file's header for what was purged.
  * ------------------------------------------------------------------ */
 export const ABOUT = {
-  lede: 'Zenova is a small studio that designs, builds, and grows digital products. Four disciplines — web, apps, AI automation, and marketing — run by one team rather than four vendors briefing each other.',
+  lede: 'Zenova is a small studio that designs, builds, and grows digital products. Four disciplines — web, apps, AI automation, and marketing — run by one team rather than four vendors briefing each other. We also build and run software of our own, starting with Truplexy.',
   story: [
     {
       n: '01',
@@ -868,7 +900,7 @@ export const WORK_COPY = {
    * once only real work is left.
    */
   demoNote:
-    'The concepts here are our own design exercises, not client work, and they claim no results. Truplexy is a product we built and run ourselves.',
+    'Each entry is labelled. Concepts are our own design exercises, not client work, and claim no results. Truplexy is a product we built and run ourselves. Client case studies are being written up with permission.',
 };
 
 /**

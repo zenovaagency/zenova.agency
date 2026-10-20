@@ -1,14 +1,27 @@
 ---
 import Logo from './Logo.astro';
 import { SITE, SERVICES } from '../../data/site';
-import { CHAIN } from '../../lib/nav';
+import { PRODUCTS } from '../../data/products';
+
 const year = new Date().getFullYear();
+
+// Secondary destinations live here rather than in the header: Blog and
+// Careers matter, but they are not where a buyer starts.
+const company = [
+  { label: 'Work', href: '/work' },
+  { label: 'About', href: '/about' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Careers', href: '/careers' },
+  { label: 'Contact', href: '/contact' },
+];
+
+const link = 'text-ink-muted transition-colors hover:text-ink';
 ---
 
 <footer class="relative overflow-hidden border-t border-line bg-white">
   <div class="container-z pb-10 pt-[var(--section-y)]">
-    <div class="grid gap-12 lg:grid-cols-12">
-      <div class="lg:col-span-5">
+    <div class="grid gap-12 sm:grid-cols-2 lg:grid-cols-12">
+      <div class="sm:col-span-2 lg:col-span-3">
         <Logo size={26} />
         <p class="mt-5 max-w-xs text-ink-muted">{SITE.tagline}</p>
         <a
@@ -25,10 +38,7 @@ const year = new Date().getFullYear();
           {
             SERVICES.map((s) => (
               <li>
-                <a
-                  href={`/services/${s.slug}`}
-                  class="text-ink-muted transition-colors hover:text-ink"
-                >
+                <a href={`/services/${s.slug}`} class={link}>
                   {s.title}
                 </a>
               </li>
@@ -37,13 +47,35 @@ const year = new Date().getFullYear();
         </ul>
       </nav>
 
-      <nav class="lg:col-span-2" aria-label="Sections">
-        <p class="mono mb-5 text-ink-faint">Explore</p>
+      <nav class="lg:col-span-2" aria-label="Products">
+        <p class="mono mb-5 text-ink-faint">Products</p>
         <ul class="space-y-3">
           {
-            CHAIN.map((n) => (
+            PRODUCTS.map((p) => (
               <li>
-                <a href={n.href} class="text-ink-muted transition-colors hover:text-ink">
+                <a href={p.url} target="_blank" rel="noopener" class={`${link} inline-flex items-center gap-1.5`}>
+                  {p.name}
+                  <span class="sr-only"> (opens in a new tab)</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 17 17 7m0 0H9m8 0v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </a>
+              </li>
+            ))
+          }
+          <li>
+            <a href="/products" class={link}>All products</a>
+          </li>
+        </ul>
+      </nav>
+
+      <nav class="lg:col-span-2" aria-label="Company">
+        <p class="mono mb-5 text-ink-faint">Company</p>
+        <ul class="space-y-3">
+          {
+            company.map((n) => (
+              <li>
+                <a href={n.href} class={link}>
                   {n.label}
                 </a>
               </li>
@@ -58,12 +90,7 @@ const year = new Date().getFullYear();
           {
             SITE.socials.map((s) => (
               <li>
-                <a
-                  href={s.url}
-                  rel="me noopener noreferrer"
-                  target="_blank"
-                  class="text-ink-muted transition-colors hover:text-ink"
-                >
+                <a href={s.url} rel="me noopener noreferrer" target="_blank" class={link}>
                   {s.label}
                 </a>
               </li>
@@ -77,8 +104,8 @@ const year = new Date().getFullYear();
       <p class="mono text-ink-faint">{SITE.copyright.replace('2026', String(year))}</p>
       <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
         <nav aria-label="Legal" class="mono flex items-center gap-5">
-          <a href="/terms" class="text-ink-muted transition-colors hover:text-ink">Terms</a>
-          <a href="/privacy" class="text-ink-muted transition-colors hover:text-ink">Privacy</a>
+          <a href="/terms" class={link}>Terms</a>
+          <a href="/privacy" class={link}>Privacy</a>
         </nav>
         <p class="mono text-ink-faint">{SITE.strapline}</p>
       </div>

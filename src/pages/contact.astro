@@ -1,79 +1,125 @@
 ---
+/**
+ * Contact.
+ *
+ * Left: what happens after you get in touch, and the terms that matter
+ * before you do (pricing model, ownership, response time). Right: the panel
+ * with the two ways in — a written brief, or a 30-minute call (Calendly).
+ *
+ * The brief still hands off to the visitor's mail client; there is no
+ * backend. See islands/ContactForm.tsx.
+ */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/chrome/Nav.astro';
 import Footer from '../components/chrome/Footer.astro';
-import Eyebrow from '../components/ui/Eyebrow.astro';
-import ContactForm from '../islands/ContactForm';
-import BookCall from '../islands/BookCall';
-import { SITE, VALUES, PROCESS } from '../data/site';
+import ContactPanel from '../islands/ContactPanel';
+import { SITE, SERVICES, PRICING } from '../data/site';
+import '../styles/contact.css';
+
+const services = SERVICES.map((s) => ({ slug: s.slug, title: s.title }));
+
+// Plan id → readable label, for briefs that arrive from a pricing card.
+const plans = Object.fromEntries(
+  PRICING.flatMap((svc) =>
+    svc.plans.map((p) => [p.id, `${p.name} (${svc.label}, ${p.price})`]),
+  ),
+);
+
+const next = [
+  {
+    title: 'We reply within one working day',
+    body: 'With a few questions, or a time to talk if the brief already covers it.',
+  },
+  {
+    title: 'A 30-minute call',
+    body: 'Your goals, your users, what exists already, and what a first phase could look like.',
+  },
+  {
+    title: 'A written, fixed-price proposal',
+    body: 'Scope, phases, a price for each and a timeline. Nothing starts until you approve it.',
+  },
+];
+
+const terms = [
+  ['Fixed price per phase', 'No hourly billing.'],
+  ['Yours from day one', 'Code, designs, domain and accounts.'],
+  ['30–90 days of support', 'Included after launch, by plan.'],
+];
 ---
 
 <Base
-  title="Contact — Zenova"
-  description="Book a quick 30-minute call. No pitch, just your project."
+  title="Contact — Start a project | Zenova"
+  description="Send a project brief or book a 30-minute call. We reply within one working day with questions or a time to talk."
 >
   <Nav />
 
   <main id="main">
-    <section class="relative overflow-hidden pb-[var(--section-y)] pt-36">
-      <div class="contact-wash absolute inset-x-0 top-0 -z-10 h-[420px]" aria-hidden="true">
-      </div>
+    <section class="relative overflow-hidden pb-[var(--section-y)] pt-32 sm:pt-36">
+      <div class="contact-wash absolute inset-x-0 top-0 -z-10 h-[620px]" aria-hidden="true"></div>
 
       <div class="container-z">
-        <div class="grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div class="lg:col-span-5">
-            <Eyebrow>Contact</Eyebrow>
+        <div class="grid gap-14 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-5 lg:pt-6">
+            <p class="mono flex items-center gap-2.5 text-ink-soft" data-reveal>
+              <span class="inline-block h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true"></span>
+              Start a project
+            </p>
             <h1 class="h1 mt-6 text-ink" data-split>
-              Let&rsquo;s build something <em class="accent-serif">modern.</em>
+              Tell us what<br />you&rsquo;re <em class="accent-serif">building.</em>
             </h1>
-            <p class="mt-6 max-w-md text-[1.0625rem] text-ink-muted" data-reveal>
-              A quick 30-minute call. No pitch, just your project.
+            <p class="mt-6 max-w-md text-[1.0625rem] text-ink-soft" data-reveal>
+              Send a short brief or book a call — whichever is easier. Either way, you talk to the
+              people who would build it.
             </p>
 
-            {/* No data-reveal here: GSAP's finished transform would become the
-                containing block for BookCall's position:fixed modal. */}
-            <div class="mt-8">
-              <BookCall client:load />
-            </div>
-
-            <a
-              href={`mailto:${SITE.email}`}
-              class="mt-6 inline-block text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
-              data-reveal
-            >
-              Prefer email? {SITE.email}
-            </a>
-
-            <div class="mt-12 space-y-6" data-reveal>
-              <p class="mono text-ink-faint">What happens next</p>
-              <ol class="space-y-4">
-                {
-                  PROCESS.steps.slice(0, 2).map((s) => (
-                    <li class="flex gap-4">
-                      <span class="mono mt-1 text-ink-faint tabular-nums">{s.n}</span>
-                      <span class="text-ink-muted">
-                        <span class="text-ink">{s.title}</span> — {s.blurb}
-                      </span>
-                    </li>
-                  ))
-                }
-              </ol>
-            </div>
-
-            <ul class="mt-12 space-y-5 border-t border-line pt-8" data-reveal>
+            <ol class="next mt-12" data-reveal>
               {
-                VALUES.map((v) => (
-                  <li>
-                    <p class="font-medium text-ink">{v.title}</p>
-                    <p class="mt-1 text-[0.9375rem] text-ink-muted">{v.blurb}</p>
+                next.map((s, i) => (
+                  <li class="next__step">
+                    <span class="next__n tabular-nums" aria-hidden="true">
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p class="font-medium text-ink">{s.title}</p>
+                      <p class="mt-1 text-[0.9375rem] text-ink-muted">{s.body}</p>
+                    </div>
                   </li>
                 ))
               }
-            </ul>
+            </ol>
+
+            <dl class="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3" data-reveal>
+              {
+                terms.map(([t, d]) => (
+                  <div class="bg-white p-5">
+                    <dt class="text-[0.9375rem] font-medium text-ink">{t}</dt>
+                    <dd class="mt-1 text-[0.8125rem] text-ink-muted">{d}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+
+            <p class="mt-10 text-[0.9375rem] text-ink-muted" data-reveal>
+              Prefer plain email?
+              <a
+                href={`mailto:${SITE.email}`}
+                class="ml-1 text-brand-text underline decoration-sky decoration-1 underline-offset-4 transition-colors hover:decoration-brand"
+              >
+                {SITE.email}
+              </a>
+            </p>
           </div>
 
-          <div class="lg:col-span-6 lg:col-start-7" data-reveal>
-            <ContactForm to={SITE.email} client:visible />
+          <!-- No data-reveal here: a transform on an ancestor would become the
+               containing block for anything fixed inside the panel. -->
+          <div class="lg:col-span-7">
+            <ContactPanel
+              client:load
+              to={SITE.email}
+              calendlyUrl={SITE.calendlyUrl}
+              services={services}
+              plans={plans}
+            />
           </div>
         </div>
       </div>
@@ -89,5 +135,39 @@ import { SITE, VALUES, PROCESS } from '../data/site';
       radial-gradient(48% 70% at 82% 0%, #bfe0ff 0%, rgb(191 224 255 / 0) 66%),
       radial-gradient(34% 56% at 98% 40%, #ffe0ec 0%, rgb(255 224 236 / 0) 70%),
       linear-gradient(180deg, #eef4ff 0%, rgb(246 249 255 / 0) 100%);
+  }
+
+  .next {
+    position: relative;
+    display: grid;
+    gap: 26px;
+  }
+  .next::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    bottom: 10px;
+    width: 1px;
+    background: linear-gradient(var(--color-brand), var(--color-line-strong));
+  }
+  .next__step {
+    position: relative;
+    display: flex;
+    gap: 18px;
+  }
+  .next__n {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 31px;
+    height: 31px;
+    flex-shrink: 0;
+    border: 1px solid var(--color-brand);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--color-brand-text);
+    font-size: 0.8125rem;
+    font-weight: 500;
   }
 </style>

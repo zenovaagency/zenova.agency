@@ -2,36 +2,39 @@
 /**
  * One service, in full.
  *
- * This is where the /services chapters moved to, and where the old /work page
- * ended up: a service's deliverables describe what that service ships, so
- * they belong beside its scope rather than on a separate page that grouped
- * them under the same four headings anyway.
+ * Reading order is the order a buyer asks in — what is it, what do I get,
+ * what does it cost, how does it run, what about ownership and support — with
+ * a sticky sub-nav so any of those is one click away on a long page.
  *
- * Reading order is the order a buyer asks in — what it is, what you get,
- * what it costs, who owns it at the end.
+ * Everything with a number in it comes from data: the facts strip from
+ * SERVICES.meta, the tiers from PRICING, the phases from PROCESS, the answers
+ * from AGENCY_FAQS. Nothing on this page is typed twice.
+ *
+ * Every plan's button carries ?service=&plan= to /contact, where the brief
+ * form pre-selects the service and names the plan.
  */
 import Base from '../../layouts/Base.astro';
 import Nav from '../../components/chrome/Nav.astro';
 import Footer from '../../components/chrome/Footer.astro';
-import PageHero from '../../components/chrome/PageHero.astro';
 import PageNav from '../../components/chrome/PageNav.astro';
 import Cta from '../../components/chrome/Cta.astro';
 import JsonLd from '../../components/chrome/JsonLd.astro';
-import Motif from '../../components/ui/Motif.astro';
-import Artifact from '../../components/ui/Artifact.astro';
+import Accordion from '../../components/ui/Accordion.astro';
+import ServiceVisual from '../../components/ui/ServiceVisual.astro';
 import TextLink from '../../components/ui/TextLink.astro';
 import Button from '../../components/ui/Button.astro';
 import { Image } from 'astro:assets';
 import {
+  AGENCY_FAQS,
   DELIVERABLES,
   OWNERSHIP,
   PRICING,
+  PROCESS,
   SERVICES,
-  type PageIntro,
   type Service,
 } from '../../data/site';
-import { projectsFor, projectLabel } from '../../data/projects';
-import { breadcrumb } from '../../lib/schema';
+import { projectsFor, projectKind, KIND_LABEL } from '../../data/projects';
+import { breadcrumb, faqPage } from '../../lib/schema';
 
 export function getStaticPaths() {
   return SERVICES.map((service) => ({
@@ -46,231 +49,319 @@ interface Props {
 
 const { service } = Astro.props;
 const path = `/services/${service.slug}`;
-
-// "Web Development" -> "Web" / "Development." so the hero keeps the two-line
-// headline shape every other page on the site uses.
 const words = service.title.split(' ');
-const intro: PageIntro = {
-  eyebrow: `Service ${service.n}`,
-  headline: words.slice(0, -1).join(' '),
-  accent: `${words[words.length - 1]}.`,
-  sub: service.hero,
-  wash: 1, // unused: `angle` takes precedence on detail pages
-  title: `${service.title} — Scope, Timeline and Pricing | Zenova`,
-  description: service.hero,
-};
+const lead = words.slice(0, -1).join(' ');
+const last = words[words.length - 1];
 
 const deliverables = DELIVERABLES.filter((d) => d.service === service.slug);
 const rates = PRICING.find((p) => p.slug === service.slug);
 const projects = projectsFor(service.slug);
-
 const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slug}` }));
+
+// The buying questions: timeline, pricing, ownership, revisions, support.
+const faqs = AGENCY_FAQS.slice(1, 6);
+
+const sections = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'deliverables', label: 'What you get' },
+  { id: 'pricing', label: 'Pricing' },
+  { id: 'process', label: 'Process' },
+  { id: 'faq', label: 'FAQ' },
+];
+
+const contactHref = `/contact?service=${service.slug}`;
+const title = `${service.title} — Scope, Timeline and Pricing | Zenova`;
 ---
 
-<Base title={intro.title} description={intro.description}>
+<Base title={title} description={service.hero}>
   <JsonLd
     slot="head"
-    data={breadcrumb([
-      { name: 'Services', path: '/services' },
-      { name: service.title, path },
-    ])}
+    data={[
+      breadcrumb([
+        { name: 'Services', path: '/services' },
+        { name: service.title, path },
+      ]),
+      faqPage(path, faqs),
+    ]}
   />
 
   <Nav />
 
   <main id="main">
-    <PageHero
-      intro={intro}
-      angle={service.angle}
-      trail={[
-        { label: 'Services', href: '/services' },
-        { label: service.title, href: path },
-      ]}
-    />
+    <!-- Split hero: the promise on the left, the thing itself on the right. -->
+    <section class="svc-hero relative overflow-hidden pb-16 pt-32 sm:pt-36 lg:pb-24">
+      <div class="svc-hero__wash absolute inset-0 -z-10" style={`--angle:${service.angle}`} aria-hidden="true"></div>
 
-    <!-- What it is. The chapter that used to live on the /services index. -->
-    <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="scope-title">
-      <div class="container-z">
-        <div class="grid items-start gap-10 lg:grid-cols-12 lg:gap-16">
-          <div class="lg:col-span-6" data-reveal>
-            <h2 id="scope-title" class="h2 text-ink">What is included</h2>
+      <div class="container-z grid items-center gap-12 lg:grid-cols-12 lg:gap-16">
+        <div class="lg:col-span-6">
+          <nav aria-label="Breadcrumb" data-reveal>
+            <ol class="mono flex flex-wrap items-center gap-x-2.5 gap-y-1">
+              <li><a href="/" class="text-ink-soft hover:text-ink">Home</a></li>
+              <li class="text-ink-faint" aria-hidden="true">/</li>
+              <li><a href="/services" class="text-ink-soft hover:text-ink">Services</a></li>
+              <li class="text-ink-faint" aria-hidden="true">/</li>
+              <li class="text-ink-muted" aria-current="page">{service.title}</li>
+            </ol>
+          </nav>
 
-            <ul class="mt-8 grid gap-3 sm:grid-cols-2">
-              {
-                service.bullets.map((b) => (
-                  <li class="flex items-start gap-3 text-ink">
-                    <span
-                      class="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-brand"
-                      aria-hidden="true"
-                    />
-                    {b}
-                  </li>
-                ))
-              }
-            </ul>
+          <h1 class="h1 mt-8 text-ink" data-split data-split-delay="0.1">
+            {lead}<br /><em class="accent-serif">{last}.</em>
+          </h1>
+          <p class="mt-6 max-w-[34rem] text-[1.0625rem] text-ink-soft sm:text-[1.1875rem]" data-reveal data-reveal-delay="0.3">
+            {service.hero}
+          </p>
 
-            <dl
-              class="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-4"
-            >
-              {
-                service.meta.map(([value, label]) => (
-                  <div class="bg-paper px-4 py-5">
-                    <dt class="mono text-ink-faint">{label}</dt>
-                    <dd class="mt-2 text-[1.375rem] font-medium tracking-[-0.02em] text-ink tabular-nums">
-                      {value}
-                    </dd>
-                  </div>
-                ))
-              }
-            </dl>
+          <div class="mt-9 flex flex-wrap items-center gap-3" data-reveal data-reveal-delay="0.4">
+            <Button href={contactHref} size="lg" arrow="split">
+              Start a {service.title.toLowerCase()} project
+            </Button>
+            <Button href="#pricing" variant="secondary" size="lg" arrow="none">See pricing</Button>
           </div>
 
-          <div class="lg:col-span-5 lg:col-start-8" data-reveal>
-            <div class="card-tint overflow-hidden">
-              <div class="svc-art aspect-[16/9] p-3 text-brand" style={`--angle:${service.angle}`}>
-                {service.image ? (
-                  <Image
-                    src={service.image.src}
-                    alt={service.image.alt}
-                    class="h-full w-full rounded-sm object-cover"
-                  />
-                ) : (
-                  <Motif kind={service.motif} />
-                )}
-              </div>
-              <ul class="flex flex-wrap gap-x-5 gap-y-2 border-t border-line/70 px-6 py-5">
-                {service.stack.map((tech) => <li class="mono text-ink-faint">{tech}</li>)}
-              </ul>
-            </div>
+          <dl class="mt-10 flex flex-wrap gap-x-8 gap-y-4" data-reveal data-reveal-delay="0.5">
+            {
+              service.meta.slice(0, 3).map(([value, label]) => (
+                <div>
+                  <dt class="mono text-ink-faint">{label}</dt>
+                  <dd class="mt-1.5 text-[1.125rem] font-medium tracking-[-0.01em] text-ink">{value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+
+        <div class="lg:col-span-6" data-reveal data-reveal-delay="0.2">
+          <div class="svc-hero__frame">
+            <ServiceVisual kind={service.slug} />
           </div>
         </div>
       </div>
     </section>
 
-    <!--
-      What you get. Moved here from /work, which grouped these by service
-      anyway; the card markup is unchanged from that page.
-    -->
+    <!-- Sticky sub-nav with scroll-spy. -->
+    <nav class="subnav sticky top-[72px] z-40 border-y border-line" aria-label={`${service.title} sections`}>
+      <div class="container-z">
+        <ul class="subnav__list flex gap-1 overflow-x-auto py-2.5">
+          {
+            sections.map((s) => (
+              <li>
+                <a href={`#${s.id}`} class="subnav__link" data-spy-link={s.id}>
+                  {s.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Overview -->
+    <section id="overview" class="scroll-mt-32 py-[var(--section-y)]" aria-labelledby="overview-title" data-spy>
+      <div class="container-z grid gap-12 lg:grid-cols-12 lg:gap-16">
+        <div class="lg:col-span-5" data-reveal>
+          <p class="mono text-ink-faint">Overview</p>
+          <h2 id="overview-title" class="h2 mt-4 text-ink">What is included</h2>
+          <p class="mt-5 text-ink-muted">{service.short}</p>
+          <ul class="mt-8 flex flex-wrap gap-2">
+            {service.stack.map((t) => (
+              <li class="rounded-full border border-line-strong bg-white px-3 py-1.5 text-[0.8125rem] text-ink">{t}</li>
+            ))}
+          </ul>
+          <p class="mt-3 text-[0.8125rem] text-ink-faint">Tools we typically use; the stack is agreed per project.</p>
+        </div>
+
+        <div class="lg:col-span-7">
+          <ul class="grid gap-3 sm:grid-cols-2">
+            {
+              service.bullets.map((b, i) => (
+                <li class="check-card" data-reveal data-reveal-delay={i * 0.05}>
+                  <span class="check-card__tick" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  </span>
+                  {b}
+                </li>
+              ))
+            }
+          </ul>
+
+          <dl class="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-[var(--radius-md)] border border-line bg-line sm:grid-cols-4" data-reveal>
+            {
+              service.meta.map(([value, label]) => (
+                <div class="bg-white px-4 py-5">
+                  <dt class="mono text-ink-faint">{label}</dt>
+                  <dd class="mt-2 text-[1.25rem] font-medium tracking-[-0.02em] text-ink tabular-nums">{value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- What you get -->
+    <section id="deliverables" class="scroll-mt-32 border-t border-line bg-white py-[var(--section-y)]" aria-labelledby="ship-title" data-spy>
+      <div class="container-z">
+        <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+          <div>
+            <p class="mono text-ink-faint">What you get</p>
+            <h2 id="ship-title" class="h2 mt-4 max-w-xl text-ink">
+              Not a deck. <em class="accent-serif">Working things.</em>
+            </h2>
+          </div>
+        </div>
+
+        <ul class="mt-12 grid gap-6 md:grid-cols-2">
+          {
+            deliverables.map((d, i) => (
+              <li data-reveal data-reveal-delay={i * 0.08}>
+                <article class="deliv h-full">
+                  <div class="deliv__art">
+                    <ServiceVisual kind={service.slug} variant={d.variant} />
+                  </div>
+                  <div class="p-7">
+                    <h3 class="text-[1.375rem] font-medium tracking-[-0.015em] text-ink">{d.title}</h3>
+                    <p class="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">{d.blurb}</p>
+                  </div>
+                </article>
+              </li>
+            ))
+          }
+        </ul>
+
+        <div class="owner mt-10" data-reveal>
+          <span class="owner__icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5" stroke="currentColor" stroke-width="1.7" /><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
+          </span>
+          <div>
+            <p class="text-[1.25rem] font-medium tracking-[-0.01em] text-white">
+              {OWNERSHIP.title} {OWNERSHIP.accent}.
+            </p>
+            <p class="mt-1.5 text-white/80">{OWNERSHIP.body}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
     {
-      deliverables.length > 0 && (
-        <section
-          class="border-t border-line bg-white py-[var(--section-y)]"
-          aria-labelledby="ship-title"
-        >
+      rates && (
+        <section id="pricing" class="scroll-mt-32 border-t border-line py-[var(--section-y)]" aria-labelledby="rates-title" data-spy>
           <div class="container-z">
-            <div data-reveal>
-              <div class="mono flex items-center gap-3 text-ink-faint">
-                <span class="tabular-nums">{service.n}</span>
-                <span class="h-px w-8 bg-line-strong" />
-                <span>What you get</span>
+            <div class="grid gap-6 lg:grid-cols-12 lg:items-end" data-reveal>
+              <div class="lg:col-span-7">
+                <p class="mono text-ink-faint">Pricing</p>
+                <h2 id="rates-title" class="h2 mt-4 text-ink">
+                  Three ways to start, <em class="accent-serif">priced up front.</em>
+                </h2>
               </div>
-              <h2 id="ship-title" class="h2 mt-5 max-w-xl text-ink">
-                Not a deck. <em class="accent-serif">Working things.</em>
-              </h2>
+              <p class="text-ink-muted lg:col-span-4 lg:col-start-9">
+                One-time project prices, paid per phase. Anything marked Custom is scoped and priced
+                after a call, before work starts.
+              </p>
             </div>
 
-            <ul class="mt-12 grid gap-6 md:grid-cols-2">
-              {deliverables.map((d) => (
-                <li>
-                  <article class="card-tint flex h-full flex-col overflow-hidden">
-                    <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-[#f4f8ff] to-[#eaf2ff] p-8">
-                      {d.image ? (
-                        <Image src={d.image.src} alt={d.image.alt} class="h-full w-full rounded-sm object-cover" />
-                      ) : (
-                        <Artifact art={d.art} />
-                      )}
-                    </div>
-                    <div class="flex flex-1 flex-col border-t border-line/70 p-7">
-                      <h3 class="text-[1.375rem] font-medium tracking-[-0.015em] text-ink">
-                        {d.title}
-                      </h3>
-                      <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">
-                        {d.blurb}
-                      </p>
+            <ul class="mt-12 grid gap-6 lg:grid-cols-3">
+              {rates.plans.map((plan, i) => (
+                <li class="flex" data-reveal data-reveal-delay={i * 0.08}>
+                  <article class:list={['plan w-full', plan.highlighted && 'plan--hl']}>
+                    {plan.highlighted && <p class="plan__tag mono">Recommended</p>}
+                    <h3 class="text-[1.25rem] font-medium tracking-[-0.01em] text-ink">{plan.name}</h3>
+                    <p class="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">{plan.info}</p>
+                    <p class="mt-7 text-[clamp(2rem,3.4vw,2.6rem)] font-medium leading-none tracking-[-0.03em] text-ink tabular-nums">
+                      {plan.price}
+                    </p>
+                    <p class="mono mt-3 text-ink-faint">One-time · {plan.timeline}</p>
+                    <ul class="mt-7 space-y-3 border-t border-line pt-6 text-[0.9375rem] text-ink">
+                      {plan.features.map((f) => (
+                        <li class="flex items-start gap-3">
+                          <svg class="mt-[3px] shrink-0 text-brand-text" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <div class="mt-auto pt-8">
+                      <Button
+                        href={`${contactHref}&plan=${plan.id}`}
+                        variant={plan.highlighted ? 'primary' : 'secondary'}
+                        class="w-full"
+                        aria-label={`${plan.cta}: ${plan.name}`}
+                      >
+                        {plan.cta}
+                      </Button>
                     </div>
                   </article>
                 </li>
               ))}
             </ul>
-
-            <div class="mt-14 grid gap-8 lg:grid-cols-12 lg:items-center" data-reveal>
-              <h2 class="h2 max-w-lg text-ink lg:col-span-6">
-                {OWNERSHIP.title} <em class="accent-serif">{OWNERSHIP.accent}</em>.
-              </h2>
-              <p class="text-ink-muted lg:col-span-5 lg:col-start-8">{OWNERSHIP.body}</p>
-            </div>
           </div>
         </section>
       )
     }
 
-    <!-- What it costs. A summary of the three tiers — names, prices, timelines. -->
-    {
-      rates && (
-        <section class="border-t border-line py-[var(--section-y)]" aria-labelledby="rates-title">
-          <div class="container-z">
-            <div data-reveal>
-              <h2 id="rates-title" class="h2 text-ink">What it costs</h2>
-            </div>
+    <!-- Process -->
+    <section id="process" class="scroll-mt-32 border-t border-line bg-white py-[var(--section-y)]" aria-labelledby="proc-title" data-spy>
+      <div class="container-z">
+        <div data-reveal>
+          <p class="mono text-ink-faint">Process</p>
+          <h2 id="proc-title" class="h2 mt-4 text-ink">
+            {PROCESS.title} <em class="accent-serif">{PROCESS.titleAccent}</em>
+          </h2>
+        </div>
+        <ol class="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
+          {
+            PROCESS.steps.map((s, i) => (
+              <li class="bg-white p-7" data-reveal data-reveal-delay={i * 0.06}>
+                <p class="mono flex items-center gap-3 text-ink-faint">
+                  <span class="grid h-7 w-7 place-items-center rounded-full bg-[#eef4ff] text-brand-text tabular-nums">{s.n}</span>
+                  {s.timeline}
+                </p>
+                <h3 class="mt-5 text-[1.25rem] font-medium tracking-[-0.01em] text-ink">{s.title}</h3>
+                <p class="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted">{s.blurb}</p>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="mt-6 text-[0.875rem] text-ink-faint">{PROCESS.note}</p>
+      </div>
+    </section>
 
-            <ul class="mt-12 grid gap-px overflow-hidden rounded-[var(--radius-lg)] border border-line bg-line sm:grid-cols-3">
-              {rates.plans.map((plan) => (
-                <li class="bg-white p-7" data-reveal>
-                  <p class="text-[1.1875rem] font-medium tracking-[-0.01em] text-ink">
-                    {plan.name}
-                  </p>
-                  <p class="mt-5 text-[clamp(1.75rem,3vw,2.25rem)] font-medium leading-none tracking-[-0.03em] text-ink tabular-nums">
-                    {plan.price}
-                  </p>
-                  <p class="mono mt-3 text-ink-faint">One-time · {plan.timeline}</p>
-                  <p class="mt-5 text-[0.9375rem] leading-relaxed text-ink-muted">{plan.info}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )
-    }
+    <!-- FAQ -->
+    <section id="faq" class="scroll-mt-32 border-t border-line py-[var(--section-y)]" aria-labelledby="faq-title" data-spy>
+      <div class="container-z grid gap-10 lg:grid-cols-12 lg:gap-16">
+        <div class="lg:col-span-4">
+          <p class="mono text-ink-faint">FAQ</p>
+          <h2 id="faq-title" class="h2 mt-4 text-ink">Before you <em class="accent-serif">commit.</em></h2>
+          <TextLink href={contactHref} class="mt-6">Ask us about your project</TextLink>
+        </div>
+        <Accordion items={faqs} class="lg:col-span-7 lg:col-start-6" data-reveal />
+      </div>
+    </section>
 
-    <!-- Renders only once a real project is published. See data/projects.ts. -->
     {
       projects.length > 0 && (
-        <section
-          class="border-t border-line bg-white py-[var(--section-y)]"
-          aria-labelledby="proj-title"
-        >
+        <section class="border-t border-line bg-white py-[var(--section-y)]" aria-labelledby="proj-title">
           <div class="container-z">
             <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4" data-reveal>
-              <h2 id="proj-title" class="h2 text-ink">Selected work</h2>
+              <h2 id="proj-title" class="h2 text-ink">Related work</h2>
               <TextLink href="/work">All projects</TextLink>
             </div>
-
             <ul class="mt-12 grid gap-6 md:grid-cols-2">
               {projects.map((p) => (
                 <li>
-                  <article class="card-tint flex h-full flex-col overflow-hidden">
-                    {/* The service's own line-art, not an Artifact drawing:
-                        all eight of those are spoken for by the deliverables
-                        above, and repeating one here would read as a bug. */}
-                    <div
-                      class="svc-art flex aspect-[16/10] items-center justify-center p-8 text-brand"
-                      style={`--angle:${p.angle ?? service.angle}`}
-                      aria-hidden="true"
-                    >
-                      <Motif kind={p.motif ?? service.motif} />
-                    </div>
-                    <div class="flex flex-1 flex-col border-t border-line/70 p-7">
-                      <p class="mono text-ink-faint">
-                        {[projectLabel(p), p.year].filter(Boolean).join(' · ')}
-                      </p>
+                  <article class="deliv relative h-full">
+                    {p.image && (
+                      <div class="deliv__art">
+                        <Image src={p.image.wide} alt="" widths={[480, 800, 1200]} sizes="(min-width: 768px) 45vw, 90vw" loading="lazy" class="aspect-[3/2] h-full w-full object-cover" />
+                      </div>
+                    )}
+                    <div class="p-7">
+                      <p class="mono text-ink-faint">{[p.client ?? KIND_LABEL[projectKind(p)], p.year].join(' · ')}</p>
                       <h3 class="mt-3 text-[1.375rem] font-medium tracking-[-0.015em] text-ink">
-                        <a href={`/work/${p.slug}`} class="after:absolute after:inset-0">
-                          {p.title}
-                        </a>
+                        <a href={`/work/${p.slug}`} class="after:absolute after:inset-0">{p.title}</a>
                       </h3>
-                      <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">
-                        {p.summary}
-                      </p>
+                      <p class="mt-2.5 text-[0.9375rem] leading-relaxed text-ink-muted">{p.summary}</p>
                     </div>
                   </article>
                 </li>
@@ -280,15 +371,6 @@ const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slu
         </section>
       )
     }
-
-    <section class="border-t border-line py-[var(--section-y)]">
-      <div class="container-z">
-        <div class="flex flex-wrap items-center gap-3" data-reveal>
-          <Button href="/contact">Start a {service.title.toLowerCase()} project</Button>
-          <Button href="/services" variant="ghost">All services</Button>
-        </div>
-      </div>
-    </section>
 
     <div class="border-t border-line py-[var(--section-y)]">
       <PageNav items={siblings} up={{ label: 'Services', href: '/services' }} />
@@ -301,13 +383,179 @@ const siblings = SERVICES.map((s) => ({ label: s.title, href: `/services/${s.slu
 </Base>
 
 <style>
-  /* Same tint as the index card art, keyed to this service's own --angle. */
-  .svc-art {
-    background: linear-gradient(
-      var(--angle),
-      rgb(191 224 255 / 0.5) 0%,
-      rgb(244 248 255 / 0.9) 55%,
-      rgb(255 224 236 / 0.55) 100%
-    );
+  .svc-hero__wash {
+    background:
+      radial-gradient(40% 60% at 85% 30%, rgb(111 182 255 / 0.45), transparent 70%),
+      radial-gradient(30% 40% at 100% 90%, rgb(255 174 203 / 0.35), transparent 70%),
+      linear-gradient(var(--angle), #eaf2ff 0%, var(--color-paper) 60%);
+  }
+
+  .svc-hero__frame {
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    border: 1px solid rgb(255 255 255 / 0.8);
+    background: rgb(255 255 255 / 0.5);
+    padding: 10px;
+    box-shadow:
+      0 30px 60px -30px rgb(0 96 230 / 0.35),
+      var(--shadow-md);
+  }
+  .svc-hero__frame :global(.viz) {
+    border-radius: calc(var(--radius-xl) - 10px);
+  }
+
+  .subnav {
+    background: color-mix(in srgb, var(--color-paper) 86%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.3);
+    backdrop-filter: blur(14px) saturate(1.3);
+  }
+  .subnav__list {
+    scrollbar-width: none;
+  }
+  .subnav__list::-webkit-scrollbar {
+    display: none;
+  }
+  .subnav__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 999px;
+    color: var(--color-ink-muted);
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    transition:
+      background-color 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      color 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .subnav__link:hover {
+    color: var(--color-ink);
+    background: rgb(11 53 88 / 0.05);
+  }
+  .subnav__link[aria-current='true'] {
+    color: #ffffff;
+    background: var(--color-ink);
+  }
+
+  .check-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+  .check-card__tick {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    background: #eef4ff;
+    color: var(--color-brand-text);
+  }
+
+  .deliv {
+    overflow: hidden;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: #ffffff;
+    transition:
+      transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .deliv__art {
+    margin: 10px 10px 0;
+    overflow: hidden;
+    border-radius: calc(var(--radius-lg) - 8px);
+  }
+  @media (hover: hover) {
+    .deliv:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+  }
+  .deliv:focus-within {
+    outline: 2px solid var(--color-brand-text);
+    outline-offset: 3px;
+  }
+
+  .owner {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 26px 28px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(120deg, #00265f 0%, #003f9e 60%, #0052c7 100%);
+  }
+  .owner__icon {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: rgb(255 255 255 / 0.12);
+    color: #ffffff;
+  }
+
+  .plan {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 28px 28px;
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-lg);
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+  }
+  .plan--hl {
+    border-color: var(--color-brand-text);
+    box-shadow:
+      0 0 0 1px var(--color-brand-text),
+      0 24px 48px -24px rgb(0 96 230 / 0.4);
+  }
+  .plan__tag {
+    position: absolute;
+    top: -12px;
+    left: 28px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--color-brand-text);
+    color: #ffffff;
   }
 </style>
+
+<script>
+  // Scroll-spy: the sub-nav link for the section under the sticky bars is
+  // marked aria-current="true" (a location within the page, not a page).
+  const links = new Map(
+    Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-spy-link]')).map((a) => [a.dataset.spyLink!, a]),
+  );
+  const sections = document.querySelectorAll<HTMLElement>('[data-spy]');
+  if (links.size && sections.length) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((a) => a.removeAttribute('aria-current'));
+          const current = links.get(e.target.id);
+          if (!current) continue;
+          current.setAttribute('aria-current', 'true');
+          // On phones the list scrolls sideways; keep the current pill in
+          // view without touching the page's own scroll position.
+          const list = current.closest('ul');
+          if (list && list.scrollWidth > list.clientWidth) {
+            list.scrollTo({ left: current.offsetLeft - 16, behavior: 'smooth' });
+          }
+        }
+      },
+      { rootMargin: '-140px 0px -60% 0px' },
+    );
+    sections.forEach((s) => io.observe(s));
+  }
+</script>

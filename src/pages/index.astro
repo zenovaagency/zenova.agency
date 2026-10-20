@@ -2,21 +2,33 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/chrome/Nav.astro';
 import Footer from '../components/chrome/Footer.astro';
-import Marquee from '../components/chrome/Marquee.astro';
 import Hero from '../components/home/Hero.astro';
 import Services from '../components/home/Services.astro';
 import CaseStudies from '../components/home/CaseStudies.astro';
+import Process from '../components/home/Process.astro';
 import Faq from '../components/home/Faq.astro';
 import Cta from '../components/chrome/Cta.astro';
+
+/*
+ * Reading order is the order a business owner decides in: what you do for
+ * me (services), proof (work, where our own product sits on its own labelled
+ * shelf), how it would go (process), what it costs and who owns it (FAQ),
+ * then the ask. Products are not pushed here: Zenova is a studio first, and
+ * /products is one click away in the nav.
+ *
+ * The keyword Marquee is no longer on the home page — it repeated the
+ * service names as slogans directly above the services themselves. The
+ * component is kept in chrome/ for reuse.
+ */
 ---
 
 <Base>
   <Nav />
   <main id="main">
     <Hero />
-    <Marquee />
     <Services />
     <CaseStudies />
+    <Process />
     <Faq />
     <Cta />
   </main>
