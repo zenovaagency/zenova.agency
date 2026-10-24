@@ -29,11 +29,10 @@ export const SITE = {
     'Zenova is a software development studio. We design and build websites, web and mobile apps, AI automation and digital marketing for businesses — one team, a fixed price per phase, and everything in your name.',
   email: 'hello@zenova.agency',
   /**
-   * The Calendly event link for the 30-minute intro call, e.g.
-   * 'https://calendly.com/zenova/30min'. Leave empty until it exists: the
-   * contact page then shows an email fallback instead of a broken embed.
+   * The Calendly event link for the 30-minute intro call. If emptied, the
+   * contact page shows an email fallback instead of a broken embed.
    */
-  calendlyUrl: '',
+  calendlyUrl: 'https://calendly.com/zenova/30min',
   careersEmail: 'careers@zenova.agency',
   copyright: '© 2026 Zenova, Inc. All rights reserved.',
   socials: [
