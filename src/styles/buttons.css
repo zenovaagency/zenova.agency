@@ -5,23 +5,22 @@
  * React islands (ContactForm, ContactPanel) draw from one recipe.
  *
  *   .btn--primary            filled brand blue. One per section.
- *   .btn--secondary          outlined; a tonal fill rises on hover.
+ *   .btn--secondary          outlined; a tonal fill eases in on hover.
  *   .btn--on-dark            white fill, for dark-blue surfaces.
  *   .btn--on-dark-secondary  outline on dark.
- *   .btn--split              separated arrow cell, for the most prominent CTAs.
+ *   .btn--split              arrow in an inset round chip, for the most
+ *                            prominent CTAs.
  *   .text-link               descriptive underlined link with a small arrow.
  *
- * Motion model. Every moving part runs on one easing curve, and transform is
- * composed from custom properties so three independent effects never fight:
- *
- *   --mx / --my   magnetic drift toward the cursor (lib/magnetic.ts)
- *   --lift        hover rise
- *   --press       pressed scale
+ * Motion model: calm, and the button stays where it is. Nothing drifts,
+ * wipes, rises or flashes. Hover is a slow eased change of colour, border
+ * and glow; the arrow travels through its chip. Pressing scales the button
+ * down slightly about its own centre (--press), so its position never shifts.
  *
  * Rules that are not up for negotiation:
- *   - Primary fill is --color-brand-text (5.5:1 with white), never
+ *   - Primary fill is --color-brand-text (5.5:1 with white) or darker, never
  *     --color-brand (4.45:1, fails AA at this size). See global.css.
- *   - Nothing changes layout size on hover, press, drift or loading.
+ *   - Nothing changes layout size or position on hover, press or loading.
  *   - Hover styles sit behind (hover: hover), so a tap on a phone does not
  *     leave a button stuck in its hover state.
  * ------------------------------------------------------------------ */
@@ -31,13 +30,10 @@
     --btn-h: 48px;
     --btn-px: 22px;
     --btn-fg: var(--color-ink);
-    --btn-fill: #eef4ff;
-    --btn-cell-line: rgb(11 53 88 / 0.14);
-    --btn-cell-bg: rgb(11 53 88 / 0.04);
-    --btn-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-    --mx: 0px;
-    --my: 0px;
-    --lift: 0px;
+    --btn-chip-bg: rgb(0 96 230 / 0.1);
+    --btn-chip-fg: var(--color-brand-text);
+    --btn-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --btn-dur: 450ms;
     --press: 1;
 
     position: relative;
@@ -50,7 +46,7 @@
     min-height: var(--btn-h);
     padding: 0 var(--btn-px);
     border: 1px solid transparent;
-    border-radius: var(--radius-btn);
+    border-radius: 999px;
     color: var(--btn-fg);
     font-family: var(--font-display);
     font-size: 0.9375rem;
@@ -62,20 +58,13 @@
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    transform: translate3d(var(--mx), calc(var(--my) + var(--lift)), 0) scale(var(--press));
-    /* The fill layer is a background-image sized 0 → 100% from the bottom,
-       so it rises rather than snapping. Variants set --btn-fill. */
-    background-image: linear-gradient(var(--btn-fill), var(--btn-fill));
-    background-repeat: no-repeat;
-    background-position: 50% 100%;
-    background-size: 100% 0%;
+    scale: var(--press);
     transition:
-      transform 260ms var(--btn-ease),
-      background-color 240ms var(--btn-ease),
-      background-size 320ms var(--btn-ease),
-      border-color 240ms var(--btn-ease),
-      box-shadow 240ms var(--btn-ease),
-      color 240ms var(--btn-ease);
+      background-color var(--btn-dur) var(--btn-ease),
+      border-color var(--btn-dur) var(--btn-ease),
+      box-shadow var(--btn-dur) var(--btn-ease),
+      color var(--btn-dur) var(--btn-ease),
+      scale 220ms var(--btn-ease);
   }
 
   .btn--sm {
@@ -85,7 +74,7 @@
 
   .btn--lg {
     --btn-h: 56px;
-    --btn-px: 26px;
+    --btn-px: 28px;
     font-size: 1rem;
   }
 
@@ -123,97 +112,92 @@
   .btn__arrow > svg {
     position: absolute;
     inset: 0;
-    transition: transform 380ms var(--btn-ease);
+    margin: auto;
+    transition: transform 560ms var(--btn-ease);
   }
 
   .btn__arrow > svg + svg {
-    transform: translateX(-130%);
+    transform: translateX(-24px);
   }
 
   .btn__arrow--external > svg + svg {
-    transform: translate(-130%, 130%);
+    transform: translate(-24px, 24px);
+  }
+
+  /* Inline arrows sit in a small round chip at the end of the label. The
+     right padding shrinks so the chip is as far from the edge as from the
+     top and bottom. */
+  .btn:has(> .btn__label > .btn__arrow) {
+    padding-right: calc((var(--btn-h) - 30px) / 2);
+  }
+
+  .btn__label > .btn__arrow {
+    width: 28px;
+    height: 28px;
+    margin-left: 2px;
+    border-radius: 999px;
+    background: var(--btn-chip-bg);
+    color: var(--btn-chip-fg);
+    transition:
+      background-color var(--btn-dur) var(--btn-ease),
+      color var(--btn-dur) var(--btn-ease);
   }
 
   /* Legacy single icon (still used by a few islands): a plain nudge. */
   .btn__icon {
     flex-shrink: 0;
-    transition: transform 260ms var(--btn-ease);
+    transition: transform 400ms var(--btn-ease);
   }
 
-  /* --- Split cell ------------------------------------------------- */
+  /* --- Split chip ------------------------------------------------- */
   .btn--split {
-    padding-right: 0;
+    padding-right: 6px;
     gap: 0;
   }
 
   /* The label takes any spare width, so on a full-width button the arrow
-     cell stays pinned to the right edge instead of floating mid-button. */
+     chip stays pinned to the right edge instead of floating mid-button. */
   .btn--split .btn__label {
     flex: 1;
     justify-content: center;
-    padding-right: var(--btn-px);
+    padding-right: calc(var(--btn-px) - 6px);
   }
 
   .btn__cell {
     display: grid;
     place-items: center;
-    align-self: stretch;
-    width: calc(var(--btn-h) - 2px);
-    border-left: 1px solid var(--btn-cell-line);
-    background: var(--btn-cell-bg);
-    transition: background-color 240ms var(--btn-ease);
-  }
-
-  /* --- Sheen (primary only) --------------------------------------- *
-   * A soft highlight glides across once on hover. Behind the label, never
-   * over it, and only ever a 22% white, so text contrast is untouched.
-   * ---------------------------------------------------------------- */
-  .btn--primary::before,
-  .btn--on-dark::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background: linear-gradient(
-      105deg,
-      transparent 30%,
-      rgb(255 255 255 / 0.22) 50%,
-      transparent 70%
-    );
-    transform: translateX(-120%);
-    transition: transform 700ms var(--btn-ease);
-  }
-
-  .btn--on-dark::before {
-    background: linear-gradient(105deg, transparent 30%, rgb(0 96 230 / 0.1) 50%, transparent 70%);
+    flex-shrink: 0;
+    width: calc(var(--btn-h) - 14px);
+    height: calc(var(--btn-h) - 14px);
+    border-radius: 999px;
+    background: var(--btn-chip-bg);
+    color: var(--btn-chip-fg);
+    transition:
+      background-color var(--btn-dur) var(--btn-ease),
+      color var(--btn-dur) var(--btn-ease);
   }
 
   /* --- Primary ---------------------------------------------------- */
   .btn--primary {
     --btn-fg: #ffffff;
-    --btn-fill: #0a55cf;
-    --btn-cell-line: rgb(255 255 255 / 0.22);
-    --btn-cell-bg: rgb(255 255 255 / 0.08);
+    --btn-chip-bg: rgb(255 255 255 / 0.16);
+    --btn-chip-fg: #ffffff;
     background-color: var(--color-brand-text);
-    border-color: #0052c7;
+    border-color: #0057d4;
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.2),
-      0 1px 2px rgb(11 53 88 / 0.14),
-      0 6px 16px -6px rgb(0 96 230 / 0.45);
+      inset 0 1px 0 rgb(255 255 255 / 0.18),
+      0 1px 2px rgb(11 53 88 / 0.12),
+      0 8px 20px -12px rgb(0 96 230 / 0.5);
   }
 
   /* --- Secondary -------------------------------------------------- */
   .btn--secondary {
     --btn-fg: var(--color-ink);
-    --btn-fill: #e8f1ff;
     background-color: rgb(255 255 255 / 0.78);
     /* Navy at 52%: ~3:1 against paper, so the boundary reads as a control
        on its own (WCAG 1.4.11). */
     border-color: rgb(11 53 88 / 0.52);
-    box-shadow:
-      inset 0 1px 0 #ffffff,
-      0 1px 2px rgb(11 53 88 / 0.06);
+    box-shadow: 0 1px 2px rgb(11 53 88 / 0.05);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
   }
@@ -221,41 +205,31 @@
   /* --- On dark ---------------------------------------------------- */
   .btn--on-dark {
     --btn-fg: var(--color-brand-text);
-    --btn-fill: #eaf2ff;
-    --btn-cell-line: rgb(0 96 230 / 0.16);
-    --btn-cell-bg: rgb(0 96 230 / 0.06);
     background-color: #ffffff;
     border-color: #ffffff;
     box-shadow:
-      inset 0 -1px 0 rgb(11 53 88 / 0.08),
       0 1px 2px rgb(0 20 60 / 0.2),
-      0 8px 20px -8px rgb(0 20 60 / 0.5);
+      0 10px 24px -12px rgb(0 20 60 / 0.5);
   }
 
   .btn--on-dark-secondary {
     --btn-fg: #ffffff;
-    --btn-fill: rgb(255 255 255 / 0.14);
-    --btn-cell-line: rgb(255 255 255 / 0.3);
-    --btn-cell-bg: rgb(255 255 255 / 0.06);
+    --btn-chip-bg: rgb(255 255 255 / 0.14);
+    --btn-chip-fg: #ffffff;
     background-color: rgb(255 255 255 / 0.04);
     border-color: rgb(255 255 255 / 0.6);
   }
 
   /* --- Hover ------------------------------------------------------ */
   @media (hover: hover) {
-    .btn:hover {
-      --lift: -1px;
-      background-size: 100% 100%;
-    }
-
     .btn:hover .btn__arrow > svg:first-child {
-      transform: translateX(130%);
+      transform: translateX(24px);
     }
     .btn:hover .btn__arrow > svg + svg {
       transform: translateX(0);
     }
     .btn:hover .btn__arrow--external > svg:first-child {
-      transform: translate(130%, -130%);
+      transform: translate(24px, -24px);
     }
     .btn:hover .btn__arrow--external > svg + svg {
       transform: translate(0, 0);
@@ -264,61 +238,63 @@
       transform: translateX(3px);
     }
 
-    .btn--primary:hover::before,
-    .btn--on-dark:hover::before {
-      transform: translateX(120%);
-    }
-
     .btn--primary:hover {
+      --btn-chip-bg: rgb(255 255 255 / 0.24);
+      background-color: #0052c7;
+      border-color: #004cb8;
       box-shadow:
-        inset 0 1px 0 rgb(255 255 255 / 0.2),
-        0 2px 4px rgb(11 53 88 / 0.14),
-        0 12px 26px -10px rgb(0 96 230 / 0.6);
-    }
-    .btn--primary:hover .btn__cell {
-      background: rgb(255 255 255 / 0.14);
+        inset 0 1px 0 rgb(255 255 255 / 0.18),
+        0 1px 2px rgb(11 53 88 / 0.12),
+        0 14px 32px -12px rgb(0 96 230 / 0.6);
     }
 
     .btn--secondary:hover {
+      --btn-chip-bg: var(--color-brand-text);
+      --btn-chip-fg: #ffffff;
+      background-color: #eef4ff;
       border-color: var(--color-brand-text);
     }
 
+    .btn--on-dark:hover {
+      --btn-chip-bg: var(--color-brand-text);
+      --btn-chip-fg: #ffffff;
+      background-color: #eaf2ff;
+      border-color: #eaf2ff;
+      box-shadow:
+        0 1px 2px rgb(0 20 60 / 0.2),
+        0 16px 32px -14px rgb(0 20 60 / 0.6);
+    }
+
     .btn--on-dark-secondary:hover {
+      --btn-chip-bg: #ffffff;
+      --btn-chip-fg: var(--color-brand-text);
+      background-color: rgb(255 255 255 / 0.12);
       border-color: #ffffff;
     }
   }
 
   /* --- Pressed ---------------------------------------------------- *
-   * Back to rest height, a touch smaller, with an inset shadow: the surface
-   * goes in rather than just changing colour.
+   * A touch smaller and a shade deeper: the surface gives a little rather
+   * than just changing colour.
    * ---------------------------------------------------------------- */
   .btn:active {
-    --lift: 0px;
-    --press: 0.98;
-    transition-duration: 90ms;
+    --press: 0.97;
   }
 
   .btn--primary:active {
     background-color: #0848ad;
-    background-size: 100% 0%;
-    box-shadow:
-      inset 0 2px 4px rgb(0 20 60 / 0.32),
-      0 1px 1px rgb(11 53 88 / 0.1);
   }
 
   .btn--secondary:active {
-    --btn-fill: #dde9ff;
-    box-shadow: inset 0 1px 3px rgb(11 53 88 / 0.16);
+    background-color: #e2edff;
   }
 
   .btn--on-dark:active {
-    --btn-fill: #dce9ff;
-    box-shadow: inset 0 2px 4px rgb(0 40 110 / 0.2);
+    background-color: #dce9ff;
   }
 
   .btn--on-dark-secondary:active {
-    --btn-fill: rgb(255 255 255 / 0.2);
-    box-shadow: inset 0 2px 4px rgb(0 20 60 / 0.3);
+    background-color: rgb(255 255 255 / 0.18);
   }
 
   /* --- Focus ------------------------------------------------------ *
@@ -328,7 +304,7 @@
   .btn:focus-visible {
     outline: 2px solid var(--color-brand-text);
     outline-offset: 3px;
-    border-radius: var(--radius-btn);
+    border-radius: 999px;
   }
 
   .btn--on-dark:focus-visible,
@@ -339,11 +315,9 @@
   /* --- Disabled --------------------------------------------------- */
   .btn:disabled,
   .btn[aria-disabled='true'] {
-    --lift: 0px;
     --press: 1;
     cursor: not-allowed;
     box-shadow: none;
-    background-size: 100% 0%;
     opacity: 0.5;
   }
 
@@ -359,6 +333,11 @@
     color: transparent;
     cursor: progress;
     pointer-events: none;
+  }
+
+  .btn[data-loading] .btn__cell,
+  .btn[data-loading] .btn__label > .btn__arrow {
+    opacity: 0;
   }
 
   .btn__spinner {
@@ -441,15 +420,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn,
-  .btn:hover,
   .btn:active {
-    --mx: 0px !important;
-    --my: 0px !important;
-    --lift: 0px !important;
-  }
-  .btn::before {
-    display: none;
+    --press: 1;
   }
   /* The global rule stops all animation; a slowed spin keeps the loading
      state legible without fast motion. */

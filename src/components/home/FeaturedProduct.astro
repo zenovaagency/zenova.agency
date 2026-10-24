@@ -1,0 +1,91 @@
+---
+import Eyebrow from '../ui/Eyebrow.astro';
+import Button from '../ui/Button.astro';
+import TextLink from '../ui/TextLink.astro';
+import ProductShot from '../ui/ProductShot.astro';
+import ImageViewer from '../ui/ImageViewer.astro';
+import { PRODUCTS } from '../../data/products';
+import { viewerAttrs } from '../../lib/viewer-attrs';
+
+/**
+ * Our own products, right after the services: proof that the team behind
+ * client work also builds and runs software of its own.
+ *
+ * One block per entry in PRODUCTS, on a light surface so it reads as part of
+ * the studio's story rather than a second pitch competing with the services.
+ * The CTA is "Explore <name>" only, and no prices or metrics appear: see the
+ * header of data/products.ts for what is deliberately left out.
+ */
+const host = (url: string) => new URL(url).host;
+const zooms = await Promise.all(PRODUCTS.map((p) => viewerAttrs(p.image.full, p.image.alt)));
+const statusLabel = { live: 'Live', beta: 'Beta', waitlist: 'Waitlist' } as const;
+---
+
+{
+  PRODUCTS.length > 0 && (
+    <section id="product" class="section-y relative border-t border-line bg-white" aria-labelledby="product-title">
+      <div class="container-z">
+        <div class="max-w-3xl">
+          <Eyebrow>Our featured product</Eyebrow>
+          <h2 id="product-title" class="h1 mt-6 text-ink" data-split>
+            We build software for clients,
+            <br />
+            <em class="accent-serif">and we run our own.</em>
+          </h2>
+        </div>
+
+        {PRODUCTS.map((p, i) => (
+          <div class="mt-14 grid gap-10 lg:mt-20 lg:grid-cols-12 lg:items-center lg:gap-14">
+            <div class="lg:col-span-5" data-reveal>
+              <p class="mono flex flex-wrap items-center gap-x-3 gap-y-2 text-ink-faint">
+                <span>{p.category}</span>
+                <span class="inline-flex items-center gap-2 rounded-full border border-line-strong px-2.5 py-1 text-ink">
+                  <span class="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
+                  {statusLabel[p.status]}
+                </span>
+              </p>
+
+              <h3 class="mt-5 text-[clamp(2.5rem,4.6vw,3.75rem)] font-medium leading-none tracking-[-0.03em] text-ink">
+                {p.name}
+              </h3>
+              <p class="mt-5 text-[1.1875rem] text-ink-soft">{p.tagline}</p>
+              <p class="mt-4 text-ink-muted">
+                <span class="text-ink">What it removes:</span> {p.problemSummary}
+              </p>
+
+              <ul class="mt-6 flex flex-wrap gap-2" aria-label="Channels">
+                {p.channels.map((c) => (
+                  <li class="rounded-full border border-line bg-paper px-3 py-1.5 text-[0.8125rem] text-ink">{c}</li>
+                ))}
+              </ul>
+
+              <div class="mt-9 flex flex-wrap items-center gap-x-6 gap-y-4">
+                <Button href={p.url} size="lg" arrow="split" external>
+                  Explore {p.name}
+                </Button>
+                <TextLink href={`/products#${p.slug}`}>Product details</TextLink>
+              </div>
+              {p.caseStudy && (
+                <TextLink href={p.caseStudy} class="mt-4">
+                  How we built {p.name}
+                </TextLink>
+              )}
+            </div>
+
+            <div class="lg:col-span-7" data-reveal data-reveal-delay="0.08">
+              <ProductShot
+                src={p.image.wide}
+                alt={p.image.alt}
+                domain={host(p.url)}
+                sizes="(min-width: 1024px) 55vw, 92vw"
+                zoom={zooms[i]}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <ImageViewer />
+    </section>
+  )
+}

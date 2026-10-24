@@ -162,21 +162,23 @@ const counts: [string, string][] = [
                     {/* A second way in for the pointer. The title link is the
                         one keyboard and screen-reader target. */}
                     <a href={href} class="work-media" tabindex="-1" aria-hidden="true" data-media>
-                      <span class="work-media__inner" data-media-inner>
-                        {p.image ? (
-                          <Image
-                            src={p.image.wide}
-                            alt=""
-                            widths={[640, 960, 1280, 1600]}
-                            sizes="(min-width: 1024px) 56vw, 92vw"
-                            loading={i === 0 ? 'eager' : 'lazy'}
-                            class="work-media__img"
-                          />
-                        ) : (
-                          <span class="work-media__motif svc-art text-brand" style={`--angle:${p.angle ?? service.angle}`}>
-                            <Motif kind={p.motif ?? service.motif} />
-                          </span>
-                        )}
+                      <span class="work-media__window">
+                        <span class="work-media__inner" data-media-inner>
+                          {p.image ? (
+                            <Image
+                              src={p.image.wide}
+                              alt=""
+                              widths={[640, 960, 1280, 1600]}
+                              sizes="(min-width: 1024px) 56vw, 92vw"
+                              loading={i === 0 ? 'eager' : 'lazy'}
+                              class="work-media__img"
+                            />
+                          ) : (
+                            <span class="work-media__motif svc-art text-brand" style={`--angle:${p.angle ?? service.angle}`}>
+                              <Motif kind={p.motif ?? service.motif} />
+                            </span>
+                          )}
+                        </span>
                       </span>
                       <span class="work-cursor" data-cursor>
                         View project
@@ -399,20 +401,45 @@ const counts: [string, string][] = [
     display: none;
   }
 
+  /* A matted frame: the screenshot sits in its own rounded window, inset
+     from the frame by an even margin, the same way the detail page frames
+     its showcase. */
   .work-media {
+    --mat: clamp(10px, 1.4vw, 16px);
+    position: relative;
+    display: block;
+    overflow: hidden;
+    padding: var(--mat);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl);
+    background: #ffffff;
+    box-shadow:
+      0 1px 2px rgb(11 53 88 / 0.06),
+      0 40px 80px -40px rgb(11 53 88 / 0.3);
+    transition: border-color 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .work-media__window {
     position: relative;
     display: block;
     overflow: hidden;
     aspect-ratio: 3 / 2;
-    border: 1px solid var(--color-line);
-    border-radius: var(--radius-xl);
+    border-radius: calc(var(--radius-xl) - var(--mat));
     background: #e4e9f6;
-    box-shadow:
-      0 1px 2px rgb(11 53 88 / 0.08),
-      0 40px 80px -40px rgb(11 53 88 / 0.35);
   }
 
-  /* Taller than the frame so the scroll drift never shows an edge. */
+  /* A hairline over the picture's edge, so a light screenshot never melts
+     into the white mat. */
+  .work-media__window::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgb(11 53 88 / 0.08);
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  /* Taller than the window so the scroll drift never shows an edge. */
   .work-media__inner {
     position: absolute;
     inset: -6% 0;
@@ -426,7 +453,6 @@ const counts: [string, string][] = [
     height: 100%;
     object-fit: cover;
     object-position: top;
-    transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
   .work-media__motif {
@@ -472,9 +498,9 @@ const counts: [string, string][] = [
       opacity: 1;
       transform: translate3d(var(--cx, 50%), var(--cy, 50%), 0) translate(-50%, -50%) scale(1);
     }
-    .work-row:has(.work-media:hover) .work-media__img,
-    .work-row:has(.work-title__link:hover) .work-media__img {
-      transform: scale(1.03);
+    .work-row:has(.work-media:hover) .work-media,
+    .work-row:has(.work-title__link:hover) .work-media {
+      border-color: rgb(0 96 230 / 0.4);
     }
     .work-row:has(.work-media:hover) .work-title__link,
     .work-title__link:hover {
@@ -552,7 +578,6 @@ const counts: [string, string][] = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .work-media__img,
     .work-cursor,
     .work-title__arrow {
       transition: none;

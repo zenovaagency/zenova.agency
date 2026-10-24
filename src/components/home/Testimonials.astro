@@ -177,16 +177,6 @@ const initials = (name: string) =>
     );
   }
 
-  .t-card img {
-    transition: transform 600ms var(--ease-out-expo);
-  }
-
-  @media (hover: hover) {
-    .t-card:hover img {
-      transform: scale(1.04);
-    }
-  }
-
   /* --- Rail ------------------------------------------------------------- *
    * The track holds the row twice; sliding by exactly one copy loops
    * seamlessly. Spacing is padding on each item rather than flex gap, so one

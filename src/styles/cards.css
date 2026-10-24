@@ -8,7 +8,8 @@
  *   .card-bleed  saturated gradient fill, white text. Max 5 on the page.
  *   .card-paper  white surface where the *content* carries the gradient
  *
- * Depth comes from spacing and a 1px border, not from heavy shadow.
+ * Depth comes from spacing and a 1px border, not from heavy shadow. Hover
+ * never lifts or zooms a card: the border warms, and that is the whole cue.
  * ------------------------------------------------------------------ */
 
 .card-tint,
@@ -17,9 +18,8 @@
   position: relative;
   border-radius: var(--radius-lg);
   transition:
-    transform 180ms var(--ease-out-expo),
-    box-shadow 180ms var(--ease-out-expo),
-    border-color 180ms var(--ease-out-expo);
+    background 320ms var(--ease-out-expo),
+    border-color 320ms var(--ease-out-expo);
 }
 
 /* --- A. Tinted, gradient border ---------------------------------- *
@@ -36,11 +36,8 @@
 
 .card-tint:hover {
   background:
-    linear-gradient(180deg, #ffffff, #eaf2ff) padding-box,
-    linear-gradient(135deg, var(--color-sky), var(--color-blush)) border-box;
-  box-shadow:
-    0 14px 32px rgb(111 182 255 / 0.14),
-    var(--shadow-md);
+    linear-gradient(180deg, #ffffff, #f1f6ff) padding-box,
+    linear-gradient(135deg, var(--color-brand-text), var(--color-sky)) border-box;
 }
 
 /* --- B. Full-bleed gradient --------------------------------------- *
@@ -140,17 +137,12 @@
 }
 
 .card-paper:hover {
-  border-color: var(--color-sky-soft);
-  box-shadow: var(--shadow-md);
+  border-color: rgb(0 96 230 / 0.4);
 }
 
 /* --- Shared interaction ------------------------------------------- */
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .card-tint:hover,
-  .card-paper:hover,
-  .card-bleed:hover {
-    transform: translateY(-4px);
-  }
+.card-bleed:hover {
+  border-color: rgb(255 255 255 / 0.42);
 }
 
 .card-tint:focus-within,

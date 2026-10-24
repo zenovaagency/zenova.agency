@@ -23,10 +23,12 @@ import JsonLd from '../../components/chrome/JsonLd.astro';
 import Motif from '../../components/ui/Motif.astro';
 import Button from '../../components/ui/Button.astro';
 import TextLink from '../../components/ui/TextLink.astro';
+import ImageViewer from '../../components/ui/ImageViewer.astro';
 import { Image } from 'astro:assets';
 import { SERVICES, type Service } from '../../data/site';
 import { published, projectKind, KIND_LABEL, type Project } from '../../data/projects';
 import { breadcrumb } from '../../lib/schema';
+import { viewerAttrs } from '../../lib/viewer-attrs';
 
 export function getStaticPaths() {
   const live = published();
@@ -61,6 +63,9 @@ const typeLabel =
   project.client ?? (project.demo ? 'Demo project' : project.concept ? 'Design concept' : 'Our own product');
 
 const title = `${project.title} — ${service.title} | Zenova`;
+
+// The showcase opens the whole image, uncropped, in the page's viewer.
+const zoom = project.image ? await viewerAttrs(project.image.full, project.image.alt) : undefined;
 ---
 
 <Base title={title} description={project.summary}>
@@ -156,7 +161,7 @@ const title = `${project.title} — ${service.title} | Zenova`;
     </section>
 
     <!-- Showcase. The picture is a button: it opens the whole image, uncropped,
-         in the dialog at the end of the page. -->
+         in the zoomable viewer at the end of the page. -->
     <section class="pb-[var(--section-y)]" aria-label={`${project.title} showcase`}>
       <div class="container-z">
         <div class="case-frame" data-reveal>
@@ -165,9 +170,9 @@ const title = `${project.title} — ${service.title} | Zenova`;
               <button
                 type="button"
                 class="case-shot group"
-                data-lightbox-open
                 aria-haspopup="dialog"
                 aria-label={`View ${project.title} full size`}
+                {...zoom}
               >
                 <Image
                   src={project.image.wide}
@@ -340,25 +345,7 @@ const title = `${project.title} — ${service.title} | Zenova`;
 
     <Cta />
 
-    {
-      project.image && (
-        <dialog class="lightbox" data-lightbox aria-label={`${project.title}, full size`}>
-          <button type="button" class="lightbox-close mono" data-lightbox-close>
-            Close
-          </button>
-          <div class="lightbox-scroll" data-lightbox-scroll>
-            <Image
-              src={project.image.full}
-              alt={project.image.alt}
-              widths={[1200, 1600]}
-              sizes="100vw"
-              class="lightbox-img"
-              loading="lazy"
-            />
-          </div>
-        </dialog>
-      )
-    }
+    {project.image && <ImageViewer />}
   </main>
 
   <Footer />
@@ -426,6 +413,7 @@ const title = `${project.title} — ${service.title} | Zenova`;
   /* --- Showcase ----------------------------------------------------- */
   .case-frame {
     overflow: hidden;
+    transition: border-color 320ms cubic-bezier(0.22, 1, 0.36, 1);
     padding: 10px;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-xl);
@@ -446,7 +434,6 @@ const title = `${project.title} — ${service.title} | Zenova`;
     display: block;
     width: 100%;
     height: auto;
-    transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .case-shot__hint {
     position: absolute;
@@ -461,19 +448,20 @@ const title = `${project.title} — ${service.title} | Zenova`;
     color: var(--color-ink);
     box-shadow: var(--shadow-md);
     transition:
-      opacity 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      background-color 320ms cubic-bezier(0.22, 1, 0.36, 1),
+      color 320ms cubic-bezier(0.22, 1, 0.36, 1);
   }
   .case-shot:focus-visible {
     outline: 2px solid var(--color-brand-text);
     outline-offset: 3px;
   }
   @media (hover: hover) {
-    .case-shot:hover .case-shot__img {
-      transform: scale(1.015);
+    .case-frame:hover {
+      border-color: rgb(0 96 230 / 0.4);
     }
     .case-shot:hover .case-shot__hint {
-      transform: translateY(-2px);
+      background: var(--color-brand-text);
+      color: #ffffff;
     }
   }
 
@@ -508,9 +496,7 @@ const title = `${project.title} — ${service.title} | Zenova`;
     border: 1px solid var(--color-line);
     border-radius: var(--radius-xl);
     background: #ffffff;
-    transition:
-      border-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      box-shadow 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: border-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   /* No position here: the card itself is the context for the stretched link. */
   .next-card__text {
@@ -549,8 +535,7 @@ const title = `${project.title} — ${service.title} | Zenova`;
     transition:
       background-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
       border-color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      color 320ms cubic-bezier(0.2, 0.8, 0.2, 1),
-      transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      color 320ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .next-card__art {
     overflow: hidden;
@@ -564,7 +549,6 @@ const title = `${project.title} — ${service.title} | Zenova`;
     height: 100%;
     object-fit: cover;
     object-position: top;
-    transition: transform 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   @media (min-width: 1024px) {
     .next-card {
@@ -581,91 +565,19 @@ const title = `${project.title} — ${service.title} | Zenova`;
   }
   @media (hover: hover) {
     .next-card:hover {
-      border-color: rgb(0 96 230 / 0.35);
-      box-shadow:
-        0 24px 50px -24px rgb(0 96 230 / 0.35),
-        var(--shadow-md);
-    }
-    .next-card:hover .next-card__img {
-      transform: scale(1.03);
+      border-color: rgb(0 96 230 / 0.4);
     }
     .next-card:hover .next-card__go {
       background: var(--color-brand-text);
       border-color: var(--color-brand-text);
       color: #ffffff;
-      transform: translateX(4px);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .case-shot__img,
-    .next-card__img,
     .next-card__go {
       transition: none;
     }
   }
-
-  /* --- Lightbox ----------------------------------------------------- */
-  .lightbox {
-    width: min(96vw, 1600px);
-    max-width: none;
-    max-height: 94vh;
-    padding: 0;
-    border: 0;
-    border-radius: var(--radius-lg);
-    background: #fff;
-    overflow: hidden;
-  }
-
-  .lightbox::backdrop {
-    background: rgb(8 14 26 / 0.78);
-    backdrop-filter: blur(4px);
-  }
-
-  .lightbox[open] {
-    display: block;
-  }
-
-  .lightbox-scroll {
-    max-height: 94vh;
-    overflow: auto;
-  }
-
-  .lightbox-img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .lightbox-close {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    z-index: 1;
-    padding: 0.5rem 0.875rem;
-    border-radius: 999px;
-    background: rgb(11 53 88 / 0.92);
-    color: #fff;
-    cursor: pointer;
-  }
 </style>
 
-<script>
-  // Click the picture to see the whole thing; click outside it, press Escape
-  // (native to <dialog>) or use Close to go back.
-  const dialog = document.querySelector<HTMLDialogElement>('[data-lightbox]');
-  const open = document.querySelector<HTMLElement>('[data-lightbox-open]');
-  const close = document.querySelector<HTMLElement>('[data-lightbox-close]');
-
-  if (dialog && open) {
-    open.addEventListener('click', () => {
-      dialog.showModal();
-      dialog.querySelector<HTMLElement>('[data-lightbox-scroll]')?.scrollTo(0, 0);
-    });
-    close?.addEventListener('click', () => dialog.close());
-    // A click on the backdrop lands on the <dialog> itself, not its content.
-    dialog.addEventListener('click', (e) => {
-      if (e.target === dialog) dialog.close();
-    });
-  }
-</script>
