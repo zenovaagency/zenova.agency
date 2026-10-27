@@ -33,6 +33,12 @@ export const SITE = {
    * contact page shows an email fallback instead of a broken embed.
    */
   calendlyUrl: 'https://calendly.com/zenova/30min',
+  /**
+   * Where the contact form POSTs its brief: the Vercel Function in
+   * api/contact.ts, which emails it to us through Resend. If emptied, the form
+   * falls back to opening the visitor's mail client with the brief filled in.
+   */
+  contactEndpoint: '/api/contact',
   careersEmail: 'careers@zenova.agency',
   copyright: '© 2026 Zenova, Inc. All rights reserved.',
   socials: [

@@ -6,8 +6,8 @@
  * before you do (how pricing is agreed, ownership, response time). Right: the panel
  * with the two ways in — a written brief, or a 30-minute call (Calendly).
  *
- * The brief still hands off to the visitor's mail client; there is no
- * backend. See islands/ContactForm.tsx.
+ * The brief is POSTed to /api/contact (api/contact.ts, a Vercel Function that
+ * emails it to us through Resend). See islands/ContactForm.tsx.
  */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/chrome/Nav.astro';
@@ -115,6 +115,7 @@ const terms = [
               client:load
               to={SITE.email}
               calendlyUrl={SITE.calendlyUrl}
+              endpoint={SITE.contactEndpoint}
               services={services}
               plans={plans}
             />

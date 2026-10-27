@@ -1,12 +1,14 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 /**
  * The project brief.
  *
- * There is no backend on this project yet, so a validated submission opens the
- * reader's mail client with everything pre-filled. That is a real, working
- * outcome rather than a fake success toast. Swap `handoff` for a POST once an
- * endpoint exists; nothing else here needs to change.
+ * A validated submission is POSTed to SITE.contactEndpoint (/api/contact, a
+ * Vercel Function in api/contact.ts) that emails it to us through Resend.
+ * Success is only shown once that endpoint confirms it. If the request fails the
+ * brief stays in the form, with a link that opens it as an email instead, so
+ * nothing the visitor typed is lost. With no endpoint configured, the form
+ * falls back to that mailto hand-off alone.
  *
  * Arriving from a scope card (/contact?service=web&plan=web-2) pre-selects
  * the service and names the scope option in the brief, so nobody has to retype what
@@ -21,6 +23,7 @@ export interface ServiceOption {
 const BUDGETS = ['Under $10k', '$10k–25k', '$25k–50k', '$50k+', 'Not sure yet'];
 const TIMELINES = ['As soon as possible', 'In 1–3 months', 'In 3–6 months', 'Flexible'];
 const NOT_SURE = 'Not sure yet';
+const SEND_TIMEOUT_MS = 15_000;
 
 interface Fields {
   name: string;
@@ -103,10 +106,13 @@ const ICONS: Record<string, ReactNode> = {
 
 export default function ContactForm({
   to,
+  endpoint,
   services,
   plans,
 }: {
   to: string;
+  /** Where to POST the brief. Empty falls back to a mailto hand-off. */
+  endpoint: string;
   services: ServiceOption[];
   /** scope option id → "Growth site (Web Development)" */
   plans: Record<string, string>;
@@ -114,8 +120,12 @@ export default function ContactForm({
   const [values, setValues] = useState<Fields>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
   const [touched, setTouched] = useState<Partial<Record<keyof Fields, boolean>>>({});
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [plan, setPlan] = useState<string>('');
+  // Honeypot, and when the form appeared. Bots fill the one and submit
+  // instantly; the endpoint drops both.
+  const trap = useRef<HTMLInputElement>(null);
+  const shownAt = useRef(Date.now());
 
   // Pre-fill from a pricing card link.
   useEffect(() => {
@@ -137,7 +147,7 @@ export default function ContactForm({
     setErrors(validate(values));
   };
 
-  function handoff(v: Fields) {
+  function mailtoHref(v: Fields) {
     const body = [
       'Name: ' + v.name,
       'Email: ' + v.email,
@@ -153,11 +163,37 @@ export default function ContactForm({
       .join('\n');
 
     const subject = encodeURIComponent('New project enquiry from ' + v.name);
-    window.location.href =
-      'mailto:' + to + '?subject=' + subject + '&body=' + encodeURIComponent(body);
+    return 'mailto:' + to + '?subject=' + subject + '&body=' + encodeURIComponent(body);
+  }
+
+  async function send(v: Fields) {
+    const abort = new AbortController();
+    const timer = setTimeout(() => abort.abort(), SEND_TIMEOUT_MS);
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...v,
+          plan,
+          page: window.location.href,
+          website: trap.current?.value ?? '',
+          elapsedMs: Date.now() - shownAt.current,
+        }),
+        signal: abort.signal,
+      });
+      const reply = await res.json();
+      if (!res.ok || !reply?.ok) throw new Error('rejected');
+      setStatus('sent');
+    } catch {
+      setStatus('error');
+    } finally {
+      clearTimeout(timer);
+    }
   }
 
   function submit() {
+    if (status === 'sending') return;
     const found = validate(values);
     setErrors(found);
     setTouched({ name: true, email: true, service: true, message: true });
@@ -173,8 +209,12 @@ export default function ContactForm({
     }
 
     setStatus('sending');
-    handoff(values);
-    setTimeout(() => setStatus('sent'), 700);
+    if (endpoint) {
+      void send(values);
+    } else {
+      window.location.href = mailtoHref(values);
+      setTimeout(() => setStatus('sent'), 700);
+    }
   }
 
   if (status === 'sent') {
@@ -191,15 +231,27 @@ export default function ContactForm({
             />
           </svg>
         </div>
-        <h2 className="h3 mt-6 text-ink">Your mail client should be open.</h2>
-        <p className="mt-3 text-ink-muted">
-          Send the email it drafted and we will reply within one working day. If nothing opened,
-          write to{' '}
-          <a href={'mailto:' + to} className="text-brand-text underline underline-offset-4">
-            {to}
-          </a>
-          .
-        </p>
+        {endpoint ? (
+          <>
+            <h2 className="h3 mt-6 text-ink">Brief received.</h2>
+            <p className="mt-3 text-ink-muted">
+              Thank you, {values.name.trim().split(/\s+/)[0]}. We will reply to {values.email.trim()}{' '}
+              within one working day.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="h3 mt-6 text-ink">Your mail client should be open.</h2>
+            <p className="mt-3 text-ink-muted">
+              Send the email it drafted and we will reply within one working day. If nothing
+              opened, write to{' '}
+              <a href={'mailto:' + to} className="text-brand-text underline underline-offset-4">
+                {to}
+              </a>
+              .
+            </p>
+          </>
+        )}
         <button
           type="button"
           onClick={() => {
@@ -371,9 +423,25 @@ export default function ContactForm({
         </Field>
       </fieldset>
 
+      <div className="cf-hp" aria-hidden="true">
+        <label>
+          Leave this field empty
+          <input ref={trap} type="text" name="website" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
+
+      {status === 'error' && (
+        <p className="cf-alert" role="alert">
+          That did not send, but your brief is still here. Try again, or{' '}
+          <a href={mailtoHref(values)}>send it by email instead</a>.
+        </p>
+      )}
+
       <div className="flex flex-col gap-4 border-t border-line pt-7 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-xs text-[0.8125rem] text-ink-faint">
-          Opens your email app with this brief filled in. We reply within one working day.
+          {endpoint
+            ? 'We reply within one working day.'
+            : 'Opens your email app with this brief filled in. We reply within one working day.'}
         </p>
         {/* The label stays in place while sending, so the button keeps its
             width; the spinner covers it and the status line announces it. */}
@@ -403,7 +471,11 @@ export default function ContactForm({
         </button>
       </div>
       <p className="sr-only" role="status">
-        {status === 'sending' ? 'Opening your mail client.' : ''}
+        {status === 'sending'
+          ? endpoint
+            ? 'Sending your brief.'
+            : 'Opening your mail client.'
+          : ''}
       </p>
     </form>
   );
