@@ -4,7 +4,7 @@ import ContactForm, { type ServiceOption } from './ContactForm';
 /**
  * The right-hand panel on /contact: two ways in, as tabs.
  *
- *   Send a brief       the project form (mailto hand-off, see ContactForm)
+ *   Send a brief       the project form (POSTed to SITE.contactEndpoint, see ContactForm)
  *   Book a 30-min call Calendly, inline
  *
  * Calendly's script is third-party, so it is loaded only when the call tab is
@@ -46,11 +46,13 @@ function loadCalendly(): Promise<void> {
 export default function ContactPanel({
   to,
   calendlyUrl,
+  endpoint,
   services,
   plans,
 }: {
   to: string;
   calendlyUrl: string;
+  endpoint: string;
   services: ServiceOption[];
   plans: Record<string, string>;
 }) {
@@ -145,7 +147,7 @@ export default function ContactPanel({
         hidden={tab !== 'brief'}
         className="cp-panel"
       >
-        <ContactForm to={to} services={services} plans={plans} />
+        <ContactForm to={to} endpoint={endpoint} services={services} plans={plans} />
       </div>
 
       <div

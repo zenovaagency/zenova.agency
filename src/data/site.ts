@@ -33,6 +33,12 @@ export const SITE = {
    * contact page shows an email fallback instead of a broken embed.
    */
   calendlyUrl: 'https://calendly.com/zenova/30min',
+  /**
+   * The Google Apps Script web-app URL that receives contact-form briefs
+   * (docs/contact-apps-script.gs). It is public by design. If empty, the form
+   * falls back to opening the visitor's mail client with the brief filled in.
+   */
+  contactEndpoint: '',
   careersEmail: 'careers@zenova.agency',
   copyright: '© 2026 Zenova, Inc. All rights reserved.',
   socials: [
