@@ -2,7 +2,7 @@
  * Buttons and text links.
  *
  * Plain classes rather than Tailwind strings, so the Astro <Button> and the
- * React islands (ContactForm, ContactPanel) draw from one recipe.
+ * React islands (ContactForm) draw from one recipe.
  *
  *   .btn--primary            filled brand blue. One per section.
  *   .btn--secondary          outlined; a tonal fill eases in on hover.
