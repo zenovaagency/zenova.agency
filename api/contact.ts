@@ -32,6 +32,90 @@ const json = (body: { ok: boolean; error?: string }, status = 200) =>
 /** No CR/LF in anything that ends up in a mail header. */
 const oneLine = (s: string) => s.replace(/[\r\n]+/g, ' ');
 
+const escapeHtml = (s: string) =>
+  s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
+/**
+ * The notification as an HTML email: table layout and inline styles, because
+ * mail clients ignore most <style> blocks and all flexbox. Colours are the
+ * site's tokens. Every visitor-supplied value is escaped before it is placed.
+ */
+function renderHtml(f: Record<Field, string>): string {
+  const e = escapeHtml;
+  const first = f.name.split(/\s+/)[0];
+  const font = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+  const reply =
+    'mailto:' +
+    encodeURIComponent(oneLine(f.email)).replace(/%40/g, '@') +
+    '?subject=' +
+    encodeURIComponent('Re: your project enquiry');
+
+  const rows: [string, string][] = [
+    ['Name', e(f.name)],
+    ['Email', `<a href="${e(reply)}" style="color:#0060e6;text-decoration:none;">${e(f.email)}</a>`],
+    ['Company', e(f.company)],
+    ['Service', e(f.service)],
+    ['Scope option', e(f.plan)],
+    ['Budget', e(f.budget)],
+    ['Timeline', e(f.timeline)],
+  ];
+  const details = rows
+    .filter(([, value]) => value)
+    .map(
+      ([label, value]) => `
+          <tr>
+            <td style="padding:10px 16px 10px 0;width:112px;vertical-align:top;border-top:1px solid #e4e7eb;font:600 11px/1.4 ${font};letter-spacing:.06em;text-transform:uppercase;color:#5a6b7d;">${label}</td>
+            <td style="padding:10px 0;vertical-align:top;border-top:1px solid #e4e7eb;font:15px/1.5 ${font};color:#0b3558;">${value}</td>
+          </tr>`,
+    )
+    .join('');
+
+  const preheader = e(
+    [f.service, f.budget].filter(Boolean).join(' · ') + ': ' + f.message.replace(/\s+/g, ' ').slice(0, 90),
+  );
+  const page = /^https?:\/\//.test(f.page)
+    ? `<a href="${e(f.page)}" style="color:#5a6b7d;">${e(f.page)}</a>`
+    : e(f.page);
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>New project enquiry from ${e(f.name)}</title>
+</head>
+<body style="margin:0;padding:0;background:#f6f9ff;">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">${preheader}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f9ff;">
+  <tr><td align="center" style="padding:32px 16px;">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e4e7eb;border-radius:16px;">
+      <tr><td style="padding:28px 32px 0;">
+        <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+          <td style="vertical-align:middle;"><img src="https://zenova.agency/assets/zenova-mark.png" width="32" height="32" alt="Zenova" style="display:block;border-radius:8px;"></td>
+          <td style="padding-left:12px;vertical-align:middle;font:600 12px/1.4 ${font};letter-spacing:.08em;text-transform:uppercase;color:#0060e6;">New project enquiry</td>
+        </tr></table>
+      </td></tr>
+      <tr><td style="padding:20px 32px 4px;font:600 24px/1.3 ${font};color:#0b3558;">${e(f.name)} wants to talk about ${e(f.service)}</td></tr>
+      <tr><td style="padding:12px 32px 0;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-bottom:1px solid #e4e7eb;">${details}
+        </table>
+      </td></tr>
+      <tr><td style="padding:24px 32px 0;">
+        <div style="font:600 11px/1.4 ${font};letter-spacing:.06em;text-transform:uppercase;color:#5a6b7d;padding-bottom:8px;">Brief</div>
+        <div style="padding:16px 18px;background:#f6f9ff;border:1px solid #e4e7eb;border-radius:12px;font:15px/1.6 ${font};color:#0b3558;white-space:pre-wrap;word-wrap:break-word;">${e(f.message)}</div>
+      </td></tr>
+      <tr><td style="padding:28px 32px 0;">
+        <a href="${e(reply)}" style="display:inline-block;padding:13px 22px;background:#0060e6;border-radius:999px;font:600 15px/1 ${font};color:#ffffff;text-decoration:none;">Reply to ${e(first)}</a>
+      </td></tr>
+      <tr><td style="padding:28px 32px 28px;font:12px/1.5 ${font};color:#5a6b7d;">${f.page ? `Sent from ${page} via the contact form.` : 'Sent via the contact form.'}</td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
+}
+
 /** Same-site posts only: the site itself, or a Vercel preview of it. */
 function sameSite(request: Request): boolean {
   const origin = request.headers.get('origin');
@@ -101,6 +185,7 @@ export async function POST(request: Request): Promise<Response> {
         to: [TO],
         reply_to: oneLine(f.email),
         subject: 'New project enquiry from ' + oneLine(f.name),
+        html: renderHtml(f),
         text,
       }),
     });
