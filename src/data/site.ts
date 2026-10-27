@@ -29,10 +29,10 @@ export const SITE = {
     'Zenova is a software development studio. We design and build websites, web and mobile apps, AI automation and digital marketing for businesses — one team, a fixed price per phase, and everything in your name.',
   email: 'hello@zenova.agency',
   /**
-   * The Calendly event link for the 30-minute intro call. If emptied, the
-   * contact page shows an email fallback instead of a broken embed.
+   * Where every "Book a 30-min call" button goes: our Calendly page, opened
+   * in a new tab. It is a link, not an embed.
    */
-  calendlyUrl: 'https://calendly.com/zenova/30min',
+  calendlyUrl: 'https://calendly.com/zenova',
   /**
    * Where the contact form POSTs its brief: the Vercel Function in
    * api/contact.ts, which emails it to us through Resend. If emptied, the form
@@ -358,7 +358,7 @@ export const CTA = {
   primary: 'Start a project',
   primaryHref: '/contact',
   secondary: 'Book a 30-min call',
-  secondaryHref: '/contact#book',
+  secondaryHref: SITE.calendlyUrl,
 };
 
 /**

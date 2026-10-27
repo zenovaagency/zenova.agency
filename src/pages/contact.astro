@@ -4,7 +4,8 @@
  *
  * Left: what happens after you get in touch, and the terms that matter
  * before you do (how pricing is agreed, ownership, response time). Right: the panel
- * with the two ways in — a written brief, or a 30-minute call (Calendly).
+ * with the two ways in — a written brief, or a 30-minute call (a link out to
+ * our Calendly page).
  *
  * The brief is POSTed to /api/contact (api/contact.ts, a Vercel Function that
  * emails it to us through Resend). See islands/ContactForm.tsx.
@@ -12,7 +13,8 @@
 import Base from '../layouts/Base.astro';
 import Nav from '../components/chrome/Nav.astro';
 import Footer from '../components/chrome/Footer.astro';
-import ContactPanel from '../islands/ContactPanel';
+import ContactForm from '../islands/ContactForm';
+import Button from '../components/ui/Button.astro';
 import { SITE, SERVICES, SCOPES } from '../data/site';
 import '../styles/contact.css';
 
@@ -111,14 +113,24 @@ const terms = [
           <!-- No data-reveal here: a transform on an ancestor would become the
                containing block for anything fixed inside the panel. -->
           <div class="lg:col-span-7">
-            <ContactPanel
-              client:load
-              to={SITE.email}
-              calendlyUrl={SITE.calendlyUrl}
-              endpoint={SITE.contactEndpoint}
-              services={services}
-              plans={plans}
-            />
+            <div class="cp">
+              <div class="cp-panel">
+                <div class="cp-call">
+                  <p class="text-[0.9375rem] text-ink-muted">
+                    Prefer to talk it through? Pick a time for a 30-minute video call. No pitch
+                    deck, no obligation.
+                  </p>
+                  <Button href={SITE.calendlyUrl} variant="secondary" external>Book a 30-min call</Button>
+                </div>
+                <ContactForm
+                  client:load
+                  to={SITE.email}
+                  endpoint={SITE.contactEndpoint}
+                  services={services}
+                  plans={plans}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

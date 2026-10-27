@@ -1,12 +1,11 @@
 /* ------------------------------------------------------------------ *
- * Contact page: the tabbed panel (islands/ContactPanel.tsx) and the
- * brief form (islands/ContactForm.tsx). Plain classes, because both are
- * React islands and Astro's scoped styles do not reach into them.
+ * Contact page: the card around the brief form (islands/ContactForm.tsx)
+ * and the link out to book a call. Plain classes, because the form is a
+ * React island and Astro's scoped styles do not reach into it.
  * ------------------------------------------------------------------ */
 
 .cp {
   position: relative;
-  scroll-margin-top: 96px;
   padding: 10px;
   border: 1px solid var(--color-line);
   border-radius: var(--radius-xl);
@@ -14,59 +13,6 @@
   box-shadow:
     0 40px 80px -40px rgb(0 96 230 / 0.28),
     var(--shadow-md);
-}
-
-/* --- Tabs: a segmented control with a sliding thumb ---------------- */
-.cp-tabs {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 5px;
-  border-radius: calc(var(--radius-xl) - 10px);
-  background: var(--color-paper);
-  border: 1px solid var(--color-line);
-}
-
-.cp-tab {
-  position: relative;
-  z-index: 1;
-  min-height: 46px;
-  padding: 0 12px;
-  border-radius: 14px;
-  color: var(--color-ink-muted);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  transition: color 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.cp-tab[aria-selected='true'] {
-  color: #ffffff;
-}
-
-.cp-tab:hover:not([aria-selected='true']) {
-  color: var(--color-ink);
-}
-
-.cp-tab:focus-visible {
-  outline: 2px solid var(--color-brand-text);
-  outline-offset: 2px;
-  border-radius: 14px;
-}
-
-.cp-tabs__thumb {
-  position: absolute;
-  top: 5px;
-  bottom: 5px;
-  left: 5px;
-  width: calc(50% - 5px);
-  border-radius: 14px;
-  background: var(--color-ink);
-  box-shadow: 0 6px 16px -6px rgb(11 53 88 / 0.5);
-  transition: transform 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.cp-tabs__thumb[data-at='book'] {
-  transform: translateX(100%);
 }
 
 .cp-panel {
@@ -90,33 +36,19 @@
   }
 }
 
-.cp-embed {
-  position: relative;
-  margin-top: 20px;
-  min-height: 700px;
-  overflow: hidden;
-  border: 1px solid var(--color-line);
-  border-radius: var(--radius-md);
+.cp-call {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 20px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--color-line);
 }
 
-.cp-embed .calendly-inline-widget,
-.cp-embed iframe {
-  width: 100%;
-  min-width: 280px;
-  height: 700px;
-}
-
-.cp-embed__loading {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--color-ink-faint);
-  font-size: 0.9375rem;
-}
-
-.cp-fallback {
-  padding: 8px 4px 12px;
+.cp-call p {
+  max-width: 24rem;
 }
 
 /* --- Form ---------------------------------------------------------- */

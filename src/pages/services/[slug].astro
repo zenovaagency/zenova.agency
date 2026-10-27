@@ -32,6 +32,7 @@ import {
   SCOPES,
   PROCESS,
   SERVICES,
+  SITE,
   type Service,
 } from '../../data/site';
 import { projectsFor, projectKind, KIND_LABEL } from '../../data/projects';
@@ -116,7 +117,7 @@ const title = `${service.title} — Scope, Process and Timeline | Zenova`;
             <Button href={contactHref} size="lg" arrow="split">
               Start a {service.title.toLowerCase()} project
             </Button>
-            <Button href="/contact#book" variant="secondary" size="lg">Book a 30-min call</Button>
+            <Button href={SITE.calendlyUrl} variant="secondary" size="lg" external>Book a 30-min call</Button>
           </div>
 
           <dl class="mt-10 flex flex-wrap gap-x-8 gap-y-4" data-reveal data-reveal-delay="0.5">
