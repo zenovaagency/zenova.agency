@@ -34,11 +34,11 @@ export const SITE = {
    */
   calendlyUrl: 'https://calendly.com/zenova/30min',
   /**
-   * The Google Apps Script web-app URL that receives contact-form briefs
-   * (docs/contact-apps-script.gs). It is public by design. If empty, the form
+   * Where the contact form POSTs its brief: the Vercel Function in
+   * api/contact.ts, which emails it to us through Resend. If emptied, the form
    * falls back to opening the visitor's mail client with the brief filled in.
    */
-  contactEndpoint: '',
+  contactEndpoint: '/api/contact',
   careersEmail: 'careers@zenova.agency',
   copyright: '© 2026 Zenova, Inc. All rights reserved.',
   socials: [

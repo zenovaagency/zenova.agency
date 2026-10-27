@@ -6,9 +6,8 @@
  * before you do (how pricing is agreed, ownership, response time). Right: the panel
  * with the two ways in — a written brief, or a 30-minute call (Calendly).
  *
- * The brief is POSTed to a Google Apps Script web app (SITE.contactEndpoint),
- * which emails it to us and logs it to a Sheet; there is no backend of our
- * own. See islands/ContactForm.tsx and docs/contact-apps-script.gs.
+ * The brief is POSTed to /api/contact (api/contact.ts, a Vercel Function that
+ * emails it to us through Resend). See islands/ContactForm.tsx.
  */
 import Base from '../layouts/Base.astro';
 import Nav from '../components/chrome/Nav.astro';

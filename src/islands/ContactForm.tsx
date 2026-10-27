@@ -3,9 +3,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 /**
  * The project brief.
  *
- * There is no backend of our own. A validated submission is POSTed to a Google
- * Apps Script web app (SITE.contactEndpoint, source in
- * docs/contact-apps-script.gs) that emails it to us and logs it to a Sheet.
+ * A validated submission is POSTed to SITE.contactEndpoint (/api/contact, a
+ * Vercel Function in api/contact.ts) that emails it to us through Resend.
  * Success is only shown once that endpoint confirms it. If the request fails the
  * brief stays in the form, with a link that opens it as an email instead, so
  * nothing the visitor typed is lost. With no endpoint configured, the form
@@ -112,7 +111,7 @@ export default function ContactForm({
   plans,
 }: {
   to: string;
-  /** Apps Script web-app URL. Empty falls back to a mailto hand-off. */
+  /** Where to POST the brief. Empty falls back to a mailto hand-off. */
   endpoint: string;
   services: ServiceOption[];
   /** scope option id → "Growth site (Web Development)" */
@@ -171,11 +170,9 @@ export default function ContactForm({
     const abort = new AbortController();
     const timer = setTimeout(() => abort.abort(), SEND_TIMEOUT_MS);
     try {
-      // text/plain keeps this a CORS "simple request": Apps Script cannot
-      // answer the preflight that application/json would trigger.
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...v,
           plan,

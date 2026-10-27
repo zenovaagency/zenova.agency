@@ -4,7 +4,7 @@ import ContactForm, { type ServiceOption } from './ContactForm';
 /**
  * The right-hand panel on /contact: two ways in, as tabs.
  *
- *   Send a brief       the project form (POSTed to SITE.contactEndpoint, see ContactForm)
+ *   Send a brief       the project form (POSTed to /api/contact, see ContactForm)
  *   Book a 30-min call Calendly, inline
  *
  * Calendly's script is third-party, so it is loaded only when the call tab is
